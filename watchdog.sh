@@ -52,7 +52,7 @@ if alive && ! fresh; then
 fi
 
 nohup .venv/bin/python -W ignore train_ga_selfplay.py \
-  --resume --snapshot-freq 5000 >> "$LOG" 2>&1 &
+  --resume --snapshot-freq 2500 >> "$LOG" 2>&1 &
 echo $! > "$PIDFILE"
 sleep 8
 if alive; then
