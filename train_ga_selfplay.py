@@ -84,7 +84,7 @@ def main():
     if args.resume and os.path.exists(snap_path):
         snap = np.load(snap_path)
         population = snap["population"]
-        winning_streak = list(snap["winning_streak"])
+        winning_streak = [int(v) for v in snap["winning_streak"]]
         start = int(snap["tournament"]) + 1
         # RNG state is not preserved across restarts: reseed deterministically
         # from (seed, resume point). Every restart is visible in history.jsonl
@@ -128,8 +128,8 @@ def main():
             rh = int(np.argmax(winning_streak))
             fname = os.path.join(args.outdir, f"ga_{tournament:08d}.json")
             with open(fname, "wt") as f:
-                json.dump([population[rh].tolist(), winning_streak[rh]], f,
-                          sort_keys=True, indent=0, separators=(",", ": "))
+                json.dump([population[rh].tolist(), int(winning_streak[rh])],
+                          f, sort_keys=True, indent=0, separators=(",", ": "))
 
         if tournament % args.snapshot_freq == 0:
             np.savez_compressed(
