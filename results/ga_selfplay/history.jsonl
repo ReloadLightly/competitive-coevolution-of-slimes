@@ -1778,3 +1778,5 @@
 {"tournament": 159000, "best_winning_streak": 1576, "mean_duration": 2570.09, "stdev": 636.0350162530361, "elapsed_sec": 973.2}
 {"tournament": 159100, "best_winning_streak": 1577, "mean_duration": 2706.38, "stdev": 573.631602685905, "elapsed_sec": 980.1}
 {"tournament": 157600, "best_winning_streak": 1564, "mean_duration": 2567.92, "stdev": 657.9141840696246, "elapsed_sec": 6.8}
+{"tournament": 157700, "best_winning_streak": 1564, "mean_duration": 2625.91, "stdev": 631.8351382283199, "elapsed_sec": 13.9}
+{"tournament": 157800, "best_winning_streak": 1565, "mean_duration": 2628.06, "stdev": 600.5304125521038, "elapsed_sec": 20.9}
