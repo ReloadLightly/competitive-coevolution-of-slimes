@@ -64,6 +64,8 @@ def main():
     ap.add_argument("--log-freq", type=int, default=100)
     ap.add_argument("--snapshot-freq", type=int, default=25_000,
                     help="full population snapshot every N tournaments")
+    ap.add_argument("--resume", action="store_true",
+                    help="resume from <outdir>/snapshot.npz (RNG reseeds)")
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
@@ -76,16 +78,30 @@ def main():
 
     # February lesson #1: direct construction, no gym.make wrapper.
     env = SlimeVolleyEnv()
-    env.seed(args.seed)
-    np.random.seed(args.seed)
 
-    population = np.random.normal(
-        size=(args.population, param_count)) * 0.5
-    winning_streak = [0] * args.population  # proxy for quality (Ha's trick)
+    start = 1
+    snap_path = os.path.join(args.outdir, "snapshot.npz")
+    if args.resume and os.path.exists(snap_path):
+        snap = np.load(snap_path)
+        population = snap["population"]
+        winning_streak = list(snap["winning_streak"])
+        start = int(snap["tournament"]) + 1
+        # RNG state is not preserved across restarts: reseed deterministically
+        # from (seed, resume point). Every restart is visible in history.jsonl
+        # (elapsed_sec resets) and gets reported in the writeup.
+        env.seed(args.seed + start)
+        np.random.seed(args.seed + start)
+        print(f"resumed from snapshot at tournament {start - 1}", flush=True)
+    else:
+        env.seed(args.seed)
+        np.random.seed(args.seed)
+        population = np.random.normal(
+            size=(args.population, param_count)) * 0.5
+        winning_streak = [0] * args.population  # proxy for quality (Ha's trick)
 
     history = []
     t0 = time.time()
-    for tournament in range(1, args.tournaments + 1):
+    for tournament in range(start, args.tournaments + 1):
         m, n = np.random.choice(args.population, 2, replace=False)
 
         policy_left.set_model_params(population[m])
