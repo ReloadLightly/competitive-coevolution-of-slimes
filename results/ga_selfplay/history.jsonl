@@ -1,0 +1,4 @@
+{"tournament": 100, "best_winning_streak": 4, "mean_duration": 638.63, "stdev": 109.39320408508016, "elapsed_sec": 1.9}
+{"tournament": 200, "best_winning_streak": 5, "mean_duration": 628.98, "stdev": 121.46851279241054, "elapsed_sec": 3.7}
+{"tournament": 300, "best_winning_streak": 6, "mean_duration": 637.85, "stdev": 108.072880502002, "elapsed_sec": 5.5}
+{"tournament": 400, "best_winning_streak": 7, "mean_duration": 637.73, "stdev": 121.4966546864563, "elapsed_sec": 7.4}

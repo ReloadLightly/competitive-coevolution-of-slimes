@@ -1,0 +1,8 @@
+# Exact pins — reproducibility is a design goal here, not an afterthought.
+# February's attempt partly died in the gym-version swamp (see docs/postmortem-february.md).
+numpy==1.26.4
+gym==0.26.2
+opencv-python==4.10.0.84
+slimevolleygym @ git+https://github.com/hardmaru/slimevolleygym@8ac22434fc5a587a3395311f7854aeda17d10303
+matplotlib==3.9.2
+imageio==2.36.1
