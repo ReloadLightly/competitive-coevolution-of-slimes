@@ -1,43 +1,70 @@
 # The lineage — where this repository sits
 
-**One sentence: this repository is the ground floor of a ladder that runs
-from evolving *weights* in a closed game (2015) through evolving *topologies*
-(2016) to evolving *programs* in open worlds (2025) — and it exists to make
-that first rung solid, replicable and honest.**
+**One sentence: a self-improvement loop is exactly as real as its improvement
+signal — and this repository is the first of three experiments asking where
+that signal can come from as the world opens up.**
+
+Slime volleyball answers the question in its easiest setting: a closed,
+symmetric, zero-sum game where the signal can be purely internal ("beat a
+peer") and still produce competence that transfers to an opponent evolution
+never met. Everything above this rung inherits that finding and loosens one
+more constraint.
 
 ## David Ha's arc
 
 | Year | Artifact | What evolves | Links |
 |---|---|---|---|
-| 2015 | **Neural Slime Volleyball** — recurrent nets learn volleyball purely by playing each other ("arms race" self-play); the champion became the famous baseline policy | weights | [writeup](https://blog.otoro.net/2015/03/28/neural-slime-volleyball/) · [play it](https://otoro.net/slimevolley/) · [watch evolution live in the browser](https://otoro.net/slimevolley/training.html) ([post](https://blog.otoro.net/2015/05/13/neural-slime-volleyball-evolution-demo/)) |
-| 2016 | **Backprop NEAT** — NEAT evolves the network *topology* while gradient descent tunes the weights | topologies (+ gradients) | [post](https://blog.otoro.net/2016/05/07/backprop-neat/) · [playground](https://otoro.net/ml/neat-playground/) |
-| 2020 | **slimevolleygym** — the 2015 game as a proper gym environment, with PPO / CMA-ES / GA-self-play baselines; the substrate under this repository | (benchmark) | [repo](https://github.com/hardmaru/slimevolleygym) |
-| 2025 | **ShinkaEvolve** (Sakana AI, which Ha co-founded) — evolution over *programs*, with an LLM as the mutation operator | programs | [blog](https://sakana.ai/shinka-evolve/) · [code](https://github.com/SakanaAI/ShinkaEvolve) · [paper](https://arxiv.org/abs/2509.19349) |
+| 2015 | **Neural Slime Volleyball** — recurrent nets learn volleyball purely by playing each other; the champion became the famous baseline policy | weights | [writeup](https://blog.otoro.net/2015/03/28/neural-slime-volleyball/) · [play it](https://otoro.net/slimevolley/) · [watch evolution live](https://otoro.net/slimevolley/training.html) |
+| 2016 | **Backprop NEAT** — NEAT evolves network *topology* while gradient descent tunes the weights | topologies (+ gradients) | [post](https://blog.otoro.net/2016/05/07/backprop-neat/) · [playground](https://otoro.net/ml/neat-playground/) |
+| 2020 | **slimevolleygym** — the 2015 game as a gym environment with PPO / CMA-ES / GA-self-play baselines; the substrate under this repository | (benchmark) | [repo](https://github.com/hardmaru/slimevolleygym) |
+| 2025 | **ShinkaEvolve** (Sakana AI) — evolution over *programs*, with an LLM as the mutation operator | programs | [blog](https://sakana.ai/shinka-evolve/) · [code](https://github.com/SakanaAI/ShinkaEvolve) · [paper](https://arxiv.org/abs/2509.19349) |
 
-Read down the third column: **weights → topologies → programs.** Each rung
-loosens what evolution must hold fixed. And the very first rung was already
-*competitive coevolution* — agents improving only by playing each other, with
-no external teacher.
+Read the third column downward: **weights → topologies → programs.** Each rung
+loosens what evolution must hold fixed.
 
-## This repository's place
+## Three experiments, one argument
 
-Slime Volleyball is competitive coevolution in its purest, most verifiable
-form: a symmetric zero-sum game, a tiny genotype, an implicit relative
-fitness ("win and stay in the pool"), and a published reference result to
-replicate (0.353 ± 0.728 vs the 2015 baseline after 500k tournament games).
-That makes it the ideal **control condition** for any larger claim about
-evolved decision-making: before arguing that evolutionary search can navigate
-open worlds, demonstrate — cleanly — what it does in a closed one.
+The portfolio this repository opens is not a sequence of unrelated demos. Each
+project contributes exactly one principle, and the third is the *composition*
+of the first two.
 
-This repo is part of a broader research program on neuroevolutionary
-approaches to decision-making in social systems, where the same ladder
-continues upward: from evolved *behavior* (this repo), through evolved
-*structure* (a backprop-NEAT study), toward evolved *strategies as programs*
-(LLM-driven program evolution in the ShinkaEvolve tradition, applied to
-international-relations strategy spaces). The rung above always inherits its
-methodology from the rung below — which is exactly why this one had to be
-built first, and built right.
+**1 · Neural slime volleyball — the selection-signal principle.**
+With everything fixed except 273 weights, an internal *relative* signal (beat a
+randomly drawn peer, stay in the pool) produces competence that transfers to an
+opponent never seen in training. No reward shaping, no expert teacher, no
+hand-designed fitness. The measured lesson: the ecology selects, the frozen
+yardstick only measures — and the two must never be the same thing. Also
+measured here: transfer *lags* internal progress by ~100,000 games, so an
+evaluation that starts too early reads as total failure (which is what February
+mistook for "the method doesn't work"). *Leaves open:* the representation was
+fixed by hand. What if the structure itself must be discovered?
+
+**2 · Backprop NEAT — the division-of-labor principle.**
+Evolution proposes *structure*; an inner optimizer refines *parameters*.
+Evolution retreats to what it is uniquely good at — open-ended structural
+search — and delegates local polishing to a stronger inner loop. *Leaves open:*
+both rungs still search a space someone specified in advance. What happens when
+the space itself is open — when candidate solutions are programs, and the world
+they act in is not a game with a scoreboard?
+
+**3 · ACTIR / ShinkaEvolve — the composition.**
+Foreign-policy strategies as *programs*, evolved by an LLM acting in gradient
+descent's old seat (principle 2), selected by how they fare against each other
+inside a simulated international system rather than scored by an external
+oracle (principle 1), and measured against held-out scenarios the evolution
+never touches (principle 1's yardstick separation). Both load-bearing parts of
+the boss battle arrive with provenance: each was demonstrated, measured, and
+falsifiable at a scale where failure was still attributable.
+
+That is the argument the trilogy makes: as the world opens from game to
+structure to open-ended strategy space, the improvement signal must migrate
+from *given* to *internal* — and each migration has to be demonstrated
+somewhere small enough to verify before it is trusted somewhere large enough
+to matter.
 
 *See also: [Risi, Tang, Ha & Miikkulainen, "Neuroevolution" (MIT Press,
-2025)](https://neuroevolutionbook.com) — chapter 7.2 treats competitive
-coevolution; this repository is a minimal working example of that chapter.*
+2025)](https://neuroevolutionbook.com), ch. 7.2 on competitive coevolution —
+this repository is a minimal working example of that chapter. Notably absent
+here, and therefore available as extension slots: quality-diversity archives,
+indirect encodings, hall-of-fame opponent sampling, and any test for
+intransitivity in the champion lineage.*
