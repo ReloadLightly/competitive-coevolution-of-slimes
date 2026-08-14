@@ -15,18 +15,27 @@ browser demo to LLM-driven program evolution in 2025.
 Trained by **self-play only** — the 2015 baseline policy was never seen during
 training and serves purely as an external yardstick.
 
-| Games played | Score vs 2015 baseline | Episodes won / drawn / lost |
-|---|---|---|
-| 5,000 | −4.93 ± 0.26 | 0 / 0 / 400 |
-| 111,000 | −4.02 ± 1.16 | 0 / 0 / 50 |
-| 145,000 | −2.58 ± 1.63 | 2 / 2 / 36 |
-| **175,000 (best champion)** | **+0.23 ± 0.77** | **123 / 231 / 46** |
-| *Ha's reference (500,000 games)* | *+0.353 ± 0.728* | *—* |
+| Games played | Score vs 2015 baseline | Episodes | Won / drawn / lost |
+|---|---|---|---|
+| 5,000 | −4.93 ± 0.26 | 400 | 0 / 0 / 400 |
+| 111,000 | −4.02 ± 1.16 | 50 | 0 / 0 / 50 |
+| 145,000 | −2.58 ± 1.63 | 40 | 2 / 2 / 36 |
+| **175,000** | **+0.19 ± 0.70** (SEM 0.04) | 300 | 76 / 192 / 32 |
+| **249,000** | **+0.28 ± 0.81** (SEM 0.05) | 300 | 97 / 166 / 37 |
+| *Ha's reference (500,000 games)* | *+0.353 ± 0.728* | *1000* | *—* |
 
-Score is points won minus points lost per episode (range −5 … +5), over 400
-episodes. **The evolved champion beats the 2015 expert on points** — reaching
-Ha's quality regime at ~35% of his training budget, and never once having seen
+Score is points won minus points lost per episode (range −5 … +5); ± is the
+episode-level standard deviation, with the standard error of the mean given
+separately. **Evolved policies beat the 2015 expert on points**, reaching Ha's
+quality regime at roughly half his training budget, without ever having seen
 that opponent during training.
+
+The two headline rows were chosen by scanning all checkpoints against the
+baseline — so they are *selected* maxima, not independent estimates. They were
+therefore re-evaluated on a **fresh evaluation seed** (4242, disjoint from the
+sweep's seed 721) over 300 episodes each; the numbers above are those
+independent re-evaluations, and both remain above parity by more than four
+standard errors.
 
 ![learning curve](results/figures/learning_curve.png)
 
@@ -43,10 +52,28 @@ evaluation stopped at game 90,000 would have reported total failure.
 started going the distance: every one of its 400 evaluation episodes ran the
 full 3,000 steps, and 88% ended drawn or won.
 
-*Coevolution is unstable — and this run measures it.* Champion quality
-oscillates violently between neighbouring checkpoints: +0.40 at game 175,000,
-−4.05 at 180,000, back to −0.75 at 182,000. Only 3 of 182 checkpoints score
-above parity. Two mechanisms, both textbook and both left in deliberately by
+*Coevolution is unstable — but the instability is damping.* Champion quality
+swings violently between neighbouring checkpoints, and **30 of 286 exported
+champions score above parity**: competence is reached repeatedly and lost
+repeatedly. What the long view adds is that the swings are shrinking while the
+level rises:
+
+| Games | Mean score | SD | Worst | Best | Above parity |
+|---|---|---|---|---|---|
+| 0–100k | −4.88 | 0.06 | −4.92 | −4.70 | 0 / 99 |
+| 100–150k | −3.18 | 1.48 | −4.92 | +0.10 | 1 / 50 |
+| 150–200k | −1.09 | 1.18 | −4.53 | +0.40 | 7 / 50 |
+| 200–250k | −0.51 | 0.68 | −2.60 | +0.40 | 11 / 50 |
+| 250–286k | −0.60 | 0.96 | −3.77 | +0.40 | 11 / 37 |
+
+The mean climbs from −4.88 to about −0.55 and the spread narrows from 1.48 to
+around 0.8, while the ceiling sits flat at +0.40. So the population is not
+merely thrashing: it is converging on a band just below parity, from which it
+repeatedly produces baseline-beating champions. This is a **single-seed
+observation**, not a general claim about the algorithm.
+
+Two mechanisms drive the residual instability, both textbook and both left in
+deliberately by
 replicating Ha exactly: (1) selection is relative, so a population can *forget*
 skills that no current opponent punishes — the classic argument for a
 hall-of-fame archive of past opponents ([Neuroevolution](https://neuroevolutionbook.com),
@@ -57,27 +84,44 @@ one. The honest reading: **self-play produced baseline-beating play, but does
 not hold it.** Stability is a separate problem from competence, and this
 repository's data isolates it.
 
-| After 5,000 games | The best champion (175,000 games) |
+| After 5,000 games | After 249,000 games |
 |---|---|
 | ![early](results/figures/early_match.gif) | ![final](results/figures/final_match.gif) |
-| loses 0–5 in 543 steps | 0–0 after 1,600 steps of sustained rallying |
+| loses 0–5 in 543 steps | holds the 2015 expert to 0–0 through 1,000 steps |
 
-**Honest run notes.** Training reached **182,000 of Ha's 500,000 tournament
-games** before the cloud sandbox became the limiting factor: the container is
-reclaimed after inactivity, so training advanced only while a session was live
-(9 restarts, each resumed from the latest population snapshot with the RNG
-reseeded deterministically from `seed + resume point` — a documented deviation
-from a single continuous run). Evaluation sweeps used 40 episodes per
-checkpoint and 400 for the headline rows; all evaluation used seed 721, and
-the baseline policy was never used as a training signal.
+**Honest run notes.** This is a **single-seed exploratory run**, and it
+replicates Ha's *simplified 2020* tournament-selection GA (feed-forward, no
+crossover) — not the original 2015 training algorithm, which used recurrent
+networks, generational selection against multiple opponents, top-20% retention
+and crossover.
 
-Two open questions this run does **not** answer, both left explicitly to
-`resume_to_500k.sh` (which continues this exact run from its last snapshot,
-~9 h single-core): whether the remaining 318,000 games raise the *ceiling* or
-merely reshuffle the same oscillation, and whether a hall-of-fame variant
-would convert intermittent baseline-beating play into stable baseline-beating
-play. The second is the more interesting experiment, and this repository's
-checkpoint archive is exactly the material for it.
+Training reached **286,700 of Ha's 500,000 tournament games** in a cloud
+sandbox that reclaims its container once a session goes idle, so training
+advanced only while a session was live. Each resumption
+restarts from the latest population snapshot with the RNG reseeded
+deterministically from `seed + resume point` — a documented chain of restarts,
+not one exactly resumable trajectory. The learning-curve sweep used 40 episodes
+per checkpoint at seed 721; the two headline rows were re-measured at seed 4242
+over 300 episodes. The baseline policy was never used as a training signal.
+
+The full population snapshot (`results/ga_selfplay/snapshot.npz`) is committed,
+so `resume_to_500k.sh` continues *this* run rather than starting a new one
+(~6 h single-core for the remaining 213,000 games).
+
+Three open questions this run does **not** answer:
+
+1. **Does the damping continue?** The spread narrows from 150k to 250k, then
+   widens slightly in the last window. Whether that is the start of
+   convergence or ordinary noise in a single seed needs the remaining 213,000
+   games — and, for any general claim, more seeds.
+2. **Forgetting or proxy noise?** `cross_generation.py` plays saved champions
+   against *each other*: a transitive ranking (later beats earlier) would
+   indicate the champion-selection proxy is noisy; cyclic results would
+   indicate genuine intransitivity, which is the empirical argument for a
+   hall-of-fame archive. This needs no further training.
+3. **Would a hall of fame convert intermittent competence into stable
+   competence?** The most interesting experiment, and this repository's
+   checkpoint archive is the material for it.
 
 ## The method, in plain language
 
@@ -97,6 +141,10 @@ checkpoint archive is exactly the material for it.
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
+
+# verify the repository works (~1 min) — nine checks, three of which
+# are the exact failures that made February's runs uninterpretable
+.venv/bin/python test_repo.py
 
 # smoke test (~20 s)
 .venv/bin/python train_ga_selfplay.py --tournaments 600 --save-freq 200 --outdir results/smoke
@@ -123,10 +171,12 @@ bash resume_to_500k.sh
 | `render_gif.py` | Headless match rendering |
 | `plot_curve.py` | The learning-curve figure |
 | `watchdog.sh` / `resume_to_500k.sh` | Crash-safe continuation of a long run |
+| `test_repo.py` | Self-test: nine checks, including the three February failures |
+| `cross_generation.py` | Champion-vs-champion round robin: transitive skill, or cycling? |
 | `docs/postmortem-february.md` | The autopsy: three verified mechanisms that made February's runs uninterpretable |
 | `docs/trajectory.md` | The lineage: Ha 2015 → backprop NEAT 2016 → slimevolleygym 2020 → ShinkaEvolve 2025 |
 | `archive/february/` | The February 2026 scripts, unmodified, as evidence |
-| `results/` | 182 champion checkpoints, learning curves, evaluation data, figures |
+| `results/` | 206 champion checkpoints, the population snapshot, learning curves, evaluation data, figures |
 
 ## Credits
 

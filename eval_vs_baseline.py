@@ -81,8 +81,22 @@ def main():
 
     files = sorted(glob.glob(os.path.join(args.target, "ga_*.json")))
     out = os.path.join(args.target, "eval_curve.jsonl")
-    print(f"sweeping {len(files)} checkpoints, {args.episodes} episodes each")
-    with open(out, "w") as f:
+
+    # Skip checkpoints already evaluated at this episode count, so the curve
+    # can be extended incrementally as training continues (and so the curve
+    # never silently lags behind the checkpoint directory).
+    done = set()
+    if os.path.exists(out):
+        for line in open(out):
+            r = json.loads(line)
+            if r.get("episodes") == args.episodes:
+                done.add(r["tournament"])
+    files = [p for p in files
+             if int(os.path.basename(p)[3:-5]) not in done]
+
+    print(f"sweeping {len(files)} new checkpoints "
+          f"({len(done)} already done), {args.episodes} episodes each")
+    with open(out, "a") as f:
         for path in files:
             scores, lengths, streak = evaluate(path, args.episodes, args.seed)
             tournament = int(os.path.basename(path)[3:-5])

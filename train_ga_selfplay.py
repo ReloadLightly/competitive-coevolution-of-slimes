@@ -66,6 +66,9 @@ def main():
                     help="full population snapshot every N tournaments")
     ap.add_argument("--resume", action="store_true",
                     help="resume from <outdir>/snapshot.npz (RNG reseeds)")
+    ap.add_argument("--max-seconds", type=float, default=None,
+                    help="exit cleanly after N seconds, writing a snapshot "
+                         "first (for chunked runs in ephemeral containers)")
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
@@ -137,6 +140,16 @@ def main():
                 population=population,
                 winning_streak=np.array(winning_streak),
                 tournament=tournament)
+
+        if args.max_seconds and (time.time() - t0) > args.max_seconds:
+            np.savez_compressed(
+                snap_path,
+                population=population,
+                winning_streak=np.array(winning_streak),
+                tournament=tournament)
+            print(f"time budget reached at tournament {tournament} "
+                  f"— snapshot written, exiting cleanly", flush=True)
+            return
 
         if tournament % args.log_freq == 0:
             rh = int(np.argmax(winning_streak))

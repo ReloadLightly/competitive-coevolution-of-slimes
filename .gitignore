@@ -3,5 +3,5 @@ __pycache__/
 *.pyc
 *.log
 nohup.out
-results/**/snapshot.npz
 _scratch/
+results/train.pid
