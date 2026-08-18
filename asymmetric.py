@@ -119,7 +119,8 @@ def play_game_asym(p_r, h_r, p_l, h_l):
 
 @njit(cache=True)
 def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
-                   sigma_a, sigma_b, cross_prob, save_every, init_scale):
+                   sigma_a, sigma_b, cross_prob, save_every, init_scale,
+                   pop_every):
     """Two populations, each running Ha's loop, a fraction of games crossed.
 
     A first version of this kernel replaced a loser with a mutant of a *random*
@@ -171,6 +172,11 @@ def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
     a_winrate = np.zeros(n_ckpt)
     a_margin = np.zeros(n_ckpt)
 
+    n_pop = n_games // pop_every
+    pops_a = np.zeros((n_pop, n_a, d_a), dtype=np.float32)
+    pops_b = np.zeros((n_pop, n_b, d_b), dtype=np.float32)
+    pk = 0
+
     len_acc = 0.0
     a_wins = 0.0
     a_pts = 0.0
@@ -214,19 +220,21 @@ def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
             a_pts += score if not side_a else -score
 
             if score > 0:
-                # X's member lost: replaced by a mutant of its own peer
+                # X's member lost: replaced by a mutant of its own peer. The
+                # peer did NOT play, so its streak counter is not incremented --
+                # crediting it would let the losing population accumulate
+                # streaks at random, and the streak counter is what selects the
+                # exported champion.
                 if side_a:
                     for j in range(d_x):
                         pop_a[m, j] = (pop_a[n, j]
                                        + np.random.normal(0.0, 1.0) * sigma_x)
                     streak_a[m] = streak_a[n]
-                    streak_a[n] += 1
                 else:
                     for j in range(d_x):
                         pop_b[m, j] = (pop_b[n, j]
                                        + np.random.normal(0.0, 1.0) * sigma_x)
                     streak_b[m] = streak_b[n]
-                    streak_b[n] += 1
             elif score < 0:
                 if side_a:
                     streak_a[m] += 1
@@ -297,7 +305,63 @@ def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
             cross_n = 0.0
             ck += 1
 
-    return champs_a, champs_b, meanlen, a_winrate, a_margin
+        if game % pop_every == 0 and pk < n_pop:
+            for i in range(n_a):
+                for j in range(d_a):
+                    pops_a[pk, i, j] = np.float32(pop_a[i, j])
+            for i in range(n_b):
+                for j in range(d_b):
+                    pops_b[pk, i, j] = np.float32(pop_b[i, j])
+            pk += 1
+
+    return champs_a, champs_b, meanlen, a_winrate, a_margin, pops_a, pops_b
+
+
+@njit(cache=True)
+def eval_population_var(pop, h, episodes, seed, w, b):
+    """Every member of a variable-capacity population against the 2015 baseline.
+
+    'Did this side learn' is a question about the population, not about whichever
+    individual a proxy happened to export -- see section 2 of the analysis.
+    """
+    k = pop.shape[0]
+    means = np.zeros(k)
+    for i in range(k):
+        sc, _ = eval_var_vs_baseline(pop[i], h, episodes, seed, w, b)
+        s = 0.0
+        for e in range(episodes):
+            s += sc[e]
+        means[i] = s / episodes
+    return means
+
+
+@njit(cache=True)
+def internal_rank_var(pop, h, n_opponents, seed):
+    """Rank a variable-capacity population by an internal round robin.
+
+    The deployable replacement for the streak proxy (analysis section 2): the
+    pool plays itself and the best mean margin is exported. Uses no information
+    the algorithm does not already have.
+    """
+    np.random.seed(seed)
+    k = pop.shape[0]
+    fitness = np.zeros(k)
+    played = np.zeros(k)
+    n_games = (k * n_opponents) // 2
+    for _ in range(n_games):
+        i = np.random.randint(0, k)
+        j = np.random.randint(0, k)
+        while j == i:
+            j = np.random.randint(0, k)
+        score, _ = play_game_asym(pop[i], h, pop[j], h)
+        fitness[i] += score
+        fitness[j] -= score
+        played[i] += 1.0
+        played[j] += 1.0
+    for i in range(k):
+        if played[i] > 0.0:
+            fitness[i] /= played[i]
+    return fitness
 
 
 @njit(cache=True)
