@@ -1,0 +1,5 @@
+# Additional pins for the compiled environment and the experiment matrix.
+# requirements.txt is left untouched: the reference run in results/ga_selfplay
+# was trained with exactly those versions, and validate_fastvolley.py needs
+# them to compare against.
+numba==0.67.0

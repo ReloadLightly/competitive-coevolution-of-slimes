@@ -5,3 +5,4 @@ __pycache__/
 nohup.out
 _scratch/
 results/train.pid
+results/_smoke*
