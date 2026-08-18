@@ -33,6 +33,44 @@ Exact two-sided Mann–Whitney U over all label assignments. Difference is condi
 29 of 301 checkpoints score above parity on the 200-episode sweep. Held-out rows are 1,000 episodes at the disjoint evaluation seed. Internal transition (training rally length above 1,500 steps): not reached games; first checkpoint above parity: not reached games; lag — games.
 
 
+### Table 4
+
+| condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
+|---|---|---|---|---|
+| control (Ha 2020 GA) | 5 | +0.72 | 1/421 (0.2%) | 10.0 |
+| archive as parent, p=0.25 | 5 | +0.28 | 17/127 (13.4%) | 23.4 |
+
+Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.
+
+
+### Table 5
+
+| games | exported champion | best in the same pool | gap | exported rank | ρ(streak, score) | above parity in pool | mean pairwise genotype distance |
+|---|---|---|---|---|---|---|---|
+| 50,000 | -4.74 | -4.46 | 0.28 | 58 / 128 | +0.12 | 0 | 12.92 |
+| 100,000 | -4.32 | -2.65 | 1.67 | 72 / 128 | -0.00 | 1 | 11.03 |
+| 150,000 | -3.40 | -2.53 | 0.87 | 45 / 128 | +0.09 | 3 | 10.32 |
+| 200,000 | -2.48 | -1.78 | 0.70 | 63 / 128 | +0.03 | 5 | 9.88 |
+| 250,000 | -1.57 | -0.62 | 0.94 | 46 / 128 | +0.09 | 20 | 9.18 |
+| 300,000 | -1.38 | -0.50 | 0.87 | 51 / 128 | +0.13 | 25 | 10.54 |
+| 350,000 | -1.67 | -0.46 | 1.21 | 72 / 128 | +0.08 | 30 | 10.33 |
+| 400,000 | -1.41 | -0.41 | 1.00 | 63 / 128 | +0.11 | 46 | 11.81 |
+| 450,000 | -0.58 | +0.60 | 1.18 | 71 / 128 | -0.02 | 45 | 12.23 |
+| 500,000 | -0.29 | +0.66 | 0.94 | 73 / 128 | +0.06 | 58 | 11.36 |
+
+Control runs only (5 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
+
+
+### Table 6
+
+| condition | runs | median Elo | best run | worst run |
+|---|---|---|---|---|
+| control (Ha 2020 GA) | 5 | +373 | +785 | +238 |
+| archive as parent, p=0.25 | 5 | -421 | -355 | -483 |
+
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
+
+
 ### Table 7
 
 | games | mean across seeds | within-run s.d. | spread across seeds | checkpoints above parity |
@@ -54,6 +92,18 @@ Control condition, 5 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 | archive as parent, p=0.25 | 3 | 0/3 | never | never (0/3) | — |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
+
+
+### Table R
+
+| condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
+|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 5 | 5/5 | — ± — | — ± — | 22% |
+| archive as parent, p=0.25 | 3 | 0/3 | — ± — | — ± — | 0% |
+| *reference run, unmodified environment* | 1 | 1/1 | *+0.30 ± 0.03* | *-0.34 ± 0.03* | *9%* |
+| *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
+
+Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.
 
 
 ### Table A1

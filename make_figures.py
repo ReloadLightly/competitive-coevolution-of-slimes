@@ -324,12 +324,12 @@ def fig6_proxy(proxy):
         ax.plot(t, [r["best_score"] for r in rows], color="#3B6EA8", lw=0.9,
                 alpha=0.7)
     parity(ax)
-    ax.plot([], [], color="#B0413E", lw=1.6, label="exported champion (longest streak)")
-    ax.plot([], [], color="#3B6EA8", lw=1.6, label="best individual in the same pool")
+    ax.plot([], [], color="#B0413E", lw=1.6, label="exported champion")
+    ax.plot([], [], color="#3B6EA8", lw=1.6, label="best in the same pool")
     ax.set_xlabel("self-play games (thousands)")
     ax.set_ylabel("score vs 2015 baseline")
-    ax.set_title("What the champion proxy costs", loc="left")
-    ax.legend(loc="lower right")
+    ax.set_title("What the champion-export rule costs", loc="left")
+    ax.legend(loc="lower right", handlelength=1.4)
 
     ax = axes[1]
     allrows = [r for rows in proxy.values() for r in rows]

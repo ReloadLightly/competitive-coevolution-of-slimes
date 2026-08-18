@@ -371,9 +371,48 @@ def table_8(d):
     return "\n".join(out)
 
 
+def table_r(d):
+    """The compact headline table for the repository README."""
+    conds = d["conditions"]
+    per_run = d["per_run"]
+    if not conds or not per_run:
+        return None
+    c = conds["conditions"]
+    out = ["| condition | runs | learned to rally | best champion (held out) | "
+           "end-of-run champion | checkpoints above parity |",
+           "|---|---|---|---|---|---|"]
+    for k in ORDER:
+        if k not in c:
+            continue
+        a = c[k]
+        ph, fh = a.get("peak_holdout", {}), a.get("final_holdout", {})
+        ap = a.get("above_parity", {})
+        out.append(f"| {LABELS[k]} | {a['n_runs']} | "
+                   f"{a.get('n_reached', 0)}/{a['n_runs']} | "
+                   f"{fmt(ph.get('mean'), 2, True)} ± {fmt(ph.get('sem'))} | "
+                   f"{fmt(fh.get('mean'), 2, True)} ± {fmt(fh.get('sem'))} | "
+                   f"{fmt(100*ap.get('mean', float('nan')), 0)}% |")
+    ref = d["reference"]
+    if ref:
+        h = ref["holdout"]
+        out.append(f"| *reference run, unmodified environment* | 1 | 1/1 | "
+                   f"*{h['peak']['mean']:+.2f} ± {h['peak']['sem']:.2f}* | "
+                   f"*{h['final']['mean']:+.2f} ± {h['final']['sem']:.2f}* | "
+                   f"*{int((np.array(ref['mean_score']) > 0).mean()*100):.0f}%* |")
+    out.append("| *Ha (2020), same algorithm and budget* | 1 | — | "
+               "*+0.35 ± 0.02* | — | — |")
+    out.append("")
+    out.append("Points per episode against the 2015 champion policy, which is "
+               "never seen during training. Held-out columns are 1,000 episodes "
+               "on an evaluation seed disjoint from the one used to pick the "
+               "checkpoint. 'Learned to rally' counts runs whose population "
+               "ever held 1,500-step rallies against itself.")
+    return "\n".join(out)
+
+
 TABLES = {
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
-    "6": table_6, "7": table_7, "8": table_8,
+    "6": table_6, "7": table_7, "8": table_8, "r": table_r,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
@@ -414,10 +453,14 @@ def main():
     with open(os.path.join(PAPER, "_tables.md"), "w") as f:
         f.write("\n".join(combined))
 
+    # README.md carries markers too: the repository is public, so its headline
+    # numbers must come from the same generator as the paper's.
+    targets = [p for p in sorted(glob.glob(os.path.join(PAPER, "*.md")))
+               if not os.path.basename(p).startswith("_")]
+    targets += [p for p in ("README.md",) if os.path.exists(p)]
+
     stale = []
-    for path in sorted(glob.glob(os.path.join(PAPER, "*.md"))):
-        if os.path.basename(path).startswith("_"):
-            continue
+    for path in targets:
         src = open(path).read()
         new = src
         for key, md in built.items():
