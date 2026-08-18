@@ -24,3 +24,15 @@ a budget decision, not a data-dependent one.
 Seeds 101-106 (all conditions) come from the first wave; 107-112 (control,
 hof-0.25) and 104-106 (side conditions) come from the second. All are reported
 together; none is dropped.
+
+## 2026-08-18 15:07 UTC — second wave narrowed
+
+Wave-1 runs turned out to vary between ~17 and ~35 minutes: a run whose
+population reaches long-rally play early spends the rest of its budget on
+3,000-step games and is correspondingly slower in wall-clock. The projected
+finish for the full second wave no longer fitted the session.
+
+The second wave was therefore narrowed to the headline comparison only —
+`control` and `hof-0.25`, seeds 107-112, taking both to 12 seeds. The four side
+conditions stay at their pre-registered 3 seeds. State of knowledge: one run
+finished (`control_s103`), no hall-of-fame run finished, no comparison run.

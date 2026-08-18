@@ -53,7 +53,35 @@ def metrics(run):
     runmax = np.maximum.accumulate(s)
     above = s > 0
     t_par = int(np.argmax(above) + 1) * every if above.any() else None
+
+    # Internal transition: the population starts holding long rallies against
+    # ITSELF well before any of that shows up against the frozen 2015 opponent.
+    # Measured with no external opponent involved, from the training games.
+    tl = run["train_meanlen"]
+    long_rally = tl > 1500
+    t_int = int(np.argmax(long_rally) + 1) * every if long_rally.any() else None
+    # Windowed profile, 100,000 games per window. The single-run version of
+    # this study claimed the swings damp as the level rises; with many seeds
+    # that claim becomes testable rather than anecdotal.
+    per_window = int(100_000 // every)
+    profile = []
+    for a in range(0, n, per_window):
+        chunk = s[a:a + per_window]
+        if len(chunk) == 0:
+            continue
+        profile.append({"from": a * every, "to": (a + len(chunk)) * every,
+                        "mean": float(chunk.mean()), "sd": float(chunk.std()),
+                        "min": float(chunk.min()), "max": float(chunk.max()),
+                        "above": int((chunk > 0).sum()), "n": len(chunk)})
+
     return {
+        "window_profile": profile,
+        "t_internal": t_int,
+        "lag_internal_to_parity": ((t_par - t_int)
+                                   if (t_par is not None and t_int is not None)
+                                   else None),
+        "late_win_rate": float(run["win_rate"][-WINDOW:].mean()),
+        "late_tie_rate": float(run["tie_rate_eval"][-WINDOW:].mean()),
         "final": float(s[-1]),
         "peak": float(s.max()),
         "peak_t": int((np.argmax(s) + 1) * every),
@@ -137,7 +165,8 @@ def main():
 
     # ---- per-condition aggregates ---------------------------------------
     keys = ["final", "peak", "above_parity", "late_mean", "late_sd",
-            "volatility", "drawdown", "final_win_rate", "final_meanlen"]
+            "volatility", "drawdown", "final_win_rate", "final_meanlen",
+            "late_win_rate", "late_tie_rate"]
     if holdout:
         keys += ["final_holdout", "peak_holdout"]
 
@@ -151,10 +180,14 @@ def main():
             vals = [r[k] for r in rows if k in r]
             if vals:
                 agg[k] = su.describe(vals)
-        tp = [r["t_parity"] for r in rows]
-        agg["t_parity"] = {"reached": int(sum(t is not None for t in tp)),
-                           "median": (float(np.median([t for t in tp if t is not None]))
-                                      if any(t is not None for t in tp) else None)}
+        for key in ("t_parity", "t_internal", "lag_internal_to_parity"):
+            tp = [r[key] for r in rows]
+            hit = [t for t in tp if t is not None]
+            agg[key] = {"reached": len(hit),
+                        "median": float(np.median(hit)) if hit else None,
+                        "min": float(min(hit)) if hit else None,
+                        "max": float(max(hit)) if hit else None,
+                        "values": tp}
         conds[cond] = agg
 
     # ---- comparisons against the control --------------------------------

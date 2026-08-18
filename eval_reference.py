@@ -75,11 +75,33 @@ def main():
                      "meanlen": float(ln.mean()), "episodes": SELECT_EPISODES,
                      "seed": SELECT_SEED}
 
+    # Internal transition, from the training log: the first point at which the
+    # population holds rallies of 1500+ steps against ITSELF. Compared with the
+    # first checkpoint above parity, this is the internal-to-external lag.
+    hist = os.path.join(args.dir, "history.jsonl")
+    t_internal = None
+    train_len = []
+    if os.path.exists(hist):
+        for line in open(hist):
+            r = json.loads(line)
+            train_len.append((r["tournament"], r["mean_duration"]))
+        train_len.sort()
+        for t, d in train_len:
+            if d > 1500:
+                t_internal = t
+                break
+    above = mean > 0
+    t_parity = ts[int(np.argmax(above))] if above.any() else None
+
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     json.dump({"tournament": ts, "mean_score": mean.tolist(), "std_score": sd,
                "win_rate": win, "tie_rate": tie, "meanlen": length,
                "streak": streaks, "episodes": args.episodes, "seed": args.seed,
+               "t_internal": t_internal, "t_parity": t_parity,
+               "train_len": train_len,
                "holdout": hold}, open(args.out, "w"))
+    print(f"internal transition (train rally > 1500 steps): {t_internal}")
+    print(f"first checkpoint above parity: {t_parity}")
 
     print(f"\nfinal  t={hold['final']['tournament']}: "
           f"{hold['final']['mean']:+.3f} +/- {hold['final']['sd']:.3f} "
