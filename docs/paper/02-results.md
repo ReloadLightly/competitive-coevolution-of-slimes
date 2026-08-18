@@ -20,8 +20,8 @@ rally length, which rises from roughly 600 steps to the 3,000-step cap.*
 
 Its trajectory has two regimes (Figure 1). For the first hundred thousand games
 the champion loses every episode to the 2015 baseline by nearly the maximum
-margin — a floor at roughly −4.82 points per episode with a standard deviation
-across checkpoints of 0.05. Then, over about fifty thousand games, it climbs
+margin — a floor at −4.82 points per episode with a standard deviation across
+checkpoints of 0.05. Then, over about fifty thousand games, it climbs
 almost four points and begins producing champions that beat the 2015 expert
 outright.
 
@@ -39,14 +39,34 @@ improving steadily; the only thing missing was that its improvements had not yet
 generalised beyond its own family. *Internal selection pressure leads external
 measurement.* Any self-improvement loop measured too early reads as a dead loop.
 
-**Damping, and what remains.** Split the run into 100,000-game windows and the
-picture is neither "it learns" nor "it thrashes": the level rises and the swings
-shrink, but neither converges. The population settles into a band just below
-parity from which it repeatedly produces baseline-beating champions and then
-loses them again. Held out on a disjoint evaluation seed over 1,000 episodes,
-the best checkpoint of the run scores **+0.304 ± 0.806** (s.e.m. 0.025) — within
-noise of Ha's published +0.353 ± 0.728 for the same algorithm at the same
-budget. Full numbers in Table 3.
+**The level rises; the swings do not damp.** Split the completed run into
+100,000-game windows:
+
+| games | mean | s.d. across checkpoints | above parity |
+|---|---|---|---|
+| 0–100k | −4.82 | 0.05 | 0/100 |
+| 100–200k | −2.02 | 1.64 | 8/100 |
+| 200–300k | −0.55 | 0.78 | 21/100 |
+| 300–400k | −0.61 | 0.87 | 28/100 |
+| 400–500k | −0.23 | 0.82 | 55/100 |
+
+The single-run version of this study, which stopped at 286,700 games, reported
+that "the swings are shrinking while the level rises". Only half of that
+survives the full run. The level does rise, and the rate of above-parity
+checkpoints more than doubles over the second half — by the last window, 55 of
+100 checkpoints beat the 2015 expert. But the spread drops once, at the
+transition, and then sits flat at roughly 0.8 for the remaining 300,000 games.
+The population does not settle down; it gets better while continuing to swing by
+about the same amount. Calling that "damping" was an artefact of stopping in the
+window where the number happened to be falling — a small, concrete instance of
+the same lesson as §2 below.
+
+Held out on a disjoint evaluation seed over 1,000 episodes, the best checkpoint
+of the run scores **+0.496 ± 0.856** (s.e.m. 0.027) at 439,000 games, and the
+final champion **+0.036 ± 0.734** (s.e.m. 0.023) — respectively above and at
+Ha's published +0.353 ± 0.728 for the same algorithm at the same budget. The
+final champion wins 19% of episodes, draws 64% and loses 17%. Full numbers in
+Table 3.
 
 This is where the previous version of this study stopped, and it is exactly as
 far as one run can go. Everything above is compatible with at least three
