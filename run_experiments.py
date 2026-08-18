@@ -142,16 +142,21 @@ def main():
     ap.add_argument("--only", default=None,
                     help="comma-separated condition names")
     ap.add_argument("--tournaments", type=int, default=TOURNAMENTS)
+    ap.add_argument("--seeds", default=None,
+                    help="comma-separated seeds, overriding the condition's "
+                         "own list (used to add a second wave of seeds; runs "
+                         "whose .npz already exists are skipped)")
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
     conds = list(CONDITIONS)
     if args.only:
         conds = [c.strip() for c in args.only.split(",")]
+    override = ([int(s) for s in args.seeds.split(",")] if args.seeds else None)
 
     jobs = []
     for cond in conds:
-        for seed in CONDITIONS[cond]["seeds"]:
+        for seed in (override or CONDITIONS[cond]["seeds"]):
             jobs.append((cond, seed, args.outdir, args.tournaments))
 
     with open(os.path.join(args.outdir, "protocol.json"), "w") as f:
