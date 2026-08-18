@@ -568,13 +568,25 @@ numbers moved.
 ### Table 1 — conditions, held-out scores and stability
 
 <!-- table:1 -->
-*(not yet generated)*
+| condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
+|---|---|---|---|---|---|---|---|---|
+| control (Ha GA) | 5 | — ± — | — ± — | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
+| hall of fame, p=0.25 | 3 | — ± — | — ± — | -4.85 ± 0.00 | 0.01 | 0.07 | 0% | — (0/3) |
+
+Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
 
 ### Table 2 — each intervention against the control
 
 <!-- table:2 -->
-*(not yet generated)*
+| condition | metric | difference | Cliff's δ | exact p |
+|---|---|---|---|---|
+| hall of fame, p=0.25 | `late_mean` | -4.456 | -1.00 | 0.036 |
+| hall of fame, p=0.25 | `volatility` | -0.698 | -1.00 | 0.036 |
+| hall of fame, p=0.25 | `drawdown` | -0.565 | -1.00 | 0.036 |
+| hall of fame, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.036 |
+
+Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 <!-- /table:2 -->
 
 ### Table 3 — the reference run on the unmodified environment
@@ -610,7 +622,15 @@ numbers moved.
 ### Table 7 — the damping claim, across seeds
 
 <!-- table:7 -->
-*(not yet generated)*
+| games | mean across seeds | within-run s.d. | spread across seeds | checkpoints above parity |
+|---|---|---|---|---|
+| 0–100,000 | -4.34 | 0.67 | 0.63 | 1/100 |
+| 100,000–200,000 | -3.15 | 0.77 | 1.71 | 6/100 |
+| 200,000–300,000 | -1.73 | 0.73 | 1.80 | 21/100 |
+| 300,000–400,000 | -1.22 | 0.54 | 1.80 | 30/100 |
+| 400,000–500,000 | -0.39 | 0.77 | 0.54 | 50/100 |
+
+Control condition, 5 seeds. 'Within-run s.d.' is the spread of checkpoint scores inside a window, averaged over seeds — the quantity the single-run version of this study claimed was damping. 'Spread across seeds' is the s.d. of the per-seed window means.
 <!-- /table:7 -->
 
 ### Table A1 — the compiled environment against the reference
@@ -629,7 +649,16 @@ All 200 paired games agree bit for bit over 265,797 environment steps. Throughpu
 ### Table A2 — every run
 
 <!-- table:a2 -->
-*(not yet generated)*
+| condition | seed | final (sweep) | final (held out) | peak (held out) | mean last 100k | volatility | drawdown | above parity | internal transition | first parity | train min |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| control | 101 | +0.14 | — | — | +0.10 | 0.23 | 0.29 | 21% | 235k | 335k | 31.0 |
+| control | 102 | -1.25 | — | — | -0.43 | 0.94 | 0.95 | 27% | 60k | 135k | 42.7 |
+| control | 103 | -0.29 | — | — | -1.40 | 1.24 | 0.72 | 3% | 415k | 440k | 17.3 |
+| control | 104 | +0.50 | — | — | -0.23 | 0.78 | 0.77 | 32% | 55k | 85k | 43.9 |
+| control | 105 | -0.33 | — | — | +0.02 | 0.35 | 0.42 | 25% | 160k | 250k | 38.8 |
+| hof-0.25 | 101 | -4.85 | — | — | -4.84 | 0.02 | 0.06 | 0% | — | — | 15.2 |
+| hof-0.25 | 102 | -4.82 | — | — | -4.85 | 0.01 | 0.08 | 0% | — | — | 11.2 |
+| hof-0.25 | 103 | -4.85 | — | — | -4.85 | 0.01 | 0.06 | 0% | — | — | 10.9 |
 <!-- /table:a2 -->
 
 ### Table A3 — the same population continued in both implementations

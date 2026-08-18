@@ -25,17 +25,25 @@ MATRIX = "results/matrix"
 COLORS = {
     "reference": "#222222",
     "control": "#3B6EA8",
+    "hof-eval": "#1F7A5A",
     "hof-0.25": "#E08B3C",
     "hof-0.50": "#B0413E",
+    "hof-full": "#8C5A2B",
+    "ga2015": "#7A5EA6",
+    "es": "#C1445E",
     "sigma-0.05": "#4C956C",
-    "sigma-0.20": "#7A5EA6",
+    "sigma-0.20": "#946A9E",
     "pop-32": "#8A6A55",
     "pop-512": "#4FA3B8",
 }
 LABELS = {
-    "control": "control (Ha GA)",
-    "hof-0.25": "hall of fame, p=0.25",
-    "hof-0.50": "hall of fame, p=0.50",
+    "control": "control (Ha 2020 GA)",
+    "hof-eval": "archive as test",
+    "hof-0.25": "archive as parent, p=0.25",
+    "hof-0.50": "archive as parent, p=0.50",
+    "hof-full": "archive as parent, full span",
+    "ga2015": "generational GA (Ha 2015)",
+    "es": "self-play ES",
     "sigma-0.05": r"$\sigma=0.05$",
     "sigma-0.20": r"$\sigma=0.20$",
     "pop-32": "population 32",
@@ -161,12 +169,19 @@ def fig2_control(runs):
     band(ax, runs["control"], COLORS["control"],
          f"control, median of {len(runs['control'])} seeds", lw=2.0)
     if ref:
-        ax.plot(np.array(ref["tournament"]) / 1000, ref["mean_score"],
-                color=COLORS["reference"], lw=1.0, ls=(0, (5, 2)),
+        # the reference run checkpoints every 1,000 games against the matrix's
+        # 5,000, so subsample it onto the same grid before overlaying
+        rt = np.array(ref["tournament"])
+        rs = np.array(ref["mean_score"])
+        keep = (rt % 5000) == 0
+        ax.plot(rt[keep] / 1000, rs[keep], color=COLORS["reference"], lw=1.1,
+                ls=(0, (5, 2)), alpha=0.85,
                 label="reference run (slimevolleygym)")
     ax.set_xlabel("self-play games (thousands)")
     ax.set_ylabel("score vs 2015 baseline")
-    ax.set_title("Six seeds of the same algorithm", loc="left")
+    n_seeds = len(runs["control"])
+    ax.set_title(f"The same algorithm, {n_seeds} seeds: the phase change is "
+                 f"real, its timing is not reproducible", loc="left")
     ax.legend(loc="lower right")
     fig.savefig(f"{FIGDIR}/fig2_control_seeds.png")
     plt.close(fig)
@@ -192,7 +207,8 @@ def _strip(ax, per_run, conds, key, ylabel, title):
 
 
 def fig3_hof(runs, per_run):
-    conds = [c for c in ("control", "hof-0.25", "hof-0.50") if c in runs]
+    conds = [c for c in ("control", "hof-eval", "hof-0.25", "hof-0.50",
+                         "hof-full") if c in runs]
     if len(conds) < 2:
         return "fig3: need control and a hall-of-fame condition"
     fig = plt.figure(figsize=(6.8, 5.0))
@@ -204,7 +220,7 @@ def fig3_hof(runs, per_run):
         band(ax, runs[c], COLORS[c], f"{LABELS[c]}  (n={len(runs[c])})", lw=1.8)
     ax.set_xlabel("self-play games (thousands)")
     ax.set_ylabel("score vs 2015 baseline")
-    ax.set_title("Does an archive of past champions stabilise competence?",
+    ax.set_title("An archive of past champions: as a test, and as a parent",
                  loc="left")
     ax.legend(loc="lower right")
 
@@ -356,6 +372,34 @@ def fig7_cross_run(across):
     return "fig7_cross_run_elo.png"
 
 
+def fig8_families(runs, per_run):
+    conds = [c for c in ("control", "ga2015", "es") if c in runs]
+    if len(conds) < 2:
+        return "fig8: need at least two algorithm families"
+    fig = plt.figure(figsize=(6.8, 4.9))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.55, wspace=0.45)
+    ax = fig.add_subplot(gs[0, :])
+    parity(ax)
+    for c in conds:
+        for r in runs[c]:
+            ax.plot(r["t"] / 1000, r["score"], color=COLORS[c], lw=0.6, alpha=0.3)
+        band(ax, runs[c], COLORS[c], f"{LABELS[c]}  (n={len(runs[c])})", lw=1.9)
+    ax.set_xlabel("self-play games (thousands)")
+    ax.set_ylabel("score vs 2015 baseline")
+    ax.set_title("Three ways to turn a population into the next population",
+                 loc="left")
+    ax.legend(loc="lower right")
+    if per_run:
+        for j, (key, lab, ttl) in enumerate([
+                ("late_mean", "points/episode", "mean, last 100k games"),
+                ("volatility", "|Δ| between checkpoints", "volatility"),
+                ("above_parity", "fraction of checkpoints", "above parity")]):
+            _strip(fig.add_subplot(gs[1, j]), per_run, conds, key, lab, ttl)
+    fig.savefig(f"{FIGDIR}/fig8_algorithm_families.png")
+    plt.close(fig)
+    return "fig8_algorithm_families.png"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default=None)
@@ -377,6 +421,7 @@ def main():
         "fig5": lambda: fig5_coevolution(within, per_run),
         "fig6": lambda: fig6_proxy(proxy),
         "fig7": lambda: fig7_cross_run(across),
+        "fig8": lambda: fig8_families(runs, per_run),
     }
     for k, fn in todo.items():
         if args.only and k not in args.only.split(","):
