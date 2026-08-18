@@ -45,13 +45,28 @@ and it scores about a point per episode worse than the best individual in the
 same pool. At the end of a run the exported champion is below parity while dozens
 of its own peers are above it.
 
-**5. A hall of fame that is also a gene source abolishes learning.** Our first
-archive implementation applied the replacement rule to archive games, so a
-winning archived genome became the *parent* of the member it beat. At p = 0.25
-that copies an older genotype back into the pool roughly one game in eight. Every
-such run failed to reach long rallies and produced 0 above-parity checkpoints out
-of 100, while every control run did both. The corrected version — archive as a
-*test*, never a parent, as in Rosin & Belew (1997) — is reported alongside it.
+**5. A hall of fame is a tax, not insurance — when skill is transitive.** We
+tested both readings of the archive. Used as a *parent* (a winning archived
+genome becomes the parent of the member it beat) it abolishes learning outright:
+one seed in six ever got off the floor, against six of six for the control. Used
+as a *test* in the literature's sense (archive supplies opponents, never genes)
+it stops being destructive but still does not help — and the reason is
+measurable. The archive's win rate against the current population decays from
+~0.50 to under 0.10 over a run, in every seed. Because skill here is transitive,
+a past champion is simply a weaker player, so roughly **22% of late-training
+games produce no selection event at all**. The diagnostic generalises: log your
+archive's win rate; if it decays to zero, the archive has become a free win and
+its budget is being subtracted from the live arms race.
+
+**6. Reliability is where the methods differ — not ceiling.** Four families were
+run at 500,000 games each: the 2020 GA, a generational GA in the style of Ha's
+2015 experiment, a self-play evolution strategy, and the corrected archive. They
+reach a *similar* ceiling — the best ES seed produces the single highest endpoint
+in the study, above every control seed. They differ enormously in their floor.
+Only the plain 2020 GA learned to rally in every seed and beat the 2015 expert in
+every seed; the others are bimodal, and their across-seed spread is about three
+times larger. A study running one seed per family could easily have crowned the
+ES. This is the clearest thing in the repository about why a design beats a run.
 
 <!-- table:r -->
 | condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
