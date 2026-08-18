@@ -135,6 +135,52 @@ def main():
     else:
         check("population snapshot present", False, "snapshot.npz missing")
 
+    # --- the compiled environment is the same game --------------------
+    # The experiment matrix is trained in fastvolley.py, so the port has to be
+    # the benchmark, not merely similar to it. Full evidence is in
+    # validate_fastvolley.py; these are the cheap versions of those checks.
+    try:
+        import fastvolley as fv
+        from slimevolleygym import slimevolley as sv
+
+        consts = [("REF_W", sv.REF_W, fv.REF_W), ("REF_U", sv.REF_U, fv.REF_U),
+                  ("GRAVITY", sv.GRAVITY, fv.GRAVITY),
+                  ("TIMESTEP", sv.TIMESTEP, fv.TIMESTEP),
+                  ("NUDGE", sv.NUDGE, fv.NUDGE),
+                  ("MAX_BALL_SPEED", sv.MAX_BALL_SPEED, fv.MAX_BALL_SPEED),
+                  ("PLAYER_SPEED_X", sv.PLAYER_SPEED_X, fv.PLAYER_SPEED_X),
+                  ("PLAYER_SPEED_Y", sv.PLAYER_SPEED_Y, fv.PLAYER_SPEED_Y),
+                  ("MAXLIVES", sv.MAXLIVES, fv.MAXLIVES),
+                  ("INIT_DELAY_FRAMES", sv.INIT_DELAY_FRAMES,
+                   fv.INIT_DELAY_FRAMES)]
+        bad = [n for n, a, b in consts if a != b]
+        check("compiled env constants match slimevolleygym exactly",
+              not bad, f"{len(consts)} constants" if not bad
+              else f"differ: {bad}")
+
+        import validate_fastvolley as vf
+        rng = np.random.default_rng(11)
+        pr = rng.normal(size=273) * 0.5
+        pl = rng.normal(size=273) * 0.5
+        vx = rng.uniform(-20.0, 20.0, size=64)
+        vy = rng.uniform(10.0, 25.0, size=64)
+        rs, rt, rtr = vf.reference_game(pr, pl, False, vx, vy)
+        cs, ct, ctr = vf.compiled_game(pr, pl, False, vx, vy)
+        same = (rs == cs) and (rt == ct) and bool((rtr == ctr).all())
+        check("compiled env reproduces a reference game bit for bit", same,
+              f"score {rs} vs {cs}, length {rt} vs {ct}, "
+              f"max|dev| {np.abs(rtr - ctr).max() if rt == ct else float('nan')}")
+
+        w, b = fv.baseline_arrays()
+        champs, streaks, meanlen, ties, hofwins = fv.run_ga(
+            1, 2000, 32, 0.1, 1000, 0.0, 1000, 8, w, b, 0.5)
+        check("compiled GA runs and exports 273-parameter champions",
+              champs.shape[1] == 273 and streaks[-1] > 0,
+              f"{champs.shape[0]} checkpoints, best streak {streaks[-1]}")
+    except ImportError as e:
+        check("compiled environment available", False,
+              f"{e} — install requirements-fast.txt")
+
     print("=" * 62)
     if FAILS:
         print(f"{len(FAILS)} CHECK(S) FAILED: {', '.join(FAILS)}")
