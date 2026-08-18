@@ -93,3 +93,14 @@ Rather than delete the runs, both readings are now tested:
 
 `hof-eval` is queued ahead of the new algorithm families, because without it
 the study's headline question is answered only by a broken design.
+
+## 2026-08-18 19:20 UTC — `hof-0.50` dropped from the remaining queue
+
+The queue was flattened from six sequential per-condition invocations into one
+ordered pass, because each invocation ended with fewer jobs than workers and left
+cores idle at every boundary.
+
+`hof-0.50` was dropped from the remainder at the same time. One seed of it had
+completed (final -4.88, 0/100 above parity), matching `hof-0.25` (5 seeds) and
+`hof-full`. A fourth dose of an archive design already shown to abolish learning
+adds no information. The single completed seed is retained and reported.
