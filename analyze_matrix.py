@@ -74,7 +74,24 @@ def metrics(run):
                         "min": float(chunk.min()), "max": float(chunk.max()),
                         "above": int((chunk > 0).sum()), "n": len(chunk)})
 
+    # Confound worth quantifying rather than hand-waving: in a hall-of-fame
+    # game the archive entry is immutable, so when the POPULATION member wins,
+    # nothing is overwritten. Those conditions therefore run slightly fewer
+    # selection events per game than the control at the same game budget.
+    hof_p = float(run["hof_prob"][0])
+    hof_win = float(np.mean(run["hof_winrate"][run["hof_winrate"] > 0])) \
+        if (run["hof_winrate"] > 0).any() else 0.0
+    skipped = hof_p * (1.0 - hof_win) if hof_p > 0 else 0.0
+
     return {
+        # Stability is only interpretable conditional on competence: a run that
+        # never learned anything has zero volatility and zero drawdown, and so
+        # scores perfectly on every stability metric. `reached` marks the runs
+        # whose population ever held 1,500-step rallies against itself, and the
+        # stability comparisons are reported over that subset as well as over all.
+        "reached": bool(t_int is not None),
+        "hof_archive_winrate": hof_win,
+        "replacements_skipped": skipped,
         "window_profile": profile,
         "t_internal": t_int,
         "lag_internal_to_parity": ((t_par - t_int)
@@ -166,7 +183,8 @@ def main():
     # ---- per-condition aggregates ---------------------------------------
     keys = ["final", "peak", "above_parity", "late_mean", "late_sd",
             "volatility", "drawdown", "final_win_rate", "final_meanlen",
-            "late_win_rate", "late_tie_rate"]
+            "late_win_rate", "late_tie_rate", "replacements_skipped",
+            "hof_archive_winrate"]
     if holdout:
         keys += ["final_holdout", "peak_holdout"]
 
@@ -180,6 +198,13 @@ def main():
             vals = [r[k] for r in rows if k in r]
             if vals:
                 agg[k] = su.describe(vals)
+        agg["n_reached"] = int(sum(bool(r["reached"]) for r in rows))
+        rr = [r for r in rows if r["reached"]]
+        for k in ("late_mean", "volatility", "drawdown", "above_parity",
+                  "final", "final_holdout"):
+            vals = [r[k] for r in rr if k in r]
+            if len(vals) > 0:
+                agg[k + "_reached"] = su.describe(vals)
         for key in ("t_parity", "t_internal", "lag_internal_to_parity"):
             tp = [r[key] for r in rows]
             hit = [t for t in tp if t is not None]
@@ -205,12 +230,24 @@ def main():
             b = [r[k] for r in ctrl if k in r]
             if len(a) > 1 and len(b) > 1:
                 comparisons[cond][k] = su.compare(a, b)
+        # the same comparisons restricted to runs that actually learned
+        ra = [r for r in rows if r["reached"]]
+        rb = [r for r in ctrl if r["reached"]]
+        for k in ("late_mean", "volatility", "drawdown", "above_parity"):
+            a = [r[k] for r in ra if k in r]
+            b = [r[k] for r in rb if k in r]
+            if len(a) > 1 and len(b) > 1:
+                comparisons[cond][k + "_reached"] = su.compare(a, b)
+        comparisons[cond]["n_reached"] = {"condition": len(ra),
+                                          "control": len(rb),
+                                          "condition_total": len(rows),
+                                          "control_total": len(ctrl)}
 
     json.dump({"conditions": conds, "vs_control": comparisons},
               open(os.path.join(args.outdir, "conditions.json"), "w"), indent=1)
 
     # ---- console summary -------------------------------------------------
-    hdr = f"{'condition':<12}{'n':>3}  {'final':>16}  {'late_mean':>16}  " \
+    hdr = f"{'condition':<12}{'n':>3}{'lrn':>5}  {'final':>16}  {'late_mean':>16}  " \
           f"{'volatility':>12}  {'drawdown':>10}  {'above':>7}"
     print("\n" + hdr)
     print("-" * len(hdr))
@@ -220,7 +257,7 @@ def main():
         v = agg.get("volatility", {})
         d = agg.get("drawdown", {})
         ap_ = agg.get("above_parity", {})
-        print(f"{cond:<12}{agg['n_runs']:>3}  "
+        print(f"{cond:<12}{agg['n_runs']:>3}{agg.get('n_reached', 0):>5}  "
               f"{f.get('mean', float('nan')):>7.3f} +/- {f.get('sem', float('nan')):<6.3f}  "
               f"{lm.get('mean', float('nan')):>7.3f} +/- {lm.get('sem', float('nan')):<6.3f}  "
               f"{v.get('mean', float('nan')):>12.3f}  {d.get('mean', float('nan')):>10.3f}  "

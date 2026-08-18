@@ -37,6 +37,7 @@ import time
 
 import numpy as np
 
+import algorithms as alg
 import fastvolley as fv
 
 # --------------------------------------------------------------------------
@@ -68,6 +69,23 @@ CONDITIONS = {
     "sigma-0.20": dict(sigma=0.20, pop=128, hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
     "pop-32":     dict(sigma=0.10, pop=32,  hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
     "pop-512":    dict(sigma=0.10, pop=512, hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
+    # Different search machinery, identical policy class and environment.
+    # ga2015: generational, computed fitness, elitism + uniform crossover.
+    #         pop 100 x 10 opponents = 500 games per generation, 1,000
+    #         generations, top 20% retained.
+    # es:     self-play OpenAI-ES. 50 mirrored candidates x 4 opponents = 100
+    #         games per iteration, 5,000 iterations; the reported champion is
+    #         the distribution mean, so there is no champion-selection proxy.
+    # The archive as a TEST rather than a parent (see algorithms.run_ga_hof_eval).
+    # hof-0.25/0.50/full inject archive genes back into the pool, which turned
+    # out to abolish learning; this is the same intervention done the way the
+    # literature means it, with a full-run archive.
+    "hof-eval":   dict(algo="hof_eval", sigma=0.10, pop=128, hof_prob=0.25,
+                       cap=512, seeds=SEEDS_MAIN, pops=False),
+    "ga2015":     dict(algo="ga2015", sigma=0.10, pop=100, n_opponents=10,
+                       n_elite=20, hof_prob=0.00, seeds=SEEDS_MAIN, pops=False),
+    "es":         dict(algo="es", sigma=0.10, pop=50, n_opponents=4,
+                       alpha=0.03, hof_prob=0.00, seeds=SEEDS_MAIN, pops=False),
 }
 
 HOF_EVERY = 1_000           # a champion is archived this often
@@ -88,7 +106,35 @@ def one_run(job):
 
     w, b = fv.baseline_arrays()
     t0 = time.time()
-    if cfg["pops"]:
+    algo = cfg.get("algo", "ga")
+    if algo == "ga2015":
+        champs, champ_fit, meanlen, per_gen = alg.run_ga2015(
+            seed, tournaments, cfg["pop"], cfg["n_opponents"], cfg["n_elite"],
+            cfg["sigma"], SAVE_EVERY, w, b, INIT_SCALE)
+        streaks = np.zeros(len(champs), dtype=np.int64)
+        ties = champ_fit
+        hofwins = np.zeros(len(champs))
+        pops = np.zeros((0, 0, 0), dtype=np.float32)
+        pop_streaks = np.zeros((0, 0), dtype=np.int64)
+    elif algo == "hof_eval":
+        champs, streaks, meanlen, archwin = alg.run_ga_hof_eval(
+            seed, tournaments, cfg["pop"], cfg["sigma"], SAVE_EVERY,
+            cfg["hof_prob"], HOF_EVERY, cfg.get("cap", HOF_CAPACITY), w, b,
+            INIT_SCALE)
+        ties = np.zeros(len(champs))
+        hofwins = archwin
+        pops = np.zeros((0, 0, 0), dtype=np.float32)
+        pop_streaks = np.zeros((0, 0), dtype=np.int64)
+    elif algo == "es":
+        champs, spread, meanlen, per_gen = alg.run_es(
+            seed, tournaments, cfg["pop"], cfg["n_opponents"], cfg["sigma"],
+            cfg["alpha"], SAVE_EVERY, w, b, INIT_SCALE)
+        streaks = np.zeros(len(champs), dtype=np.int64)
+        ties = spread
+        hofwins = np.zeros(len(champs))
+        pops = np.zeros((0, 0, 0), dtype=np.float32)
+        pop_streaks = np.zeros((0, 0), dtype=np.int64)
+    elif cfg["pops"]:
         champs, streaks, meanlen, pops, pop_streaks = fv.run_ga_with_pops(
             seed, tournaments, cfg["pop"], cfg["sigma"], SAVE_EVERY,
             cfg["hof_prob"], HOF_EVERY, cfg.get("cap", HOF_CAPACITY), w, b,
@@ -135,6 +181,7 @@ def one_run(job):
         hof_prob=np.array([cfg["hof_prob"]]), seed=np.array([seed]),
         hof_capacity=np.array([cfg.get("cap", HOF_CAPACITY)]),
         hof_every=np.array([HOF_EVERY]),
+        algo=np.array([algo]),
         sweep_episodes=np.array([SWEEP_EPISODES]),
         sweep_seed=np.array([SWEEP_SEED]),
         train_sec=np.array([train_sec]), eval_sec=np.array([eval_sec]),

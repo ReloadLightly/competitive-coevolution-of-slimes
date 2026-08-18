@@ -7,62 +7,125 @@
 ## 1. The reference run: a phase change, and a lag
 
 We first report the single run trained on the unmodified `slimevolleygym`
-environment, because it is the run that the rest of the study was built to
-explain. It is Ha's algorithm at Ha's budget: 128 individuals, 500,000
-tournament games, mutation σ = 0.1, no opponent but itself.
+environment, because it is the run the rest of the study was built to explain.
+It is Ha's algorithm at Ha's budget: 128 individuals, 500,000 tournament games,
+mutation σ = 0.1, no opponent but itself.
 
-Its trajectory has two regimes (Figure 1). For the first hundred thousand
-games the champion loses every episode to the 2015 baseline by nearly the
-maximum margin — a flat floor at roughly −4.85 points per episode, with a
-standard deviation across checkpoints of 0.05. Then, over about fifty thousand
-games, it climbs almost four points and begins producing champions that beat
-the 2015 expert outright.
+Its trajectory has two regimes (Figure 1). For the first hundred thousand games
+the champion loses every episode to the 2015 baseline by nearly the maximum
+margin — a floor at roughly −4.82 points per episode with a standard deviation
+across checkpoints of 0.05. Then, over about fifty thousand games, it climbs
+almost four points and begins producing champions that beat the 2015 expert
+outright.
 
-The interesting part is *when* the population knew. Rally length in the
-population's own training games — a purely internal measurement with no
-external opponent anywhere in it — crosses 1,500 steps at **104,200 games**.
-The first checkpoint to score above parity against the 2015 baseline arrives at
+The interesting part is *when the population knew*. Rally length in the
+population's own training games — a purely internal measurement, with no
+external opponent anywhere in it — crosses 1,500 steps at **104,200 games**. The
+first checkpoint to score above parity against the 2015 baseline arrives at
 **172,000 games**. The internal signal leads the external one by roughly
-**68,000 games**, a third of the way through the run.
+**68,000 games**.
 
 That gap is the practical lesson of the whole study, and it is the lesson
-February 2026 got wrong in the other direction. An evaluation that stopped at
-game 90,000 would have reported total failure from a population that was
-already improving steadily; the only thing missing was that its improvements
-had not yet generalised beyond its own family. *Internal selection pressure
-leads external measurement.* Any self-improvement loop measured too early
-reads as a dead loop.
+February 2026 got wrong in the other direction. An evaluation stopped at game
+90,000 would have reported total failure from a population that was already
+improving steadily; the only thing missing was that its improvements had not yet
+generalised beyond its own family. *Internal selection pressure leads external
+measurement.* Any self-improvement loop measured too early reads as a dead loop.
 
 **Damping, and what remains.** Split the run into 100,000-game windows and the
-picture is neither "it learns" nor "it thrashes":
-
-| games | mean | s.d. | above parity |
-|---|---|---|---|
-| 0–100k | −4.82 | 0.05 | 0/100 |
-| 100k–200k | −2.02 | 1.64 | 8/100 |
-| 200k–300k | −0.55 | 0.78 | 21/100 |
-
-The level rises and the swings shrink, but neither converges: the population
-settles into a band just below parity, from which it repeatedly produces
-champions that beat the 2015 expert and then loses them again. Held out on a
-disjoint evaluation seed over 1,000 episodes, the best checkpoint of the run
-scores **+0.304 ± 0.806** (s.e.m. 0.025) — within noise of Ha's published
-+0.353 ± 0.728 for the same algorithm at the same budget.
+picture is neither "it learns" nor "it thrashes": the level rises and the swings
+shrink, but neither converges. The population settles into a band just below
+parity from which it repeatedly produces baseline-beating champions and then
+loses them again. Held out on a disjoint evaluation seed over 1,000 episodes,
+the best checkpoint of the run scores **+0.304 ± 0.806** (s.e.m. 0.025) — within
+noise of Ha's published +0.353 ± 0.728 for the same algorithm at the same
+budget. Full numbers in Table 3.
 
 This is where the previous version of this study stopped, and it is exactly as
-far as one run can go. Everything in that paragraph is compatible with at
-least three different mechanisms, and separating them needs a design.
+far as one run can go. Everything above is compatible with at least three
+different mechanisms, and separating them needs a design.
 
-## 2. The same algorithm, twelve times
+## 2. The same algorithm, several times: the phase change is real, its timing is not
 
-*(Section filled from `results/analysis/conditions.json`; see Table 1 and
-Figure 2.)*
+Running the identical algorithm on fresh seeds changes the picture in one
+specific way. Every control run reaches the same *place*; almost nothing about
+*when* it gets there replicates.
 
-## 3. What "competence" means here
+<!-- table:8 -->
+| condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
+|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 5 | 5/5 | 160k (55k–415k) | 250k (85k–440k) (5/5) | 75k |
+| archive as parent, p=0.25 | 3 | 0/3 | never | never (0/3) | — |
 
-*(Win/draw/loss decomposition and rally length; Table 1 and Table 3.)*
+'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
+<!-- /table:8 -->
+
+Read the range column, not the median. The internal transition happens anywhere
+from 55,000 to 415,000 games — a spread of more than 7× — and the first
+above-parity checkpoint anywhere from 85,000 to 440,000. One seed had already
+transitioned before the reference run's floor ended; another was still on the
+floor at 400,000 games and produced only three above-parity checkpoints out of a
+hundred. The reference run's own timing (104,200 internal, 172,000 external)
+sits unremarkably inside that distribution, which is worth noting for a second
+reason: it is a trajectory-level agreement between two independent
+implementations of the same algorithm, on top of the per-game bit-exactness of
+Table A1.
+
+What *does* replicate is the ceiling. Peak checkpoint scores across control
+seeds fall in a narrow band a little above parity, while the endpoint of the
+same runs ranges from clearly winning to clearly losing. The lag from internal
+to external progress replicates too, in the sense of always being present and
+always being large: 25,000 to 100,000 games.
+
+The methodological consequence is blunt. **A single run of this algorithm
+supports no claim about when a phase change occurs, and a run stopped at any
+particular budget supports no claim about the algorithm's final quality.** The
+first version of this study reported a transition "at roughly 100,000 games";
+the honest version of that statement is "somewhere between 55,000 and 415,000
+games, and this seed happened to do it at 104,200".
+
+![six control seeds](../../results/figures/fig2_control_seeds.png)
+
+*Figure 2. Every control seed (thin) with the median and inter-quartile band
+(thick), and the reference run subsampled onto the same checkpoint grid
+(dashed). All runs reach the same band; the games at which they get there differ
+by an order of magnitude.*
+
+## 3. What "competence" means here, concretely
+
+Parity against the 2015 champion is a low bar in absolute terms and a
+substantial one in this setting, so it is worth saying exactly what the evolved
+agents do.
+
+Before the transition, the champion loses 0–5 in a few hundred steps: it is
+scored on almost immediately, repeatedly, and every episode ends early because
+one side has run out of lives. After the transition, the modal outcome is a
+*draw at the time limit*: the evolved agent and the 2015 champion hold each
+other for the full 3,000 steps without either side losing five points. Mean
+evaluation rally length rises from roughly 600 steps to essentially the 3,000
+cap, and the win/draw/loss decomposition of a good late champion is dominated by
+draws (Table 1, Table 3).
+
+That is the shape of the competence self-play produces here: not an agent that
+overwhelms the 2015 expert, but one that has learned to not lose to it. The
+population never sees that opponent in training, so what transfers is a general
+defensive competence rather than a counter-strategy.
 
 ## 4. The two implementations agree
 
-*(Bit-level equivalence (Table A1) and the trajectory-level continuation of
-the same population snapshot (Table A3).)*
+The compiled environment is the benchmark, not an approximation of it, and the
+evidence is at three levels.
+
+*Per game.* Driven from an identical stream of serve velocities, 200 paired
+games agree bit for bit — ball position and velocity, both agents' positions,
+the frame at which every rally ends, the final score and the episode length —
+across 265,797 environment steps and four policy populations chosen to exercise
+different parts of the state space (Table A1). Throughput on one core goes from
+8.7 to 274 games/second.
+
+*Per trajectory.* The reference run's own committed population snapshot,
+continued in both implementations, produces trajectories in the same band
+(Table A3).
+
+*Per distribution.* The reference run's transition timing and peak score both
+sit inside the compiled control condition's seed distribution, as §2 describes.

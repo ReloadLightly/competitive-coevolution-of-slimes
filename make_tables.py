@@ -27,16 +27,20 @@ import numpy as np
 ANDIR = "results/analysis"
 PAPER = "docs/paper"
 LABELS = {
-    "control": "control (Ha GA)",
-    "hof-0.25": "hall of fame, p=0.25",
-    "hof-0.50": "hall of fame, p=0.50",
+    "control": "control (Ha 2020 GA)",
+    "hof-0.25": "archive as parent, p=0.25",
+    "hof-0.50": "archive as parent, p=0.50",
+    "hof-full": "archive as parent, full span",
+    "hof-eval": "archive as test, full span",
+    "ga2015": "generational GA (Ha 2015)",
+    "es": "self-play ES",
     "sigma-0.05": "sigma = 0.05",
     "sigma-0.20": "sigma = 0.20",
     "pop-32": "population 32",
     "pop-512": "population 512",
 }
-ORDER = ["control", "hof-0.25", "hof-0.50", "sigma-0.05", "sigma-0.20",
-         "pop-32", "pop-512"]
+ORDER = ["control", "hof-eval", "hof-0.25", "hof-0.50", "hof-full",
+         "ga2015", "es", "sigma-0.05", "sigma-0.20", "pop-32", "pop-512"]
 
 
 def load(name):
@@ -330,9 +334,46 @@ def table_7(d):
     return "\n".join(out)
 
 
+def table_8(d):
+    """When the phase change happens, and the internal-to-external lag."""
+    per_run = d["per_run"]
+    if not per_run:
+        return None
+    out = ["| condition | runs | reached long rallies | internal transition "
+           "(median, range) | first parity (median, range) | lag (median) |",
+           "|---|---|---|---|---|---|"]
+    for k in ORDER:
+        rows = [v for v in per_run.values() if v["condition"] == k]
+        if not rows:
+            continue
+        ti = [r["t_internal"] for r in rows if r.get("t_internal")]
+        tp = [r["t_parity"] for r in rows if r.get("t_parity")]
+        lg = [r["lag_internal_to_parity"] for r in rows
+              if r.get("lag_internal_to_parity")]
+        rng = lambda v: (f"{np.median(v)/1000:.0f}k ({min(v)/1000:.0f}k–"
+                         f"{max(v)/1000:.0f}k)") if v else "never"
+        out.append(f"| {LABELS[k]} | {len(rows)} | {len(ti)}/{len(rows)} | "
+                   f"{rng(ti)} | {rng(tp)} ({len(tp)}/{len(rows)}) | "
+                   f"{f'{np.median(lg)/1000:.0f}k' if lg else '—'} |")
+    ref = d["reference"]
+    if ref and ref.get("t_internal"):
+        out.append(f"| *reference run (1 run, real environment)* | 1 | 1/1 | "
+                   f"*{ref['t_internal']/1000:.0f}k* | "
+                   f"*{ref['t_parity']/1000:.0f}k* | "
+                   f"*{(ref['t_parity']-ref['t_internal'])/1000:.0f}k* |")
+    out.append("")
+    out.append("'Internal transition' is the first checkpoint at which the "
+               "population's own training games average more than 1,500 steps — "
+               "measured with no external opponent involved. 'First parity' is "
+               "the first checkpoint scoring above 0 against the 2015 baseline. "
+               "The lag between them is how far internal progress runs ahead of "
+               "anything an external evaluation can see.")
+    return "\n".join(out)
+
+
 TABLES = {
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
-    "6": table_6, "7": table_7,
+    "6": table_6, "7": table_7, "8": table_8,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
