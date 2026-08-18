@@ -1,0 +1,742 @@
+{
+ "per_run": {
+  "control_s101": [
+   {
+    "tournament": 50000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.883333333333334,
+    "internal_score": -4.9,
+    "external_score": -4.8,
+    "streak_rank": 77,
+    "internal_rank": 116,
+    "recovered": -0.19999999999999787
+   },
+   {
+    "tournament": 100000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.883333333333334,
+    "internal_score": -4.866666666666666,
+    "external_score": -4.8,
+    "streak_rank": 96,
+    "internal_rank": 34,
+    "recovered": 0.20000000000000853
+   },
+   {
+    "tournament": 150000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.866666666666666,
+    "internal_score": -4.833333333333333,
+    "external_score": -4.733333333333333,
+    "streak_rank": 51,
+    "internal_rank": 25,
+    "recovered": 0.25
+   },
+   {
+    "tournament": 200000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.866666666666666,
+    "internal_score": -4.766666666666667,
+    "external_score": -4.7,
+    "streak_rank": 73,
+    "internal_rank": 25,
+    "recovered": 0.6
+   },
+   {
+    "tournament": 250000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.6833333333333333,
+    "internal_score": -2.433333333333333,
+    "external_score": -0.18333333333333332,
+    "streak_rank": 41,
+    "internal_rank": 65,
+    "recovered": -0.49999999999999983
+   },
+   {
+    "tournament": 300000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.3833333333333333,
+    "internal_score": 0.016666666666666666,
+    "external_score": 0.06666666666666667,
+    "streak_rank": 78,
+    "internal_rank": 2,
+    "recovered": 0.9655172413793103
+   },
+   {
+    "tournament": 350000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.3333333333333333,
+    "internal_score": -0.8666666666666667,
+    "external_score": 0.3333333333333333,
+    "streak_rank": 99,
+    "internal_rank": 79,
+    "recovered": 0.27999999999999997
+   },
+   {
+    "tournament": 400000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.45,
+    "internal_score": -0.3333333333333333,
+    "external_score": 0.5,
+    "streak_rank": 3,
+    "internal_rank": 97,
+    "recovered": -15.66666666666667
+   },
+   {
+    "tournament": 450000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.05,
+    "internal_score": -0.7,
+    "external_score": 0.5,
+    "streak_rank": 35,
+    "internal_rank": 111,
+    "recovered": -1.6666666666666665
+   },
+   {
+    "tournament": 500000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.11666666666666667,
+    "internal_score": 0.43333333333333335,
+    "external_score": 0.48333333333333334,
+    "streak_rank": 48,
+    "internal_rank": 5,
+    "recovered": 0.8636363636363635
+   }
+  ],
+  "control_s102": [
+   {
+    "tournament": 50000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.8,
+    "internal_score": -4.55,
+    "external_score": -4.3,
+    "streak_rank": 83,
+    "internal_rank": 8,
+    "recovered": 0.5
+   },
+   {
+    "tournament": 100000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -3.3666666666666667,
+    "internal_score": -0.13333333333333333,
+    "external_score": 0.08333333333333333,
+    "streak_rank": 99,
+    "internal_rank": 7,
+    "recovered": 0.9371980676328502
+   },
+   {
+    "tournament": 150000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.2666666666666666,
+    "internal_score": -0.5666666666666667,
+    "external_score": 0.31666666666666665,
+    "streak_rank": 70,
+    "internal_rank": 42,
+    "recovered": 0.4421052631578947
+   },
+   {
+    "tournament": 200000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.7666666666666666,
+    "internal_score": -0.5666666666666667,
+    "external_score": 0.26666666666666666,
+    "streak_rank": 99,
+    "internal_rank": 43,
+    "recovered": 0.5901639344262295
+   },
+   {
+    "tournament": 250000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.11666666666666667,
+    "internal_score": -0.43333333333333335,
+    "external_score": 0.4666666666666667,
+    "streak_rank": 30,
+    "internal_rank": 77,
+    "recovered": -1.5714285714285716
+   },
+   {
+    "tournament": 300000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.016666666666666666,
+    "internal_score": 0.13333333333333333,
+    "external_score": 0.4166666666666667,
+    "streak_rank": 31,
+    "internal_rank": 13,
+    "recovered": 0.29166666666666663
+   },
+   {
+    "tournament": 350000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.11666666666666667,
+    "internal_score": -0.03333333333333333,
+    "external_score": 0.36666666666666664,
+    "streak_rank": 26,
+    "internal_rank": 46,
+    "recovered": -0.6000000000000001
+   },
+   {
+    "tournament": 400000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.4,
+    "internal_score": 0.5166666666666667,
+    "external_score": 0.5833333333333334,
+    "streak_rank": 7,
+    "internal_rank": 3,
+    "recovered": 0.6363636363636365
+   },
+   {
+    "tournament": 450000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.3166666666666667,
+    "internal_score": -0.8333333333333334,
+    "external_score": 0.43333333333333335,
+    "streak_rank": 114,
+    "internal_rank": 101,
+    "recovered": 0.27619047619047615
+   },
+   {
+    "tournament": 500000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.1833333333333333,
+    "internal_score": 0.05,
+    "external_score": 0.36666666666666664,
+    "streak_rank": 121,
+    "internal_rank": 37,
+    "recovered": 0.7956989247311829
+   }
+  ],
+  "control_s103": [
+   {
+    "tournament": 50000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.883333333333334,
+    "internal_score": -4.866666666666666,
+    "external_score": -4.8,
+    "streak_rank": 59,
+    "internal_rank": 21,
+    "recovered": 0.20000000000000853
+   },
+   {
+    "tournament": 100000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.833333333333333,
+    "internal_score": -4.883333333333334,
+    "external_score": -4.766666666666667,
+    "streak_rank": 16,
+    "internal_rank": 109,
+    "recovered": -0.7500000000000133
+   },
+   {
+    "tournament": 150000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.833333333333333,
+    "internal_score": -4.8,
+    "external_score": -4.766666666666667,
+    "streak_rank": 45,
+    "internal_rank": 3,
+    "recovered": 0.5
+   },
+   {
+    "tournament": 200000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.883333333333334,
+    "internal_score": -4.866666666666666,
+    "external_score": -4.816666666666666,
+    "streak_rank": 48,
+    "internal_rank": 17,
+    "recovered": 0.25000000000001
+   },
+   {
+    "tournament": 250000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.9,
+    "internal_score": -4.883333333333334,
+    "external_score": -4.8,
+    "streak_rank": 111,
+    "internal_rank": 58,
+    "recovered": 0.1666666666666652
+   },
+   {
+    "tournament": 300000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.9,
+    "internal_score": -4.866666666666666,
+    "external_score": -4.766666666666667,
+    "streak_rank": 101,
+    "internal_rank": 34,
+    "recovered": 0.250000000000005
+   },
+   {
+    "tournament": 350000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.833333333333333,
+    "internal_score": -4.7,
+    "external_score": -4.65,
+    "streak_rank": 45,
+    "internal_rank": 1,
+    "recovered": 0.7272727272727273
+   },
+   {
+    "tournament": 400000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.883333333333334,
+    "internal_score": -4.883333333333334,
+    "external_score": -4.7,
+    "streak_rank": 93,
+    "internal_rank": 119,
+    "recovered": 0.0
+   },
+   {
+    "tournament": 450000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.6833333333333333,
+    "internal_score": -0.38333333333333336,
+    "external_score": 0.26666666666666666,
+    "streak_rank": 74,
+    "internal_rank": 44,
+    "recovered": 0.3157894736842105
+   },
+   {
+    "tournament": 500000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.1,
+    "internal_score": -0.13333333333333333,
+    "external_score": 0.4,
+    "streak_rank": 51,
+    "internal_rank": 55,
+    "recovered": -0.06666666666666665
+   }
+  ],
+  "control_s105": [
+   {
+    "tournament": 50000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.833333333333333,
+    "internal_score": -4.866666666666666,
+    "external_score": -4.766666666666667,
+    "streak_rank": 11,
+    "internal_rank": 34,
+    "recovered": -0.5
+   },
+   {
+    "tournament": 100000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.9,
+    "internal_score": -4.833333333333333,
+    "external_score": -4.7,
+    "streak_rank": 114,
+    "internal_rank": 14,
+    "recovered": 0.3333333333333363
+   },
+   {
+    "tournament": 150000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.8,
+    "internal_score": -4.633333333333334,
+    "external_score": -4.483333333333333,
+    "streak_rank": 90,
+    "internal_rank": 15,
+    "recovered": 0.5263157894736827
+   },
+   {
+    "tournament": 200000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.6166666666666667,
+    "internal_score": -1.1833333333333333,
+    "external_score": -0.4166666666666667,
+    "streak_rank": 4,
+    "internal_rank": 19,
+    "recovered": -2.833333333333333
+   },
+   {
+    "tournament": 250000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.23333333333333334,
+    "internal_score": -0.11666666666666667,
+    "external_score": 0.5166666666666667,
+    "streak_rank": 10,
+    "internal_rank": 35,
+    "recovered": -1.2352941176470584
+   },
+   {
+    "tournament": 300000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.45,
+    "internal_score": 0.16666666666666666,
+    "external_score": 0.48333333333333334,
+    "streak_rank": 2,
+    "internal_rank": 18,
+    "recovered": -8.500000000000002
+   },
+   {
+    "tournament": 350000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.05,
+    "internal_score": 0.06666666666666667,
+    "external_score": 0.45,
+    "streak_rank": 53,
+    "internal_rank": 49,
+    "recovered": 0.04166666666666666
+   },
+   {
+    "tournament": 400000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.6166666666666667,
+    "internal_score": -0.8,
+    "external_score": 0.5666666666666667,
+    "streak_rank": 105,
+    "internal_rank": 110,
+    "recovered": -0.15492957746478875
+   },
+   {
+    "tournament": 450000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.9333333333333333,
+    "internal_score": 0.31666666666666665,
+    "external_score": 0.4666666666666667,
+    "streak_rank": 117,
+    "internal_rank": 17,
+    "recovered": 0.8928571428571429
+   },
+   {
+    "tournament": 500000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.45,
+    "internal_score": 0.21666666666666667,
+    "external_score": 0.65,
+    "streak_rank": 110,
+    "internal_rank": 53,
+    "recovered": 0.6060606060606061
+   }
+  ],
+  "control_s104": [
+   {
+    "tournament": 50000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.8,
+    "internal_score": -4.7,
+    "external_score": -4.416666666666667,
+    "streak_rank": 63,
+    "internal_rank": 17,
+    "recovered": 0.2608695652173907
+   },
+   {
+    "tournament": 100000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.25,
+    "internal_score": -4.116666666666666,
+    "external_score": 0.05,
+    "streak_rank": 89,
+    "internal_rank": 83,
+    "recovered": 0.031007751937984593
+   },
+   {
+    "tournament": 150000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.4166666666666667,
+    "internal_score": -0.36666666666666664,
+    "external_score": 0.3333333333333333,
+    "streak_rank": 79,
+    "internal_rank": 20,
+    "recovered": 0.6
+   },
+   {
+    "tournament": 200000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.2833333333333333,
+    "internal_score": 0.05,
+    "external_score": 0.45,
+    "streak_rank": 36,
+    "internal_rank": 8,
+    "recovered": 0.4545454545454545
+   },
+   {
+    "tournament": 250000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.4333333333333333,
+    "internal_score": -0.4,
+    "external_score": 0.3333333333333333,
+    "streak_rank": 112,
+    "internal_rank": 65,
+    "recovered": 0.5849056603773585
+   },
+   {
+    "tournament": 300000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.2333333333333334,
+    "internal_score": -0.016666666666666666,
+    "external_score": 0.48333333333333334,
+    "streak_rank": 113,
+    "internal_rank": 52,
+    "recovered": 0.7087378640776699
+   },
+   {
+    "tournament": 350000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -2.25,
+    "internal_score": -0.08333333333333333,
+    "external_score": 0.5,
+    "streak_rank": 119,
+    "internal_rank": 44,
+    "recovered": 0.7878787878787878
+   },
+   {
+    "tournament": 400000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -3.0,
+    "internal_score": 0.18333333333333332,
+    "external_score": 0.45,
+    "streak_rank": 123,
+    "internal_rank": 13,
+    "recovered": 0.9227053140096617
+   },
+   {
+    "tournament": 450000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.18333333333333332,
+    "internal_score": -0.11666666666666667,
+    "external_score": 0.43333333333333335,
+    "streak_rank": 18,
+    "internal_rank": 59,
+    "recovered": -1.2
+   },
+   {
+    "tournament": 500000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.3333333333333333,
+    "internal_score": 0.4666666666666667,
+    "external_score": 0.4666666666666667,
+    "streak_rank": 16,
+    "internal_rank": 0,
+    "recovered": 1.0
+   }
+  ],
+  "control_s106": [
+   {
+    "tournament": 50000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -4.8,
+    "internal_score": -4.9,
+    "external_score": -4.766666666666667,
+    "streak_rank": 8,
+    "internal_rank": 103,
+    "recovered": -3.0000000000000266
+   },
+   {
+    "tournament": 100000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -1.3166666666666667,
+    "internal_score": -0.8333333333333334,
+    "external_score": -0.08333333333333333,
+    "streak_rank": 41,
+    "internal_rank": 28,
+    "recovered": 0.39189189189189183
+   },
+   {
+    "tournament": 150000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.6166666666666667,
+    "internal_score": -0.7333333333333333,
+    "external_score": 0.26666666666666666,
+    "streak_rank": 53,
+    "internal_rank": 64,
+    "recovered": -0.13207547169811312
+   },
+   {
+    "tournament": 200000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.2833333333333333,
+    "internal_score": 0.13333333333333333,
+    "external_score": 0.5833333333333334,
+    "streak_rank": 20,
+    "internal_rank": 45,
+    "recovered": -0.4999999999999999
+   },
+   {
+    "tournament": 250000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.5333333333333333,
+    "internal_score": 0.21666666666666667,
+    "external_score": 0.4666666666666667,
+    "streak_rank": 81,
+    "internal_rank": 13,
+    "recovered": 0.75
+   },
+   {
+    "tournament": 300000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.36666666666666664,
+    "internal_score": 0.5333333333333333,
+    "external_score": 0.55,
+    "streak_rank": 13,
+    "internal_rank": 1,
+    "recovered": 0.9090909090909088
+   },
+   {
+    "tournament": 350000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.03333333333333333,
+    "internal_score": -0.13333333333333333,
+    "external_score": 0.5166666666666667,
+    "streak_rank": 49,
+    "internal_rank": 70,
+    "recovered": -0.34482758620689646
+   },
+   {
+    "tournament": 400000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.1,
+    "internal_score": 0.08333333333333333,
+    "external_score": 0.6166666666666667,
+    "streak_rank": 46,
+    "internal_rank": 48,
+    "recovered": -0.03225806451612905
+   },
+   {
+    "tournament": 450000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": -0.15,
+    "internal_score": 0.2,
+    "external_score": 0.48333333333333334,
+    "streak_rank": 86,
+    "internal_rank": 31,
+    "recovered": 0.5526315789473684
+   },
+   {
+    "tournament": 500000,
+    "pop_size": 128,
+    "games_spent_ranking": 512,
+    "streak_score": 0.25,
+    "internal_score": 0.03333333333333333,
+    "external_score": 0.5833333333333334,
+    "streak_rank": 52,
+    "internal_rank": 100,
+    "recovered": -0.6499999999999999
+   }
+  ]
+ },
+ "summary": {
+  "streak_score": {
+   "volatility_mean": 0.8364197530864198,
+   "volatility_per_run": [
+    0.6444444444444444,
+    0.9166666666666666,
+    0.5574074074074077,
+    0.8092592592592593,
+    1.2185185185185186,
+    0.8722222222222222
+   ],
+   "level_mean": -1.9502777777777778,
+   "level_per_run": [
+    -2.328333333333333,
+    -1.305,
+    -3.9733333333333336,
+    -1.6416666666666668,
+    -1.8150000000000002,
+    -0.6383333333333333
+   ]
+  },
+  "internal_score": {
+   "volatility_mean": 0.7824074074074074,
+   "volatility_per_run": [
+    0.8703703703703705,
+    0.9444444444444442,
+    0.5888888888888891,
+    0.8018518518518517,
+    0.7555555555555556,
+    0.7333333333333335
+   ],
+   "level_mean": -1.6516666666666666,
+   "level_per_run": [
+    -2.325,
+    -0.6416666666666666,
+    -3.9266666666666667,
+    -1.5666666666666667,
+    -0.9099999999999999,
+    -0.5399999999999999
+   ]
+  },
+  "external_score": {
+   "volatility_mean": 0.6117283950617284,
+   "volatility_per_run": [
+    0.5907407407407407,
+    0.6,
+    0.6,
+    0.6388888888888888,
+    0.5833333333333334,
+    0.6574074074074073
+   ],
+   "level_mean": -1.1444444444444446,
+   "level_per_run": [
+    -1.7333333333333332,
+    -0.10000000000000005,
+    -3.7399999999999998,
+    -1.1233333333333335,
+    -0.09166666666666673,
+    -0.07833333333333328
+   ]
+  },
+  "gap_recovered_mean": -0.32852298273534625,
+  "ranking_games_per_snapshot": 512,
+  "episodes_per_individual": 60,
+  "n_runs": 6
+ }
+}

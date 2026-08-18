@@ -4,8 +4,9 @@
 
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | — ± — | — ± — | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
-| archive as parent, p=0.25 | 3 | — ± — | — ± — | -4.85 ± 0.00 | 0.01 | 0.07 | 0% | — (0/3) |
+| control (Ha 2020 GA) | 6 | -0.15 ± 0.27 | +0.32 ± 0.06 | -0.32 ± 0.23 | 0.67 | 0.60 | 26% | 192k (6/6) |
+| archive as parent, p=0.25 | 5 | -4.84 ± 0.01 | -4.84 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.06 | 0% | — (0/5) |
+| archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 
@@ -14,10 +15,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as parent, p=0.25 | `late_mean` | -4.456 | -1.00 | 0.036 |
-| archive as parent, p=0.25 | `volatility` | -0.698 | -1.00 | 0.036 |
-| archive as parent, p=0.25 | `drawdown` | -0.565 | -1.00 | 0.036 |
-| archive as parent, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `final_holdout` | -4.690 | -1.00 | 0.004 |
+| archive as parent, p=0.25 | `late_mean` | -4.529 | -1.00 | 0.004 |
+| archive as parent, p=0.25 | `volatility` | -0.661 | -1.00 | 0.004 |
+| archive as parent, p=0.25 | `drawdown` | -0.546 | -1.00 | 0.004 |
+| archive as parent, p=0.25 | `above_parity` | -0.263 | -1.00 | 0.004 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 
@@ -26,34 +28,87 @@ Exact two-sided Mann–Whitney U over all label assignments. Difference is condi
 
 | checkpoint | games | score vs 2015 baseline | won / drawn / lost | mean rally |
 |---|---|---|---|---|
-| final | 301,000 | -0.339 ± 0.978 (s.e.m. 0.031) | 16% / 44% / 40% | 3000 steps |
-| peak | 234,000 | +0.304 ± 0.806 (s.e.m. 0.025) | 32% / 58% / 10% | 3000 steps |
+| final | 377,000 | -0.471 ± 1.168 (s.e.m. 0.037) | 18% / 35% / 47% | 3000 steps |
+| peak | 314,000 | +0.287 ± 0.936 (s.e.m. 0.030) | 36% / 49% / 15% | 3000 steps |
 | Ha (2020), same algorithm and budget | 500,000 | +0.353 ± 0.728 | — | — |
 
-29 of 301 checkpoints score above parity on the 200-episode sweep. Held-out rows are 1,000 episodes at the disjoint evaluation seed. Internal transition (training rally length above 1,500 steps): not reached games; first checkpoint above parity: not reached games; lag — games.
+47 of 377 checkpoints score above parity on the 200-episode sweep. Held-out rows are 1,000 episodes at the disjoint evaluation seed. Internal transition (training rally length above 1,500 steps): 104,200 games; first checkpoint above parity: 172,000 games; lag 67,800 games.
+
+
+### Table 4
+
+| condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
+|---|---|---|---|---|
+| control (Ha 2020 GA) | 5 | +0.72 | 1/421 (0.2%) | 10.0 |
+| archive as parent, p=0.25 | 5 | +0.28 | 17/127 (13.4%) | 23.4 |
+
+Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.
+
+
+### Table 5
+
+| games | exported champion | best in the same pool | gap | exported rank | ρ(streak, score) | above parity in pool | mean pairwise genotype distance |
+|---|---|---|---|---|---|---|---|
+| 50,000 | -4.74 | -4.46 | 0.28 | 58 / 128 | +0.12 | 0 | 12.92 |
+| 100,000 | -4.32 | -2.65 | 1.67 | 72 / 128 | -0.00 | 1 | 11.03 |
+| 150,000 | -3.40 | -2.53 | 0.87 | 45 / 128 | +0.09 | 3 | 10.32 |
+| 200,000 | -2.48 | -1.78 | 0.70 | 63 / 128 | +0.03 | 5 | 9.88 |
+| 250,000 | -1.57 | -0.62 | 0.94 | 46 / 128 | +0.09 | 20 | 9.18 |
+| 300,000 | -1.38 | -0.50 | 0.87 | 51 / 128 | +0.13 | 25 | 10.54 |
+| 350,000 | -1.67 | -0.46 | 1.21 | 72 / 128 | +0.08 | 30 | 10.33 |
+| 400,000 | -1.41 | -0.41 | 1.00 | 63 / 128 | +0.11 | 46 | 11.81 |
+| 450,000 | -0.58 | +0.60 | 1.18 | 71 / 128 | -0.02 | 45 | 12.23 |
+| 500,000 | -0.29 | +0.66 | 0.94 | 73 / 128 | +0.06 | 58 | 11.36 |
+
+Control runs only (5 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
+
+
+### Table 6
+
+| condition | runs | median Elo | best run | worst run |
+|---|---|---|---|---|
+| control (Ha 2020 GA) | 5 | +373 | +785 | +238 |
+| archive as parent, p=0.25 | 5 | -421 | -355 | -483 |
+
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
 
 
 ### Table 7
 
 | games | mean across seeds | within-run s.d. | spread across seeds | checkpoints above parity |
 |---|---|---|---|---|
-| 0–100,000 | -4.34 | 0.67 | 0.63 | 1/100 |
-| 100,000–200,000 | -3.15 | 0.77 | 1.71 | 6/100 |
-| 200,000–300,000 | -1.73 | 0.73 | 1.80 | 21/100 |
-| 300,000–400,000 | -1.22 | 0.54 | 1.80 | 30/100 |
-| 400,000–500,000 | -0.39 | 0.77 | 0.54 | 50/100 |
+| 0–100,000 | -4.32 | 0.74 | 0.57 | 1/120 |
+| 100,000–200,000 | -2.76 | 0.83 | 1.78 | 14/120 |
+| 200,000–300,000 | -1.46 | 0.69 | 1.75 | 34/120 |
+| 300,000–400,000 | -1.01 | 0.51 | 1.71 | 45/120 |
+| 400,000–500,000 | -0.32 | 0.72 | 0.52 | 64/120 |
 
-Control condition, 5 seeds. 'Within-run s.d.' is the spread of checkpoint scores inside a window, averaged over seeds — the quantity the single-run version of this study claimed was damping. 'Spread across seeds' is the s.d. of the per-seed window means.
+Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores inside a window, averaged over seeds — the quantity the single-run version of this study claimed was damping. 'Spread across seeds' is the s.d. of the per-seed window means.
 
 
 ### Table 8
 
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | 5/5 | 160k (55k–415k) | 250k (85k–440k) (5/5) | 75k |
-| archive as parent, p=0.25 | 3 | 0/3 | never | never (0/3) | — |
+| control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
+| archive as parent, p=0.25 | 5 | 0/5 | never | never (0/5) | — |
+| archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
+| *reference run (1 run, real environment)* | 1 | 1/1 | *104k* | *172k* | *68k* |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
+
+
+### Table R
+
+| condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
+|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 6 | 6/6 | +0.32 ± 0.06 | -0.15 ± 0.27 | 26% |
+| archive as parent, p=0.25 | 5 | 0/5 | -4.84 ± 0.01 | -4.84 ± 0.01 | 0% |
+| archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
+| *reference run, unmodified environment* | 1 | 1/1 | *+0.29 ± 0.03* | *-0.47 ± 0.04* | *12%* |
+| *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
+
+Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.
 
 
 ### Table A1
@@ -72,11 +127,26 @@ All 200 paired games agree bit for bit over 265,797 environment steps. Throughpu
 
 | condition | seed | final (sweep) | final (held out) | peak (held out) | mean last 100k | volatility | drawdown | above parity | internal transition | first parity | train min |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| control | 101 | +0.14 | — | — | +0.10 | 0.23 | 0.29 | 21% | 235k | 335k | 31.0 |
-| control | 102 | -1.25 | — | — | -0.43 | 0.94 | 0.95 | 27% | 60k | 135k | 42.7 |
-| control | 103 | -0.29 | — | — | -1.40 | 1.24 | 0.72 | 3% | 415k | 440k | 17.3 |
-| control | 104 | +0.50 | — | — | -0.23 | 0.78 | 0.77 | 32% | 55k | 85k | 43.9 |
-| control | 105 | -0.33 | — | — | +0.02 | 0.35 | 0.42 | 25% | 160k | 250k | 38.8 |
-| hof-0.25 | 101 | -4.85 | — | — | -4.84 | 0.02 | 0.06 | 0% | — | — | 15.2 |
-| hof-0.25 | 102 | -4.82 | — | — | -4.85 | 0.01 | 0.08 | 0% | — | — | 11.2 |
-| hof-0.25 | 103 | -4.85 | — | — | -4.85 | 0.01 | 0.06 | 0% | — | — | 10.9 |
+| control | 101 | +0.14 | +0.26 | +0.39 | +0.10 | 0.23 | 0.29 | 21% | 235k | 335k | 31.0 |
+| control | 102 | -1.25 | -1.35 | +0.36 | -0.43 | 0.94 | 0.95 | 27% | 60k | 135k | 42.7 |
+| control | 103 | -0.29 | -0.31 | +0.04 | -1.40 | 1.24 | 0.72 | 3% | 415k | 440k | 17.3 |
+| control | 104 | +0.50 | +0.41 | +0.32 | -0.23 | 0.78 | 0.77 | 32% | 55k | 85k | 43.9 |
+| control | 105 | -0.33 | -0.23 | +0.36 | +0.02 | 0.35 | 0.42 | 25% | 160k | 250k | 38.8 |
+| control | 106 | +0.32 | +0.32 | +0.49 | +0.06 | 0.48 | 0.46 | 50% | 80k | 120k | 50.0 |
+| hof-0.25 | 101 | -4.85 | -4.83 | -4.83 | -4.84 | 0.02 | 0.06 | 0% | — | — | 15.2 |
+| hof-0.25 | 102 | -4.82 | -4.84 | -4.83 | -4.85 | 0.01 | 0.08 | 0% | — | — | 11.2 |
+| hof-0.25 | 103 | -4.85 | -4.86 | -4.84 | -4.85 | 0.01 | 0.06 | 0% | — | — | 10.9 |
+| hof-0.25 | 104 | -4.85 | -4.85 | -4.85 | -4.85 | 0.01 | 0.03 | 0% | — | — | 10.1 |
+| hof-0.25 | 106 | -4.82 | -4.83 | -4.85 | -4.84 | 0.01 | 0.05 | 0% | — | — | 12.4 |
+| hof-0.50 | 101 | -4.88 | -4.84 | -4.84 | -4.85 | 0.01 | 0.06 | 0% | — | — | 15.7 |
+
+
+### Table A3
+
+| continuation | games added | final score | checkpoints above parity |
+|---|---|---|---|
+| compiled, resume_s900 | 176,000 | -2.82 | 19/35 |
+| compiled, resume_s901 | 176,000 | +0.41 | 21/35 |
+| reference environment | 53,000 | -0.38 | 13/53 |
+
+All continuations start from the identical committed population snapshot at tournament 324,000. Independent continuations of one population diverge because the algorithm is stochastic; the question is whether the compiled ones land in the same band as the reference one.

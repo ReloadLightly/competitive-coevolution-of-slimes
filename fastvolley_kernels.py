@@ -145,3 +145,40 @@ def run_ga_resume(population, winning_streak, seed, n_tournaments, sigma,
             len_acc = 0.0
             ck += 1
     return champs, streaks, meanlen
+
+
+@njit(cache=True)
+def internal_rank(pop, n_opponents, seed, w, b):
+    """Rank a population by an internal round robin — no external opponent.
+
+    This is the deployable alternative to Ha's winning-streak proxy: spend a few
+    hundred games having the pool play itself, and export the individual with
+    the best mean point margin. It uses no information the algorithm does not
+    already have, so unlike "best against the 2015 baseline" it is a fix rather
+    than an oracle.
+
+    Returns the mean margin of each individual over the games it played.
+    """
+    np.random.seed(seed)
+    k = pop.shape[0]
+    fitness = np.zeros(k)
+    played = np.zeros(k)
+    rnn_a = np.zeros(7)
+    rnn_b = np.zeros(7)
+    empty = np.zeros(1)
+    n_games = (k * n_opponents) // 2
+    for _ in range(n_games):
+        i = np.random.randint(0, k)
+        j = np.random.randint(0, k)
+        while j == i:
+            j = np.random.randint(0, k)
+        score, _, _ = play_game(pop[i], POLICY_MLP, pop[j], POLICY_MLP, w, b,
+                                rnn_a, rnn_b, empty, empty, 0, False)
+        fitness[i] += score
+        fitness[j] -= score
+        played[i] += 1.0
+        played[j] += 1.0
+    for i in range(k):
+        if played[i] > 0.0:
+            fitness[i] /= played[i]
+    return fitness

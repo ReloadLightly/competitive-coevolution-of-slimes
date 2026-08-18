@@ -12,10 +12,12 @@ echo "TIER 1c: new algorithm families" >> results/matrix.log
 run --only ga2015,es --seeds 101,102,103,104
 echo "TIER 2: hof-full (flawed design, wider archive span)" >> results/matrix.log
 run --only hof-full --seeds 101,102,103
-echo "TIER 3: mutation scale" >> results/matrix.log
+echo "TIER 3: mutation scale (closes the step-size explanation)" >> results/matrix.log
 run --only sigma-0.05,sigma-0.20
-echo "TIER 4: population size" >> results/matrix.log
+echo "TIER 4: top up the three key conditions to 6 seeds" >> results/matrix.log
+run --only hof-eval,ga2015,es --seeds 105,106
+echo "TIER 5: population size (the collective axis)" >> results/matrix.log
 run --only pop-32,pop-512
-echo "TIER 5: hof dose response" >> results/matrix.log
+echo "TIER 6: hof dose response" >> results/matrix.log
 run --only hof-0.50
 echo "ALL TIERS COMPLETE" >> results/matrix.log

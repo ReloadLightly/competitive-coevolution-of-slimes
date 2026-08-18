@@ -54,8 +54,10 @@ specific way. Every control run reaches the same *place*; almost nothing about
 <!-- table:8 -->
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | 5/5 | 160k (55k–415k) | 250k (85k–440k) (5/5) | 75k |
-| archive as parent, p=0.25 | 3 | 0/3 | never | never (0/3) | — |
+| control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
+| archive as parent, p=0.25 | 5 | 0/5 | never | never (0/5) | — |
+| archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
+| *reference run (1 run, real environment)* | 1 | 1/1 | *104k* | *172k* | *68k* |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
 <!-- /table:8 -->
@@ -71,11 +73,12 @@ reason: it is a trajectory-level agreement between two independent
 implementations of the same algorithm, on top of the per-game bit-exactness of
 Table A1.
 
-What *does* replicate is the ceiling. Peak checkpoint scores across control
-seeds fall in a narrow band a little above parity, while the endpoint of the
-same runs ranges from clearly winning to clearly losing. The lag from internal
-to external progress replicates too, in the sense of always being present and
-always being large: 25,000 to 100,000 games.
+What *does* replicate is the ceiling. Every control seed produces a best
+champion at or above parity — held-out peak scores span +0.04 to +0.49 points
+per episode — while the *endpoint* of those same runs ranges from +0.41 to
+−1.35, i.e. from clearly winning to clearly losing. Where a run stops matters
+more than which run it is. The internal-to-external lag replicates too, in the
+sense of always being present and always being large: 25,000 to 100,000 games.
 
 The methodological consequence is blunt. **A single run of this algorithm
 supports no claim about when a phase change occurs, and a run stopped at any
