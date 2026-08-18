@@ -309,6 +309,54 @@ the machinery itself, with the policy class and the environment held identical:
 policy class and environment held identical. Top: median and inter-quartile band
 per family. Bottom: per-seed level, volatility and above-parity fraction.*
 
+**Both lose to the control.** The plain 2020 GA reaches a higher level in the
+last 100,000 games than either alternative, produces more above-parity
+checkpoints, and — the part that matters most given the seed variance in §2 of
+the results — is the only family in the entire study where *every* seed learned
+to rally. The generational GA manages it in five of six, the ES in fewer still.
+Effect sizes against the control are large and the exact tests are at or near
+significance at these sample sizes (Table 2).
+
+That the generational GA loses is the more informative of the two, because §2
+predicts it should have had an advantage. It ranks by an explicitly *computed*
+fitness — the mean point margin over about ten games — which is precisely the fix
+that §2 shows recovers most of the export-rule gap. It gets that for free and
+still ends up behind. Two differences plausibly outweigh it, and we can only
+name them rather than separate them here:
+
+- *Crossover between neural weight vectors is destructive.* Two networks can
+  implement similar behaviour with their hidden units in different orders, so
+  averaging or splicing their weight vectors produces a child resembling
+  neither. This is the competing-conventions (permutation) problem, and it is
+  exactly the failure that NEAT's historical markings were invented to solve. A
+  crossover-free variant of the same generational loop would separate this from
+  the next point; it is a three-run experiment and the obvious next step.
+- *Generational replacement is a coarser update.* Ha's 2020 loop changes one
+  individual per game; the generational loop discards 80% of the population
+  every 500 games. Against a moving opponent distribution, the finer-grained
+  update tracks better.
+
+The ES result deserves a caveat rather than a conclusion. It never reached
+parity in any seed, but at pilot scale we could not distinguish learning rates
+of 0.01, 0.03 and 0.1 — none of them had produced any external progress by the
+120,000 games we could afford to spend on tuning, which is unsurprising given
+that the control's own transition can arrive as late as 415,000 games. So the
+honest statement is that **self-play ES failed at the one configuration we could
+afford to tune**, not that self-play ES fails. What can be said without
+qualification is the structural point: the ES reports its distribution mean and
+therefore has no champion-selection proxy at all, so whatever its problems are,
+they are not the ones diagnosed in §2.
+
+The overall pattern across the whole matrix is worth stating plainly, because it
+is the opposite of what the design set out to find: **every intervention we tried
+made things worse.** An archive as parent destroys learning; an archive as test
+taxes it; crossover with computed fitness loses to a streak proxy; a
+distribution-based search does worst of all. The minimal loop — draw two, play
+one game, overwrite the loser — is the most robust thing in the study. That is a
+useful result to have measured rather than assumed, and it is a caution about
+adding machinery to a coevolutionary loop on the strength of what the machinery
+is *supposed* to fix.
+
 ## 7. Which condition's champions actually win?
 
 Scores against a frozen opponent can be gamed by a policy that happens to
