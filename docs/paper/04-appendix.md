@@ -299,6 +299,23 @@ Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
 <!-- /table:8 -->
 
+### Table 9 — promotion rules compared
+
+<!-- table:9 -->
+| promotion rule | games spent ranking | mean score of the exported individual | volatility of the reported series | gap to best closed | ρ(rule statistic, true skill) |
+|---|---|---|---|---|---|
+| winning streak (Ha's rule) | 0 | -1.95 | 0.84 | — | +0.04 |
+| *pick the population median* | *0* | *-1.83* | *0.57* | *—* | *—* |
+| internal round robin, 4 peers each | 256 | -1.77 | 0.72 | 22% | +0.32 |
+| internal round robin, 8 peers each | 512 | -1.55 | 0.77 | 50% | +0.41 |
+| internal round robin, 16 peers each | 1,024 | -1.49 | 0.70 | 57% | +0.49 |
+| internal round robin, 32 peers each | 2,048 | -1.47 | 0.73 | 60% | +0.53 |
+| internal round robin, 64 peers each | 4,096 | -1.43 | 0.68 | 65% | +0.57 |
+| *best in pool (oracle, not deployable)* | *—* | *-1.14* | *0.61* | *100%* | *+1.00* |
+
+Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes to establish true skill; the promotion rules then compete to pick the best member using only what they are entitled to see. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
+<!-- /table:9 -->
+
 ### Table A1 — the compiled environment against the reference
 
 <!-- table:a1 -->
