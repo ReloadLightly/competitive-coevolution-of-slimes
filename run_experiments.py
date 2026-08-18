@@ -5,10 +5,12 @@ The first version of this repository had one run. One run cannot separate a
 property of the algorithm from a property of a seed, which is why it could
 report a trajectory but not a comparison. This script runs the design:
 
-  control     Ha's tournament-selection GA, unmodified                (6 seeds)
+  control     Ha's tournament-selection GA, unmodified                (12 seeds)
   hof-0.25    same, but 25% of games are played against an archived
-              champion instead of a current population member         (6 seeds)
+              champion instead of a current population member        (12 seeds)
   hof-0.50    the same intervention at twice the dose                 (3 seeds)
+  hof-full    the same dose as hof-0.25 but with an archive spanning
+              the whole run instead of the last 64,000 games          (6 seeds)
   sigma-0.05  mutation scale halved                                   (3 seeds)
   sigma-0.20  mutation scale doubled                                  (3 seeds)
   pop-32      population shrunk 4x                                    (3 seeds)
@@ -51,18 +53,25 @@ SELECT_EPISODES = 1_000
 SEEDS_MAIN = [101, 102, 103, 104, 105, 106]
 SEEDS_SIDE = [101, 102, 103]
 
+# `cap` is the archive size. At one champion archived every HOF_EVERY = 1,000
+# games, cap=64 spans only the most recent 64,000 games -- a recency buffer --
+# while cap=512 spans the entire 500,000-game run, which is a hall of fame in
+# the usual sense. Both are run, because "play recent past selves" and "play
+# every past self" are different interventions and it is worth knowing which
+# one, if either, does the work.
 CONDITIONS = {
-    "control":    dict(sigma=0.10, pop=128, hof_prob=0.00, seeds=SEEDS_MAIN, pops=True),
-    "hof-0.25":   dict(sigma=0.10, pop=128, hof_prob=0.25, seeds=SEEDS_MAIN, pops=False),
-    "hof-0.50":   dict(sigma=0.10, pop=128, hof_prob=0.50, seeds=SEEDS_SIDE, pops=False),
-    "sigma-0.05": dict(sigma=0.05, pop=128, hof_prob=0.00, seeds=SEEDS_SIDE, pops=False),
-    "sigma-0.20": dict(sigma=0.20, pop=128, hof_prob=0.00, seeds=SEEDS_SIDE, pops=False),
-    "pop-32":     dict(sigma=0.10, pop=32,  hof_prob=0.00, seeds=SEEDS_SIDE, pops=False),
-    "pop-512":    dict(sigma=0.10, pop=512, hof_prob=0.00, seeds=SEEDS_SIDE, pops=False),
+    "control":    dict(sigma=0.10, pop=128, hof_prob=0.00, cap=64,  seeds=SEEDS_MAIN, pops=True),
+    "hof-0.25":   dict(sigma=0.10, pop=128, hof_prob=0.25, cap=64,  seeds=SEEDS_MAIN, pops=False),
+    "hof-0.50":   dict(sigma=0.10, pop=128, hof_prob=0.50, cap=64,  seeds=SEEDS_SIDE, pops=False),
+    "hof-full":   dict(sigma=0.10, pop=128, hof_prob=0.25, cap=512, seeds=SEEDS_MAIN, pops=False),
+    "sigma-0.05": dict(sigma=0.05, pop=128, hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
+    "sigma-0.20": dict(sigma=0.20, pop=128, hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
+    "pop-32":     dict(sigma=0.10, pop=32,  hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
+    "pop-512":    dict(sigma=0.10, pop=512, hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
 }
 
 HOF_EVERY = 1_000           # a champion is archived this often
-HOF_CAPACITY = 64           # FIFO archive size
+HOF_CAPACITY = 64           # default archive size (per-condition `cap` wins)
 INIT_SCALE = 0.5            # Ha's population initialisation
 
 
@@ -82,14 +91,15 @@ def one_run(job):
     if cfg["pops"]:
         champs, streaks, meanlen, pops, pop_streaks = fv.run_ga_with_pops(
             seed, tournaments, cfg["pop"], cfg["sigma"], SAVE_EVERY,
-            cfg["hof_prob"], HOF_EVERY, HOF_CAPACITY, w, b, INIT_SCALE,
-            POP_EVERY)
+            cfg["hof_prob"], HOF_EVERY, cfg.get("cap", HOF_CAPACITY), w, b,
+            INIT_SCALE, POP_EVERY)
         ties = np.zeros(len(champs))
         hofwins = np.zeros(len(champs))
     else:
         champs, streaks, meanlen, ties, hofwins = fv.run_ga(
             seed, tournaments, cfg["pop"], cfg["sigma"], SAVE_EVERY,
-            cfg["hof_prob"], HOF_EVERY, HOF_CAPACITY, w, b, INIT_SCALE)
+            cfg["hof_prob"], HOF_EVERY, cfg.get("cap", HOF_CAPACITY), w, b,
+            INIT_SCALE)
         pops = np.zeros((0, 0, 0), dtype=np.float32)
         pop_streaks = np.zeros((0, 0), dtype=np.int64)
     train_sec = time.time() - t0
@@ -123,6 +133,8 @@ def one_run(job):
         tournaments=np.array([tournaments]), save_every=np.array([SAVE_EVERY]),
         sigma=np.array([cfg["sigma"]]), pop=np.array([cfg["pop"]]),
         hof_prob=np.array([cfg["hof_prob"]]), seed=np.array([seed]),
+        hof_capacity=np.array([cfg.get("cap", HOF_CAPACITY)]),
+        hof_every=np.array([HOF_EVERY]),
         sweep_episodes=np.array([SWEEP_EPISODES]),
         sweep_seed=np.array([SWEEP_SEED]),
         train_sec=np.array([train_sec]), eval_sec=np.array([eval_sec]),

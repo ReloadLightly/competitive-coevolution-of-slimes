@@ -36,3 +36,25 @@ The second wave was therefore narrowed to the headline comparison only —
 `control` and `hof-0.25`, seeds 107-112, taking both to 12 seeds. The four side
 conditions stay at their pre-registered 3 seeds. State of knowledge: one run
 finished (`control_s103`), no hall-of-fame run finished, no comparison run.
+
+## 2026-08-18 15:14 UTC — `hof-full` added
+
+Reviewing the archive design before any hall-of-fame run had started: with a
+champion archived every 1,000 games and a FIFO capacity of 64, the archive of
+`hof-0.25` and `hof-0.50` spans only the most recent 64,000 games of a 500,000
+game run. That is a recency buffer, not a hall of fame in the sense the
+literature means, and it tests a weaker hypothesis than intended.
+
+Rather than discard the runs already in flight, a condition `hof-full` was
+added: same dose as `hof-0.25` (p = 0.25) but capacity 512, which at one entry
+per 1,000 games holds every champion the run ever produced. The two together
+separate "play recent past selves" from "play every past self".
+
+`hof-0.25` and `hof-0.50` keep capacity 64 for every seed, first wave and
+second, so the condition stays internally consistent. State of knowledge: two
+control runs finished (s101 final +0.14, s103 final -0.29); no hall-of-fame run
+had started.
+
+Queue order after the first wave: `hof-full` (6 seeds) first, since a new
+condition carries more information than extra seeds of an existing one, then
+`control` and `hof-0.25` seeds 107-112.

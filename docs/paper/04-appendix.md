@@ -17,7 +17,7 @@ here; nothing in this appendix depends on the main text.*
 | Budget | 500,000 tournament games per run |
 | Runs | 27 across 7 conditions, plus one reference run on the unmodified environment |
 | Total | ~13.5 M self-play games, ~1.1 M evaluation episodes |
-| External opponent | the 2015 champion RNN (120 parameters), never seen in training |
+| External opponent | the 2015 champion RNN (112 parameters: 7×15 weights + 7 biases), never seen in training |
 
 **Conditions.** `control` (6 seeds), `hof-0.25` and `hof-0.50` (6 and 3 seeds),
 `sigma-0.05` and `sigma-0.20` (3 each), `pop-32` and `pop-512` (3 each). Seeds

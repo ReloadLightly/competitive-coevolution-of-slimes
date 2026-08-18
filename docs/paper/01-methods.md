@@ -31,11 +31,18 @@ topology change, no crossover, no learned representation. This is deliberate.
 The question here is what an *improvement signal* can do on its own, so
 everything except the signal is held fixed.
 
-**External yardstick.** The 2015 baseline is a 120-parameter recurrent network
-that was itself evolved in the original browser demo. It is never used as a
-training signal anywhere in this work. It appears only after training, as a
-frozen measuring instrument, and its recurrent state is carried across
-evaluation episodes exactly as the reference evaluation code does.
+**External yardstick.** The 2015 baseline is a small recurrent network that
+was itself evolved in the original browser demo — a population of 100 agents,
+each playing eight random opponents for 20 seconds of gameplay, left running
+for about a day (Ha, 2015). As shipped in `slimevolleygym` it has a 7×15 weight
+matrix and 7 biases, i.e. **112 parameters**; the class docstring says 120,
+which is worth noting only because it is the kind of number that gets copied
+forward without being counted. Its 15 inputs are 8 game observations plus its
+own 7 outputs fed back — so the 2015 champion never sees its opponent's
+position or velocity at all. It is never used as a training signal anywhere in
+this work; it appears only after training, as a frozen measuring instrument,
+and its recurrent state is carried across evaluation episodes exactly as the
+reference evaluation code does.
 
 ## 2. The algorithm
 
