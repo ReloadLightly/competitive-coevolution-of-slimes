@@ -161,8 +161,11 @@ the first one we implemented was wrong in an instructive way.
 | archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
+| archive as parent, full span | 2 | -4.84 ± 0.00 | -4.84 ± 0.00 | -4.84 ± 0.00 | 0.02 | 0.05 | 0% | — (0/2) |
 | generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
 | self-play ES | 6 | -2.08 ± 0.94 | -1.56 ± 0.99 | -2.46 ± 0.93 | 0.21 | 0.18 | 7% | 398k (2/6) |
+| sigma = 0.05 | 3 | -0.17 ± 0.23 | +0.34 ± 0.07 | -0.29 ± 0.15 | 0.69 | 0.64 | 26% | 150k (3/3) |
+| sigma = 0.20 | 3 | -1.66 ± 1.60 | -1.44 ± 1.70 | -1.76 ± 1.54 | 0.38 | 0.36 | 11% | 290k (2/3) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -180,6 +183,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 | archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
 | archive as parent, p=0.25 | `drawdown` | -0.366 | -0.67 | 0.065 |
 | archive as parent, p=0.25 | `above_parity` | -0.245 | -0.94 | 0.004 |
+| archive as parent, full span | `final_holdout` | -4.688 | -1.00 | 0.071 |
+| archive as parent, full span | `late_mean` | -4.527 | -1.00 | 0.071 |
+| archive as parent, full span | `volatility` | -0.657 | -1.00 | 0.071 |
+| archive as parent, full span | `drawdown` | -0.554 | -1.00 | 0.071 |
+| archive as parent, full span | `above_parity` | -0.263 | -1.00 | 0.071 |
 | generational GA (Ha 2015) | `final_holdout` | -1.852 | -0.67 | 0.065 |
 | generational GA (Ha 2015) | `late_mean` | -1.299 | -0.78 | 0.026 |
 | generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
@@ -190,6 +198,16 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 | self-play ES | `volatility` | -0.464 | -0.72 | 0.041 |
 | self-play ES | `drawdown` | -0.420 | -0.83 | 0.015 |
 | self-play ES | `above_parity` | -0.197 | -0.83 | 0.013 |
+| sigma = 0.05 | `final_holdout` | -0.018 | -0.22 | 0.714 |
+| sigma = 0.05 | `late_mean` | +0.026 | -0.44 | 0.381 |
+| sigma = 0.05 | `volatility` | +0.017 | +0.00 | 1.000 |
+| sigma = 0.05 | `drawdown` | +0.034 | +0.11 | 0.905 |
+| sigma = 0.05 | `above_parity` | -0.003 | -0.11 | 0.905 |
+| sigma = 0.20 | `final_holdout` | -1.509 | -0.33 | 0.548 |
+| sigma = 0.20 | `late_mean` | -1.445 | -0.44 | 0.381 |
+| sigma = 0.20 | `volatility` | -0.294 | -0.44 | 0.381 |
+| sigma = 0.20 | `drawdown` | -0.238 | -0.33 | 0.548 |
+| sigma = 0.20 | `above_parity` | -0.150 | -0.78 | 0.095 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 <!-- /table:2 -->
@@ -320,7 +338,75 @@ L2 norm — 2.30 against 1.65, a factor of 1.39 — so a second variant scales t
 strong side's σ to equalise the step norms and isolate capacity from search
 granularity.
 
-*(Results filled in from Table 1 and Table 2.)*
+<!-- table:10 -->
+| condition | seed | win rate of the larger side | larger side, final score | smaller side, final score | who learned |
+|---|---|---|---|---|---|
+| symmetric control (273 v 273) | 101 | 0.812 | -4.72 | -4.80 | neither |
+| symmetric control (273 v 273) | 102 | 0.001 | -4.82 | -0.15 | smaller |
+| symmetric control (273 v 273) | 103 | 0.247 | -2.67 | -0.83 | both |
+| 2:1 capacity (531 v 273), same σ | 101 | 0.001 | -4.83 | +0.23 | smaller |
+| 2:1 capacity (531 v 273), same σ | 102 | 0.896 | -0.94 | -4.85 | larger |
+
+Two populations of 128 playing only each other, 750,000 games, 25% of each population's games crossed with the other side. 'Win rate of the larger side' is over cross-population games in the last 100,000 games; 0.5 means the sides are holding each other. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking. 'Who learned' counts a side as having learned if its final champion scores above −4.0 against the 2015 baseline.
+<!-- /table:10 -->
+
+![unequal power](../../results/figures/fig11_asymmetric.png)
+
+*Figure 11. Top: the larger side's win rate in cross-population games; 0.5 means
+the sides are holding each other. Bottom: each side's champion against the 2015
+baseline. Left column is the symmetric control, where both populations have the
+identical architecture.*
+
+**Three things, in order of how much they surprised us.**
+
+*A two-population contest is winner-take-all.* Not one run ended anywhere near a
+balanced 0.5. The cross-population win rate always runs away to one side or the
+other, usually to an extreme — 0.001 in some seeds, meaning one population lost
+essentially every game it played against the other for the last hundred thousand
+games. Single-population self-play has no analogue of this: there, everyone
+improves together.
+
+*In the symmetric control, which side wins is arbitrary.* Both populations have
+identical architecture, identical budget, identical mutation scale. There is
+nothing to distinguish them but their random initialisation, and yet the same
+runaway happens, in whichever direction the early noise pushed. That is
+spontaneous symmetry breaking, and it is the baseline against which any effect
+of asymmetry has to be judged.
+
+*Twice the capacity does not decide the contest.* Across the seeds of the 2:1
+condition, the larger side both lost essentially every game and won essentially
+every game, depending on nothing more than the seed — the same spread as the
+symmetric control produces with no asymmetry at all. If a 1.95 : 1 advantage in
+policy capacity mattered here, it is smaller than the symmetry-breaking noise it
+would have to overcome.
+
+**The mechanism is disengagement, and it is the interesting part.** In this
+game, whoever falls behind loses *every* cross-population game, and a contest
+you always lose carries no information: there is no gradient in a uniform
+defeat. The side that pulls ahead keeps improving; the side that falls behind
+stops. It is not that the weaker side competes badly — it is that it stops
+having a usable opponent at all, while the leader still does. The failure is
+structural, not a matter of capability.
+
+**Two caveats, both important.** First, three seeds per condition against an
+outcome that is close to a coin flip is very little power: what we can say is
+that a 1.95 : 1 capacity advantage does not *dominate* the symmetry-breaking
+noise, not that capacity has no effect at all. Establishing a smaller effect
+would need tens of seeds, which is cheap in this environment and is the obvious
+extension.
+
+Second, a caveat about our own rule. When a population member loses a
+cross-population game it is replaced by a mutant of a randomly drawn peer, and
+that peer's streak counter is incremented even though the peer did not play. In
+the losing population, which loses nearly every cross game, this inflates streak
+counters more or less at random — and §2 has already shown that the streak
+counter is what selects the exported champion. So for the losing side we cannot
+separate "the population stopped improving" from "the export rule was corrupted
+and is now reporting an arbitrary member". Population snapshots would settle it
+immediately; the asymmetric runs do not save them, and that is a design
+oversight rather than a discovery. It does not affect the win-rate result, which
+is measured over the populations themselves and not over their exported
+champions.
 
 ## 6. Different machinery: a generational GA and an evolution strategy
 
