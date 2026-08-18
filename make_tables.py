@@ -453,7 +453,7 @@ def table_9(d):
 
 
 def table_10(d):
-    """Unequal power: who dominates, and does either side keep learning."""
+    """Unequal power: who dominates, and whose population learns."""
     import glob as _glob
     import numpy as _np
     rows = {}
@@ -465,35 +465,47 @@ def table_10(d):
     if not rows:
         return None
     label = {"asym1x": "symmetric control (273 v 273)",
-             "asym2x": "2:1 capacity (531 v 273), same σ",
-             "asym2x-norm": "2:1 capacity (531 v 273), matched step norm"}
-    out = ["| condition | seed | win rate of the larger side | larger side, "
-           "final score | smaller side, final score | who learned |",
+             "asym2x": "2:1 capacity, common σ",
+             "asym2x-norm": "2:1 capacity, matched step norm"}
+    out = ["| condition | seeds | larger side wins cross-play | larger side's "
+           "pool, best member | smaller side's pool, best member | runs where "
+           "only one side's pool learned |",
            "|---|---|---|---|---|---|"]
     for cond in ("asym1x", "asym2x", "asym2x-norm"):
         if cond not in rows:
             continue
+        wr, ba, bb, one_sided, dom = [], [], [], 0, 0
         for seed, sides in sorted(rows[cond].items()):
             ka = "strong" if "strong" in sides else "a"
             kb = "weak" if "weak" in sides else "b"
-            wr = float(sides[ka]["a_winrate"][-20:].mean())
-            fa = float(sides[ka]["mean_score"][-1])
-            fb = float(sides[kb]["mean_score"][-1])
-            la, lb = fa > -4.0, fb > -4.0
-            who = ("both" if la and lb else "larger" if la else
-                   "smaller" if lb else "neither")
-            out.append(f"| {label[cond]} | {seed} | {wr:.3f} | {fa:+.2f} | "
-                       f"{fb:+.2f} | {who} |")
+            if "pop_best" not in sides[ka]:
+                continue
+            w = float(sides[ka]["a_winrate"][-10:].mean())
+            a = float(sides[ka]["pop_best"][-1])
+            b = float(sides[kb]["pop_best"][-1])
+            wr.append(w); ba.append(a); bb.append(b)
+            if (a > 0) != (b > 0):
+                one_sided += 1
+            if w > 0.5:
+                dom += 1
+        if not wr:
+            continue
+        out.append(f"| {label[cond]} | {len(wr)} | "
+                   f"{_np.median(wr):.2f} (range {min(wr):.2f}–{max(wr):.2f}); "
+                   f"larger side ahead in {dom}/{len(wr)} | "
+                   f"{_np.median(ba):+.2f} | {_np.median(bb):+.2f} | "
+                   f"{one_sided}/{len(wr)} |")
     out.append("")
-    out.append("Two populations of 128 playing only each other, 750,000 games, "
-               "25% of each population's games crossed with the other side. "
-               "'Win rate of the larger side' is over cross-population games in "
-               "the last 100,000 games; 0.5 means the sides are holding each "
-               "other. In the symmetric control both sides have identical "
-               "architecture, so any departure from 0.5 there is spontaneous "
-               "symmetry breaking. 'Who learned' counts a side as having "
-               "learned if its final champion scores above −4.0 against the "
-               "2015 baseline.")
+    out.append("Two populations of 128 playing only each other for 500,000 "
+               "games; a quarter of each population's games are crossed with "
+               "the other side. Win rate is over cross-population games in the "
+               "last 50,000 games — 0.5 means the sides are holding each other. "
+               "'Pool, best member' is the best individual the population "
+               "contains at the end, scored against the 2015 baseline, not the "
+               "exported champion. In the symmetric control both sides have "
+               "identical architecture, so any departure from 0.5 there is "
+               "spontaneous symmetry breaking and is the null the other two "
+               "rows are judged against.")
     return "\n".join(out)
 
 

@@ -339,11 +339,13 @@ strong side's σ to equalise the step norms and isolate capacity from search
 granularity.
 
 <!-- table:10 -->
-| condition | seed | win rate of the larger side | larger side, final score | smaller side, final score | who learned |
+| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
 |---|---|---|---|---|---|
-| symmetric control (273 v 273) | 101 | 0.549 | -4.83 | -4.86 | neither |
+| symmetric control (273 v 273) | 2 | 0.28 (range 0.01–0.55); larger side ahead in 1/2 | -4.72 | -2.16 | 1/2 |
+| 2:1 capacity, common σ | 1 | 0.00 (range 0.00–0.00); larger side ahead in 0/1 | -4.70 | +0.40 | 1/1 |
+| 2:1 capacity, matched step norm | 1 | 0.99 (range 0.99–0.99); larger side ahead in 1/1 | +0.35 | -4.65 | 1/1 |
 
-Two populations of 128 playing only each other, 750,000 games, 25% of each population's games crossed with the other side. 'Win rate of the larger side' is over cross-population games in the last 100,000 games; 0.5 means the sides are holding each other. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking. 'Who learned' counts a side as having learned if its final champion scores above −4.0 against the 2015 baseline.
+Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
 <!-- /table:10 -->
 
 ![unequal power](../../results/figures/fig11_asymmetric.png)
