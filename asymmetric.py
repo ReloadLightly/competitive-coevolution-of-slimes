@@ -119,21 +119,38 @@ def play_game_asym(p_r, h_r, p_l, h_l):
 
 @njit(cache=True)
 def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
-                   sigma_a, sigma_b, save_every, init_scale):
-    """Two populations playing only each other.
+                   sigma_a, sigma_b, cross_prob, save_every, init_scale):
+    """Two populations, each running Ha's loop, a fraction of games crossed.
 
-    A is the 'strong' side by convention (h_a >= h_b), but the code is
-    symmetric. `d_a`/`d_b` are the parameter counts implied by `h_a`/`h_b`.
+    A first version of this kernel replaced a loser with a mutant of a *random*
+    peer from its own population. That is too weak a rule: winners never
+    preferentially propagate, so selection reduces to culling, and neither
+    population learned anything in 500,000 games (rally length flat at ~630,
+    cross-population win rate pinned at 0.500). It is kept in the decision log
+    as a measured negative rather than described as a bug.
 
-    Mutation scale is per side, because it is a confound otherwise: mutation is
-    applied per parameter, so at a common sigma the larger genome takes a step
-    of larger L2 norm (0.1*sqrt(531) = 2.30 against 0.1*sqrt(273) = 1.65, a
-    factor of 1.39). Passing sigma_a = sigma * sqrt(d_b / d_a) equalises the
-    step norms and isolates capacity from search granularity.
+    What runs here instead gives each population the rule that is known to work
+    — Ha's, verbatim — and crosses a fraction `cross_prob` of its games with the
+    other population:
 
-    Returns champions and mean rally length for both sides, plus the running
-    win rate of A, which is the headline series: 0.5 means the sides are
-    holding each other.
+        pick a population X at random; draw m != n from X
+        with probability cross_prob the opponent is drawn from the other
+          population Y instead of being n
+        within-population game -> Ha's rule exactly: the loser is overwritten by
+          a mutated copy of the winner
+        cross-population game  -> if X's member loses it is overwritten by a
+          mutant of n, its own peer, and never by the opponent's genome; if it
+          wins, nothing is overwritten and its streak grows
+
+    Genetic material therefore never crosses between populations: the other side
+    supplies selection pressure, never parents. That is the same discipline the
+    hall-of-fame analysis showed to be load-bearing, and the cross-population
+    rule is exactly the `hof-eval` rule with a live co-adapting opponent in
+    place of a stale archived one.
+
+    A is the 'strong' side by convention. Returns champions for both sides, the
+    mean rally length, A's win rate in cross-population games (0.5 means the
+    sides are holding each other), and A's mean point margin in those games.
     """
     np.random.seed(seed)
     pop_a = np.zeros((n_a, d_a))
@@ -157,46 +174,111 @@ def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
     len_acc = 0.0
     a_wins = 0.0
     a_pts = 0.0
-    decided = 0.0
+    cross_decided = 0.0
+    cross_n = 0.0
     ck = 0
 
     for game in range(1, n_games + 1):
-        ia = np.random.randint(0, n_a)
-        ib = np.random.randint(0, n_b)
-        # A plays on the right, so the score is from A's point of view
-        score, length = play_game_asym(pop_a[ia], h_a, pop_b[ib], h_b)
-        len_acc += length
-        a_pts += score
+        side_a = np.random.random() < 0.5
+        cross = np.random.random() < cross_prob
 
-        if score > 0:
-            a_wins += 1.0
-            decided += 1.0
-            # B's individual lost: replaced by a mutant of one of ITS OWN peers
-            if n_b > 1:
-                src = np.random.randint(0, n_b)
-                while src == ib:
-                    src = np.random.randint(0, n_b)
-                for j in range(d_b):
-                    pop_b[ib, j] = (pop_b[src, j]
-                                    + np.random.normal(0.0, 1.0) * sigma_b)
-                streak_b[ib] = streak_b[src]
-            streak_a[ia] += 1
-        elif score < 0:
-            decided += 1.0
-            if n_a > 1:
-                src = np.random.randint(0, n_a)
-                while src == ia:
-                    src = np.random.randint(0, n_a)
-                for j in range(d_a):
-                    pop_a[ia, j] = (pop_a[src, j]
-                                    + np.random.normal(0.0, 1.0) * sigma_a)
-                streak_a[ia] = streak_a[src]
-            streak_b[ib] += 1
+        if side_a:
+            n_x, n_y = n_a, n_b
+            d_x, sigma_x = d_a, sigma_a
+            h_x, h_y = h_a, h_b
         else:
-            for j in range(d_a):
-                pop_a[ia, j] += np.random.normal(0.0, 1.0) * sigma_a
-            for j in range(d_b):
-                pop_b[ib, j] += np.random.normal(0.0, 1.0) * sigma_b
+            n_x, n_y = n_b, n_a
+            d_x, sigma_x = d_b, sigma_b
+            h_x, h_y = h_b, h_a
+
+        m = np.random.randint(0, n_x)
+        n = np.random.randint(0, n_x)
+        while n == m and n_x > 1:
+            n = np.random.randint(0, n_x)
+
+        if cross:
+            iy = np.random.randint(0, n_y)
+            # the other population's member plays on the right
+            if side_a:
+                score, length = play_game_asym(pop_b[iy], h_b, pop_a[m], h_a)
+            else:
+                score, length = play_game_asym(pop_a[iy], h_a, pop_b[m], h_b)
+            len_acc += length
+            cross_n += 1.0
+            # score > 0 means the RIGHT player (population Y) won
+            if score != 0:
+                cross_decided += 1.0
+                a_won = (score > 0) != side_a   # Y is A when side_a is False
+                if a_won:
+                    a_wins += 1.0
+            a_pts += score if not side_a else -score
+
+            if score > 0:
+                # X's member lost: replaced by a mutant of its own peer
+                if side_a:
+                    for j in range(d_x):
+                        pop_a[m, j] = (pop_a[n, j]
+                                       + np.random.normal(0.0, 1.0) * sigma_x)
+                    streak_a[m] = streak_a[n]
+                    streak_a[n] += 1
+                else:
+                    for j in range(d_x):
+                        pop_b[m, j] = (pop_b[n, j]
+                                       + np.random.normal(0.0, 1.0) * sigma_x)
+                    streak_b[m] = streak_b[n]
+                    streak_b[n] += 1
+            elif score < 0:
+                if side_a:
+                    streak_a[m] += 1
+                else:
+                    streak_b[m] += 1
+            else:
+                if side_a:
+                    for j in range(d_x):
+                        pop_a[m, j] += np.random.normal(0.0, 1.0) * sigma_x
+                else:
+                    for j in range(d_x):
+                        pop_b[m, j] += np.random.normal(0.0, 1.0) * sigma_x
+        else:
+            # within-population game: Ha's rule, verbatim
+            if side_a:
+                score, length = play_game_asym(pop_a[n], h_a, pop_a[m], h_a)
+            else:
+                score, length = play_game_asym(pop_b[n], h_b, pop_b[m], h_b)
+            len_acc += length
+            if score == 0:
+                if side_a:
+                    for j in range(d_x):
+                        pop_a[m, j] += np.random.normal(0.0, 1.0) * sigma_x
+                else:
+                    for j in range(d_x):
+                        pop_b[m, j] += np.random.normal(0.0, 1.0) * sigma_x
+            elif score > 0:
+                if side_a:
+                    for j in range(d_x):
+                        pop_a[m, j] = (pop_a[n, j]
+                                       + np.random.normal(0.0, 1.0) * sigma_x)
+                    streak_a[m] = streak_a[n]
+                    streak_a[n] += 1
+                else:
+                    for j in range(d_x):
+                        pop_b[m, j] = (pop_b[n, j]
+                                       + np.random.normal(0.0, 1.0) * sigma_x)
+                    streak_b[m] = streak_b[n]
+                    streak_b[n] += 1
+            else:
+                if side_a:
+                    for j in range(d_x):
+                        pop_a[n, j] = (pop_a[m, j]
+                                       + np.random.normal(0.0, 1.0) * sigma_x)
+                    streak_a[n] = streak_a[m]
+                    streak_a[m] += 1
+                else:
+                    for j in range(d_x):
+                        pop_b[n, j] = (pop_b[m, j]
+                                       + np.random.normal(0.0, 1.0) * sigma_x)
+                    streak_b[n] = streak_b[m]
+                    streak_b[m] += 1
 
         if game % save_every == 0:
             ra = np.argmax(streak_a)
@@ -206,12 +288,13 @@ def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
             for j in range(d_b):
                 champs_b[ck, j] = pop_b[rb, j]
             meanlen[ck] = len_acc / save_every
-            a_winrate[ck] = a_wins / decided if decided > 0 else 0.5
-            a_margin[ck] = a_pts / save_every
+            a_winrate[ck] = a_wins / cross_decided if cross_decided > 0 else 0.5
+            a_margin[ck] = a_pts / cross_n if cross_n > 0 else 0.0
             len_acc = 0.0
             a_wins = 0.0
             a_pts = 0.0
-            decided = 0.0
+            cross_decided = 0.0
+            cross_n = 0.0
             ck += 1
 
     return champs_a, champs_b, meanlen, a_winrate, a_margin

@@ -127,3 +127,30 @@ policy used everywhere else in the study.
 Three seeds per condition. `pop-32` / `pop-512` remain defined in
 `run_experiments.py` and can be run later; they are simply not part of this
 session's results.
+
+## 2026-08-18 21:35 UTC — the asymmetric kernel was rewritten after a null run
+
+The first two-population kernel replaced a loser with a mutant of a *random*
+peer from its own population. That is too weak a rule: winners never
+preferentially propagate, so selection reduces to culling. Measured result, over
+a full 500,000-game symmetric control run: training rally length flat at ~630
+from start to finish, both sides at -4.84 against the 2015 baseline, and the
+cross-population win rate pinned at 0.500. Neither population learned anything.
+
+Recorded here rather than quietly fixed, because it is a real measurement about
+selection rules: *culling losers is not enough; something has to propagate
+winners.*
+
+The kernel now gives each population Ha's rule verbatim for its
+within-population games and crosses a fraction of games with the other
+population, where a loss costs the member its slot but the replacement genes
+come from its own pool. That is the `hof-eval` rule with a live co-adapting
+opponent in place of a stale archived one, and both of those components are
+known from this study to support learning.
+
+Budget was also raised: two populations sharing one game budget each get less
+within-population selection than a single pool. At CROSS = 0.25 and 750,000
+games, each side is active in ~375,000 games, ~281,000 within its own pool,
+against the control's 500,000 — close enough that a failure to transition is
+informative rather than an artefact of starvation. The three earlier
+asymmetric result files were deleted; nothing else in the matrix is affected.

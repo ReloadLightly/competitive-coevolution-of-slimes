@@ -30,6 +30,14 @@ from run_experiments import (INIT_SCALE, SAVE_EVERY, SWEEP_EPISODES, SWEEP_SEED,
 
 POP = 128           # both sides, so population size is not a second asymmetry
 SIGMA = 0.10
+# Two populations sharing one game budget each receive less within-population
+# selection than a single self-play pool would. With CROSS = 0.25 and 750,000
+# games, each side is the active population in ~375,000 games, ~281,000 of them
+# within its own pool -- comparable to the control's 500,000, whose median
+# transition lands at 120,000. Lower cross-play or a smaller budget starves both
+# sides equally and the comparison becomes a test between two incompetent pools.
+CROSS = 0.25
+GAMES = 750_000
 
 # `norm` scales the strong side's per-parameter sigma so both sides take
 # mutation steps of equal L2 norm. Without it the larger genome also searches
@@ -58,7 +66,7 @@ def one_run(job):
     t0 = time.time()
     champs_a, champs_b, meanlen, a_winrate, a_margin = az.run_coevo_asym(
         seed, n_games, POP, POP, h_a, h_b, d_a, d_b, sigma_a, sigma_b,
-        SAVE_EVERY, INIT_SCALE)
+        CROSS, SAVE_EVERY, INIT_SCALE)
     train_sec = time.time() - t0
 
     w, b = fv.baseline_arrays()
@@ -118,7 +126,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--outdir", default="results/matrix")
-    ap.add_argument("--games", type=int, default=TOURNAMENTS)
+    ap.add_argument("--games", type=int, default=GAMES)
     ap.add_argument("--only", default=None)
     args = ap.parse_args()
 
@@ -132,7 +140,7 @@ def main():
 
     # compile once in the parent so workers load from the numba cache
     az.run_coevo_asym(0, 200, 8, 8, 16, 10, az.param_count(16),
-                      az.param_count(10), 0.1, 0.1, 100, 0.5)
+                      az.param_count(10), 0.1, 0.1, 0.5, 100, 0.5)
     w, b = fv.baseline_arrays()
     az.eval_var_vs_baseline(np.zeros(az.param_count(10)), 10, 1, 1, w, b)
 
