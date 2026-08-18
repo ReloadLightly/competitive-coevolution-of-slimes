@@ -74,7 +74,18 @@ def metrics(run):
                         "min": float(chunk.min()), "max": float(chunk.max()),
                         "above": int((chunk > 0).sum()), "n": len(chunk)})
 
+    # Confound worth quantifying rather than hand-waving: in a hall-of-fame
+    # game the archive entry is immutable, so when the POPULATION member wins,
+    # nothing is overwritten. Those conditions therefore run slightly fewer
+    # selection events per game than the control at the same game budget.
+    hof_p = float(run["hof_prob"][0])
+    hof_win = float(np.mean(run["hof_winrate"][run["hof_winrate"] > 0])) \
+        if (run["hof_winrate"] > 0).any() else 0.0
+    skipped = hof_p * (1.0 - hof_win) if hof_p > 0 else 0.0
+
     return {
+        "hof_archive_winrate": hof_win,
+        "replacements_skipped": skipped,
         "window_profile": profile,
         "t_internal": t_int,
         "lag_internal_to_parity": ((t_par - t_int)
@@ -166,7 +177,8 @@ def main():
     # ---- per-condition aggregates ---------------------------------------
     keys = ["final", "peak", "above_parity", "late_mean", "late_sd",
             "volatility", "drawdown", "final_win_rate", "final_meanlen",
-            "late_win_rate", "late_tie_rate"]
+            "late_win_rate", "late_tie_rate", "replacements_skipped",
+            "hof_archive_winrate"]
     if holdout:
         keys += ["final_holdout", "peak_holdout"]
 
