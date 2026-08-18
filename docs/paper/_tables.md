@@ -5,8 +5,11 @@
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | -0.15 ± 0.27 | +0.32 ± 0.06 | -0.32 ± 0.23 | 0.67 | 0.60 | 26% | 192k (6/6) |
-| archive as parent, p=0.25 | 5 | -4.84 ± 0.01 | -4.84 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.06 | 0% | — (0/5) |
+| archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
+| archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
+| generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
+| self-play ES | 4 | -3.35 ± 0.76 | -2.58 ± 1.20 | -3.81 ± 0.58 | 0.26 | 0.23 | 0% | — (0/4) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 
@@ -15,11 +18,26 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as parent, p=0.25 | `final_holdout` | -4.690 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `late_mean` | -4.529 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `volatility` | -0.661 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `drawdown` | -0.546 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `above_parity` | -0.263 | -1.00 | 0.004 |
+| archive as test, full span | `final_holdout` | -0.953 | -0.28 | 0.485 |
+| archive as test, full span | `late_mean` | -1.178 | -0.67 | 0.065 |
+| archive as test, full span | `volatility` | -0.015 | +0.00 | 1.000 |
+| archive as test, full span | `drawdown` | -0.014 | +0.00 | 1.000 |
+| archive as test, full span | `above_parity` | -0.187 | -0.75 | 0.028 |
+| archive as parent, p=0.25 | `final_holdout` | -3.951 | -0.94 | 0.004 |
+| archive as parent, p=0.25 | `late_mean` | -3.828 | -0.94 | 0.004 |
+| archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
+| archive as parent, p=0.25 | `drawdown` | -0.366 | -0.67 | 0.065 |
+| archive as parent, p=0.25 | `above_parity` | -0.245 | -0.94 | 0.004 |
+| generational GA (Ha 2015) | `final_holdout` | -1.852 | -0.67 | 0.065 |
+| generational GA (Ha 2015) | `late_mean` | -1.299 | -0.78 | 0.026 |
+| generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
+| generational GA (Ha 2015) | `drawdown` | +0.103 | +0.00 | 1.000 |
+| generational GA (Ha 2015) | `above_parity` | -0.230 | -0.83 | 0.015 |
+| self-play ES | `final_holdout` | -3.204 | -1.00 | 0.010 |
+| self-play ES | `late_mean` | -3.494 | -1.00 | 0.010 |
+| self-play ES | `volatility` | -0.414 | -0.58 | 0.171 |
+| self-play ES | `drawdown` | -0.371 | -0.75 | 0.067 |
+| self-play ES | `above_parity` | -0.263 | -1.00 | 0.010 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 
@@ -91,8 +109,11 @@ Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
-| archive as parent, p=0.25 | 5 | 0/5 | never | never (0/5) | — |
+| archive as test, full span | 6 | 6/6 | 350k (155k–495k) | 365k (210k–445k) (4/6) | 58k |
+| archive as parent, p=0.25 | 6 | 1/6 | 80k (80k–80k) | 365k (365k–365k) (1/6) | 285k |
 | archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
+| generational GA (Ha 2015) | 6 | 5/6 | 205k (160k–420k) | 345k (290k–480k) (5/6) | 105k |
+| self-play ES | 4 | 2/4 | 450k (410k–490k) | never (0/4) | — |
 | *reference run (1 run, real environment)* | 1 | 1/1 | *104k* | *172k* | *68k* |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
@@ -119,8 +140,11 @@ Control runs only (6 seeds), across all population snapshots. Every population m
 | condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | +0.32 ± 0.06 | -0.15 ± 0.27 | 26% |
-| archive as parent, p=0.25 | 5 | 0/5 | -4.84 ± 0.01 | -4.84 ± 0.01 | 0% |
+| archive as test, full span | 6 | 6/6 | -0.44 ± 0.71 | -1.10 ± 0.78 | 8% |
+| archive as parent, p=0.25 | 6 | 1/6 | -3.94 ± 0.90 | -4.10 ± 0.74 | 2% |
 | archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
+| generational GA (Ha 2015) | 6 | 5/6 | -0.68 ± 0.83 | -2.00 ± 0.82 | 3% |
+| self-play ES | 4 | 2/4 | -2.58 ± 1.20 | -3.35 ± 0.76 | 0% |
 | *reference run, unmodified environment* | 1 | 1/1 | *+0.29 ± 0.03* | *-0.47 ± 0.04* | *12%* |
 | *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
 
@@ -149,12 +173,29 @@ All 200 paired games agree bit for bit over 265,797 environment steps. Throughpu
 | control | 104 | +0.50 | +0.41 | +0.32 | -0.23 | 0.78 | 0.77 | 32% | 55k | 85k | 43.9 |
 | control | 105 | -0.33 | -0.23 | +0.36 | +0.02 | 0.35 | 0.42 | 25% | 160k | 250k | 38.8 |
 | control | 106 | +0.32 | +0.32 | +0.49 | +0.06 | 0.48 | 0.46 | 50% | 80k | 120k | 50.0 |
+| hof-eval | 101 | -2.17 | -2.06 | +0.34 | -1.12 | 1.33 | 1.18 | 4% | 330k | 445k | 33.2 |
+| hof-eval | 102 | -0.36 | -0.45 | -0.05 | -2.07 | 0.42 | 0.35 | 0% | 435k | — | 20.8 |
+| hof-eval | 103 | -0.27 | -0.21 | +0.30 | -0.46 | 0.93 | 0.82 | 17% | 265k | 300k | 39.8 |
+| hof-eval | 104 | +0.49 | +0.43 | +0.43 | -0.06 | 0.57 | 0.52 | 22% | 155k | 210k | 37.7 |
+| hof-eval | 105 | -4.50 | -4.54 | -3.99 | -4.59 | 0.11 | 0.10 | 0% | 495k | — | 12.2 |
+| hof-eval | 106 | +0.24 | +0.21 | +0.36 | -0.66 | 0.59 | 0.55 | 3% | 370k | 430k | 17.7 |
 | hof-0.25 | 101 | -4.85 | -4.83 | -4.83 | -4.84 | 0.02 | 0.06 | 0% | — | — | 15.2 |
 | hof-0.25 | 102 | -4.82 | -4.84 | -4.83 | -4.85 | 0.01 | 0.08 | 0% | — | — | 11.2 |
 | hof-0.25 | 103 | -4.85 | -4.86 | -4.84 | -4.85 | 0.01 | 0.06 | 0% | — | — | 10.9 |
 | hof-0.25 | 104 | -4.85 | -4.85 | -4.85 | -4.85 | 0.01 | 0.03 | 0% | — | — | 10.1 |
+| hof-0.25 | 105 | -0.25 | -0.41 | +0.55 | -0.64 | 0.64 | 1.13 | 11% | 80k | 365k | 33.5 |
 | hof-0.25 | 106 | -4.82 | -4.83 | -4.85 | -4.84 | 0.01 | 0.05 | 0% | — | — | 12.4 |
 | hof-0.50 | 101 | -4.88 | -4.84 | -4.84 | -4.85 | 0.01 | 0.06 | 0% | — | — | 15.7 |
+| ga2015 | 101 | -3.88 | -3.81 | +0.04 | -1.94 | 0.82 | 0.57 | 1% | 420k | 480k | 13.8 |
+| ga2015 | 102 | -0.77 | -0.62 | +0.32 | -0.26 | 0.43 | 0.56 | 6% | 160k | 345k | 24.0 |
+| ga2015 | 103 | -4.84 | -4.83 | -4.83 | -4.84 | 0.02 | 0.05 | 0% | — | — | 9.3 |
+| ga2015 | 104 | -0.20 | -0.09 | +0.04 | -1.49 | 1.10 | 1.64 | 3% | 205k | 300k | 18.7 |
+| ga2015 | 105 | -0.18 | -0.26 | +0.26 | -0.44 | 0.54 | 0.70 | 7% | 185k | 290k | 23.7 |
+| ga2015 | 106 | -2.31 | -2.40 | +0.12 | -0.72 | 0.84 | 0.70 | 3% | 235k | 465k | 22.9 |
+| es | 101 | -2.43 | -2.46 | -0.95 | -2.53 | 0.59 | 0.64 | 0% | 410k | — | 15.3 |
+| es | 102 | -4.84 | -4.83 | -4.82 | -4.82 | 0.03 | 0.04 | 0% | — | — | 9.2 |
+| es | 103 | -1.68 | -1.68 | -0.12 | -3.15 | 0.38 | 0.21 | 0% | 490k | — | 11.0 |
+| es | 105 | -4.38 | -4.44 | -4.44 | -4.74 | 0.04 | 0.03 | 0% | — | — | 10.6 |
 
 
 ### Table A3

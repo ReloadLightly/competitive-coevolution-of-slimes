@@ -57,8 +57,11 @@ of 100, while every control run did both. The corrected version — archive as a
 | condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | +0.32 ± 0.06 | -0.15 ± 0.27 | 26% |
-| archive as parent, p=0.25 | 5 | 0/5 | -4.84 ± 0.01 | -4.84 ± 0.01 | 0% |
+| archive as test, full span | 6 | 6/6 | -0.44 ± 0.71 | -1.10 ± 0.78 | 8% |
+| archive as parent, p=0.25 | 6 | 1/6 | -3.94 ± 0.90 | -4.10 ± 0.74 | 2% |
 | archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
+| generational GA (Ha 2015) | 6 | 5/6 | -0.68 ± 0.83 | -2.00 ± 0.82 | 3% |
+| self-play ES | 4 | 2/4 | -2.58 ± 1.20 | -3.35 ± 0.76 | 0% |
 | *reference run, unmodified environment* | 1 | 1/1 | *+0.29 ± 0.03* | *-0.47 ± 0.04* | *12%* |
 | *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
 

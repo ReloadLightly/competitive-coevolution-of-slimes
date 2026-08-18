@@ -158,8 +158,11 @@ the first one we implemented was wrong in an instructive way.
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | -0.15 ± 0.27 | +0.32 ± 0.06 | -0.32 ± 0.23 | 0.67 | 0.60 | 26% | 192k (6/6) |
-| archive as parent, p=0.25 | 5 | -4.84 ± 0.01 | -4.84 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.06 | 0% | — (0/5) |
+| archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
+| archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
+| generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
+| self-play ES | 4 | -3.35 ± 0.76 | -2.58 ± 1.20 | -3.81 ± 0.58 | 0.26 | 0.23 | 0% | — (0/4) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -167,11 +170,26 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 <!-- table:2 -->
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as parent, p=0.25 | `final_holdout` | -4.690 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `late_mean` | -4.529 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `volatility` | -0.661 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `drawdown` | -0.546 | -1.00 | 0.004 |
-| archive as parent, p=0.25 | `above_parity` | -0.263 | -1.00 | 0.004 |
+| archive as test, full span | `final_holdout` | -0.953 | -0.28 | 0.485 |
+| archive as test, full span | `late_mean` | -1.178 | -0.67 | 0.065 |
+| archive as test, full span | `volatility` | -0.015 | +0.00 | 1.000 |
+| archive as test, full span | `drawdown` | -0.014 | +0.00 | 1.000 |
+| archive as test, full span | `above_parity` | -0.187 | -0.75 | 0.028 |
+| archive as parent, p=0.25 | `final_holdout` | -3.951 | -0.94 | 0.004 |
+| archive as parent, p=0.25 | `late_mean` | -3.828 | -0.94 | 0.004 |
+| archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
+| archive as parent, p=0.25 | `drawdown` | -0.366 | -0.67 | 0.065 |
+| archive as parent, p=0.25 | `above_parity` | -0.245 | -0.94 | 0.004 |
+| generational GA (Ha 2015) | `final_holdout` | -1.852 | -0.67 | 0.065 |
+| generational GA (Ha 2015) | `late_mean` | -1.299 | -0.78 | 0.026 |
+| generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
+| generational GA (Ha 2015) | `drawdown` | +0.103 | +0.00 | 1.000 |
+| generational GA (Ha 2015) | `above_parity` | -0.230 | -0.83 | 0.015 |
+| self-play ES | `final_holdout` | -3.204 | -1.00 | 0.010 |
+| self-play ES | `late_mean` | -3.494 | -1.00 | 0.010 |
+| self-play ES | `volatility` | -0.414 | -0.58 | 0.171 |
+| self-play ES | `drawdown` | -0.371 | -0.75 | 0.067 |
+| self-play ES | `above_parity` | -0.263 | -1.00 | 0.010 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 <!-- /table:2 -->
@@ -201,7 +219,43 @@ archive game that the population member loses costs it its slot, but the
 replacement genes come from the living pool, so genetic material never leaves
 the population. The archive spans the whole run (capacity 512).
 
-*(Results for `hof-eval` are filled in from Table 1 and Table 2.)*
+Done this way the archive stops being destructive — every seed learns to rally,
+as reliably as the control — but it does not stabilise anything either. It makes
+the run *worse*: a lower level in the last 100,000 games and fewer above-parity
+checkpoints than the control, with a large effect size and a p-value that, at six
+seeds a side, sits just outside conventional significance.
+
+The mechanism is visible in the data and it follows directly from §1.
+
+![archive decay](../../results/figures/fig10_archive_decay.png)
+
+*Figure 10. Left: the archive's win rate against the current population, every
+archive run. It starts at chance and collapses. Right: the share of the game
+budget that produces no selection event at all, because an archive game the
+population member wins overwrites nothing.*
+
+Early in a run, archived champions are genuine opposition and win about half
+their games. By the end they win under a tenth. Skill in this environment is
+transitive (§1), so a past champion is simply a weaker player, and playing it is
+a nearly foregone conclusion. Since an archive game that the population member
+wins overwrites nothing, roughly **22% of all games late in training produce no
+selection event whatsoever** — the archive is not insurance, it is a tax levied
+on the live arms race.
+
+That yields a general rule with a number attached, and a cheap diagnostic:
+
+> **A hall of fame pays for itself only to the extent that archived opponents
+> can still win.** Log the archive's win rate against the current population. If
+> it decays towards zero, the archive has become a free win and the budget spent
+> on it is subtracted from the arms race that is actually driving progress. In a
+> genuinely intransitive domain it would not decay — old strategies would keep
+> beating some current ones, which is exactly the case the remedy was designed
+> for.
+
+The two archive conditions together therefore say something more useful than
+either alone: an archive that supplies *parents* destroys learning, an archive
+that supplies *tests* wastes budget, and neither helps, because the pathology
+they were built to fix is not present here.
 
 ![hall of fame](../../results/figures/fig3_hall_of_fame.png)
 
