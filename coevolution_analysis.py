@@ -151,7 +151,20 @@ def _proxy_job(job):
         exported = int(np.argmax(streaks))
         order = np.argsort(-means)
         rank = int(np.where(order == exported)[0][0])
+
+        # How much of a collective is left? The update rule overwrites the
+        # loser with a mutant of the winner, so the pool collapses towards one
+        # lineage; these two numbers say how far that has gone.
+        centroid = pop.mean(axis=0)
+        spread = float(np.sqrt(((pop - centroid) ** 2).sum(axis=1).mean()))
+        sq = (pop * pop).sum(axis=1)
+        d = np.sqrt(np.maximum(sq[:, None] + sq[None, :] - 2 * pop @ pop.T, 0.0))
+        iu = np.triu_indices(len(pop), 1)
         out.append({
+            "genotype_spread": spread,
+            "mean_pairwise_distance": float(d[iu].mean()),
+            "min_pairwise_distance": float(d[iu].min()),
+            "score_spread": float(means.std()),
             "tournament": (k + 1) * pop_every,
             "exported_idx": exported,
             "exported_score": float(means[exported]),

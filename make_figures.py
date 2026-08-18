@@ -129,13 +129,14 @@ def fig1_reference():
     if above.any():
         first = t[np.argmax(above)]
         ax.axvline(first, color="#C0392B", lw=0.9, ls=":")
-        ax.annotate(f"first checkpoint above parity\n{first*1000:,.0f} games",
-                    xy=(first, 0), xytext=(first + 25, -2.6), fontsize=7,
-                    color="#C0392B",
-                    arrowprops=dict(arrowstyle="-", color="#C0392B", lw=0.7))
+        ax.annotate(f"first checkpoint above parity: {first*1000:,.0f} games",
+                    xy=(first, -0.15), xytext=(t.max() * 0.02, -1.9), fontsize=7,
+                    color="#C0392B", va="center",
+                    arrowprops=dict(arrowstyle="->", color="#C0392B", lw=0.7,
+                                    shrinkA=2, shrinkB=2))
     ax.set_ylabel("score vs 2015 baseline\n(points per episode)")
-    ax.set_title("Reference run on slimevolleygym: 500,000 self-play games",
-                 loc="left")
+    ax.set_title(f"Reference run on slimevolleygym: {t.max()*1000:,.0f} "
+                 f"self-play games", loc="left")
     ax.legend(loc="lower right")
 
     ax2 = axes[1]

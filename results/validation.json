@@ -1,44 +1,44 @@
 {
  "scenarios": {
   "random vs random": {
-   "n": 8,
-   "score_match": 8,
-   "len_match": 8,
-   "trace_exact": 8,
+   "n": 50,
+   "score_match": 50,
+   "len_match": 50,
+   "trace_exact": 50,
    "max_abs_dev": 0.0,
-   "steps": 4825,
+   "steps": 31971,
    "first_div_step": []
   },
   "champion vs random": {
-   "n": 8,
-   "score_match": 8,
-   "len_match": 8,
-   "trace_exact": 8,
+   "n": 50,
+   "score_match": 50,
+   "len_match": 50,
+   "trace_exact": 50,
    "max_abs_dev": 0.0,
-   "steps": 5048,
+   "steps": 39900,
    "first_div_step": []
   },
   "champion vs champion": {
-   "n": 8,
-   "score_match": 8,
-   "len_match": 8,
-   "trace_exact": 8,
+   "n": 50,
+   "score_match": 50,
+   "len_match": 50,
+   "trace_exact": 50,
    "max_abs_dev": 0.0,
-   "steps": 4534,
+   "steps": 45017,
    "first_div_step": []
   },
   "champion vs 2015 baseline": {
-   "n": 8,
-   "score_match": 8,
-   "len_match": 8,
-   "trace_exact": 8,
+   "n": 50,
+   "score_match": 50,
+   "len_match": 50,
+   "trace_exact": 50,
    "max_abs_dev": 0.0,
-   "steps": 24000,
+   "steps": 148909,
    "first_div_step": []
   }
  },
- "reference_games_per_sec": 7.71434115430231,
- "compiled_games_per_sec": 263.5814662368853,
- "speedup": 34.16772229341778,
+ "reference_games_per_sec": 8.723724043307634,
+ "compiled_games_per_sec": 273.56530890208245,
+ "speedup": 31.358776085076517,
  "all_exact": true
 }
