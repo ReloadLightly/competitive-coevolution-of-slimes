@@ -570,8 +570,8 @@ numbers moved.
 <!-- table:1 -->
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
-| control (Ha GA) | 5 | — ± — | — ± — | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
-| hall of fame, p=0.25 | 3 | — ± — | — ± — | -4.85 ± 0.00 | 0.01 | 0.07 | 0% | — (0/3) |
+| control (Ha 2020 GA) | 5 | — ± — | — ± — | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
+| archive as parent, p=0.25 | 3 | — ± — | — ± — | -4.85 ± 0.00 | 0.01 | 0.07 | 0% | — (0/3) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -581,10 +581,10 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 <!-- table:2 -->
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| hall of fame, p=0.25 | `late_mean` | -4.456 | -1.00 | 0.036 |
-| hall of fame, p=0.25 | `volatility` | -0.698 | -1.00 | 0.036 |
-| hall of fame, p=0.25 | `drawdown` | -0.565 | -1.00 | 0.036 |
-| hall of fame, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `late_mean` | -4.456 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `volatility` | -0.698 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `drawdown` | -0.565 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.036 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 <!-- /table:2 -->

@@ -4,8 +4,8 @@
 
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
-| control (Ha GA) | 5 | — ± — | — ± — | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
-| hall of fame, p=0.25 | 3 | — ± — | — ± — | -4.85 ± 0.00 | 0.01 | 0.07 | 0% | — (0/3) |
+| control (Ha 2020 GA) | 5 | — ± — | — ± — | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
+| archive as parent, p=0.25 | 3 | — ± — | — ± — | -4.85 ± 0.00 | 0.01 | 0.07 | 0% | — (0/3) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 
@@ -14,10 +14,10 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| hall of fame, p=0.25 | `late_mean` | -4.456 | -1.00 | 0.036 |
-| hall of fame, p=0.25 | `volatility` | -0.698 | -1.00 | 0.036 |
-| hall of fame, p=0.25 | `drawdown` | -0.565 | -1.00 | 0.036 |
-| hall of fame, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `late_mean` | -4.456 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `volatility` | -0.698 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `drawdown` | -0.565 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.036 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 
@@ -50,8 +50,8 @@ Control condition, 5 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
-| control (Ha GA) | 5 | 5/5 | 160k (55k–415k) | 250k (85k–440k) (5/5) | 75k |
-| hall of fame, p=0.25 | 3 | 0/3 | never | never (0/3) | — |
+| control (Ha 2020 GA) | 5 | 5/5 | 160k (55k–415k) | 250k (85k–440k) (5/5) | 75k |
+| archive as parent, p=0.25 | 3 | 0/3 | never | never (0/3) | — |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
 
