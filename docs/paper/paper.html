@@ -208,40 +208,59 @@ footer {
   * { animation: none !important; transition: none !important; }
 }
 </style>
-<div class="wrap"><header class="masthead"><div class="eyebrow">Neural Slime Volleyball &middot; self-play neuroevolution</div><h1>Competitive coevolution without memory: what 13.5 million self-play games say about the selection signal</h1><p class="standfirst">A study of neuroevolution in a collective system, and the first of three
-experiments behind the ACTIR / ShinkaEvolve submission.</p></header><hr class="parity"/>
-<!-- DRAFT-CLAIMS: the abstract's three findings are written from the
-     pilot and the reference run. Every directional claim here must be
-     re-checked against results/analysis/*.json before this file ships. -->
-
+<div class="wrap"><header class="masthead"><div class="eyebrow">Neural Slime Volleyball &middot; self-play neuroevolution</div><h1>The champion you export is not the champion you evolved</h1><p class="standfirst">Competitive coevolution in Slime Volleyball, measured across dozens of runs —
+and the first of three experiments behind the ACTIR / ShinkaEvolve submission.</p></header><hr class="parity"/>
 <h2>Abstract</h2>
 <p>Self-play evolution produces competent agents from an entirely internal signal:
 beat a randomly drawn peer, stay in the pool. Nothing tells the population what
 good play is. We replicate David Ha's tournament-selection genetic algorithm on
-Slime Volleyball and ask what that signal can and cannot deliver, using a
-design rather than a single run: 27 runs of 500,000 self-play games each across
-seven conditions, with all evaluation against a frozen 2015 champion that is
-never seen during training.</p>
-<p>Three findings. <em>First</em>, the internal signal works, and it works late: a
-population improves against itself for roughly a hundred thousand games before
-any of that improvement transfers to the external opponent, so an evaluation
-that stops early reads as total failure. <em>Second</em>, competence is reached
-repeatedly and lost repeatedly — the exported champion swings by several points
-per episode between adjacent checkpoints, and the swings damp but do not
-vanish. <em>Third</em>, and contrary to the standard explanation, most of that
-instability is not coevolutionary forgetting. Within-run tournaments show
-skill is almost perfectly transitive; the population is not cycling. The
-volatility is largely an artefact of <em>which individual gets exported</em>: Ha's
-longest-winning-lineage rule is a cheap proxy for quality, and the individual
-it picks is typically well behind the best individual in the same population.</p>
-<p>We also give the enabling engineering: a compiled port of the environment,
-validated bit-for-bit against the reference implementation over a quarter of a
-million environment steps, which turns a twelve-core-hour run into a
-twenty-minute one and is what makes a seeded design affordable at all.</p>
+Slime Volleyball and ask what that signal can and cannot deliver, using a design
+rather than a single run: dozens of independent runs of 500,000 self-play games
+each across eleven conditions, with every evaluation against a frozen 2015
+champion that is never seen during training.</p>
+<p>The internal signal works, and it works late. A population improves against
+itself for tens of thousands of games before any of that improvement transfers
+to the external opponent, so an evaluation that stops early reads as total
+failure. The phase change at which transfer begins is robust — every control run
+reaches the same band — but its <em>timing</em> is not reproducible at all, ranging over
+more than a sevenfold spread across seeds. A single run therefore supports no
+claim about when self-play starts working.</p>
+<p>Our main finding concerns the instability that follows. Champion quality swings
+by several points per episode between adjacent checkpoints, and the standard
+explanation is coevolutionary forgetting: skills that no current opponent
+punishes are not selected for and are lost. That explanation does not survive
+measurement. Playing every checkpoint of a run against every other checkpoint,
+skill is almost perfectly transitive — later champions beat earlier ones, and
+under 1% of decided checkpoint triples are cyclic. The population is not going
+in circles.</p>
+<p>What is going in circles is the <em>reporting</em>. Ha's algorithm exports the
+individual with the longest winning lineage, a proxy adopted explicitly
+"without actually computing who is best to save time". Because the streak
+counter is inherited by the loser on every replacement, it measures the age of a
+lineage rather than the merit of an individual, and it is uncorrelated with
+actual skill. Scored against the whole population, the exported champion sits
+near the <em>median</em> of its own 128 members and about a point per episode below the
+best of them; at the end of a run it is below parity while dozens of its peers
+are above it. A substantial part of what has been read as coevolutionary
+instability is measurement noise injected at the last step, and it is invisible
+because a champion curve looks the same either way.</p>
+<p>We also report a negative result with a mechanism. Our first hall-of-fame
+implementation applied the replacement rule to archive games, making a winning
+archived genome the <em>parent</em> of the member it beat. That copies old genotypes
+back into the pool roughly one game in eight and abolishes learning outright —
+no such run reached long rallies or produced a single above-parity checkpoint,
+while every control run did both. It also produced the cleanest illustration in
+the study of why stability metrics need a competence precondition: a dead run has
+zero volatility and zero drawdown, and so scores as the most stable condition in
+the matrix.</p>
+<p>Supporting all of this is the engineering that made a seeded design affordable: a
+compiled port of the environment, validated bit for bit against the reference
+implementation over a quarter of a million environment steps, which turns a
+twelve-core-hour run into a half-hour one.</p>
 <h2>Why this matters beyond volleyball</h2>
 <p>A self-improvement loop is exactly as real as its improvement signal. This
-repository is the smallest rung of a three-part argument about where that
-signal can come from as the world being acted in opens up:</p>
+repository is the smallest rung of a three-part argument about where that signal
+can come from as the world being acted in opens up:</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
@@ -269,20 +288,25 @@ signal can come from as the world being acted in opens up:</p>
 </tbody>
 </table></div>
 <p>The load-bearing claim inherited upward is the <em>separation of ecology from
-yardstick</em>: the thing that selects and the thing that measures must never be
-the same object. What this study adds to that claim is a caveat with teeth —
-when selection is purely relative, the mechanism that <em>reports</em> a winner can
-contribute more noise than the coevolution itself, and it will do so silently.</p>
+yardstick</em>: the thing that selects and the thing that measures must never be the
+same object. What this study adds is a caveat with teeth. When selection is
+purely relative, there is a third object in the loop — the mechanism that decides
+which candidate to <em>report</em> — and here it contributed more noise than the
+coevolution did. Any evolutionary loop that promotes one artefact out of a
+population, including an LLM-driven one that promotes one program out of a
+generation, inherits that failure mode, and it is cheap to check and cheap to fix
+once named.</p>
 <h2>Contents</h2>
 <ul>
-<li><a href="01-methods.md">Methods</a> — task, algorithm, interventions, the compiled
+<li><a href="01-methods.md">Methods</a> — task, algorithms, interventions, the compiled
   environment and its validation, the pre-registered evaluation protocol.</li>
-<li><a href="02-results.md">Results</a> — the reference run, the seeded control condition,
-  and the phase change.</li>
-<li><a href="03-ablations-and-analysis.md">Ablations and analysis</a> — hall of fame,
-  mutation scale, population size, intransitivity, and the champion proxy.</li>
-<li><a href="04-appendix.md">Appendix</a> — self-contained; every table, every run, and the
-  reproduction commands.</li>
+<li><a href="02-results.md">Results</a> — the reference run, seed variance in the phase
+  change, and what competence looks like concretely.</li>
+<li><a href="03-ablations-and-analysis.md">Ablations and analysis</a> — transitivity, the
+  export rule, archives as parent and as test, mutation scale, population size,
+  and two further algorithm families.</li>
+<li><a href="04-appendix.md">Appendix</a> — self-contained; every table, every run, the
+  decision log, and the reproduction commands.</li>
 </ul>
 <hr class='parity'/>
 
@@ -520,125 +544,564 @@ reference environment would have taken roughly ten days on the same machine.</p>
 
 <h2>1. The reference run: a phase change, and a lag</h2>
 <p>We first report the single run trained on the unmodified <code>slimevolleygym</code>
-environment, because it is the run that the rest of the study was built to
-explain. It is Ha's algorithm at Ha's budget: 128 individuals, 500,000
-tournament games, mutation σ = 0.1, no opponent but itself.</p>
-<p>Its trajectory has two regimes (Figure 1). For the first hundred thousand
-games the champion loses every episode to the 2015 baseline by nearly the
-maximum margin — a flat floor at roughly −4.85 points per episode, with a
-standard deviation across checkpoints of 0.05. Then, over about fifty thousand
-games, it climbs almost four points and begins producing champions that beat
-the 2015 expert outright.</p>
-<p>The interesting part is <em>when</em> the population knew. Rally length in the
-population's own training games — a purely internal measurement with no
-external opponent anywhere in it — crosses 1,500 steps at <strong>104,200 games</strong>.
-The first checkpoint to score above parity against the 2015 baseline arrives at
+environment, because it is the run the rest of the study was built to explain.
+It is Ha's algorithm at Ha's budget: 128 individuals, 500,000 tournament games,
+mutation σ = 0.1, no opponent but itself.</p>
+<p>Its trajectory has two regimes (Figure 1). For the first hundred thousand games
+the champion loses every episode to the 2015 baseline by nearly the maximum
+margin — a floor at roughly −4.82 points per episode with a standard deviation
+across checkpoints of 0.05. Then, over about fifty thousand games, it climbs
+almost four points and begins producing champions that beat the 2015 expert
+outright.</p>
+<p>The interesting part is <em>when the population knew</em>. Rally length in the
+population's own training games — a purely internal measurement, with no
+external opponent anywhere in it — crosses 1,500 steps at <strong>104,200 games</strong>. The
+first checkpoint to score above parity against the 2015 baseline arrives at
 <strong>172,000 games</strong>. The internal signal leads the external one by roughly
-<strong>68,000 games</strong>, a third of the way through the run.</p>
+<strong>68,000 games</strong>.</p>
 <p>That gap is the practical lesson of the whole study, and it is the lesson
-February 2026 got wrong in the other direction. An evaluation that stopped at
-game 90,000 would have reported total failure from a population that was
-already improving steadily; the only thing missing was that its improvements
-had not yet generalised beyond its own family. <em>Internal selection pressure
-leads external measurement.</em> Any self-improvement loop measured too early
-reads as a dead loop.</p>
+February 2026 got wrong in the other direction. An evaluation stopped at game
+90,000 would have reported total failure from a population that was already
+improving steadily; the only thing missing was that its improvements had not yet
+generalised beyond its own family. <em>Internal selection pressure leads external
+measurement.</em> Any self-improvement loop measured too early reads as a dead loop.</p>
 <p><strong>Damping, and what remains.</strong> Split the run into 100,000-game windows and the
-picture is neither "it learns" nor "it thrashes":</p>
+picture is neither "it learns" nor "it thrashes": the level rises and the swings
+shrink, but neither converges. The population settles into a band just below
+parity from which it repeatedly produces baseline-beating champions and then
+loses them again. Held out on a disjoint evaluation seed over 1,000 episodes,
+the best checkpoint of the run scores <strong>+0.304 ± 0.806</strong> (s.e.m. 0.025) — within
+noise of Ha's published +0.353 ± 0.728 for the same algorithm at the same
+budget. Full numbers in Table 3.</p>
+<p>This is where the previous version of this study stopped, and it is exactly as
+far as one run can go. Everything above is compatible with at least three
+different mechanisms, and separating them needs a design.</p>
+<h2>2. The same algorithm, several times: the phase change is real, its timing is not</h2>
+<p>Running the identical algorithm on fresh seeds changes the picture in one
+specific way. Every control run reaches the same <em>place</em>; almost nothing about
+<em>when</em> it gets there replicates.</p>
+<!-- table:8 -->
 <div class="tablewrap"><table>
 <thead>
 <tr>
-<th>games</th>
-<th>mean</th>
-<th>s.d.</th>
-<th>above parity</th>
+<th>condition</th>
+<th>runs</th>
+<th>reached long rallies</th>
+<th>internal transition (median, range)</th>
+<th>first parity (median, range)</th>
+<th>lag (median)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>0–100k</td>
-<td>−4.82</td>
-<td>0.05</td>
-<td>0/100</td>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>5/5</td>
+<td>160k (55k–415k)</td>
+<td>250k (85k–440k) (5/5)</td>
+<td>75k</td>
 </tr>
 <tr>
-<td>100k–200k</td>
-<td>−2.02</td>
-<td>1.64</td>
-<td>8/100</td>
-</tr>
-<tr>
-<td>200k–300k</td>
-<td>−0.55</td>
-<td>0.78</td>
-<td>21/100</td>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>0/5</td>
+<td>never</td>
+<td>never (0/5)</td>
+<td>—</td>
 </tr>
 </tbody>
 </table></div>
-<p>The level rises and the swings shrink, but neither converges: the population
-settles into a band just below parity, from which it repeatedly produces
-champions that beat the 2015 expert and then loses them again. Held out on a
-disjoint evaluation seed over 1,000 episodes, the best checkpoint of the run
-scores <strong>+0.304 ± 0.806</strong> (s.e.m. 0.025) — within noise of Ha's published
-+0.353 ± 0.728 for the same algorithm at the same budget.</p>
-<p>This is where the previous version of this study stopped, and it is exactly as
-far as one run can go. Everything in that paragraph is compatible with at
-least three different mechanisms, and separating them needs a design.</p>
-<h2>2. The same algorithm, twelve times</h2>
-<p><em>(Section filled from <code>results/analysis/conditions.json</code>; see Table 1 and
-Figure 2.)</em></p>
-<h2>3. What "competence" means here</h2>
-<p><em>(Win/draw/loss decomposition and rally length; Table 1 and Table 3.)</em></p>
+<p>'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.</p>
+<!-- /table:8 -->
+
+<p>Read the range column, not the median. The internal transition happens anywhere
+from 55,000 to 415,000 games — a spread of more than 7× — and the first
+above-parity checkpoint anywhere from 85,000 to 440,000. One seed had already
+transitioned before the reference run's floor ended; another was still on the
+floor at 400,000 games and produced only three above-parity checkpoints out of a
+hundred. The reference run's own timing (104,200 internal, 172,000 external)
+sits unremarkably inside that distribution, which is worth noting for a second
+reason: it is a trajectory-level agreement between two independent
+implementations of the same algorithm, on top of the per-game bit-exactness of
+Table A1.</p>
+<p>What <em>does</em> replicate is the ceiling. Peak checkpoint scores across control
+seeds fall in a narrow band a little above parity, while the endpoint of the
+same runs ranges from clearly winning to clearly losing. The lag from internal
+to external progress replicates too, in the sense of always being present and
+always being large: 25,000 to 100,000 games.</p>
+<p>The methodological consequence is blunt. <strong>A single run of this algorithm
+supports no claim about when a phase change occurs, and a run stopped at any
+particular budget supports no claim about the algorithm's final quality.</strong> The
+first version of this study reported a transition "at roughly 100,000 games";
+the honest version of that statement is "somewhere between 55,000 and 415,000
+games, and this seed happened to do it at 104,200".</p>
+<figure><img alt="six control seeds" src="../../results/figures/fig2_control_seeds.png" /><figcaption><b>Figure 2.</b> Every control seed (thin) with the median and inter-quartile band
+(thick), and the reference run subsampled onto the same checkpoint grid
+(dashed). All runs reach the same band; the games at which they get there differ
+by an order of magnitude.</figcaption></figure>
+<h2>3. What "competence" means here, concretely</h2>
+<p>Parity against the 2015 champion is a low bar in absolute terms and a
+substantial one in this setting, so it is worth saying exactly what the evolved
+agents do.</p>
+<p>Before the transition, the champion loses 0–5 in a few hundred steps: it is
+scored on almost immediately, repeatedly, and every episode ends early because
+one side has run out of lives. After the transition, the modal outcome is a
+<em>draw at the time limit</em>: the evolved agent and the 2015 champion hold each
+other for the full 3,000 steps without either side losing five points. Mean
+evaluation rally length rises from roughly 600 steps to essentially the 3,000
+cap, and the win/draw/loss decomposition of a good late champion is dominated by
+draws (Table 1, Table 3).</p>
+<p>That is the shape of the competence self-play produces here: not an agent that
+overwhelms the 2015 expert, but one that has learned to not lose to it. The
+population never sees that opponent in training, so what transfers is a general
+defensive competence rather than a counter-strategy.</p>
 <h2>4. The two implementations agree</h2>
-<p><em>(Bit-level equivalence (Table A1) and the trajectory-level continuation of
-the same population snapshot (Table A3).)</em></p>
+<p>The compiled environment is the benchmark, not an approximation of it, and the
+evidence is at three levels.</p>
+<p><em>Per game.</em> Driven from an identical stream of serve velocities, 200 paired
+games agree bit for bit — ball position and velocity, both agents' positions,
+the frame at which every rally ends, the final score and the episode length —
+across 265,797 environment steps and four policy populations chosen to exercise
+different parts of the state space (Table A1). Throughput on one core goes from
+8.7 to 274 games/second.</p>
+<p><em>Per trajectory.</em> The reference run's own committed population snapshot,
+continued in both implementations, produces trajectories in the same band
+(Table A3).</p>
+<p><em>Per distribution.</em> The reference run's transition timing and peak score both
+sit inside the compiled control condition's seed distribution, as §2 describes.</p>
 <hr class='parity'/>
 
 <h1>Ablations and analysis</h1>
 <!-- VERIFY: every number here is regenerated by make_tables.py into
      docs/paper/_tables.md. Check the prose against that file before shipping. -->
 
-<p>The reference run leaves three competing explanations for the same
-observation — competence is reached and then lost. Each section below removes
-one of them.</p>
+<p>The reference run leaves three competing explanations for the same observation —
+competence is reached and then lost. Each is a different claim about <em>where</em> the
+volatility lives, and each makes a different prediction:</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
 <th>explanation</th>
+<th>the claim</th>
 <th>prediction</th>
-<th>test</th>
+<th>tested in</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>the population <em>forgets</em> skills no current opponent punishes</td>
-<td>giving selection a memory should stabilise it</td>
-<td>§1, hall of fame</td>
+<td>coevolutionary forgetting</td>
+<td>the population really does lose skills that no current opponent punishes</td>
+<td>later champions should <em>not</em> reliably beat earlier ones; the champion tournament should contain cycles</td>
+<td>§1</td>
 </tr>
 <tr>
-<td>the mutation step is simply too large for the landscape</td>
-<td>a smaller σ should reduce the swings</td>
+<td>a reporting artefact</td>
+<td>the population is fine; the individual we <em>export</em> is not the best one</td>
+<td>the best individual in the pool should be both better and steadier than the exported champion</td>
 <td>§2</td>
 </tr>
 <tr>
-<td>the exported champion is not the best individual — the swings are a <em>reporting</em> artefact</td>
-<td>the best individual in the pool should be both better and steadier than the exported one</td>
+<td>step size</td>
+<td>the mutation step is too large for the landscape</td>
+<td>a smaller σ should reduce the swings</td>
 <td>§4</td>
 </tr>
 </tbody>
 </table></div>
-<h2>1. Does an archive of past champions stabilise competence?</h2>
-<p><em>(Table 1, Table 2, Figure 3.)</em></p>
-<h2>2. Is the instability just the mutation step?</h2>
-<p><em>(Figure 4, left.)</em></p>
-<h2>3. Does a bigger collective help?</h2>
-<p><em>(Figure 4, right.)</em></p>
-<h2>4. Is the population cycling, or is the champion proxy noisy?</h2>
-<p><em>(Table 4, Table 5, Figures 5 and 6.)</em></p>
-<h2>5. Which condition's champions actually win?</h2>
-<p><em>(Table 6, Figure 7.)</em></p>
-<h2>6. Synthesis</h2>
-<p><em>(What the four measurements jointly imply for competitive coevolution, and
-what carries up to ACTIR / ShinkaEvolve.)</em></p>
+<p>The first two are settled below, and the answer is not the one the literature's
+default reading would predict.</p>
+<h2>1. The population is not cycling</h2>
+<p>Every checkpoint of a run, spaced 50,000 games apart, was played against every
+other checkpoint of the same run — 50 games per pair over both court sides — and
+Bradley–Terry ratings fitted on the Elo scale.</p>
+<!-- table:4 -->
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>runs</th>
+<th>ρ(Elo, training time)</th>
+<th>cyclic triads</th>
+<th>undecided pairs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>+0.72</td>
+<td>1/421 (0.2%)</td>
+<td>10.0</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>+0.28</td>
+<td>17/127 (13.4%)</td>
+<td>23.4</td>
+</tr>
+</tbody>
+</table></div>
+<p>Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.</p>
+<!-- /table:4 -->
+
+<p>In the control condition, skill is essentially <strong>transitive</strong>: the rank
+correlation between Elo and training time is strongly positive, and of several
+hundred decided checkpoint triples, well under 1% are cyclic. Later champions
+beat earlier champions. A population that was genuinely forgetting — losing
+skills that no current opponent punishes, then relearning them — would produce
+exactly the opposite signature: A beats B beats C beats A, and Elo uncorrelated
+with training time.</p>
+<p>So the standard explanation for the swings in Figure 1 is, in this environment
+and with this algorithm, wrong. Whatever the volatility is, it is not the
+population going in circles.</p>
+<p>The <code>hof-0.25</code> rows are the control for that reading: those runs never learned
+anything (§3), so their champions are a set of roughly equally bad policies whose
+pairwise results are mostly noise — and there the cyclic fraction is an order of
+magnitude higher and the Elo/time correlation weak. That is what genuine
+intransitivity looks like in these numbers, and the control condition does not
+look like it.</p>
+<h2>2. The volatility is largely a reporting artefact</h2>
+<p>Ha exports the individual with the longest winning lineage, "without actually
+computing who is best to save time". Because the control runs snapshot their
+entire population every 50,000 games, every member can be scored against the
+2015 baseline and compared with the one the rule selects.</p>
+<!-- table:5 -->
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>games</th>
+<th>exported champion</th>
+<th>best in the same pool</th>
+<th>gap</th>
+<th>exported rank</th>
+<th>ρ(streak, score)</th>
+<th>above parity in pool</th>
+<th>mean pairwise genotype distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50,000</td>
+<td>-4.74</td>
+<td>-4.46</td>
+<td>0.28</td>
+<td>58 / 128</td>
+<td>+0.12</td>
+<td>0</td>
+<td>12.92</td>
+</tr>
+<tr>
+<td>100,000</td>
+<td>-4.32</td>
+<td>-2.65</td>
+<td>1.67</td>
+<td>72 / 128</td>
+<td>-0.00</td>
+<td>1</td>
+<td>11.03</td>
+</tr>
+<tr>
+<td>150,000</td>
+<td>-3.40</td>
+<td>-2.53</td>
+<td>0.87</td>
+<td>45 / 128</td>
+<td>+0.09</td>
+<td>3</td>
+<td>10.32</td>
+</tr>
+<tr>
+<td>200,000</td>
+<td>-2.48</td>
+<td>-1.78</td>
+<td>0.70</td>
+<td>63 / 128</td>
+<td>+0.03</td>
+<td>5</td>
+<td>9.88</td>
+</tr>
+<tr>
+<td>250,000</td>
+<td>-1.57</td>
+<td>-0.62</td>
+<td>0.94</td>
+<td>46 / 128</td>
+<td>+0.09</td>
+<td>20</td>
+<td>9.18</td>
+</tr>
+<tr>
+<td>300,000</td>
+<td>-1.38</td>
+<td>-0.50</td>
+<td>0.87</td>
+<td>51 / 128</td>
+<td>+0.13</td>
+<td>25</td>
+<td>10.54</td>
+</tr>
+<tr>
+<td>350,000</td>
+<td>-1.67</td>
+<td>-0.46</td>
+<td>1.21</td>
+<td>72 / 128</td>
+<td>+0.08</td>
+<td>30</td>
+<td>10.33</td>
+</tr>
+<tr>
+<td>400,000</td>
+<td>-1.41</td>
+<td>-0.41</td>
+<td>1.00</td>
+<td>63 / 128</td>
+<td>+0.11</td>
+<td>46</td>
+<td>11.81</td>
+</tr>
+<tr>
+<td>450,000</td>
+<td>-0.58</td>
+<td>+0.60</td>
+<td>1.18</td>
+<td>71 / 128</td>
+<td>-0.02</td>
+<td>45</td>
+<td>12.23</td>
+</tr>
+<tr>
+<td>500,000</td>
+<td>-0.29</td>
+<td>+0.66</td>
+<td>0.94</td>
+<td>73 / 128</td>
+<td>+0.06</td>
+<td>58</td>
+<td>11.36</td>
+</tr>
+</tbody>
+</table></div>
+<p>Control runs only (5 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.</p>
+<!-- /table:5 -->
+
+<p>Three things in that table, in increasing order of how much they matter.</p>
+<p><em>The exported champion is not the best individual.</em> Its rank inside its own
+population of 128 hovers around the middle throughout training, not near the top.</p>
+<p><em>The streak counter does not track quality.</em> The rank correlation between an
+individual's winning-streak counter and its actual score against the 2015
+baseline sits within noise of zero at every checkpoint. This is not surprising
+once stated: the counter is inherited by the loser on every replacement, so it
+measures the <em>age of a lineage</em>, not the merit of an individual. But it means the
+export rule is close to picking a competent-ish individual at random.</p>
+<p><em>The cost is about a point per episode, and it is systematic.</em> Late in training
+the gap between the exported champion and the best individual in the same pool is
+consistently around one point — and at the end of the run the exported champion
+is below parity while dozens of its own peers are above it.</p>
+<figure><img alt="champion proxy" src="../../results/figures/fig6_champion_proxy.png" /><figcaption><b>Figure 6.</b> Left: the exported champion (red) against the best individual in the
+same population (blue), for every control seed. The best individual is better
+almost everywhere and crosses parity substantially earlier. Right: Spearman
+correlation between the winning-streak counter and score against the 2015
+baseline, every seed and snapshot — indistinguishable from zero.</figcaption></figure>
+<p>This reframes the headline result of the reference run. The published number for
+this algorithm — Ha's +0.353, our reference run's +0.304 — is not the quality
+the population reaches. It is the quality of a middling member of that
+population, and the pool it was drawn from contains individuals a point better.
+<strong>A meaningful part of what looked like coevolutionary instability is
+measurement noise injected by the export rule at the last step.</strong></p>
+<p>The finding is cheap to act on, which is the useful part: the fix is to spend a
+few hundred games ranking the pool before exporting, or to report the
+distribution instead of a single individual. It is also a warning that
+generalises past this game — when selection is purely relative, the mechanism
+that <em>reports</em> a winner can contribute more variance than the coevolution does,
+and it will do so silently, because a champion curve looks exactly the same
+either way.</p>
+<h2>3. An archive of past champions: as a parent, and as a test</h2>
+<p>The remaining explanation for volatility in the literature is missing memory,
+and the standard remedy is a hall of fame. We tested two readings of it, because
+the first one we implemented was wrong in an instructive way.</p>
+<!-- table:1 -->
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>runs</th>
+<th>final (held out)</th>
+<th>peak (held out)</th>
+<th>mean, last 100k</th>
+<th>volatility</th>
+<th>drawdown</th>
+<th>above parity</th>
+<th>median first parity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>-0.24 ± 0.31</td>
+<td>+0.29 ± 0.06</td>
+<td>-0.39 ± 0.27</td>
+<td>0.71</td>
+<td>0.63</td>
+<td>22%</td>
+<td>250k (5/5)</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>-4.84 ± 0.01</td>
+<td>-4.84 ± 0.01</td>
+<td>-4.84 ± 0.00</td>
+<td>0.01</td>
+<td>0.06</td>
+<td>0%</td>
+<td>— (0/5)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. <code>final</code> and <code>peak</code> are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.</p>
+<!-- /table:1 -->
+
+<!-- table:2 -->
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>metric</th>
+<th>difference</th>
+<th>Cliff's δ</th>
+<th>exact p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>final_holdout</code></td>
+<td>-4.597</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>late_mean</code></td>
+<td>-4.455</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>volatility</code></td>
+<td>-0.699</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>drawdown</code></td>
+<td>-0.575</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>above_parity</code></td>
+<td>-0.216</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+</tbody>
+</table></div>
+<p>Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (<code>above_parity</code> is a fraction). Only <code>final_holdout</code> is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.</p>
+<!-- /table:2 -->
+
+<p><strong>The archive as a parent (<code>hof-0.25</code>, <code>hof-0.50</code>, <code>hof-full</code>).</strong> Our first
+implementation applied Ha's replacement rule verbatim to archive games: when the
+archived genome won, the population member it beat was overwritten by a mutant
+<em>of the archived genome</em>. With p = 0.25 and a measured archive win rate near
+0.5, roughly one game in eight therefore copies an older genotype back into the
+pool. The result is unambiguous: <strong>learning is abolished.</strong> Not destabilised —
+abolished. Not one of these runs ever reached long-rally play against itself, and
+not one produced a single above-parity checkpoint out of a hundred, while every
+control run did both.</p>
+<p>That is a standing regression pressure, and it is worth reporting rather than
+quietly fixing because the bug is a plausible one to write. It also produces the
+clearest illustration in this study of why stability metrics need a competence
+precondition: these runs have <em>near-zero volatility and near-zero drawdown</em>,
+which on those two metrics alone makes them the most stable condition in the
+matrix. A dead run is perfectly stable. Every stability comparison in Table 2 is
+therefore also reported over the subset of runs that actually learned.</p>
+<p><strong>The archive as a test (<code>hof-eval</code>).</strong> The literature's reading
+(Rosin &amp; Belew, 1997) uses the archive to supply <em>opponents against which
+fitness is measured</em>; archive members are never parents. In <code>hof-eval</code> an
+archive game that the population member loses costs it its slot, but the
+replacement genes come from the living pool, so genetic material never leaves
+the population. The archive spans the whole run (capacity 512).</p>
+<p><em>(Results for <code>hof-eval</code> are filled in from Table 1 and Table 2.)</em></p>
+<figure><img alt="hall of fame" src="../../results/figures/fig3_hall_of_fame.png" /><figcaption><b>Figure 3.</b> The archive interventions against the control. Top: median and
+inter-quartile band per condition. Bottom: per-seed values for the mean level,
+the volatility and the drawdown of the last 100,000 games.</figcaption></figure>
+<h2>4. Is it the mutation step?</h2>
+<p><em>(σ = 0.05 and σ = 0.20 against the control's σ = 0.10; Figure 4, left.)</em></p>
+<h2>5. Does a bigger collective help?</h2>
+<p><em>(Population 32 and 512 against the control's 128; Figure 4, right.)</em></p>
+<h2>6. Different machinery: a generational GA and an evolution strategy</h2>
+<p>Everything above varies the knobs of one algorithm. Two further families change
+the machinery itself, with the policy class and the environment held identical:</p>
+<ul>
+<li><strong><code>ga2015</code></strong> — a generational GA in the style of Ha's <em>original</em> 2015
+  experiment: population 100, each agent playing ten random peers per generation,
+  the top 20% retained, the remainder refilled by uniform crossover and mutation.
+  It differs from the 2020 GA in three ways at once — generational rather than
+  steady-state, ranked by an explicitly <em>computed</em> average fitness rather than a
+  streak proxy, and with crossover. Given §2, the middle difference is the
+  interesting one.</li>
+<li><strong><code>es</code></strong> — self-play evolution strategy in the OpenAI-ES style: one mean
+  vector, 50 mirrored perturbations per iteration, fitness from games among the
+  perturbations themselves, rank-shaped gradient estimate. It reports the
+  distribution mean, so it has no champion-selection problem <em>at all</em>, which
+  makes it the cleanest possible test of §2's claim.</li>
+</ul>
+<p><em>(Results filled in from Table 1 and Figure 8.)</em></p>
+<h2>7. Which condition's champions actually win?</h2>
+<p>Scores against a frozen opponent can be gamed by a policy that happens to
+specialise against it. The final champion of every run therefore played the final
+champion of every other run.</p>
+<!-- table:6 -->
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>runs</th>
+<th>median Elo</th>
+<th>best run</th>
+<th>worst run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>+373</td>
+<td>+785</td>
+<td>+238</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>-421</td>
+<td>-355</td>
+<td>-483</td>
+</tr>
+</tbody>
+</table></div>
+<p>Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).</p>
+<!-- /table:6 -->
+
+<h2>8. Synthesis</h2>
+<p><em>(What the measurements jointly imply, and what carries up to
+ACTIR / ShinkaEvolve.)</em></p>
 <hr class='parity'/>
 
 <h1>Appendix — Competitive coevolution in Slime Volleyball</h1>
@@ -683,15 +1146,7 @@ here; nothing in this appendix depends on the main text.</em></p>
 </tr>
 <tr>
 <td>Budget</td>
-<td>500,000 tournament games per run</td>
-</tr>
-<tr>
-<td>Runs</td>
-<td>27 across 7 conditions, plus one reference run on the unmodified environment</td>
-</tr>
-<tr>
-<td>Total</td>
-<td>~13.5 M self-play games, ~1.1 M evaluation episodes</td>
+<td>500,000 games per run, for every condition and every family</td>
 </tr>
 <tr>
 <td>External opponent</td>
@@ -699,15 +1154,91 @@ here; nothing in this appendix depends on the main text.</em></p>
 </tr>
 </tbody>
 </table></div>
-<p><strong>Conditions.</strong> <code>control</code> (6 seeds), <code>hof-0.25</code> and <code>hof-0.50</code> (6 and 3 seeds),
-<code>sigma-0.05</code> and <code>sigma-0.20</code> (3 each), <code>pop-32</code> and <code>pop-512</code> (3 each). Seeds
-are 101–106 and 101–103.</p>
-<p><strong>Hall-of-fame rule.</strong> Every 1,000 tournaments the current champion enters a
-FIFO archive of capacity 64. With probability <em>p</em> the second contestant is
-drawn from the archive. Archive entries are immutable: if the archived genome
-wins, the population member is overwritten by a mutant of it and inherits its
-streak counter (Ha's rule, applied as though the archive entry were in the
-pool); if the population member wins, nothing is overwritten.</p>
+<p><strong>Conditions.</strong> Exact seed counts per condition are in Table A2; the design is:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>what changes</th>
+<th>archive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>control</code></td>
+<td>nothing — Ha's 2020 GA</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>hof-eval</code></td>
+<td>archive supplies opponents; genes stay in the living pool</td>
+<td>capacity 512 (whole run), p = 0.25</td>
+</tr>
+<tr>
+<td><code>hof-0.25</code></td>
+<td>archive supplies opponents <strong>and</strong> parents</td>
+<td>capacity 64 (last 64k games), p = 0.25</td>
+</tr>
+<tr>
+<td><code>hof-0.50</code></td>
+<td>as <code>hof-0.25</code> at twice the dose</td>
+<td>capacity 64, p = 0.50</td>
+</tr>
+<tr>
+<td><code>hof-full</code></td>
+<td>as <code>hof-0.25</code> with an archive spanning the whole run</td>
+<td>capacity 512, p = 0.25</td>
+</tr>
+<tr>
+<td><code>sigma-0.05</code>, <code>sigma-0.20</code></td>
+<td>mutation scale halved / doubled</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>pop-32</code>, <code>pop-512</code></td>
+<td>population shrunk / grown fourfold</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ga2015</code></td>
+<td>generational GA: computed fitness, elitism, uniform crossover</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>es</code></td>
+<td>self-play evolution strategy; reports the distribution mean</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The two archive rules.</strong> Every 1,000 games the current champion is copied into
+a FIFO archive; with probability <em>p</em> the population member's opponent is drawn
+from the archive instead of from the pool. The two conditions differ in what
+happens next.</p>
+<p><em>Archive as parent</em> (<code>hof-0.25</code>, <code>hof-0.50</code>, <code>hof-full</code>) applies Ha's
+replacement rule verbatim: if the archived genome wins, the population member is
+overwritten by a mutant <strong>of the archived genome</strong> and inherits its streak
+counter. This injects old genetic material back into the pool and, as §3 of the
+analysis reports, abolishes learning. It is retained in the study as a measured
+negative result rather than deleted.</p>
+<p><em>Archive as test</em> (<code>hof-eval</code>) follows Rosin &amp; Belew (1997): if the archived
+genome wins, the population member is overwritten by a mutant <strong>of the living
+population member it was originally paired with</strong>. Failing a test the pool is
+expected to pass costs the member its slot, but no archive genome is ever a
+parent, so genetic material never leaves the living population.</p>
+<p><strong>Algorithm families.</strong> <code>ga2015</code>: population 100, each agent plays ten random
+peers per generation (500 games per generation, 1,000 generations), fitness is
+the mean point margin over those games, the top 20 survive unchanged and the
+remaining 80 are uniform crossovers of two elites plus Gaussian mutation; the
+exported champion is the highest-fitness individual, which unlike the control is
+a <em>computed</em> ranking. Two documented deviations from Ha (2015): the policy is the
+fixed feed-forward MLP rather than a recurrent net, so that the comparison
+isolates the search algorithm; and ten peers rather than eight, so a generation
+costs exactly 500 games and the checkpoint grid matches the rest of the study.
+<code>es</code>: 50 mirrored candidates per iteration (25 antithetic pairs), each playing
+four random peers (100 games per iteration, 5,000 iterations), σ = 0.1,
+learning rate 0.03, centred-rank fitness shaping; the reported champion is the
+distribution mean, so this family has no champion-selection proxy at all.</p>
 <h2>A.2 Evaluation protocol</h2>
 <p>Fixed before any run was launched; recorded in <code>results/matrix/protocol.json</code>.</p>
 <div class="tablewrap"><table>
@@ -762,6 +1293,14 @@ is applied identically everywhere.</p>
 <li><strong>volatility</strong> — mean |Δ| between consecutive checkpoints in the window.</li>
 <li><strong>drawdown</strong> — mean (best-so-far − current) over the window.</li>
 <li><strong>t_parity</strong> — games at the first checkpoint scoring &gt; 0.</li>
+<li><strong>t_internal</strong> — games at the first checkpoint whose <em>training</em> games average
+  more than 1,500 steps. Measured with no external opponent involved; the gap
+  between this and <code>t_parity</code> is the internal-to-external lag.</li>
+<li><strong>reached</strong> — whether <code>t_internal</code> exists at all, i.e. whether the population
+  ever learned to rally. Stability metrics are meaningless without it: a run
+  that never learned has zero volatility and zero drawdown and therefore scores
+  as maximally stable. Every stability comparison is reported both over all runs
+  and over the <code>reached</code> subset.</li>
 <li><strong>cyclic triads</strong> — among checkpoint triples in a within-run round robin,
   the fraction where A beats B beats C beats A. Pairs whose mean margin is
   within ±0.25 points are undecided and their triads are skipped.</li>
@@ -877,12 +1416,99 @@ land rewrites them in place, so <code>git diff docs/paper</code> shows exactly w
 numbers moved.</p>
 <h3>Table 1 — conditions, held-out scores and stability</h3>
 <!-- table:1 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>runs</th>
+<th>final (held out)</th>
+<th>peak (held out)</th>
+<th>mean, last 100k</th>
+<th>volatility</th>
+<th>drawdown</th>
+<th>above parity</th>
+<th>median first parity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>-0.24 ± 0.31</td>
+<td>+0.29 ± 0.06</td>
+<td>-0.39 ± 0.27</td>
+<td>0.71</td>
+<td>0.63</td>
+<td>22%</td>
+<td>250k (5/5)</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>-4.84 ± 0.01</td>
+<td>-4.84 ± 0.01</td>
+<td>-4.84 ± 0.00</td>
+<td>0.01</td>
+<td>0.06</td>
+<td>0%</td>
+<td>— (0/5)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. <code>final</code> and <code>peak</code> are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.</p>
 <!-- /table:1 -->
 
 <h3>Table 2 — each intervention against the control</h3>
 <!-- table:2 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>metric</th>
+<th>difference</th>
+<th>Cliff's δ</th>
+<th>exact p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>final_holdout</code></td>
+<td>-4.597</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>late_mean</code></td>
+<td>-4.455</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>volatility</code></td>
+<td>-0.699</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>drawdown</code></td>
+<td>-0.575</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td><code>above_parity</code></td>
+<td>-0.216</td>
+<td>-1.00</td>
+<td>0.008</td>
+</tr>
+</tbody>
+</table></div>
+<p>Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (<code>above_parity</code> is a fraction). Only <code>final_holdout</code> is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.</p>
 <!-- /table:2 -->
 
 <h3>Table 3 — the reference run on the unmodified environment</h3>
@@ -926,23 +1552,276 @@ numbers moved.</p>
 
 <h3>Table 4 — intransitivity inside a run</h3>
 <!-- table:4 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>runs</th>
+<th>ρ(Elo, training time)</th>
+<th>cyclic triads</th>
+<th>undecided pairs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>+0.72</td>
+<td>1/421 (0.2%)</td>
+<td>10.0</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>+0.28</td>
+<td>17/127 (13.4%)</td>
+<td>23.4</td>
+</tr>
+</tbody>
+</table></div>
+<p>Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.</p>
 <!-- /table:4 -->
 
 <h3>Table 5 — what the champion-selection proxy costs</h3>
 <!-- table:5 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>games</th>
+<th>exported champion</th>
+<th>best in the same pool</th>
+<th>gap</th>
+<th>exported rank</th>
+<th>ρ(streak, score)</th>
+<th>above parity in pool</th>
+<th>mean pairwise genotype distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50,000</td>
+<td>-4.74</td>
+<td>-4.46</td>
+<td>0.28</td>
+<td>58 / 128</td>
+<td>+0.12</td>
+<td>0</td>
+<td>12.92</td>
+</tr>
+<tr>
+<td>100,000</td>
+<td>-4.32</td>
+<td>-2.65</td>
+<td>1.67</td>
+<td>72 / 128</td>
+<td>-0.00</td>
+<td>1</td>
+<td>11.03</td>
+</tr>
+<tr>
+<td>150,000</td>
+<td>-3.40</td>
+<td>-2.53</td>
+<td>0.87</td>
+<td>45 / 128</td>
+<td>+0.09</td>
+<td>3</td>
+<td>10.32</td>
+</tr>
+<tr>
+<td>200,000</td>
+<td>-2.48</td>
+<td>-1.78</td>
+<td>0.70</td>
+<td>63 / 128</td>
+<td>+0.03</td>
+<td>5</td>
+<td>9.88</td>
+</tr>
+<tr>
+<td>250,000</td>
+<td>-1.57</td>
+<td>-0.62</td>
+<td>0.94</td>
+<td>46 / 128</td>
+<td>+0.09</td>
+<td>20</td>
+<td>9.18</td>
+</tr>
+<tr>
+<td>300,000</td>
+<td>-1.38</td>
+<td>-0.50</td>
+<td>0.87</td>
+<td>51 / 128</td>
+<td>+0.13</td>
+<td>25</td>
+<td>10.54</td>
+</tr>
+<tr>
+<td>350,000</td>
+<td>-1.67</td>
+<td>-0.46</td>
+<td>1.21</td>
+<td>72 / 128</td>
+<td>+0.08</td>
+<td>30</td>
+<td>10.33</td>
+</tr>
+<tr>
+<td>400,000</td>
+<td>-1.41</td>
+<td>-0.41</td>
+<td>1.00</td>
+<td>63 / 128</td>
+<td>+0.11</td>
+<td>46</td>
+<td>11.81</td>
+</tr>
+<tr>
+<td>450,000</td>
+<td>-0.58</td>
+<td>+0.60</td>
+<td>1.18</td>
+<td>71 / 128</td>
+<td>-0.02</td>
+<td>45</td>
+<td>12.23</td>
+</tr>
+<tr>
+<td>500,000</td>
+<td>-0.29</td>
+<td>+0.66</td>
+<td>0.94</td>
+<td>73 / 128</td>
+<td>+0.06</td>
+<td>58</td>
+<td>11.36</td>
+</tr>
+</tbody>
+</table></div>
+<p>Control runs only (5 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.</p>
 <!-- /table:5 -->
 
 <h3>Table 6 — cross-run tournament of final champions</h3>
 <!-- table:6 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>runs</th>
+<th>median Elo</th>
+<th>best run</th>
+<th>worst run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>+373</td>
+<td>+785</td>
+<td>+238</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>-421</td>
+<td>-355</td>
+<td>-483</td>
+</tr>
+</tbody>
+</table></div>
+<p>Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).</p>
 <!-- /table:6 -->
 
 <h3>Table 7 — the damping claim, across seeds</h3>
 <!-- table:7 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>games</th>
+<th>mean across seeds</th>
+<th>within-run s.d.</th>
+<th>spread across seeds</th>
+<th>checkpoints above parity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–100,000</td>
+<td>-4.34</td>
+<td>0.67</td>
+<td>0.63</td>
+<td>1/100</td>
+</tr>
+<tr>
+<td>100,000–200,000</td>
+<td>-3.15</td>
+<td>0.77</td>
+<td>1.71</td>
+<td>6/100</td>
+</tr>
+<tr>
+<td>200,000–300,000</td>
+<td>-1.73</td>
+<td>0.73</td>
+<td>1.80</td>
+<td>21/100</td>
+</tr>
+<tr>
+<td>300,000–400,000</td>
+<td>-1.22</td>
+<td>0.54</td>
+<td>1.80</td>
+<td>30/100</td>
+</tr>
+<tr>
+<td>400,000–500,000</td>
+<td>-0.39</td>
+<td>0.77</td>
+<td>0.54</td>
+<td>50/100</td>
+</tr>
+</tbody>
+</table></div>
+<p>Control condition, 5 seeds. 'Within-run s.d.' is the spread of checkpoint scores inside a window, averaged over seeds — the quantity the single-run version of this study claimed was damping. 'Spread across seeds' is the s.d. of the per-seed window means.</p>
 <!-- /table:7 -->
+
+<h3>Table 8 — when the phase change happens</h3>
+<!-- table:8 -->
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>runs</th>
+<th>reached long rallies</th>
+<th>internal transition (median, range)</th>
+<th>first parity (median, range)</th>
+<th>lag (median)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control (Ha 2020 GA)</td>
+<td>5</td>
+<td>5/5</td>
+<td>160k (55k–415k)</td>
+<td>250k (85k–440k) (5/5)</td>
+<td>75k</td>
+</tr>
+<tr>
+<td>archive as parent, p=0.25</td>
+<td>5</td>
+<td>0/5</td>
+<td>never</td>
+<td>never (0/5)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.</p>
+<!-- /table:8 -->
 
 <h3>Table A1 — the compiled environment against the reference</h3>
 <!-- table:a1 -->
@@ -1002,15 +1881,247 @@ numbers moved.</p>
 
 <h3>Table A2 — every run</h3>
 <!-- table:a2 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>condition</th>
+<th>seed</th>
+<th>final (sweep)</th>
+<th>final (held out)</th>
+<th>peak (held out)</th>
+<th>mean last 100k</th>
+<th>volatility</th>
+<th>drawdown</th>
+<th>above parity</th>
+<th>internal transition</th>
+<th>first parity</th>
+<th>train min</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>control</td>
+<td>101</td>
+<td>+0.14</td>
+<td>+0.26</td>
+<td>+0.39</td>
+<td>+0.10</td>
+<td>0.23</td>
+<td>0.29</td>
+<td>21%</td>
+<td>235k</td>
+<td>335k</td>
+<td>31.0</td>
+</tr>
+<tr>
+<td>control</td>
+<td>102</td>
+<td>-1.25</td>
+<td>-1.35</td>
+<td>+0.36</td>
+<td>-0.43</td>
+<td>0.94</td>
+<td>0.95</td>
+<td>27%</td>
+<td>60k</td>
+<td>135k</td>
+<td>42.7</td>
+</tr>
+<tr>
+<td>control</td>
+<td>103</td>
+<td>-0.29</td>
+<td>-0.31</td>
+<td>+0.04</td>
+<td>-1.40</td>
+<td>1.24</td>
+<td>0.72</td>
+<td>3%</td>
+<td>415k</td>
+<td>440k</td>
+<td>17.3</td>
+</tr>
+<tr>
+<td>control</td>
+<td>104</td>
+<td>+0.50</td>
+<td>+0.41</td>
+<td>+0.32</td>
+<td>-0.23</td>
+<td>0.78</td>
+<td>0.77</td>
+<td>32%</td>
+<td>55k</td>
+<td>85k</td>
+<td>43.9</td>
+</tr>
+<tr>
+<td>control</td>
+<td>105</td>
+<td>-0.33</td>
+<td>-0.23</td>
+<td>+0.36</td>
+<td>+0.02</td>
+<td>0.35</td>
+<td>0.42</td>
+<td>25%</td>
+<td>160k</td>
+<td>250k</td>
+<td>38.8</td>
+</tr>
+<tr>
+<td>hof-0.25</td>
+<td>101</td>
+<td>-4.85</td>
+<td>-4.83</td>
+<td>-4.83</td>
+<td>-4.84</td>
+<td>0.02</td>
+<td>0.06</td>
+<td>0%</td>
+<td>—</td>
+<td>—</td>
+<td>15.2</td>
+</tr>
+<tr>
+<td>hof-0.25</td>
+<td>102</td>
+<td>-4.82</td>
+<td>-4.84</td>
+<td>-4.83</td>
+<td>-4.85</td>
+<td>0.01</td>
+<td>0.08</td>
+<td>0%</td>
+<td>—</td>
+<td>—</td>
+<td>11.2</td>
+</tr>
+<tr>
+<td>hof-0.25</td>
+<td>103</td>
+<td>-4.85</td>
+<td>-4.86</td>
+<td>-4.84</td>
+<td>-4.85</td>
+<td>0.01</td>
+<td>0.06</td>
+<td>0%</td>
+<td>—</td>
+<td>—</td>
+<td>10.9</td>
+</tr>
+<tr>
+<td>hof-0.25</td>
+<td>104</td>
+<td>-4.85</td>
+<td>-4.85</td>
+<td>-4.85</td>
+<td>-4.85</td>
+<td>0.01</td>
+<td>0.03</td>
+<td>0%</td>
+<td>—</td>
+<td>—</td>
+<td>10.1</td>
+</tr>
+<tr>
+<td>hof-0.25</td>
+<td>106</td>
+<td>-4.82</td>
+<td>-4.83</td>
+<td>-4.85</td>
+<td>-4.84</td>
+<td>0.01</td>
+<td>0.05</td>
+<td>0%</td>
+<td>—</td>
+<td>—</td>
+<td>12.4</td>
+</tr>
+</tbody>
+</table></div>
 <!-- /table:a2 -->
 
 <h3>Table A3 — the same population continued in both implementations</h3>
 <!-- table:a3 -->
-<p><em>(not yet generated)</em></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>continuation</th>
+<th>games added</th>
+<th>final score</th>
+<th>checkpoints above parity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>compiled, resume_s900</td>
+<td>176,000</td>
+<td>-2.82</td>
+<td>19/35</td>
+</tr>
+<tr>
+<td>compiled, resume_s901</td>
+<td>176,000</td>
+<td>+0.41</td>
+<td>21/35</td>
+</tr>
+</tbody>
+</table></div>
+<p>All continuations start from the identical committed population snapshot at tournament 324,000. Independent continuations of one population diverge because the algorithm is stochastic; the question is whether the compiled ones land in the same band as the reference one.</p>
 <!-- /table:a3 -->
 
-<h2>A.8 Limitations</h2>
+<h2>A.8 Adding another algorithm later — including NEAT</h2>
+<p>Nothing in this study is closed to a later comparison, provided a new
+algorithm is measured against the <em>frozen</em> protocol rather than a re-derived
+one. Three things make that possible and are committed to the repository:</p>
+<ol>
+<li><strong>The environment is fixed and verified.</strong> <code>fastvolley.py</code> is validated bit
+   for bit against <code>slimevolleygym</code> (Table A1), and <code>test_repo.py</code> re-checks
+   that agreement plus the three February failure modes on every run. A run
+   done months later is playing exactly the same game.</li>
+<li><strong>The evaluation protocol is a file, not a habit.</strong>
+   <code>results/matrix/protocol.json</code> records the sweep seed and episode count, the
+   disjoint held-out seed and episode count, the checkpoint spacing and the
+   metric window. A later run scored with <code>analyze_matrix.py</code> lands on the same
+   axes with no renegotiation.</li>
+<li><strong>Every champion genome is committed.</strong> <code>results/matrix/*.npz</code> holds all 100
+   champion genomes of every run. That means a future algorithm can be compared
+   two ways: on the external yardstick, and — more informative — head to head in
+   the all-runs tournament (<code>coevolution_analysis.py --across</code>), where its
+   champions actually play this session's champions.</li>
+</ol>
+<p><strong>The contract for a new algorithm.</strong> A training function must accept a seed, a
+game budget and its own hyperparameters, and return champion genomes at the
+protocol's checkpoint spacing plus the mean training rally length per
+checkpoint. <code>algorithms.py</code> has three worked examples; wiring one in is a
+dict entry in <code>CONDITIONS</code> and a branch in <code>one_run</code>.</p>
+<p><strong>What NEAT specifically would need.</strong> Everything above is reusable; the part
+that does not yet exist is a <em>variable-topology</em> network evaluator. The
+compiled game takes a flat 273-parameter vector and runs a fixed 12–10–10–3
+MLP, so NEAT would need:</p>
+<ul>
+<li>a genome representation with node and connection lists, innovation numbers,
+  and enable/disable flags;</li>
+<li>a compiled forward pass over an arbitrary graph (one activation sweep per
+  timestep, which also gets recurrence for free — the 2015 champion was
+  recurrent, so this is a feature rather than a complication);</li>
+<li>crossover aligned on innovation numbers, and speciation with fitness sharing,
+  without which topological innovations are out-competed before they are tuned;</li>
+<li>an adapter so a NEAT champion can be entered into the cross-run tournament
+  against the fixed-topology champions.</li>
+</ul>
+<p>That is a substantial piece of work — on the order of the compiled environment
+itself — which is why this study reports fixed-topology families only and says
+so rather than gesturing at NEAT results it does not have. It is worth noting
+that the February 2026 NEAT attempt documented in
+<code>docs/postmortem-february.md</code> failed for three reasons that had nothing to do
+with NEAT (an all-buttons action bug, a silently-ignored opponent assignment,
+and an inverted observation sign convention). All three are now covered by
+<code>test_repo.py</code>, so a second attempt would start from a base where those
+failures cannot recur silently.</p>
+<h2>A.9 Limitations</h2>
 <ul>
 <li><strong>One environment.</strong> Every claim here is about Slime Volleyball. Slime
   Volleyball is symmetric, zero-sum and fully observed, which is the friendliest

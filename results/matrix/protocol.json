@@ -114,6 +114,56 @@
     103
    ],
    "pops": false
+  },
+  "hof-eval": {
+   "algo": "hof_eval",
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.25,
+   "cap": 512,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
+  },
+  "ga2015": {
+   "algo": "ga2015",
+   "sigma": 0.1,
+   "pop": 100,
+   "n_opponents": 10,
+   "n_elite": 20,
+   "hof_prob": 0.0,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
+  },
+  "es": {
+   "algo": "es",
+   "sigma": 0.1,
+   "pop": 50,
+   "n_opponents": 4,
+   "alpha": 0.03,
+   "hof_prob": 0.0,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
   }
  }
 }
