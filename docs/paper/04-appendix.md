@@ -157,8 +157,8 @@ numbers moved.
 <!-- table:1 -->
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | — ± — | — ± — | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
-| archive as parent, p=0.25 | 3 | — ± — | — ± — | -4.85 ± 0.00 | 0.01 | 0.07 | 0% | — (0/3) |
+| control (Ha 2020 GA) | 5 | -0.24 ± 0.31 | +0.29 ± 0.06 | -0.39 ± 0.27 | 0.71 | 0.63 | 22% | 250k (5/5) |
+| archive as parent, p=0.25 | 5 | -4.84 ± 0.01 | -4.84 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.06 | 0% | — (0/5) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -168,10 +168,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 <!-- table:2 -->
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as parent, p=0.25 | `late_mean` | -4.456 | -1.00 | 0.036 |
-| archive as parent, p=0.25 | `volatility` | -0.698 | -1.00 | 0.036 |
-| archive as parent, p=0.25 | `drawdown` | -0.565 | -1.00 | 0.036 |
-| archive as parent, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.036 |
+| archive as parent, p=0.25 | `final_holdout` | -4.597 | -1.00 | 0.008 |
+| archive as parent, p=0.25 | `late_mean` | -4.455 | -1.00 | 0.008 |
+| archive as parent, p=0.25 | `volatility` | -0.699 | -1.00 | 0.008 |
+| archive as parent, p=0.25 | `drawdown` | -0.575 | -1.00 | 0.008 |
+| archive as parent, p=0.25 | `above_parity` | -0.216 | -1.00 | 0.008 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 <!-- /table:2 -->
@@ -249,7 +250,7 @@ Control condition, 5 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 5 | 5/5 | 160k (55k–415k) | 250k (85k–440k) (5/5) | 75k |
-| archive as parent, p=0.25 | 3 | 0/3 | never | never (0/3) | — |
+| archive as parent, p=0.25 | 5 | 0/5 | never | never (0/5) | — |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
 <!-- /table:8 -->
@@ -272,20 +273,27 @@ All 200 paired games agree bit for bit over 265,797 environment steps. Throughpu
 <!-- table:a2 -->
 | condition | seed | final (sweep) | final (held out) | peak (held out) | mean last 100k | volatility | drawdown | above parity | internal transition | first parity | train min |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| control | 101 | +0.14 | — | — | +0.10 | 0.23 | 0.29 | 21% | 235k | 335k | 31.0 |
-| control | 102 | -1.25 | — | — | -0.43 | 0.94 | 0.95 | 27% | 60k | 135k | 42.7 |
-| control | 103 | -0.29 | — | — | -1.40 | 1.24 | 0.72 | 3% | 415k | 440k | 17.3 |
-| control | 104 | +0.50 | — | — | -0.23 | 0.78 | 0.77 | 32% | 55k | 85k | 43.9 |
-| control | 105 | -0.33 | — | — | +0.02 | 0.35 | 0.42 | 25% | 160k | 250k | 38.8 |
-| hof-0.25 | 101 | -4.85 | — | — | -4.84 | 0.02 | 0.06 | 0% | — | — | 15.2 |
-| hof-0.25 | 102 | -4.82 | — | — | -4.85 | 0.01 | 0.08 | 0% | — | — | 11.2 |
-| hof-0.25 | 103 | -4.85 | — | — | -4.85 | 0.01 | 0.06 | 0% | — | — | 10.9 |
+| control | 101 | +0.14 | +0.26 | +0.39 | +0.10 | 0.23 | 0.29 | 21% | 235k | 335k | 31.0 |
+| control | 102 | -1.25 | -1.35 | +0.36 | -0.43 | 0.94 | 0.95 | 27% | 60k | 135k | 42.7 |
+| control | 103 | -0.29 | -0.31 | +0.04 | -1.40 | 1.24 | 0.72 | 3% | 415k | 440k | 17.3 |
+| control | 104 | +0.50 | +0.41 | +0.32 | -0.23 | 0.78 | 0.77 | 32% | 55k | 85k | 43.9 |
+| control | 105 | -0.33 | -0.23 | +0.36 | +0.02 | 0.35 | 0.42 | 25% | 160k | 250k | 38.8 |
+| hof-0.25 | 101 | -4.85 | -4.83 | -4.83 | -4.84 | 0.02 | 0.06 | 0% | — | — | 15.2 |
+| hof-0.25 | 102 | -4.82 | -4.84 | -4.83 | -4.85 | 0.01 | 0.08 | 0% | — | — | 11.2 |
+| hof-0.25 | 103 | -4.85 | -4.86 | -4.84 | -4.85 | 0.01 | 0.06 | 0% | — | — | 10.9 |
+| hof-0.25 | 104 | -4.85 | -4.85 | -4.85 | -4.85 | 0.01 | 0.03 | 0% | — | — | 10.1 |
+| hof-0.25 | 106 | -4.82 | -4.83 | -4.85 | -4.84 | 0.01 | 0.05 | 0% | — | — | 12.4 |
 <!-- /table:a2 -->
 
 ### Table A3 — the same population continued in both implementations
 
 <!-- table:a3 -->
-*(not yet generated)*
+| continuation | games added | final score | checkpoints above parity |
+|---|---|---|---|
+| compiled, resume_s900 | 176,000 | -2.82 | 19/35 |
+| compiled, resume_s901 | 176,000 | +0.41 | 21/35 |
+
+All continuations start from the identical committed population snapshot at tournament 324,000. Independent continuations of one population diverge because the algorithm is stochastic; the question is whether the compiled ones land in the same band as the reference one.
 <!-- /table:a3 -->
 
 ## A.8 Adding another algorithm later — including NEAT
