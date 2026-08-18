@@ -243,9 +243,14 @@ family=IBM+Plex+Mono:wght@400;600&display=swap">
 
 
 def inline_images(html, base):
-    """Replace <img src="..."> with a data URI so the page is self-contained."""
+    """Replace every <img> src with a data URI so the page is self-contained.
+
+    Matches src wherever it sits in the tag: python-markdown emits
+    `<img alt="..." src="..." />`, so a src-first pattern silently matches
+    nothing and the page ships with broken images.
+    """
     def repl(m):
-        src = m.group(1)
+        src = m.group(2)
         if src.startswith("data:") or src.startswith("http"):
             return m.group(0)
         path = os.path.normpath(os.path.join(base, src))
@@ -259,8 +264,8 @@ def inline_images(html, base):
                 "gif": "image/gif", "svg": "image/svg+xml"}.get(ext, "image/png")
         with open(path, "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
-        return f'<img src="data:{mime};base64,{b64}"'
-    return re.sub(r'<img src="([^"]+)"', repl, html)
+        return f'{m.group(1)}src="data:{mime};base64,{b64}"'
+    return re.sub(r'(<img[^>]*?)src="([^"]+)"', repl, html)
 
 
 def wrap_tables(html):

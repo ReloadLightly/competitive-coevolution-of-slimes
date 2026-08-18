@@ -31,6 +31,13 @@ Bradley–Terry ratings fitted on the Elo scale.
 Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.
 <!-- /table:4 -->
 
+![coevolution](../../results/figures/fig5_coevolution.png)
+
+*Figure 5. Left: Elo of each checkpoint within its own run, control seeds — rising
+almost monotonically with training time. Middle: the pairwise margin matrix of one
+run; the clean red/blue split either side of the diagonal is what transitivity
+looks like. Right: cyclic-triad fraction per condition.*
+
 In the control condition, skill is essentially **transitive**: the rank
 correlation between Elo and training time is strongly positive, and of several
 hundred decided checkpoint triples, well under 1% are cyclic. Later champions
@@ -204,11 +211,25 @@ the volatility and the drawdown of the last 100,000 games.*
 
 ## 4. Is it the mutation step?
 
-*(σ = 0.05 and σ = 0.20 against the control's σ = 0.10; Figure 4, left.)*
+The last of the three candidate explanations: the swings are not coevolution and
+not the export rule, but simply a mutation step too large for the landscape. If
+so, halving σ should visibly steady the trajectory and doubling it should wreck
+it.
+
+![ablations](../../results/figures/fig4_ablations.png)
+
+*Figure 4. Left: mutation scale. Right: population size. Median and
+inter-quartile band across seeds, with the control in both panels for reference.*
+
+*(Results filled in from Table 1 and Table 2.)*
 
 ## 5. Does a bigger collective help?
 
-*(Population 32 and 512 against the control's 128; Figure 4, right.)*
+Population size is the collective-system axis: at a fixed game budget, a larger
+pool holds more diversity but gives each individual less selection pressure —
+500,000 games spread over 512 individuals is under a thousand games each.
+
+*(Results filled in from Table 1 and Table 2.)*
 
 ## 6. Different machinery: a generational GA and an evolution strategy
 
@@ -228,7 +249,11 @@ the machinery itself, with the policy class and the environment held identical:
   distribution mean, so it has no champion-selection problem *at all*, which
   makes it the cleanest possible test of §2's claim.
 
-*(Results filled in from Table 1 and Figure 8.)*
+![algorithm families](../../results/figures/fig8_algorithm_families.png)
+
+*Figure 8. Three ways of turning a population into the next population, with the
+policy class and environment held identical. Top: median and inter-quartile band
+per family. Bottom: per-seed level, volatility and above-parity fraction.*
 
 ## 7. Which condition's champions actually win?
 

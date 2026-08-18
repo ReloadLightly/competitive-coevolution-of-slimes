@@ -11,6 +11,13 @@ environment, because it is the run the rest of the study was built to explain.
 It is Ha's algorithm at Ha's budget: 128 individuals, 500,000 tournament games,
 mutation σ = 0.1, no opponent but itself.
 
+![reference trajectory](../../results/figures/fig1_reference_trajectory.png)
+
+*Figure 1. The reference run on the unmodified environment. Top: score against
+the 2015 champion at every checkpoint (thin) with a moving average (thick); the
+dotted line marks the first checkpoint above parity. Bottom: mean evaluation
+rally length, which rises from roughly 600 steps to the 3,000-step cap.*
+
 Its trajectory has two regimes (Figure 1). For the first hundred thousand games
 the champion loses every episode to the 2015 baseline by nearly the maximum
 margin — a floor at roughly −4.82 points per episode with a standard deviation

@@ -64,7 +64,7 @@ CONDITIONS = {
     "control":    dict(sigma=0.10, pop=128, hof_prob=0.00, cap=64,  seeds=SEEDS_MAIN, pops=True),
     "hof-0.25":   dict(sigma=0.10, pop=128, hof_prob=0.25, cap=64,  seeds=SEEDS_MAIN, pops=False),
     "hof-0.50":   dict(sigma=0.10, pop=128, hof_prob=0.50, cap=64,  seeds=SEEDS_SIDE, pops=False),
-    "hof-full":   dict(sigma=0.10, pop=128, hof_prob=0.25, cap=512, seeds=SEEDS_MAIN, pops=False),
+    "hof-full":   dict(sigma=0.10, pop=128, hof_prob=0.25, cap=512, seeds=SEEDS_SIDE, pops=False),
     "sigma-0.05": dict(sigma=0.05, pop=128, hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
     "sigma-0.20": dict(sigma=0.20, pop=128, hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),
     "pop-32":     dict(sigma=0.10, pop=32,  hof_prob=0.00, cap=64,  seeds=SEEDS_SIDE, pops=False),

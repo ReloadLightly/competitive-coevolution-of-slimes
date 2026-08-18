@@ -336,6 +336,13 @@ environment, because it is the run the rest of the study was built to explain.
 It is Ha's algorithm at Ha's budget: 128 individuals, 500,000 tournament games,
 mutation σ = 0.1, no opponent but itself.
 
+![reference trajectory](../../results/figures/fig1_reference_trajectory.png)
+
+*Figure 1. The reference run on the unmodified environment. Top: score against
+the 2015 champion at every checkpoint (thin) with a moving average (thick); the
+dotted line marks the first checkpoint above parity. Bottom: mean evaluation
+rally length, which rises from roughly 600 steps to the 3,000-step cap.*
+
 Its trajectory has two regimes (Figure 1). For the first hundred thousand games
 the champion loses every episode to the 2015 baseline by nearly the maximum
 margin — a floor at roughly −4.82 points per episode with a standard deviation
@@ -398,11 +405,12 @@ reason: it is a trajectory-level agreement between two independent
 implementations of the same algorithm, on top of the per-game bit-exactness of
 Table A1.
 
-What *does* replicate is the ceiling. Peak checkpoint scores across control
-seeds fall in a narrow band a little above parity, while the endpoint of the
-same runs ranges from clearly winning to clearly losing. The lag from internal
-to external progress replicates too, in the sense of always being present and
-always being large: 25,000 to 100,000 games.
+What *does* replicate is the ceiling. Every control seed produces a best
+champion at or above parity — held-out peak scores span +0.04 to +0.49 points
+per episode — while the *endpoint* of those same runs ranges from +0.41 to
+−1.35, i.e. from clearly winning to clearly losing. Where a run stops matters
+more than which run it is. The internal-to-external lag replicates too, in the
+sense of always being present and always being large: 25,000 to 100,000 games.
 
 The methodological consequence is blunt. **A single run of this algorithm
 supports no claim about when a phase change occurs, and a run stopped at any
@@ -493,6 +501,13 @@ Bradley–Terry ratings fitted on the Elo scale.
 Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.
 <!-- /table:4 -->
 
+![coevolution](../../results/figures/fig5_coevolution.png)
+
+*Figure 5. Left: Elo of each checkpoint within its own run, control seeds — rising
+almost monotonically with training time. Middle: the pairwise margin matrix of one
+run; the clean red/blue split either side of the diagonal is what transitivity
+looks like. Right: cyclic-triad fraction per condition.*
+
 In the control condition, skill is essentially **transitive**: the rank
 correlation between Elo and training time is strongly positive, and of several
 hundred decided checkpoint triples, well under 1% are cyclic. Later champions
@@ -552,6 +567,33 @@ export rule is close to picking a competent-ish individual at random.
 the gap between the exported champion and the best individual in the same pool is
 consistently around one point — and at the end of the run the exported champion
 is below parity while dozens of its own peers are above it.
+
+**Can it simply be replaced?** Yes, mostly, and cheaply. Ranking the pool by an
+internal round robin uses no information the algorithm does not already have, so
+unlike "best against the 2015 baseline" it is a fix rather than an oracle.
+
+<!-- table:9 -->
+| promotion rule | games spent ranking | mean score of the exported individual | volatility of the reported series | gap to best closed | ρ(rule statistic, true skill) |
+|---|---|---|---|---|---|
+| winning streak (Ha's rule) | 0 | -1.95 | 0.84 | — | +0.04 |
+| *pick the population median* | *0* | *-1.83* | *0.57* | *—* | *—* |
+| internal round robin, 4 peers each | 256 | -1.77 | 0.72 | 22% | +0.32 |
+| internal round robin, 8 peers each | 512 | -1.55 | 0.77 | 50% | +0.41 |
+| internal round robin, 16 peers each | 1,024 | -1.49 | 0.70 | 57% | +0.49 |
+| internal round robin, 32 peers each | 2,048 | -1.47 | 0.73 | 60% | +0.53 |
+| internal round robin, 64 peers each | 4,096 | -1.43 | 0.68 | 65% | +0.57 |
+| *best in pool (oracle, not deployable)* | *—* | *-1.14* | *0.61* | *100%* | *+1.00* |
+
+Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes to establish true skill; the promotion rules then compete to pick the best member using only what they are entitled to see. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
+<!-- /table:9 -->
+
+![the re-export experiment](../../results/figures/fig9_reexport.png)
+
+*Figure 9. Level, volatility and informativeness of three promotion rules as a
+function of the games spent ranking the population. The streak rule (dashed red)
+sits below the population median; an internal round robin climbs towards the
+oracle (dashed blue) with diminishing returns, and its rank correlation with true
+skill saturates near +0.6.*
 
 ![champion proxy](../../results/figures/fig6_champion_proxy.png)
 
@@ -639,11 +681,25 @@ the volatility and the drawdown of the last 100,000 games.*
 
 ## 4. Is it the mutation step?
 
-*(σ = 0.05 and σ = 0.20 against the control's σ = 0.10; Figure 4, left.)*
+The last of the three candidate explanations: the swings are not coevolution and
+not the export rule, but simply a mutation step too large for the landscape. If
+so, halving σ should visibly steady the trajectory and doubling it should wreck
+it.
+
+![ablations](../../results/figures/fig4_ablations.png)
+
+*Figure 4. Left: mutation scale. Right: population size. Median and
+inter-quartile band across seeds, with the control in both panels for reference.*
+
+*(Results filled in from Table 1 and Table 2.)*
 
 ## 5. Does a bigger collective help?
 
-*(Population 32 and 512 against the control's 128; Figure 4, right.)*
+Population size is the collective-system axis: at a fixed game budget, a larger
+pool holds more diversity but gives each individual less selection pressure —
+500,000 games spread over 512 individuals is under a thousand games each.
+
+*(Results filled in from Table 1 and Table 2.)*
 
 ## 6. Different machinery: a generational GA and an evolution strategy
 
@@ -663,7 +719,11 @@ the machinery itself, with the policy class and the environment held identical:
   distribution mean, so it has no champion-selection problem *at all*, which
   makes it the cleanest possible test of §2's claim.
 
-*(Results filled in from Table 1 and Figure 8.)*
+![algorithm families](../../results/figures/fig8_algorithm_families.png)
+
+*Figure 8. Three ways of turning a population into the next population, with the
+policy class and environment held identical. Top: median and inter-quartile band
+per family. Bottom: per-seed level, volatility and above-parity fraction.*
 
 ## 7. Which condition's champions actually win?
 
@@ -680,10 +740,107 @@ champion of every other run.
 Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
 <!-- /table:6 -->
 
-## 8. Synthesis
+## 8. Synthesis: seven lessons about competitive coevolution
 
-*(What the measurements jointly imply, and what carries up to
-ACTIR / ShinkaEvolve.)*
+None of what follows is about volleyball. Slime Volleyball is a probe — small
+enough that every claim can be checked, adversarial enough that the coevolutionary
+failure modes are available to be observed. These are the transferable results.
+
+**1. There are three sources of variance in a coevolutionary loop, not two.**
+The literature carefully separates the *ecology* (who plays whom, which drives
+selection) from the *yardstick* (the frozen external measurement). This study
+found a third channel with its own error term: the **promotion rule** — the
+procedure that picks one artefact out of the population to export, report or
+deploy. In our control condition it contributed more of the measured volatility
+than the coevolutionary dynamics did. Any loop that promotes a single artefact
+out of a population inherits this: league training that must name a "current
+best", population-based training that must ship one model, and LLM-driven program
+evolution that must promote one program out of a generation. The diagnostic is
+cheap and should come first: *before* attributing a noisy progress curve to
+coevolutionary dynamics, check whether your promotion rule can rank your
+population at all. Ours could not: the correlation between the exported
+individual's selection statistic and its actual skill was +0.04, and the rule
+performed slightly *worse* than picking the population's median member. It is not
+a weak selector; it is very nearly an uninformative one.
+
+**2. The promotion rule is fixable, cheaply, and it is worth fixing.** Ranking a
+population by having it play *itself* — using no external information, so this is
+a deployable rule and not an oracle — recovers most of the gap. At 4,096 games,
+which is eight tenths of one percent of a 500,000-game training run, an internal
+round robin closes about two thirds of the distance between the streak-exported
+champion and the genuinely best member, and reduces the volatility of the
+reported curve by roughly a fifth. The returns diminish but do not reverse.
+
+The residual gap is the more interesting half. The rank correlation between
+internal margin and true skill saturates around +0.6 and does not keep climbing
+with budget, so the remaining third of the gap is not sampling noise — it is a
+genuine mismatch. Internal fitness measures skill against the *current* opponent
+distribution, which is a narrow and self-referential slice of the strategy space,
+and being best inside that slice is not the same as being best against an unseen
+opponent. So: internal competition is a good cheap improvement over a lineage
+proxy, and it is not a substitute for held-out evaluation. Held-out evaluation is
+load-bearing for *selection*, not only for reporting.
+
+**3. Diagnose the failure mode before applying its remedy.** Competitive
+coevolution has a small, named set of pathologies — cycling and intransitivity,
+disengagement, forgetting, mediocre stable states — and they have distinct,
+cheaply measurable signatures. A within-run round robin over checkpoints costs a
+few thousand games, which is a rounding error against a 500,000-game run. We ran
+it, found skill almost perfectly transitive, and could therefore predict that a
+hall of fame would have little to do here. It did little. An archive is the
+standard remedy for intransitivity; applying it to a population that is not
+cycling is treatment without diagnosis, and the null result is the expected
+outcome rather than a surprise.
+
+**4. Keep the past as tests, never as parents.** Our first archive
+implementation let a winning archived genome become the *parent* of the member it
+beat. That is a standing regression channel — roughly one game in eight copied an
+older genotype back into the pool — and it abolished learning rather than merely
+destabilising it. The design rule generalises to any mechanism that replays past
+versions of a system: past artefacts belong on the evaluation side of the loop.
+If they can contribute material to the current generation, the loop has an
+inbuilt pull backwards, and the pull scales with the sampling probability.
+
+**5. A stability claim requires a competence precondition.** The runs that never
+learned anything have the lowest volatility and the lowest drawdown in the entire
+matrix, and on those two metrics alone they are the most stable condition we ran.
+A dead system is perfectly stable. Any comparison of the form "our variant is
+steadier" must therefore be reported jointly with, or conditioned on, having
+reached competence — which is why every stability comparison in this study is
+reported twice, once over all runs and once over the subset that learned.
+
+**6. Emergence timing does not replicate, even when emergence does.** Every
+control seed reached the same band of competence; the games at which it got there
+ranged over more than a sevenfold spread. A claim of the form "capability appears
+after N games" drawn from a single run is therefore not merely imprecise, it is
+unfalsifiable — a second seed can place the same transition three hundred
+thousand games earlier or later. This is worth stating plainly because
+single-run emergence claims are common, and because the cost of the correct
+version — several seeds and a reported range — is a constant factor, not a
+research programme.
+
+**7. In a purely relative ecology, the population is the unit that becomes
+competent, not the individual.** At the end of a control run, dozens of the 128
+members score above parity against an opponent none of them ever saw, while the
+individual the algorithm hands you does not. "The system is competent" and "the
+artefact we can give you is competent" are different statements, and in a
+collective driven by relative selection they can differ by a wide margin. For
+collective systems the reporting implication is direct: report the distribution —
+what fraction of the population clears the bar — and treat any single champion
+number as a sample from it.
+
+### What carries up to ACTIR / ShinkaEvolve
+
+The trilogy this repository opens rests on the *separation of ecology from
+yardstick*: the thing that selects and the thing that measures must never be the
+same object. This study supports that and adds the third object. In an
+LLM-driven program-evolution loop, candidate programs are generated, selected
+against each other, and one is promoted; lesson 1 says the promotion step has its
+own error term, lesson 2 says internal competition will not reliably identify the
+best candidate, and lesson 7 says the honest report is a distribution over the
+generation rather than the single program the loop happened to promote. All three
+are cheap to check at the small scale and expensive to discover at the large one,
+which is the entire argument for demonstrating them here first.
 
 
 ---
@@ -988,6 +1145,23 @@ Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
 <!-- /table:8 -->
+
+### Table 9 — promotion rules compared
+
+<!-- table:9 -->
+| promotion rule | games spent ranking | mean score of the exported individual | volatility of the reported series | gap to best closed | ρ(rule statistic, true skill) |
+|---|---|---|---|---|---|
+| winning streak (Ha's rule) | 0 | -1.95 | 0.84 | — | +0.04 |
+| *pick the population median* | *0* | *-1.83* | *0.57* | *—* | *—* |
+| internal round robin, 4 peers each | 256 | -1.77 | 0.72 | 22% | +0.32 |
+| internal round robin, 8 peers each | 512 | -1.55 | 0.77 | 50% | +0.41 |
+| internal round robin, 16 peers each | 1,024 | -1.49 | 0.70 | 57% | +0.49 |
+| internal round robin, 32 peers each | 2,048 | -1.47 | 0.73 | 60% | +0.53 |
+| internal round robin, 64 peers each | 4,096 | -1.43 | 0.68 | 65% | +0.57 |
+| *best in pool (oracle, not deployable)* | *—* | *-1.14* | *0.61* | *100%* | *+1.00* |
+
+Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes to establish true skill; the promotion rules then compete to pick the best member using only what they are entitled to see. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
+<!-- /table:9 -->
 
 ### Table A1 — the compiled environment against the reference
 
