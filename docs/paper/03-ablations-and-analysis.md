@@ -162,7 +162,7 @@ the first one we implemented was wrong in an instructive way.
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
 | generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
-| self-play ES | 4 | -3.35 ± 0.76 | -2.58 ± 1.20 | -3.81 ± 0.58 | 0.26 | 0.23 | 0% | — (0/4) |
+| self-play ES | 6 | -2.08 ± 0.94 | -1.56 ± 0.99 | -2.46 ± 0.93 | 0.21 | 0.18 | 7% | 398k (2/6) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -185,11 +185,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 | generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
 | generational GA (Ha 2015) | `drawdown` | +0.103 | +0.00 | 1.000 |
 | generational GA (Ha 2015) | `above_parity` | -0.230 | -0.83 | 0.015 |
-| self-play ES | `final_holdout` | -3.204 | -1.00 | 0.010 |
-| self-play ES | `late_mean` | -3.494 | -1.00 | 0.010 |
-| self-play ES | `volatility` | -0.414 | -0.58 | 0.171 |
-| self-play ES | `drawdown` | -0.371 | -0.75 | 0.067 |
-| self-play ES | `above_parity` | -0.263 | -1.00 | 0.010 |
+| self-play ES | `final_holdout` | -1.933 | -0.33 | 0.394 |
+| self-play ES | `late_mean` | -2.145 | -0.33 | 0.394 |
+| self-play ES | `volatility` | -0.464 | -0.72 | 0.041 |
+| self-play ES | `drawdown` | -0.420 | -0.83 | 0.015 |
+| self-play ES | `above_parity` | -0.197 | -0.83 | 0.013 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 <!-- /table:2 -->
@@ -309,53 +309,58 @@ the machinery itself, with the policy class and the environment held identical:
 policy class and environment held identical. Top: median and inter-quartile band
 per family. Bottom: per-seed level, volatility and above-parity fraction.*
 
-**Both lose to the control.** The plain 2020 GA reaches a higher level in the
-last 100,000 games than either alternative, produces more above-parity
-checkpoints, and — the part that matters most given the seed variance in §2 of
-the results — is the only family in the entire study where *every* seed learned
-to rally. The generational GA manages it in five of six, the ES in fewer still.
-Effect sizes against the control are large and the exact tests are at or near
-significance at these sample sizes (Table 2).
+**The control wins on reliability, not on ceiling.** This is the result the
+design was built to be able to see, and a single run of each family would have
+got it backwards.
 
-That the generational GA loses is the more informative of the two, because §2
+Every family can reach roughly the same peak. The best self-play ES seed
+produces the highest single endpoint in the entire study, above every control
+seed; the best generational-GA and archive-as-test seeds also clear parity. What
+separates the plain 2020 GA is the *floor*: it is the only family in which every
+seed learned to rally and every seed's best champion beat the 2015 expert, and
+its spread of endpoints across seeds is roughly a third of the alternatives'. The
+others are bimodal — a couple of seeds do very well and the rest never leave the
+floor at all.
+
+So the honest comparison is not "the control is better". It is: **all four
+families have a similar ceiling and wildly different floors, and only the
+minimal loop reaches the ceiling dependably.** A study that ran one seed per
+family could have concluded that the ES was the strongest method, on the
+strength of a seed that happened to work.
+
+Why the generational GA does not win is the more informative half, because §2
 predicts it should have had an advantage. It ranks by an explicitly *computed*
 fitness — the mean point margin over about ten games — which is precisely the fix
-that §2 shows recovers most of the export-rule gap. It gets that for free and
-still ends up behind. Two differences plausibly outweigh it, and we can only
-name them rather than separate them here:
+§2 shows recovers most of the export-rule gap. It gets that for free and still
+does not come out ahead. Two differences plausibly outweigh it, and we can name
+them but not separate them here:
 
 - *Crossover between neural weight vectors is destructive.* Two networks can
-  implement similar behaviour with their hidden units in different orders, so
-  averaging or splicing their weight vectors produces a child resembling
-  neither. This is the competing-conventions (permutation) problem, and it is
-  exactly the failure that NEAT's historical markings were invented to solve. A
-  crossover-free variant of the same generational loop would separate this from
-  the next point; it is a three-run experiment and the obvious next step.
+  implement similar behaviour with their hidden units in a different order, so
+  splicing their weight vectors produces a child resembling neither. This is the
+  competing-conventions (permutation) problem, and it is exactly the failure that
+  NEAT's historical markings were invented to solve. A crossover-free variant of
+  the same generational loop would separate this from the next point; it is a
+  three-run experiment and the obvious next step.
 - *Generational replacement is a coarser update.* Ha's 2020 loop changes one
-  individual per game; the generational loop discards 80% of the population
-  every 500 games. Against a moving opponent distribution, the finer-grained
-  update tracks better.
+  individual per game; the generational loop discards 80% of the population every
+  500 games. Against a moving opponent distribution, the finer-grained update
+  tracks better.
 
-The ES result deserves a caveat rather than a conclusion. It never reached
-parity in any seed, but at pilot scale we could not distinguish learning rates
-of 0.01, 0.03 and 0.1 — none of them had produced any external progress by the
-120,000 games we could afford to spend on tuning, which is unsurprising given
-that the control's own transition can arrive as late as 415,000 games. So the
-honest statement is that **self-play ES failed at the one configuration we could
-afford to tune**, not that self-play ES fails. What can be said without
-qualification is the structural point: the ES reports its distribution mean and
-therefore has no champion-selection proxy at all, so whatever its problems are,
-they are not the ones diagnosed in §2.
-
-The overall pattern across the whole matrix is worth stating plainly, because it
-is the opposite of what the design set out to find: **every intervention we tried
-made things worse.** An archive as parent destroys learning; an archive as test
-taxes it; crossover with computed fitness loses to a streak proxy; a
-distribution-based search does worst of all. The minimal loop — draw two, play
-one game, overwrite the loser — is the most robust thing in the study. That is a
-useful result to have measured rather than assumed, and it is a caution about
-adding machinery to a coevolutionary loop on the strength of what the machinery
-is *supposed* to fix.
+The ES deserves a caveat rather than a verdict. Four of its six seeds never
+reached parity, but at pilot scale we could not distinguish learning rates of
+0.01, 0.03 and 0.1 — none had produced external progress by the 120,000 games we
+could afford for tuning, which is unsurprising when the control's own transition
+can arrive as late as 415,000 games. So the honest statement is that **self-play
+ES was unreliable at the one configuration we could afford to tune**, not that
+self-play ES is unreliable. Two structural observations stand regardless. It
+reports its distribution mean and therefore has no champion-selection proxy at
+all, so whatever its failures are, they are not the ones diagnosed in §2. And it
+carries a single mean vector where the GA carries 128 lineages — which is the
+most likely reason its outcomes are bimodal, and points at a property of
+collectives worth stating on its own: **a population is not only a search
+device, it is variance reduction across the run.** One trajectory can stall;
+128 lineages usually contain one that finds the transition.
 
 ## 7. Which condition's champions actually win?
 
@@ -372,7 +377,7 @@ champion of every other run.
 Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
 <!-- /table:6 -->
 
-## 8. Synthesis: seven lessons about competitive coevolution
+## 8. Synthesis: eight lessons about competitive coevolution
 
 None of what follows is about volleyball. Slime Volleyball is a probe — small
 enough that every claim can be checked, adversarial enough that the coevolutionary
@@ -451,7 +456,19 @@ single-run emergence claims are common, and because the cost of the correct
 version — several seeds and a reported range — is a constant factor, not a
 research programme.
 
-**7. In a purely relative ecology, the population is the unit that becomes
+**7. A population is variance reduction across the run, not only a search
+device.** Four algorithm families in this study reach a similar ceiling and
+differ enormously in how often they reach it. The one carrying the most
+independent lineages — 128, versus a single mean vector for the evolution
+strategy — is the only one where every seed got there. The others are bimodal:
+some seeds do very well, the rest never leave the floor. A single trajectory can
+stall; many lineages usually contain one that finds the transition. This is the
+practical argument for a collective that has nothing to do with parallel compute
+and everything to do with not betting the run on one path — and it is invisible
+to a single-seed study, which will simply report whichever mode it happened to
+land in.
+
+**8. In a purely relative ecology, the population is the unit that becomes
 competent, not the individual.** At the end of a control run, dozens of the 128
 members score above parity against an opponent none of them ever saw, while the
 individual the algorithm hands you does not. "The system is competent" and "the

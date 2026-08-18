@@ -203,7 +203,7 @@ numbers moved.
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
 | generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
-| self-play ES | 4 | -3.35 ± 0.76 | -2.58 ± 1.20 | -3.81 ± 0.58 | 0.26 | 0.23 | 0% | — (0/4) |
+| self-play ES | 6 | -2.08 ± 0.94 | -1.56 ± 0.99 | -2.46 ± 0.93 | 0.21 | 0.18 | 7% | 398k (2/6) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -228,11 +228,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 | generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
 | generational GA (Ha 2015) | `drawdown` | +0.103 | +0.00 | 1.000 |
 | generational GA (Ha 2015) | `above_parity` | -0.230 | -0.83 | 0.015 |
-| self-play ES | `final_holdout` | -3.204 | -1.00 | 0.010 |
-| self-play ES | `late_mean` | -3.494 | -1.00 | 0.010 |
-| self-play ES | `volatility` | -0.414 | -0.58 | 0.171 |
-| self-play ES | `drawdown` | -0.371 | -0.75 | 0.067 |
-| self-play ES | `above_parity` | -0.263 | -1.00 | 0.010 |
+| self-play ES | `final_holdout` | -1.933 | -0.33 | 0.394 |
+| self-play ES | `late_mean` | -2.145 | -0.33 | 0.394 |
+| self-play ES | `volatility` | -0.464 | -0.72 | 0.041 |
+| self-play ES | `drawdown` | -0.420 | -0.83 | 0.015 |
+| self-play ES | `above_parity` | -0.197 | -0.83 | 0.013 |
 
 Exact two-sided Mann–Whitney U over all label assignments. Difference is condition minus control in points per episode (`above_parity` is a fraction). Only `final_holdout` is the pre-registered primary endpoint; the rest are descriptive and uncorrected for multiplicity.
 <!-- /table:2 -->
@@ -314,7 +314,7 @@ Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 | archive as parent, p=0.25 | 6 | 1/6 | 80k (80k–80k) | 365k (365k–365k) (1/6) | 285k |
 | archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
 | generational GA (Ha 2015) | 6 | 5/6 | 205k (160k–420k) | 345k (290k–480k) (5/6) | 105k |
-| self-play ES | 4 | 2/4 | 450k (410k–490k) | never (0/4) | — |
+| self-play ES | 6 | 4/6 | 372k (320k–490k) | 398k (385k–410k) (2/6) | 70k |
 | *reference run (1 run, real environment)* | 1 | 1/1 | *104k* | *172k* | *68k* |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
@@ -383,7 +383,9 @@ All 200 paired games agree bit for bit over 265,797 environment steps. Throughpu
 | es | 101 | -2.43 | -2.46 | -0.95 | -2.53 | 0.59 | 0.64 | 0% | 410k | — | 15.3 |
 | es | 102 | -4.84 | -4.83 | -4.82 | -4.82 | 0.03 | 0.04 | 0% | — | — | 9.2 |
 | es | 103 | -1.68 | -1.68 | -0.12 | -3.15 | 0.38 | 0.21 | 0% | 490k | — | 11.0 |
+| es | 104 | +0.37 | +0.41 | +0.45 | +0.29 | 0.07 | 0.09 | 24% | 320k | 385k | 20.5 |
 | es | 105 | -4.38 | -4.44 | -4.44 | -4.74 | 0.04 | 0.03 | 0% | — | — | 10.6 |
+| es | 106 | +0.55 | +0.50 | +0.50 | +0.18 | 0.15 | 0.08 | 16% | 335k | 410k | 19.6 |
 <!-- /table:a2 -->
 
 ### Table A3 — the same population continued in both implementations

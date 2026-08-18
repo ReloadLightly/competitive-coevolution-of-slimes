@@ -404,5 +404,33 @@
   "peak_holdout_win": 0.361,
   "peak_holdout_tie": 0.517,
   "peak_holdout_len": 2997.899
+ },
+ "es_s104": {
+  "final_holdout": 0.414,
+  "final_holdout_sd": 0.7877842344195523,
+  "final_holdout_sem": 0.024911924855378,
+  "final_holdout_win": 0.349,
+  "final_holdout_tie": 0.603,
+  "final_holdout_len": 2998.745,
+  "peak_holdout": 0.451,
+  "peak_holdout_sd": 0.7560416655185083,
+  "peak_holdout_sem": 0.02390813669025673,
+  "peak_holdout_win": 0.377,
+  "peak_holdout_tie": 0.593,
+  "peak_holdout_len": 3000.0
+ },
+ "es_s106": {
+  "final_holdout": 0.503,
+  "final_holdout_sd": 0.8282457364816314,
+  "final_holdout_sem": 0.026191429896055694,
+  "final_holdout_win": 0.404,
+  "final_holdout_tie": 0.554,
+  "final_holdout_len": 3000.0,
+  "peak_holdout": 0.503,
+  "peak_holdout_sd": 0.8282457364816314,
+  "peak_holdout_sem": 0.026191429896055694,
+  "peak_holdout_win": 0.404,
+  "peak_holdout_tie": 0.554,
+  "peak_holdout_len": 3000.0
  }
 }
