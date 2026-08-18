@@ -46,11 +46,11 @@ Exact two-sided Mann–Whitney U over all label assignments. Difference is condi
 
 | checkpoint | games | score vs 2015 baseline | won / drawn / lost | mean rally |
 |---|---|---|---|---|
-| final | 377,000 | -0.471 ± 1.168 (s.e.m. 0.037) | 18% / 35% / 47% | 3000 steps |
-| peak | 314,000 | +0.287 ± 0.936 (s.e.m. 0.030) | 36% / 49% / 15% | 3000 steps |
+| final | 500,000 | +0.036 ± 0.734 (s.e.m. 0.023) | 19% / 64% / 17% | 3000 steps |
+| peak | 439,000 | +0.496 ± 0.856 (s.e.m. 0.027) | 42% / 52% / 6% | 3000 steps |
 | Ha (2020), same algorithm and budget | 500,000 | +0.353 ± 0.728 | — | — |
 
-47 of 377 checkpoints score above parity on the 200-episode sweep. Held-out rows are 1,000 episodes at the disjoint evaluation seed. Internal transition (training rally length above 1,500 steps): 104,200 games; first checkpoint above parity: 172,000 games; lag 67,800 games.
+112 of 500 checkpoints score above parity on the 200-episode sweep. Held-out rows are 1,000 episodes at the disjoint evaluation seed. Internal transition (training rally length above 1,500 steps): 104,200 games; first checkpoint above parity: 172,000 games; lag 67,800 games.
 
 
 ### Table 4
@@ -145,7 +145,7 @@ Control runs only (6 seeds), across all population snapshots. Every population m
 | archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
 | generational GA (Ha 2015) | 6 | 5/6 | -0.68 ± 0.83 | -2.00 ± 0.82 | 3% |
 | self-play ES | 6 | 4/6 | -1.56 ± 0.99 | -2.08 ± 0.94 | 7% |
-| *reference run, unmodified environment* | 1 | 1/1 | *+0.29 ± 0.03* | *-0.47 ± 0.04* | *12%* |
+| *reference run, unmodified environment* | 1 | 1/1 | *+0.50 ± 0.03* | *+0.04 ± 0.02* | *22%* |
 | *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
 
 Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.
@@ -206,6 +206,6 @@ All 200 paired games agree bit for bit over 265,797 environment steps. Throughpu
 |---|---|---|---|
 | compiled, resume_s900 | 176,000 | -2.82 | 19/35 |
 | compiled, resume_s901 | 176,000 | +0.41 | 21/35 |
-| reference environment | 53,000 | -0.38 | 13/53 |
+| reference environment | 176,000 | +0.01 | 78/176 |
 
 All continuations start from the identical committed population snapshot at tournament 324,000. Independent continuations of one population diverge because the algorithm is stochastic; the question is whether the compiled ones land in the same band as the reference one.

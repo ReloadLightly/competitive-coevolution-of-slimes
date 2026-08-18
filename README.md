@@ -77,7 +77,7 @@ ES. This is the clearest thing in the repository about why a design beats a run.
 | archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
 | generational GA (Ha 2015) | 6 | 5/6 | -0.68 ± 0.83 | -2.00 ± 0.82 | 3% |
 | self-play ES | 6 | 4/6 | -1.56 ± 0.99 | -2.08 ± 0.94 | 7% |
-| *reference run, unmodified environment* | 1 | 1/1 | *+0.29 ± 0.03* | *-0.47 ± 0.04* | *12%* |
+| *reference run, unmodified environment* | 1 | 1/1 | *+0.50 ± 0.03* | *+0.04 ± 0.02* | *22%* |
 | *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
 
 Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.
