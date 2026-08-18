@@ -73,11 +73,12 @@ reason: it is a trajectory-level agreement between two independent
 implementations of the same algorithm, on top of the per-game bit-exactness of
 Table A1.
 
-What *does* replicate is the ceiling. Peak checkpoint scores across control
-seeds fall in a narrow band a little above parity, while the endpoint of the
-same runs ranges from clearly winning to clearly losing. The lag from internal
-to external progress replicates too, in the sense of always being present and
-always being large: 25,000 to 100,000 games.
+What *does* replicate is the ceiling. Every control seed produces a best
+champion at or above parity — held-out peak scores span +0.04 to +0.49 points
+per episode — while the *endpoint* of those same runs ranges from +0.41 to
+−1.35, i.e. from clearly winning to clearly losing. Where a run stops matters
+more than which run it is. The internal-to-external lag replicates too, in the
+sense of always being present and always being large: 25,000 to 100,000 games.
 
 The methodological consequence is blunt. **A single run of this algorithm
 supports no claim about when a phase change occurs, and a run stopped at any
