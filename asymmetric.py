@@ -118,12 +118,18 @@ def play_game_asym(p_r, h_r, p_l, h_l):
 
 
 @njit(cache=True)
-def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b, sigma,
-                   save_every, init_scale):
+def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b,
+                   sigma_a, sigma_b, save_every, init_scale):
     """Two populations playing only each other.
 
     A is the 'strong' side by convention (h_a >= h_b), but the code is
     symmetric. `d_a`/`d_b` are the parameter counts implied by `h_a`/`h_b`.
+
+    Mutation scale is per side, because it is a confound otherwise: mutation is
+    applied per parameter, so at a common sigma the larger genome takes a step
+    of larger L2 norm (0.1*sqrt(531) = 2.30 against 0.1*sqrt(273) = 1.65, a
+    factor of 1.39). Passing sigma_a = sigma * sqrt(d_b / d_a) equalises the
+    step norms and isolates capacity from search granularity.
 
     Returns champions and mean rally length for both sides, plus the running
     win rate of A, which is the headline series: 0.5 means the sides are
@@ -172,7 +178,7 @@ def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b, sigma,
                     src = np.random.randint(0, n_b)
                 for j in range(d_b):
                     pop_b[ib, j] = (pop_b[src, j]
-                                    + np.random.normal(0.0, 1.0) * sigma)
+                                    + np.random.normal(0.0, 1.0) * sigma_b)
                 streak_b[ib] = streak_b[src]
             streak_a[ia] += 1
         elif score < 0:
@@ -183,14 +189,14 @@ def run_coevo_asym(seed, n_games, n_a, n_b, h_a, h_b, d_a, d_b, sigma,
                     src = np.random.randint(0, n_a)
                 for j in range(d_a):
                     pop_a[ia, j] = (pop_a[src, j]
-                                    + np.random.normal(0.0, 1.0) * sigma)
+                                    + np.random.normal(0.0, 1.0) * sigma_a)
                 streak_a[ia] = streak_a[src]
             streak_b[ib] += 1
         else:
             for j in range(d_a):
-                pop_a[ia, j] += np.random.normal(0.0, 1.0) * sigma
+                pop_a[ia, j] += np.random.normal(0.0, 1.0) * sigma_a
             for j in range(d_b):
-                pop_b[ib, j] += np.random.normal(0.0, 1.0) * sigma
+                pop_b[ib, j] += np.random.normal(0.0, 1.0) * sigma_b
 
         if game % save_every == 0:
             ra = np.argmax(streak_a)

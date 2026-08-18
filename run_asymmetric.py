@@ -31,27 +31,34 @@ from run_experiments import (INIT_SCALE, SAVE_EVERY, SWEEP_EPISODES, SWEEP_SEED,
 POP = 128           # both sides, so population size is not a second asymmetry
 SIGMA = 0.10
 
+# `norm` scales the strong side's per-parameter sigma so both sides take
+# mutation steps of equal L2 norm. Without it the larger genome also searches
+# with a 1.39x coarser step, which would confound capacity with step size and
+# make an underperforming strong side uninterpretable. Both readings are run.
 CONDITIONS = {
-    # name:        (hidden A, hidden B, label A, label B)
-    "asym2x": (16, 10, "strong", "weak"),
-    "asym1x": (10, 10, "a", "b"),
+    # name:          (hidden A, hidden B, label A, label B, equalise step norm)
+    "asym1x":        (10, 10, "a", "b", False),
+    "asym2x":        (16, 10, "strong", "weak", False),
+    "asym2x-norm":   (16, 10, "strong", "weak", True),
 }
 SEEDS = [101, 102, 103]
 
 
 def one_run(job):
     cond, seed, outdir, n_games = job
-    h_a, h_b, lab_a, lab_b = CONDITIONS[cond]
+    h_a, h_b, lab_a, lab_b, norm = CONDITIONS[cond]
     paths = {lab_a: os.path.join(outdir, f"{cond}-{lab_a}_s{seed}.npz"),
              lab_b: os.path.join(outdir, f"{cond}-{lab_b}_s{seed}.npz")}
     if all(os.path.exists(p) for p in paths.values()):
         return f"{cond}_s{seed}: already done"
 
     d_a, d_b = az.param_count(h_a), az.param_count(h_b)
+    sigma_a = SIGMA * np.sqrt(d_b / d_a) if norm else SIGMA
+    sigma_b = SIGMA
     t0 = time.time()
     champs_a, champs_b, meanlen, a_winrate, a_margin = az.run_coevo_asym(
-        seed, n_games, POP, POP, h_a, h_b, d_a, d_b, SIGMA, SAVE_EVERY,
-        INIT_SCALE)
+        seed, n_games, POP, POP, h_a, h_b, d_a, d_b, sigma_a, sigma_b,
+        SAVE_EVERY, INIT_SCALE)
     train_sec = time.time() - t0
 
     w, b = fv.baseline_arrays()
@@ -86,7 +93,8 @@ def one_run(job):
             mean_score=ms, std_score=ss, win_rate=win, tie_rate_eval=tie,
             loss_rate=loss, eval_meanlen=elen,
             tournaments=np.array([n_games]), save_every=np.array([SAVE_EVERY]),
-            sigma=np.array([SIGMA]), pop=np.array([POP]),
+            sigma=np.array([sigma_a if lab == lab_a else sigma_b]),
+            pop=np.array([POP]),
             hof_prob=np.array([0.0]), seed=np.array([seed]),
             hof_capacity=np.array([0]), hof_every=np.array([0]),
             sweep_episodes=np.array([SWEEP_EPISODES]),
@@ -124,7 +132,7 @@ def main():
 
     # compile once in the parent so workers load from the numba cache
     az.run_coevo_asym(0, 200, 8, 8, 16, 10, az.param_count(16),
-                      az.param_count(10), 0.1, 100, 0.5)
+                      az.param_count(10), 0.1, 0.1, 100, 0.5)
     w, b = fv.baseline_arrays()
     az.eval_var_vs_baseline(np.zeros(az.param_count(10)), 10, 1, 1, w, b)
 
