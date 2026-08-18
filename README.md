@@ -1,4 +1,7 @@
-# Neural Slime Volleyball — competitive coevolution, measured properly
+# Competitive coevolution of slimes
+
+**What a population of self-playing agents learns, what it forgets, and which
+of the two you actually measure.**
 
 Self-play neuroevolution on [David Ha's Slime Volleyball](https://otoro.net/slimevolley/),
 run as a designed experiment rather than a demo: several dozen independent runs

@@ -231,7 +231,7 @@ footer {
 }
 """
 
-HEAD = """<title>Losing on Purpose</title>
+HEAD = """<title>The Exported Champion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?\
@@ -320,7 +320,7 @@ def main():
     if m:
         head_html = (
             '<header class="masthead">'
-            '<div class="eyebrow">Neural Slime Volleyball &middot; '
+            '<div class="eyebrow">Competitive coevolution of slimes &middot; '
             'self-play neuroevolution</div>'
             f'<h1>{m.group(1)}</h1>'
             f'<p class="standfirst">{m.group(2)}</p>'
