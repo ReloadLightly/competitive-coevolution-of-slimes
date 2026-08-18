@@ -53,9 +53,10 @@ of 100, while every control run did both. The corrected version — archive as a
 <!-- table:r -->
 | condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
 |---|---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | 5/5 | +0.29 ± 0.06 | -0.24 ± 0.31 | 22% |
+| control (Ha 2020 GA) | 6 | 6/6 | +0.32 ± 0.06 | -0.15 ± 0.27 | 26% |
 | archive as parent, p=0.25 | 5 | 0/5 | -4.84 ± 0.01 | -4.84 ± 0.01 | 0% |
-| *reference run, unmodified environment* | 1 | 1/1 | *+0.30 ± 0.03* | *-0.34 ± 0.03* | *9%* |
+| archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
+| *reference run, unmodified environment* | 1 | 1/1 | *+0.29 ± 0.03* | *-0.47 ± 0.04* | *12%* |
 | *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
 
 Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.

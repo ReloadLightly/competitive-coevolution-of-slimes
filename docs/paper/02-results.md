@@ -54,8 +54,10 @@ specific way. Every control run reaches the same *place*; almost nothing about
 <!-- table:8 -->
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | 5/5 | 160k (55k–415k) | 250k (85k–440k) (5/5) | 75k |
+| control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
 | archive as parent, p=0.25 | 5 | 0/5 | never | never (0/5) | — |
+| archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
+| *reference run (1 run, real environment)* | 1 | 1/1 | *104k* | *172k* | *68k* |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.
 <!-- /table:8 -->
