@@ -110,6 +110,8 @@ def _within_job(job):
     z = np.load(path)
     name = os.path.basename(path)[:-4]
     champs = z["champs"]
+    if champs.shape[1] != fv.PARAM_COUNT:
+        return name, None          # variable-capacity genomes: see run_asymmetric.py
     save_every = int(z["save_every"][0])
     step = max(1, every // save_every)
     idx = list(range(step - 1, len(champs), step))
@@ -207,6 +209,8 @@ def main():
         print(f"within-run round robins: {len(jobs)} runs", flush=True)
         with mp.get_context("spawn").Pool(args.workers) as pool:
             for name, res in pool.imap_unordered(_within_job, jobs):
+                if res is None:
+                    continue
                 out[name] = res
                 print(f"  {name}: rho(elo,time)={res['spearman_elo_vs_time']:+.2f} "
                       f"cyclic {res['cyclic']}/{res['triads_decided']}", flush=True)
@@ -216,6 +220,8 @@ def main():
         names, finals = [], []
         for p in paths:
             z = np.load(p)
+            if z["champs"].shape[1] != fv.PARAM_COUNT:
+                continue           # variable-capacity genomes cannot enter this pool
             names.append(os.path.basename(p)[:-4])
             finals.append(z["champs"][-1])
         pop = np.ascontiguousarray(np.array(finals))

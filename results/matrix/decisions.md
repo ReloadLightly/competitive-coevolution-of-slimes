@@ -104,3 +104,26 @@ cores idle at every boundary.
 completed (final -4.88, 0/100 above parity), matching `hof-0.25` (5 seeds) and
 `hof-full`. A fourth dose of an archive design already shown to abolish learning
 adds no information. The single completed seed is retained and reported.
+
+## 2026-08-18 19:35 UTC — population sweep replaced by an unequal-power condition
+
+The within-population size sweep (`pop-32`, `pop-512`) was dropped in favour of
+a condition the study otherwise cannot speak to at all: **two populations of
+unequal power playing only each other**.
+
+Every other condition in this study is symmetric — one pool playing itself, all
+agents with the identical policy class and budget — which is exactly the setting
+where "compete harder" is the only available move. The new condition gives the
+strong side roughly twice the policy capacity of the weak side (12-16-16-3, 531
+parameters, against the standard 12-10-10-3, 273; ratio 1.95:1) and asks whether
+the weaker side can hold parity. A symmetric two-population control (both sides
+273 parameters) separates the effect of the asymmetry from the effect of
+two-population coevolution as such.
+
+The variable-capacity forward pass was checked against the fixed 273-parameter
+kernel at h=10 and is bit-identical, so the weak side is running exactly the
+policy used everywhere else in the study.
+
+Three seeds per condition. `pop-32` / `pop-512` remain defined in
+`run_experiments.py` and can be run later; they are simply not part of this
+session's results.
