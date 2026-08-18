@@ -58,3 +58,38 @@ had started.
 Queue order after the first wave: `hof-full` (6 seeds) first, since a new
 condition carries more information than extra seeds of an existing one, then
 `control` and `hof-0.25` seeds 107-112.
+
+## 2026-08-18 16:40 UTC — the first archive design was wrong; `hof-eval` added
+
+The container was restarted at ~16:15 (nothing was lost beyond in-flight runs;
+all completed results had been pushed). On restart, three `hof-0.25` runs
+finished, and they finished suspiciously fast — 11 to 15 minutes against 17 to
+44 for the control. The reason is that their games stayed short:
+
+| condition | training rally length, first -> last checkpoint | checkpoints above parity |
+|---|---|---|
+| control (5 seeds) | 630 -> 2985 | 3 to 32 of 100 |
+| hof-0.25 (3 seeds) | 632 -> 630..727 | 0 of 100, every seed |
+
+So the intervention did not fail to stabilise competence; it abolished learning.
+
+Diagnosed mechanism: `fastvolley.run_ga` applies Ha's replacement rule verbatim
+to archive games, so when an archived genome wins, the population member is
+overwritten by a mutant *of the archived genome*. With p = 0.25 and a measured
+archive win rate of ~0.5, about 12.5% of all games therefore copy an older
+genotype back into the pool — a standing regression pressure that cancels
+progress. That is not how a hall of fame is used in the literature
+(Rosin & Belew, 1997), where the archive supplies opponents for fitness
+evaluation and archive members are never parents.
+
+Rather than delete the runs, both readings are now tested:
+
+* `hof-0.25`, `hof-0.50`, `hof-full` keep the original rule and are reported as
+  what they are — an archive that is also a gene source.
+* `hof-eval` (new, 4 seeds, archive capacity 512 so it spans the whole run)
+  implements the literature's reading: an archive game that the population
+  member loses costs it its slot, but the replacement genes come from the
+  living pool. Genetic material never leaves the population.
+
+`hof-eval` is queued ahead of the new algorithm families, because without it
+the study's headline question is answered only by a broken design.
