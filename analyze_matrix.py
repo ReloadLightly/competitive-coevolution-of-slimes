@@ -121,6 +121,22 @@ def _holdout_job(args):
     w, b = fv.baseline_arrays()
     s = run["mean_score"]
     out = {}
+    if run["champs"].shape[1] != fv.PARAM_COUNT:
+        # asymmetric runs carry variable-capacity genomes; they are re-scored by
+        # their own runner, so there is nothing for the fixed-size evaluator here
+        import asymmetric as az
+        h = int(run["hidden"][0])
+        for tag, idx in (("final", len(s) - 1), ("peak", int(np.argmax(s)))):
+            sc, ln = az.eval_var_vs_baseline(
+                np.ascontiguousarray(run["champs"][idx]), h,
+                SELECT_EPISODES, SELECT_SEED, w, b)
+            out[tag + "_holdout"] = float(sc.mean())
+            out[tag + "_holdout_sd"] = float(sc.std())
+            out[tag + "_holdout_sem"] = float(sc.std() / np.sqrt(len(sc)))
+            out[tag + "_holdout_win"] = float((sc > 0).mean())
+            out[tag + "_holdout_tie"] = float((sc == 0).mean())
+            out[tag + "_holdout_len"] = float(ln.mean())
+        return run["name"], out
     for tag, idx in (("final", len(s) - 1), ("peak", int(np.argmax(s)))):
         sc, ln = fv.eval_vs_baseline(np.ascontiguousarray(run["champs"][idx]),
                                      SELECT_EPISODES, SELECT_SEED, w, b, False)

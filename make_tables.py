@@ -410,9 +410,51 @@ def table_r(d):
     return "\n".join(out)
 
 
+def table_9(d):
+    """Promotion rules: what each one costs and what it recovers."""
+    r = d["reexport"]
+    if not r:
+        return None
+    su_ = r["summary"]
+    opps = sorted(int(k.split("_")[1]) for k in su_["recovered_fraction"])
+    out = ["| promotion rule | games spent ranking | mean score of the exported "
+           "individual | volatility of the reported series | gap to best closed "
+           "| ρ(rule statistic, true skill) |",
+           "|---|---|---|---|---|---|"]
+    out.append(f"| winning streak (Ha's rule) | 0 | "
+               f"{su_['streak_score']['level_mean']:+.2f} | "
+               f"{su_['streak_score']['volatility_mean']:.2f} | — | "
+               f"{su_['rho_streak_external']:+.2f} |")
+    out.append(f"| *pick the population median* | *0* | "
+               f"*{su_['median_score']['level_mean']:+.2f}* | "
+               f"*{su_['median_score']['volatility_mean']:.2f}* | *—* | *—* |")
+    for o in opps:
+        k = f"internal_score_{o}"
+        rec = su_["recovered_fraction"][f"internal_{o}"]
+        out.append(f"| internal round robin, {o} peers each | "
+                   f"{su_['ranking_games_per_snapshot'][f'internal_{o}']:,} | "
+                   f"{su_[k]['level_mean']:+.2f} | {su_[k]['volatility_mean']:.2f} | "
+                   f"{(f'{100*rec:.0f}%' if rec is not None else '—')} | "
+                   f"{su_['rho_internal_external'][f'internal_{o}']:+.2f} |")
+    out.append(f"| *best in pool (oracle, not deployable)* | *—* | "
+               f"*{su_['external_score']['level_mean']:+.2f}* | "
+               f"*{su_['external_score']['volatility_mean']:.2f}* | *100%* | "
+               f"*+1.00* |")
+    out.append("")
+    out.append(f"Control runs only ({su_['n_runs']} seeds), across all population "
+               f"snapshots. Every population member is scored against the 2015 "
+               f"baseline over {su_['episodes_per_individual']} episodes to "
+               f"establish true skill; the promotion rules then compete to pick "
+               f"the best member using only what they are entitled to see. "
+               f"'Volatility' is the mean absolute change in the exported "
+               f"individual's score between consecutive snapshots. For scale, "
+               f"4,096 ranking games is 0.8% of a 500,000-game run.")
+    return "\n".join(out)
+
+
 TABLES = {
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
-    "6": table_6, "7": table_7, "8": table_8, "r": table_r,
+    "6": table_6, "7": table_7, "8": table_8, "9": table_9, "r": table_r,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
@@ -430,6 +472,7 @@ def main():
         "across": load("across_runs.json"),
         "proxy": load("champion_proxy.json"),
         "reference": load("reference_curve.json"),
+        "reexport": load("reexport.json"),
         "resume": load("resume_fast.json"),
         "validation": (json.load(open("results/validation.json"))
                        if os.path.exists("results/validation.json") else None),

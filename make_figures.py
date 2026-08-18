@@ -400,6 +400,65 @@ def fig8_families(runs, per_run):
     return "fig8_algorithm_families.png"
 
 
+def fig9_reexport(reexp):
+    """What you get for replacing the champion-export rule."""
+    if not reexp:
+        return "fig9: no re-export data yet"
+    su_ = reexp["summary"]
+    opps = sorted(int(k.split("_")[1]) for k in su_["recovered_fraction"])
+    games = [su_["ranking_games_per_snapshot"][f"internal_{o}"] for o in opps]
+    lvl = [su_[f"internal_score_{o}"]["level_mean"] for o in opps]
+    vol = [su_[f"internal_score_{o}"]["volatility_mean"] for o in opps]
+    rho = [su_["rho_internal_external"][f"internal_{o}"] for o in opps]
+
+    fig, axes = plt.subplots(1, 3, figsize=(7.4, 2.8))
+    fig.subplots_adjust(wspace=0.42)
+    ax = axes[0]
+    ax.axhline(su_["streak_score"]["level_mean"], color="#B0413E", lw=1.4,
+               ls=(0, (4, 2)), label="streak rule (Ha)")
+    ax.axhline(su_["external_score"]["level_mean"], color="#3B6EA8", lw=1.4,
+               ls=(0, (1, 2)), label="best in pool (oracle)")
+    ax.axhline(su_["median_score"]["level_mean"], color="#999999", lw=1.0,
+               ls=(0, (2, 2)), label="population median")
+    ax.plot(games, lvl, color="#1F7A5A", lw=1.6, marker="o", ms=3.4,
+            label="internal round robin")
+    ax.set_xscale("log")
+    ax.set_xlabel("ranking games")
+    ax.set_ylabel("score vs 2015 baseline")
+    ax.set_title("Level of the exported individual", loc="left", fontsize=8.5)
+    ax.legend(loc="center right", fontsize=6.2, handlelength=1.5,
+              borderpad=0.2, labelspacing=0.3)
+
+    ax = axes[1]
+    ax.axhline(su_["streak_score"]["volatility_mean"], color="#B0413E", lw=1.4,
+               ls=(0, (4, 2)))
+    ax.axhline(su_["external_score"]["volatility_mean"], color="#3B6EA8", lw=1.4,
+               ls=(0, (1, 2)))
+    ax.plot(games, vol, color="#1F7A5A", lw=1.6, marker="o", ms=3.4)
+    ax.set_xscale("log")
+    ax.set_xlabel("ranking games")
+    ax.set_ylabel(r"mean $|\Delta|$ per snapshot")
+    ax.set_title("Volatility of the curve", loc="left", fontsize=8.5)
+    ax.set_ylim(0.55, 0.90)
+
+    ax = axes[2]
+    ax.axhline(su_["rho_streak_external"], color="#B0413E", lw=1.4, ls=(0, (4, 2)),
+               label="streak counter")
+    ax.plot(games, rho, color="#1F7A5A", lw=1.6, marker="o", ms=3.4,
+            label="internal margin")
+    ax.axhline(0, color="#CCCCCC", lw=0.8)
+    ax.set_xscale("log")
+    ax.set_ylim(-0.1, 1.0)
+    ax.set_xlabel("ranking games")
+    ax.set_ylabel(r"$\rho$ with true skill")
+    ax.set_title("Does the rule know?", loc="left", fontsize=8.5)
+    ax.legend(loc="center right", fontsize=6.2, handlelength=1.5,
+              borderpad=0.2, labelspacing=0.3)
+    fig.savefig(f"{FIGDIR}/fig9_reexport.png")
+    plt.close(fig)
+    return "fig9_reexport.png"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default=None)
@@ -422,6 +481,7 @@ def main():
         "fig6": lambda: fig6_proxy(proxy),
         "fig7": lambda: fig7_cross_run(across),
         "fig8": lambda: fig8_families(runs, per_run),
+        "fig9": lambda: fig9_reexport(load_json("reexport.json")),
     }
     for k, fn in todo.items():
         if args.only and k not in args.only.split(","):
