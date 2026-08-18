@@ -30,6 +30,9 @@ here; nothing in this appendix depends on the main text.*
 | `pop-32`, `pop-512` | population shrunk / grown fourfold | — |
 | `ga2015` | generational GA: computed fitness, elitism, uniform crossover | — |
 | `es` | self-play evolution strategy; reports the distribution mean | — |
+| `asym1x` | two populations playing only each other, both 273 parameters | — |
+| `asym2x` | as `asym1x` with the larger side at 531 parameters, common σ | — |
+| `asym2x-norm` | as `asym2x` with σ scaled so both sides' mutation steps have equal L2 norm | — |
 
 **The two archive rules.** Every 1,000 games the current champion is copied into
 a FIFO archive; with probability *p* the population member's opponent is drawn
@@ -48,6 +51,29 @@ genome wins, the population member is overwritten by a mutant **of the living
 population member it was originally paired with**. Failing a test the pool is
 expected to pass costs the member its slot, but no archive genome is ever a
 parent, so genetic material never leaves the living population.
+
+**The unequal-power conditions.** Two populations of 128 play only each other
+for 500,000 games; a quarter of each population's games are crossed with the
+other side, the rest are within-population. Within a population the update is
+Ha's rule verbatim (the loser is overwritten by a mutated copy of the winner). In
+a cross-population game a loss costs the member its slot and the replacement
+genes come from its *own* pool, never from the opponent's — the same discipline
+the hall-of-fame analysis showed to be load-bearing — and a peer that supplies
+replacement genes without having played is not credited with a win.
+
+The larger side has a 12-16-16-3 network (531 parameters) against the standard
+12-10-10-3 (273), a ratio of 1.95 : 1. Because mutation is per parameter, the
+larger genome would otherwise also take a step of larger L2 norm (2.30 against
+1.65), so `asym2x-norm` scales its σ by √(273/531) = 0.717 to equalise the step
+norms and separate capacity from search granularity. `asym1x` gives both sides
+the standard architecture, and is the null distribution: anything that happens
+there is what two-population coevolution does with no asymmetry at all.
+
+Both populations are snapshotted every 50,000 games and every member is scored
+against the 2015 baseline, so "did this side learn" is answered by the pool
+rather than by an exported champion — which section 2 of the analysis shows is
+an unreliable estimate of what a population contains. Three promotion rules are
+recorded side by side: winning streak, internal round robin, and best-in-pool.
 
 **Algorithm families.** `ga2015`: population 100, each agent plays ten random
 peers per generation (500 games per generation, 1,000 generations), fitness is
@@ -363,11 +389,7 @@ Control runs only (6 seeds), across all population snapshots. Every population m
 <!-- table:10 -->
 | condition | seed | win rate of the larger side | larger side, final score | smaller side, final score | who learned |
 |---|---|---|---|---|---|
-| symmetric control (273 v 273) | 101 | 0.812 | -4.72 | -4.80 | neither |
-| symmetric control (273 v 273) | 102 | 0.001 | -4.82 | -0.15 | smaller |
-| symmetric control (273 v 273) | 103 | 0.247 | -2.67 | -0.83 | both |
-| 2:1 capacity (531 v 273), same σ | 101 | 0.001 | -4.83 | +0.23 | smaller |
-| 2:1 capacity (531 v 273), same σ | 102 | 0.896 | -0.94 | -4.85 | larger |
+| symmetric control (273 v 273) | 101 | 0.549 | -4.83 | -4.86 | neither |
 
 Two populations of 128 playing only each other, 750,000 games, 25% of each population's games crossed with the other side. 'Win rate of the larger side' is over cross-population games in the last 100,000 games; 0.5 means the sides are holding each other. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking. 'Who learned' counts a side as having learned if its final champion scores above −4.0 against the 2015 baseline.
 <!-- /table:10 -->
