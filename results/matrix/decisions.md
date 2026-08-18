@@ -127,3 +127,64 @@ policy used everywhere else in the study.
 Three seeds per condition. `pop-32` / `pop-512` remain defined in
 `run_experiments.py` and can be run later; they are simply not part of this
 session's results.
+
+## 2026-08-18 21:35 UTC — the asymmetric kernel was rewritten after a null run
+
+The first two-population kernel replaced a loser with a mutant of a *random*
+peer from its own population. That is too weak a rule: winners never
+preferentially propagate, so selection reduces to culling. Measured result, over
+a full 500,000-game symmetric control run: training rally length flat at ~630
+from start to finish, both sides at -4.84 against the 2015 baseline, and the
+cross-population win rate pinned at 0.500. Neither population learned anything.
+
+Recorded here rather than quietly fixed, because it is a real measurement about
+selection rules: *culling losers is not enough; something has to propagate
+winners.*
+
+The kernel now gives each population Ha's rule verbatim for its
+within-population games and crosses a fraction of games with the other
+population, where a loss costs the member its slot but the replacement genes
+come from its own pool. That is the `hof-eval` rule with a live co-adapting
+opponent in place of a stale archived one, and both of those components are
+known from this study to support learning.
+
+Budget was also raised: two populations sharing one game budget each get less
+within-population selection than a single pool. At CROSS = 0.25 and 750,000
+games, each side is active in ~375,000 games, ~281,000 within its own pool,
+against the control's 500,000 — close enough that a failure to transition is
+informative rather than an artefact of starvation. The three earlier
+asymmetric result files were deleted; nothing else in the matrix is affected.
+
+## 2026-08-18 23:00 UTC — asymmetric condition re-implemented and rerun
+
+The first properly-learning asymmetric runs produced an interpretable headline
+(the contest is winner-take-all, and a 1.95:1 capacity advantage does not decide
+it) but rested on measurements that this study's own section 2 shows are
+unreliable. Rather than report that with a caveat, the condition was
+re-implemented and rerun from scratch. Three changes:
+
+1. **A streak-accounting bug is fixed.** When a population member lost a
+   cross-population game it was replaced by a mutant of a randomly drawn peer,
+   and *that peer's streak counter was incremented* although it had not played.
+   In the losing population — which loses nearly every cross game — this
+   inflated streak counters at random, and the streak counter is what selects
+   the exported champion. The peer now inherits nothing it did not earn.
+
+2. **Both populations are snapshotted every 50,000 games** and every member is
+   scored against the 2015 baseline. "Did this side learn" is now a question
+   about the pool, not about whichever individual a proxy exported.
+
+3. **Three promotion rules are recorded side by side** — winning streak,
+   internal round robin, and best-in-pool — so no conclusion depends on a
+   single champion series.
+
+Seeds were raised from 3 to 6 per condition, because the outcome is close to a
+coin flip and three seeds cannot separate a capacity effect from
+symmetry-breaking noise. The game budget was reduced from 750,000 to 500,000 to
+pay for them; at CROSS = 0.25 each side is still active in ~250,000 games,
+~187,000 of them within its own pool, against a control median transition of
+120,000. Jobs are interleaved by seed so that an interrupted session yields
+fewer seeds of every condition rather than no seeds of some.
+
+The earlier asymmetric result files were deleted. Nothing else in the matrix is
+affected.

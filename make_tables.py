@@ -452,9 +452,55 @@ def table_9(d):
     return "\n".join(out)
 
 
+def table_10(d):
+    """Unequal power: who dominates, and does either side keep learning."""
+    import glob as _glob
+    import numpy as _np
+    rows = {}
+    for f in sorted(_glob.glob("results/matrix/asym*_s*.npz")):
+        name = os.path.basename(f)[:-4]
+        base, seed = name.rsplit("_s", 1)
+        cond, side = base.rsplit("-", 1)
+        rows.setdefault(cond, {}).setdefault(seed, {})[side] = _np.load(f)
+    if not rows:
+        return None
+    label = {"asym1x": "symmetric control (273 v 273)",
+             "asym2x": "2:1 capacity (531 v 273), same σ",
+             "asym2x-norm": "2:1 capacity (531 v 273), matched step norm"}
+    out = ["| condition | seed | win rate of the larger side | larger side, "
+           "final score | smaller side, final score | who learned |",
+           "|---|---|---|---|---|---|"]
+    for cond in ("asym1x", "asym2x", "asym2x-norm"):
+        if cond not in rows:
+            continue
+        for seed, sides in sorted(rows[cond].items()):
+            ka = "strong" if "strong" in sides else "a"
+            kb = "weak" if "weak" in sides else "b"
+            wr = float(sides[ka]["a_winrate"][-20:].mean())
+            fa = float(sides[ka]["mean_score"][-1])
+            fb = float(sides[kb]["mean_score"][-1])
+            la, lb = fa > -4.0, fb > -4.0
+            who = ("both" if la and lb else "larger" if la else
+                   "smaller" if lb else "neither")
+            out.append(f"| {label[cond]} | {seed} | {wr:.3f} | {fa:+.2f} | "
+                       f"{fb:+.2f} | {who} |")
+    out.append("")
+    out.append("Two populations of 128 playing only each other, 750,000 games, "
+               "25% of each population's games crossed with the other side. "
+               "'Win rate of the larger side' is over cross-population games in "
+               "the last 100,000 games; 0.5 means the sides are holding each "
+               "other. In the symmetric control both sides have identical "
+               "architecture, so any departure from 0.5 there is spontaneous "
+               "symmetry breaking. 'Who learned' counts a side as having "
+               "learned if its final champion scores above −4.0 against the "
+               "2015 baseline.")
+    return "\n".join(out)
+
+
 TABLES = {
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
-    "6": table_6, "7": table_7, "8": table_8, "9": table_9, "r": table_r,
+    "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
+    "r": table_r,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
