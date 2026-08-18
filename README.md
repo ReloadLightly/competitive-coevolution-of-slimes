@@ -1,4 +1,7 @@
-# Neural Slime Volleyball — competitive coevolution, measured properly
+# Competitive coevolution of slimes
+
+**What a population of self-playing agents learns, what it forgets, and which
+of the two you actually measure.**
 
 Self-play neuroevolution on [David Ha's Slime Volleyball](https://otoro.net/slimevolley/),
 run as a designed experiment rather than a demo: several dozen independent runs
@@ -42,21 +45,39 @@ and it scores about a point per episode worse than the best individual in the
 same pool. At the end of a run the exported champion is below parity while dozens
 of its own peers are above it.
 
-**5. A hall of fame that is also a gene source abolishes learning.** Our first
-archive implementation applied the replacement rule to archive games, so a
-winning archived genome became the *parent* of the member it beat. At p = 0.25
-that copies an older genotype back into the pool roughly one game in eight. Every
-such run failed to reach long rallies and produced 0 above-parity checkpoints out
-of 100, while every control run did both. The corrected version — archive as a
-*test*, never a parent, as in Rosin & Belew (1997) — is reported alongside it.
+**5. A hall of fame is a tax, not insurance — when skill is transitive.** We
+tested both readings of the archive. Used as a *parent* (a winning archived
+genome becomes the parent of the member it beat) it abolishes learning outright:
+one seed in six ever got off the floor, against six of six for the control. Used
+as a *test* in the literature's sense (archive supplies opponents, never genes)
+it stops being destructive but still does not help — and the reason is
+measurable. The archive's win rate against the current population decays from
+~0.50 to under 0.10 over a run, in every seed. Because skill here is transitive,
+a past champion is simply a weaker player, so roughly **22% of late-training
+games produce no selection event at all**. The diagnostic generalises: log your
+archive's win rate; if it decays to zero, the archive has become a free win and
+its budget is being subtracted from the live arms race.
+
+**6. Reliability is where the methods differ — not ceiling.** Four families were
+run at 500,000 games each: the 2020 GA, a generational GA in the style of Ha's
+2015 experiment, a self-play evolution strategy, and the corrected archive. They
+reach a *similar* ceiling — the best ES seed produces the single highest endpoint
+in the study, above every control seed. They differ enormously in their floor.
+Only the plain 2020 GA learned to rally in every seed and beat the 2015 expert in
+every seed; the others are bimodal, and their across-seed spread is about three
+times larger. A study running one seed per family could easily have crowned the
+ES. This is the clearest thing in the repository about why a design beats a run.
 
 <!-- table:r -->
 | condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | +0.32 ± 0.06 | -0.15 ± 0.27 | 26% |
-| archive as parent, p=0.25 | 5 | 0/5 | -4.84 ± 0.01 | -4.84 ± 0.01 | 0% |
+| archive as test, full span | 6 | 6/6 | -0.44 ± 0.71 | -1.10 ± 0.78 | 8% |
+| archive as parent, p=0.25 | 6 | 1/6 | -3.94 ± 0.90 | -4.10 ± 0.74 | 2% |
 | archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
-| *reference run, unmodified environment* | 1 | 1/1 | *+0.29 ± 0.03* | *-0.47 ± 0.04* | *12%* |
+| generational GA (Ha 2015) | 6 | 5/6 | -0.68 ± 0.83 | -2.00 ± 0.82 | 3% |
+| self-play ES | 6 | 4/6 | -1.56 ± 0.99 | -2.08 ± 0.94 | 7% |
+| *reference run, unmodified environment* | 1 | 1/1 | *+0.50 ± 0.03* | *+0.04 ± 0.02* | *22%* |
 | *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
 
 Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.

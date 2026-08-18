@@ -459,6 +459,49 @@ def fig9_reexport(reexp):
     return "fig9_reexport.png"
 
 
+def fig10_archive_decay(runs, per_run):
+    """Why the archive stops paying: it stops being able to win."""
+    conds = [c for c in ("hof-eval", "hof-0.25", "hof-full", "hof-0.50")
+             if c in runs]
+    if not conds:
+        return "fig10: no archive runs yet"
+    fig, axes = plt.subplots(1, 2, figsize=(6.8, 2.8))
+    ax = axes[0]
+    for c in conds:
+        for r in runs[c]:
+            aw = r["hofwin"]
+            m = aw > 0
+            if m.any():
+                ax.plot(r["t"][m] / 1000, aw[m], color=COLORS[c], lw=0.9,
+                        alpha=0.55)
+        ax.plot([], [], color=COLORS[c], lw=1.6, label=LABELS.get(c, c))
+    ax.axhline(0.5, color="#999999", lw=0.9, ls=(0, (4, 3)))
+    ax.set_ylim(0, 1)
+    ax.set_xlabel("self-play games (thousands)")
+    ax.set_ylabel("archive win rate")
+    ax.set_title("Can the past still win?", loc="left")
+    ax.legend(loc="upper right", fontsize=6.6, handlelength=1.5)
+
+    ax = axes[1]
+    for c in conds:
+        for r in runs[c]:
+            aw = r["hofwin"]
+            m = aw > 0
+            if m.any():
+                # games that produce no selection event: an archive game the
+                # population member wins overwrites nothing
+                waste = 0.25 * (1.0 - aw[m]) if c != "hof-0.50" else 0.5 * (1.0 - aw[m])
+                ax.plot(r["t"][m] / 1000, 100 * waste, color=COLORS[c], lw=0.9,
+                        alpha=0.55)
+    ax.set_xlabel("self-play games (thousands)")
+    ax.set_ylabel("% of games with no selection event")
+    ax.set_title("What the archive costs", loc="left")
+    ax.set_ylim(0, 55)
+    fig.savefig(f"{FIGDIR}/fig10_archive_decay.png")
+    plt.close(fig)
+    return "fig10_archive_decay.png"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default=None)
@@ -482,6 +525,7 @@ def main():
         "fig7": lambda: fig7_cross_run(across),
         "fig8": lambda: fig8_families(runs, per_run),
         "fig9": lambda: fig9_reexport(load_json("reexport.json")),
+        "fig10": lambda: fig10_archive_decay(runs, per_run),
     }
     for k, fn in todo.items():
         if args.only and k not in args.only.split(","):
