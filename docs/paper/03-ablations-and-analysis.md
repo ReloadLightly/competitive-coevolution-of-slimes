@@ -272,16 +272,53 @@ it.
 
 ![ablations](../../results/figures/fig4_ablations.png)
 
-*Figure 4. Left: mutation scale. Right: population size. Median and
-inter-quartile band across seeds, with the control in both panels for reference.*
+*Figure 4. Mutation scale: σ = 0.05 and σ = 0.20 against the control's σ = 0.10,
+median and inter-quartile band across seeds.*
 
-*(Results filled in from Table 1 and Table 2.)*
+**It is not the step size.** Halving the mutation scale changes nothing that
+matters. Volatility over the last 100,000 games is indistinguishable from the
+control — a difference of +0.017 points with Cliff's δ of exactly 0.00 and an
+exact p of 1.000 — and so are the level, the drawdown and the fraction of
+checkpoints above parity, which lands on the same 26%. Every seed still learned.
+If the swings in a champion curve were driven by a mutation step too large for
+the landscape, halving that step should have visibly steadied them. It did not
+move them at all.
 
-## 5. Does a bigger collective help?
+Doubling σ does damage, but not the kind the hypothesis predicts: one seed in
+three never learned to rally, and the level drops, while the *volatility of the
+runs that did learn* stays within noise of the control (δ = −0.17, p = 0.857).
+The naive comparison over all runs makes σ = 0.20 look like the *calmest*
+condition in the sweep, at 0.38 against the control's 0.67 — which is the
+competence-precondition trap of §3 appearing a second time, since the failed
+seed contributes a perfectly flat and perfectly worthless curve.
 
-Population size is the collective-system axis: at a fixed game budget, a larger
-pool holds more diversity but gives each individual less selection pressure —
-500,000 games spread over 512 individuals is under a thousand games each.
+So the third candidate explanation is out. The swings are not the population
+cycling (§1), and they are not the mutation step (§4). What remains is the
+mechanism §2 measured directly: the rule that chooses which individual to call
+the champion.
+
+## 5. Unequal power: what happens when one side is simply stronger
+
+Every condition to this point is symmetric — one pool playing itself, all agents
+with the identical policy class and budget. That is precisely the setting in
+which "compete harder" is the only available move, and it cannot say anything
+about a contest between unequal sides.
+
+This condition runs two separate populations that play only each other, with the
+strong side given roughly twice the policy capacity of the weak side: a
+12–16–16–3 network with 531 parameters against the study's standard 12–10–10–3
+with 273, a ratio of 1.95 : 1. Keeping the weak side at exactly the standard
+architecture means its results stay comparable with every other run in the
+study, and the variable-capacity forward pass was checked to be bit-identical to
+the fixed one at the standard size.
+
+Two controls make the comparison interpretable. A symmetric two-population run
+(both sides 273 parameters) separates the effect of *asymmetry* from the effect
+of two-population coevolution as such. And because mutation is applied per
+parameter, the larger genome would otherwise also take a mutation step of larger
+L2 norm — 2.30 against 1.65, a factor of 1.39 — so a second variant scales the
+strong side's σ to equalise the step norms and isolate capacity from search
+granularity.
 
 *(Results filled in from Table 1 and Table 2.)*
 
