@@ -64,7 +64,27 @@ to matter.
 
 *See also: [Risi, Tang, Ha & Miikkulainen, "Neuroevolution" (MIT Press,
 2025)](https://neuroevolutionbook.com), ch. 7.2 on competitive coevolution —
-this repository is a minimal working example of that chapter. Notably absent
-here, and therefore available as extension slots: quality-diversity archives,
-indirect encodings, hall-of-fame opponent sampling, and any test for
-intransitivity in the champion lineage.*
+this repository is a minimal working example of that chapter.*
+
+**Update (August 2026).** Two of the extension slots this document originally
+listed as absent have since been filled, and the results changed the argument
+above rather than decorating it:
+
+- *Hall-of-fame opponent sampling* is now run in two readings — archive as parent
+  and archive as test — with the first abolishing learning outright and the second
+  neither helping nor hurting.
+- *A test for intransitivity in the champion lineage* is now run, and it comes
+  back almost perfectly transitive. Since a hall of fame is the standard remedy
+  for intransitivity, that result *predicts* the null above.
+
+What replaced them as the interesting finding is a third object that this
+document did not anticipate: the rule that decides which individual to export.
+It contributes more variance to a champion curve than the coevolution does, and
+it is uninformative about actual skill. That matters directly for rung 3, where
+an LLM-driven loop must promote one program out of each generation — see §8 of
+[the analysis](paper/03-ablations-and-analysis.md).
+
+Still absent, and therefore still available as extension slots:
+quality-diversity archives, indirect encodings, and topology evolution (NEAT) —
+for which [appendix §A.8](paper/04-appendix.md) specifies the interface and what
+would keep a later run comparable to these.

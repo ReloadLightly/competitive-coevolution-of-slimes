@@ -1,82 +1,58 @@
-# Publish kit v3 — update your GitHub repo
+# Keeping this repository current
 
-The folder `neural-slime-volleyball-summer/` in this zip **is** the repository:
-full git history, all code, the writeup, results, figures, GIFs, 206 champion
-checkpoints and the population snapshot. The GitHub remote is already set.
+Everything reported in `docs/paper/` and in the README is generated from the
+files under `results/`. There is no step where a number is copied by hand, so
+refreshing the write-up after new results is three commands:
 
-## How to update your repo (2 minutes)
-
-1. **Delete** the old unzipped folder from the previous kit — don't merge them.
-2. Unzip this file somewhere (Downloads is fine).
-3. **Windows:** double-click `publish.bat`
-   **macOS / Linux:** open a terminal in the folder and run `bash publish.sh`
-4. If git asks you to sign in, sign in as **ReloadLightly** and approve.
-
-When it finishes it prints "Done!" and everything is live at
-https://github.com/ReloadLightly/neural-slime-volleyball-summer
-
-That is the whole procedure. Every future kit works exactly the same way:
-delete old folder → unzip new one → double-click → done.
-
-### If publish.bat fails
-
-Open a terminal inside the `neural-slime-volleyball-summer` folder and run:
-
-```
-git push -u origin main
+```bash
+.venv/bin/python analyze_matrix.py --holdout      # metrics + held-out re-scoring
+.venv/bin/python make_tables.py                   # rewrites every table in place
+.venv/bin/python make_figures.py                  # rewrites every figure
+.venv/bin/python build_paper.py --md              # single-page HTML + writeup.md
 ```
 
-The error message it prints will say what's wrong (usually just a sign-in).
+`make_tables.py --check` exits non-zero if any table in the write-up is stale
+relative to the data, which makes it usable as a pre-commit or CI check.
 
----
+## Adding a run
 
-## Optional — finish the full 500,000-game run on your own machine
+`run_experiments.py` skips any run whose `.npz` already exists, so it is safe to
+re-run at any time and safe to interrupt. To add seeds to an existing condition:
 
-The cloud run stopped at **286,700 of 500,000 games** because that sandbox
-reclaims its container whenever the session goes idle. Your machine has no
-such limit, and the population snapshot is included, so this continues *this
-exact run* rather than starting a new one.
-
-**macOS / Linux**, from inside the repo folder:
-
-```
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python train_ga_selfplay.py --resume --snapshot-freq 2500
+```bash
+.venv/bin/python run_experiments.py --workers 3 --only control --seeds 107,108
 ```
 
-**Windows**, from inside the repo folder:
+## Adding a condition
 
-```
-python -m venv .venv
-.venv\Scripts\pip install -r requirements.txt
-.venv\Scripts\python train_ga_selfplay.py --resume --snapshot-freq 2500
-```
+Add an entry to `CONDITIONS` in `run_experiments.py` and, if it needs new
+machinery, a training kernel in `algorithms.py`. The contract a kernel must
+satisfy — and what a topology-evolving method such as NEAT would additionally
+need — is specified in [appendix §A.8](paper/04-appendix.md).
 
-Roughly about 6 hours for the remaining 213,000 games. Safe to stop and restart at
-any time — progress is snapshotted every 2,500 games, and re-running the same
-command continues from there. Leave it overnight.
+## Continuing the reference run
 
-When it's done, either bring the numbers back to Claude, or regenerate
-everything yourself:
+The run in `results/ga_selfplay/` is trained on the unmodified `slimevolleygym`
+environment and is continued from its committed population snapshot:
 
-```
-.venv/bin/python eval_vs_baseline.py results/ga_selfplay/ga_00500000.json --episodes 1000
-.venv/bin/python eval_vs_baseline.py results/ga_selfplay --all --episodes 40
-.venv/bin/python plot_curve.py results/ga_selfplay/eval_curve.jsonl
-.venv/bin/python render_gif.py results/ga_selfplay/ga_00500000.json --out results/figures/final_match.gif
-git add -A && git commit -m "Full 500k run complete" && git push
+```bash
+.venv/bin/python train_ga_selfplay.py --resume --snapshot-freq 1000
 ```
 
-## Optional — the champion-vs-champion test (no training needed, ~1 hour)
+Roughly twelve core-hours for a full 500,000 games; safe to stop and restart at
+any point, since progress is snapshotted continuously. Each restart reseeds the
+RNG deterministically from `seed + resume point`, which is why the run is
+documented as a chain of restarts rather than one exactly resumable trajectory.
 
-Answers whether the population really *forgets*, or whether the champion-picking
-rule is just noisy:
+## Conventions worth preserving
 
-```
-.venv/bin/python cross_generation.py --every 20000 --games 20
-```
-
-It prints a ranking and an upset count, and writes
-`results/cross_generation.json`. A clean "later beats earlier" ranking points to
-proxy noise; results that go in circles point to genuine coevolutionary cycling.
+- **The protocol is a file.** `results/matrix/protocol.json` holds the evaluation
+  seeds, episode counts, checkpoint spacing and metric window. Changing an
+  evaluation seed invalidates comparability with every existing run; add a new
+  seed rather than editing an old one.
+- **Decisions get logged.** `results/matrix/decisions.md` records every change
+  made after the first run was launched, together with what was known at the
+  time. A design change that is not in that file is not reproducible.
+- **Stability is reported conditional on competence.** A run that never learned
+  has zero volatility and zero drawdown; see `analyze_matrix.py` and the
+  `reached` flag.
