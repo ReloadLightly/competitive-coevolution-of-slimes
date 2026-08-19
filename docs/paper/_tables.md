@@ -160,9 +160,9 @@ Control runs only (6 seeds), across all population snapshots. Every population m
 
 | condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
 |---|---|---|---|---|---|
-| symmetric control (273 v 273) | 2 | 0.28 (range 0.01–0.55); larger side ahead in 1/2 | -4.72 | -2.16 | 1/2 |
-| 2:1 capacity, common σ | 1 | 0.00 (range 0.00–0.00); larger side ahead in 0/1 | -4.70 | +0.40 | 1/1 |
-| 2:1 capacity, matched step norm | 1 | 0.99 (range 0.99–0.99); larger side ahead in 1/1 | +0.35 | -4.65 | 1/1 |
+| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
+| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
+| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
 
 Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
 

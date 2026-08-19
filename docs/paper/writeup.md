@@ -345,8 +345,8 @@ rally length, which rises from roughly 600 steps to the 3,000-step cap.*
 
 Its trajectory has two regimes (Figure 1). For the first hundred thousand games
 the champion loses every episode to the 2015 baseline by nearly the maximum
-margin — a floor at roughly −4.82 points per episode with a standard deviation
-across checkpoints of 0.05. Then, over about fifty thousand games, it climbs
+margin — a floor at −4.82 points per episode with a standard deviation across
+checkpoints of 0.05. Then, over about fifty thousand games, it climbs
 almost four points and begins producing champions that beat the 2015 expert
 outright.
 
@@ -364,14 +364,34 @@ improving steadily; the only thing missing was that its improvements had not yet
 generalised beyond its own family. *Internal selection pressure leads external
 measurement.* Any self-improvement loop measured too early reads as a dead loop.
 
-**Damping, and what remains.** Split the run into 100,000-game windows and the
-picture is neither "it learns" nor "it thrashes": the level rises and the swings
-shrink, but neither converges. The population settles into a band just below
-parity from which it repeatedly produces baseline-beating champions and then
-loses them again. Held out on a disjoint evaluation seed over 1,000 episodes,
-the best checkpoint of the run scores **+0.304 ± 0.806** (s.e.m. 0.025) — within
-noise of Ha's published +0.353 ± 0.728 for the same algorithm at the same
-budget. Full numbers in Table 3.
+**The level rises; the swings do not damp.** Split the completed run into
+100,000-game windows:
+
+| games | mean | s.d. across checkpoints | above parity |
+|---|---|---|---|
+| 0–100k | −4.82 | 0.05 | 0/100 |
+| 100–200k | −2.02 | 1.64 | 8/100 |
+| 200–300k | −0.55 | 0.78 | 21/100 |
+| 300–400k | −0.61 | 0.87 | 28/100 |
+| 400–500k | −0.23 | 0.82 | 55/100 |
+
+The single-run version of this study, which stopped at 286,700 games, reported
+that "the swings are shrinking while the level rises". Only half of that
+survives the full run. The level does rise, and the rate of above-parity
+checkpoints more than doubles over the second half — by the last window, 55 of
+100 checkpoints beat the 2015 expert. But the spread drops once, at the
+transition, and then sits flat at roughly 0.8 for the remaining 300,000 games.
+The population does not settle down; it gets better while continuing to swing by
+about the same amount. Calling that "damping" was an artefact of stopping in the
+window where the number happened to be falling — a small, concrete instance of
+the same lesson as §2 below.
+
+Held out on a disjoint evaluation seed over 1,000 episodes, the best checkpoint
+of the run scores **+0.496 ± 0.856** (s.e.m. 0.027) at 439,000 games, and the
+final champion **+0.036 ± 0.734** (s.e.m. 0.023) — respectively above and at
+Ha's published +0.353 ± 0.728 for the same algorithm at the same budget. The
+final champion wins 19% of episodes, draws 64% and loses 17%. Full numbers in
+Table 3.
 
 This is where the previous version of this study stopped, and it is exactly as
 far as one run can go. Everything above is compatible with at least three
@@ -713,7 +733,43 @@ archive game that the population member loses costs it its slot, but the
 replacement genes come from the living pool, so genetic material never leaves
 the population. The archive spans the whole run (capacity 512).
 
-*(Results for `hof-eval` are filled in from Table 1 and Table 2.)*
+Done this way the archive stops being destructive — every seed learns to rally,
+as reliably as the control — but it does not stabilise anything either. It makes
+the run *worse*: a lower level in the last 100,000 games and fewer above-parity
+checkpoints than the control, with a large effect size and a p-value that, at six
+seeds a side, sits just outside conventional significance.
+
+The mechanism is visible in the data and it follows directly from §1.
+
+![archive decay](../../results/figures/fig10_archive_decay.png)
+
+*Figure 10. Left: the archive's win rate against the current population, every
+archive run. It starts at chance and collapses. Right: the share of the game
+budget that produces no selection event at all, because an archive game the
+population member wins overwrites nothing.*
+
+Early in a run, archived champions are genuine opposition and win about half
+their games. By the end they win under a tenth. Skill in this environment is
+transitive (§1), so a past champion is simply a weaker player, and playing it is
+a nearly foregone conclusion. Since an archive game that the population member
+wins overwrites nothing, roughly **22% of all games late in training produce no
+selection event whatsoever** — the archive is not insurance, it is a tax levied
+on the live arms race.
+
+That yields a general rule with a number attached, and a cheap diagnostic:
+
+> **A hall of fame pays for itself only to the extent that archived opponents
+> can still win.** Log the archive's win rate against the current population. If
+> it decays towards zero, the archive has become a free win and the budget spent
+> on it is subtracted from the arms race that is actually driving progress. In a
+> genuinely intransitive domain it would not decay — old strategies would keep
+> beating some current ones, which is exactly the case the remedy was designed
+> for.
+
+The two archive conditions together therefore say something more useful than
+either alone: an archive that supplies *parents* destroys learning, an archive
+that supplies *tests* wastes budget, and neither helps, because the pathology
+they were built to fix is not present here.
 
 ![hall of fame](../../results/figures/fig3_hall_of_fame.png)
 
@@ -730,18 +786,121 @@ it.
 
 ![ablations](../../results/figures/fig4_ablations.png)
 
-*Figure 4. Left: mutation scale. Right: population size. Median and
-inter-quartile band across seeds, with the control in both panels for reference.*
+*Figure 4. Mutation scale: σ = 0.05 and σ = 0.20 against the control's σ = 0.10,
+median and inter-quartile band across seeds.*
 
-*(Results filled in from Table 1 and Table 2.)*
+**It is not the step size.** Halving the mutation scale changes nothing that
+matters. Volatility over the last 100,000 games is indistinguishable from the
+control — a difference of +0.017 points with Cliff's δ of exactly 0.00 and an
+exact p of 1.000 — and so are the level, the drawdown and the fraction of
+checkpoints above parity, which lands on the same 26%. Every seed still learned.
+If the swings in a champion curve were driven by a mutation step too large for
+the landscape, halving that step should have visibly steadied them. It did not
+move them at all.
 
-## 5. Does a bigger collective help?
+Doubling σ does damage, but not the kind the hypothesis predicts: one seed in
+three never learned to rally, and the level drops, while the *volatility of the
+runs that did learn* stays within noise of the control (δ = −0.17, p = 0.857).
+The naive comparison over all runs makes σ = 0.20 look like the *calmest*
+condition in the sweep, at 0.38 against the control's 0.67 — which is the
+competence-precondition trap of §3 appearing a second time, since the failed
+seed contributes a perfectly flat and perfectly worthless curve.
 
-Population size is the collective-system axis: at a fixed game budget, a larger
-pool holds more diversity but gives each individual less selection pressure —
-500,000 games spread over 512 individuals is under a thousand games each.
+So the third candidate explanation is out. The swings are not the population
+cycling (§1), and they are not the mutation step (§4). What remains is the
+mechanism §2 measured directly: the rule that chooses which individual to call
+the champion.
 
-*(Results filled in from Table 1 and Table 2.)*
+## 5. Unequal power: what happens when one side is simply stronger
+
+Every condition to this point is symmetric — one pool playing itself, all agents
+with the identical policy class and budget. That is precisely the setting in
+which "compete harder" is the only available move, and it cannot say anything
+about a contest between unequal sides.
+
+This condition runs two separate populations that play only each other, with the
+strong side given roughly twice the policy capacity of the weak side: a
+12–16–16–3 network with 531 parameters against the study's standard 12–10–10–3
+with 273, a ratio of 1.95 : 1. Keeping the weak side at exactly the standard
+architecture means its results stay comparable with every other run in the
+study, and the variable-capacity forward pass was checked to be bit-identical to
+the fixed one at the standard size.
+
+Two controls make the comparison interpretable. A symmetric two-population run
+(both sides 273 parameters) separates the effect of *asymmetry* from the effect
+of two-population coevolution as such. And because mutation is applied per
+parameter, the larger genome would otherwise also take a mutation step of larger
+L2 norm — 2.30 against 1.65, a factor of 1.39 — so a second variant scales the
+strong side's σ to equalise the step norms and isolate capacity from search
+granularity.
+
+<!-- table:10 -->
+| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
+|---|---|---|---|---|---|
+| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
+| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
+| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
+
+Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
+<!-- /table:10 -->
+
+![unequal power](../../results/figures/fig11_asymmetric.png)
+
+*Figure 11. Top: the larger side's win rate in cross-population games; 0.5 means
+the sides are holding each other. Bottom: each side's champion against the 2015
+baseline. Left column is the symmetric control, where both populations have the
+identical architecture.*
+
+**Three things, in order of how much they surprised us.**
+
+*A two-population contest is winner-take-all.* Not one run ended anywhere near a
+balanced 0.5. The cross-population win rate always runs away to one side or the
+other, usually to an extreme — 0.001 in some seeds, meaning one population lost
+essentially every game it played against the other for the last hundred thousand
+games. Single-population self-play has no analogue of this: there, everyone
+improves together.
+
+*In the symmetric control, which side wins is arbitrary.* Both populations have
+identical architecture, identical budget, identical mutation scale. There is
+nothing to distinguish them but their random initialisation, and yet the same
+runaway happens, in whichever direction the early noise pushed. That is
+spontaneous symmetry breaking, and it is the baseline against which any effect
+of asymmetry has to be judged.
+
+*Twice the capacity does not decide the contest.* Across the seeds of the 2:1
+condition, the larger side both lost essentially every game and won essentially
+every game, depending on nothing more than the seed — the same spread as the
+symmetric control produces with no asymmetry at all. If a 1.95 : 1 advantage in
+policy capacity mattered here, it is smaller than the symmetry-breaking noise it
+would have to overcome.
+
+**The mechanism is disengagement, and it is the interesting part.** In this
+game, whoever falls behind loses *every* cross-population game, and a contest
+you always lose carries no information: there is no gradient in a uniform
+defeat. The side that pulls ahead keeps improving; the side that falls behind
+stops. It is not that the weaker side competes badly — it is that it stops
+having a usable opponent at all, while the leader still does. The failure is
+structural, not a matter of capability.
+
+**Two caveats, both important.** First, three seeds per condition against an
+outcome that is close to a coin flip is very little power: what we can say is
+that a 1.95 : 1 capacity advantage does not *dominate* the symmetry-breaking
+noise, not that capacity has no effect at all. Establishing a smaller effect
+would need tens of seeds, which is cheap in this environment and is the obvious
+extension.
+
+Second, a caveat about our own rule. When a population member loses a
+cross-population game it is replaced by a mutant of a randomly drawn peer, and
+that peer's streak counter is incremented even though the peer did not play. In
+the losing population, which loses nearly every cross game, this inflates streak
+counters more or less at random — and §2 has already shown that the streak
+counter is what selects the exported champion. So for the losing side we cannot
+separate "the population stopped improving" from "the export rule was corrupted
+and is now reporting an arbitrary member". Population snapshots would settle it
+immediately; the asymmetric runs do not save them, and that is a design
+oversight rather than a discovery. It does not affect the win-rate result, which
+is measured over the populations themselves and not over their exported
+champions.
 
 ## 6. Different machinery: a generational GA and an evolution strategy
 
@@ -767,6 +926,59 @@ the machinery itself, with the policy class and the environment held identical:
 policy class and environment held identical. Top: median and inter-quartile band
 per family. Bottom: per-seed level, volatility and above-parity fraction.*
 
+**The control wins on reliability, not on ceiling.** This is the result the
+design was built to be able to see, and a single run of each family would have
+got it backwards.
+
+Every family can reach roughly the same peak. The best self-play ES seed
+produces the highest single endpoint in the entire study, above every control
+seed; the best generational-GA and archive-as-test seeds also clear parity. What
+separates the plain 2020 GA is the *floor*: it is the only family in which every
+seed learned to rally and every seed's best champion beat the 2015 expert, and
+its spread of endpoints across seeds is roughly a third of the alternatives'. The
+others are bimodal — a couple of seeds do very well and the rest never leave the
+floor at all.
+
+So the honest comparison is not "the control is better". It is: **all four
+families have a similar ceiling and wildly different floors, and only the
+minimal loop reaches the ceiling dependably.** A study that ran one seed per
+family could have concluded that the ES was the strongest method, on the
+strength of a seed that happened to work.
+
+Why the generational GA does not win is the more informative half, because §2
+predicts it should have had an advantage. It ranks by an explicitly *computed*
+fitness — the mean point margin over about ten games — which is precisely the fix
+§2 shows recovers most of the export-rule gap. It gets that for free and still
+does not come out ahead. Two differences plausibly outweigh it, and we can name
+them but not separate them here:
+
+- *Crossover between neural weight vectors is destructive.* Two networks can
+  implement similar behaviour with their hidden units in a different order, so
+  splicing their weight vectors produces a child resembling neither. This is the
+  competing-conventions (permutation) problem, and it is exactly the failure that
+  NEAT's historical markings were invented to solve. A crossover-free variant of
+  the same generational loop would separate this from the next point; it is a
+  three-run experiment and the obvious next step.
+- *Generational replacement is a coarser update.* Ha's 2020 loop changes one
+  individual per game; the generational loop discards 80% of the population every
+  500 games. Against a moving opponent distribution, the finer-grained update
+  tracks better.
+
+The ES deserves a caveat rather than a verdict. Four of its six seeds never
+reached parity, but at pilot scale we could not distinguish learning rates of
+0.01, 0.03 and 0.1 — none had produced external progress by the 120,000 games we
+could afford for tuning, which is unsurprising when the control's own transition
+can arrive as late as 415,000 games. So the honest statement is that **self-play
+ES was unreliable at the one configuration we could afford to tune**, not that
+self-play ES is unreliable. Two structural observations stand regardless. It
+reports its distribution mean and therefore has no champion-selection proxy at
+all, so whatever its failures are, they are not the ones diagnosed in §2. And it
+carries a single mean vector where the GA carries 128 lineages — which is the
+most likely reason its outcomes are bimodal, and points at a property of
+collectives worth stating on its own: **a population is not only a search
+device, it is variance reduction across the run.** One trajectory can stall;
+128 lineages usually contain one that finds the transition.
+
 ## 7. Which condition's champions actually win?
 
 Scores against a frozen opponent can be gamed by a policy that happens to
@@ -782,7 +994,7 @@ champion of every other run.
 Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
 <!-- /table:6 -->
 
-## 8. Synthesis: seven lessons about competitive coevolution
+## 8. Synthesis: eight lessons about competitive coevolution
 
 None of what follows is about volleyball. Slime Volleyball is a probe — small
 enough that every claim can be checked, adversarial enough that the coevolutionary
@@ -861,7 +1073,19 @@ single-run emergence claims are common, and because the cost of the correct
 version — several seeds and a reported range — is a constant factor, not a
 research programme.
 
-**7. In a purely relative ecology, the population is the unit that becomes
+**7. A population is variance reduction across the run, not only a search
+device.** Four algorithm families in this study reach a similar ceiling and
+differ enormously in how often they reach it. The one carrying the most
+independent lineages — 128, versus a single mean vector for the evolution
+strategy — is the only one where every seed got there. The others are bimodal:
+some seeds do very well, the rest never leave the floor. A single trajectory can
+stall; many lineages usually contain one that finds the transition. This is the
+practical argument for a collective that has nothing to do with parallel compute
+and everything to do with not betting the run on one path — and it is invisible
+to a single-seed study, which will simply report whichever mode it happened to
+land in.
+
+**8. In a purely relative ecology, the population is the unit that becomes
 competent, not the individual.** At the end of a control run, dozens of the 128
 members score above parity against an opponent none of them ever saw, while the
 individual the algorithm hands you does not. "The system is competent" and "the
@@ -919,6 +1143,9 @@ here; nothing in this appendix depends on the main text.*
 | `pop-32`, `pop-512` | population shrunk / grown fourfold | — |
 | `ga2015` | generational GA: computed fitness, elitism, uniform crossover | — |
 | `es` | self-play evolution strategy; reports the distribution mean | — |
+| `asym1x` | two populations playing only each other, both 273 parameters | — |
+| `asym2x` | as `asym1x` with the larger side at 531 parameters, common σ | — |
+| `asym2x-norm` | as `asym2x` with σ scaled so both sides' mutation steps have equal L2 norm | — |
 
 **The two archive rules.** Every 1,000 games the current champion is copied into
 a FIFO archive; with probability *p* the population member's opponent is drawn
@@ -937,6 +1164,29 @@ genome wins, the population member is overwritten by a mutant **of the living
 population member it was originally paired with**. Failing a test the pool is
 expected to pass costs the member its slot, but no archive genome is ever a
 parent, so genetic material never leaves the living population.
+
+**The unequal-power conditions.** Two populations of 128 play only each other
+for 500,000 games; a quarter of each population's games are crossed with the
+other side, the rest are within-population. Within a population the update is
+Ha's rule verbatim (the loser is overwritten by a mutated copy of the winner). In
+a cross-population game a loss costs the member its slot and the replacement
+genes come from its *own* pool, never from the opponent's — the same discipline
+the hall-of-fame analysis showed to be load-bearing — and a peer that supplies
+replacement genes without having played is not credited with a win.
+
+The larger side has a 12-16-16-3 network (531 parameters) against the standard
+12-10-10-3 (273), a ratio of 1.95 : 1. Because mutation is per parameter, the
+larger genome would otherwise also take a step of larger L2 norm (2.30 against
+1.65), so `asym2x-norm` scales its σ by √(273/531) = 0.717 to equalise the step
+norms and separate capacity from search granularity. `asym1x` gives both sides
+the standard architecture, and is the null distribution: anything that happens
+there is what two-population coevolution does with no asymmetry at all.
+
+Both populations are snapshotted every 50,000 games and every member is scored
+against the 2015 baseline, so "did this side learn" is answered by the pool
+rather than by an exported champion — which section 2 of the analysis shows is
+an unreliable estimate of what a population contains. Three promotion rules are
+recorded side by side: winning streak, internal round robin, and best-in-pool.
 
 **Algorithm families.** `ga2015`: population 100, each agent plays ten random
 peers per generation (500 games per generation, 1,000 generations), fitness is
@@ -1246,6 +1496,18 @@ Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 
 Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes to establish true skill; the promotion rules then compete to pick the best member using only what they are entitled to see. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
 <!-- /table:9 -->
+
+### Table 10 — unequal power
+
+<!-- table:10 -->
+| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
+|---|---|---|---|---|---|
+| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
+| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
+| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
+
+Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
+<!-- /table:10 -->
 
 ### Table A1 — the compiled environment against the reference
 
