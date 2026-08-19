@@ -42,6 +42,16 @@ are above it. A substantial part of what has been read as coevolutionary
 instability is measurement noise injected at the last step, and it is invisible
 because a champion curve looks the same either way.
 
+A separate condition splits the population in two and has the halves play only
+each other, with one side given twice the policy capacity. Doubling capacity did
+not reliably decide the contest — the outcome is dominated by spontaneous
+symmetry breaking, which occurs just as readily in a symmetric control where the
+two sides differ only in their random seed. What the condition does show, in 18
+runs, is that a bilateral contest is a qualitatively different thing from a
+shared ecology: exactly one run ended with both sides holding a competent
+individual. The side that falls behind loses every game, and a contest you always
+lose carries no gradient, so it stops improving while its opponent continues.
+
 We also report a negative result with a mechanism. Our first hall-of-fame
 implementation applied the replacement rule to archive games, making a winning
 archived genome the *parent* of the member it beat. That copies old genotypes
@@ -851,58 +861,71 @@ the sides are holding each other. Bottom: each side's champion against the 2015
 baseline. Left column is the symmetric control, where both populations have the
 identical architecture.*
 
-**Three things, in order of how much they surprised us.**
+<!-- table:10 -->
+| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
+|---|---|---|---|---|---|
+| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
+| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
+| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
 
-*A two-population contest is winner-take-all.* Not one run ended anywhere near a
-balanced 0.5. The cross-population win rate always runs away to one side or the
-other, usually to an extreme — 0.001 in some seeds, meaning one population lost
-essentially every game it played against the other for the last hundred thousand
-games. Single-population self-play has no analogue of this: there, everyone
-improves together.
+Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
+<!-- /table:10 -->
 
-*In the symmetric control, which side wins is arbitrary.* Both populations have
-identical architecture, identical budget, identical mutation scale. There is
-nothing to distinguish them but their random initialisation, and yet the same
-runaway happens, in whichever direction the early noise pushed. That is
-spontaneous symmetry breaking, and it is the baseline against which any effect
-of asymmetry has to be judged.
+![unequal power](../../results/figures/fig11_asymmetric.png)
 
-*Twice the capacity does not decide the contest.* Across the seeds of the 2:1
-condition, the larger side both lost essentially every game and won essentially
-every game, depending on nothing more than the seed — the same spread as the
-symmetric control produces with no asymmetry at all. If a 1.95 : 1 advantage in
-policy capacity mattered here, it is smaller than the symmetry-breaking noise it
-would have to overcome.
+*Figure 11. Top: the larger side's win rate in cross-population games; 0.5 means
+the sides are holding each other. Bottom: the best individual each population
+contains, scored against the 2015 baseline — the pool, not an exported champion.
+Left column is the symmetric control, where both populations are identical.*
 
-**The mechanism is disengagement, and it is the interesting part.** In this
-game, whoever falls behind loses *every* cross-population game, and a contest
-you always lose carries no information: there is no gradient in a uniform
-defeat. The side that pulls ahead keeps improving; the side that falls behind
-stops. It is not that the weaker side competes badly — it is that it stops
-having a usable opponent at all, while the leader still does. The failure is
-structural, not a matter of capability.
+**Mutual improvement essentially never happens.** This is the robust result, and
+it holds across all three conditions. Of eighteen runs, exactly **one** ended
+with both populations containing an above-parity individual. The normal outcome
+is that one side's pool learns and the other's does not (ten runs), or that
+neither does (seven). Single-population self-play has no analogue: there the
+whole pool improves together, and every control seed in this study reached
+competence. Split the same agents into two pools that play each other, and the
+contest resolves into one competent side and one that never gets off the floor.
 
-**Two caveats, both important.** First, three seeds per condition against an
-outcome that is close to a coin flip is very little power: what we can say is
-that a 1.95 : 1 capacity advantage does not *dominate* the symmetry-breaking
-noise, not that capacity has no effect at all. Establishing a smaller effect
-would need tens of seeds, which is cheap in this environment and is the obvious
-extension.
+**The contest is decisive, and it is decisive without any asymmetry.** Thirteen
+of eighteen runs end with a cross-population win rate below 0.1 or above 0.9 —
+one side winning essentially every game it plays. Four of those are in the
+*symmetric* control, where the two populations have identical architecture,
+identical budget and identical mutation scale, and differ only in their random
+initialisation. Runaway dominance is therefore not something asymmetry causes.
+It is the default behaviour of this kind of contest, and it is the null against
+which any asymmetry has to be measured.
 
-Second, a caveat about our own rule. When a population member loses a
-cross-population game it is replaced by a mutant of a randomly drawn peer, and
-that peer's streak counter is incremented even though the peer did not play. In
-the losing population, which loses nearly every cross game, this inflates streak
-counters more or less at random — and §2 has already shown that the streak
-counter is what selects the exported champion. So for the losing side we cannot
-separate "the population stopped improving" from "the export rule was corrupted
-and is now reporting an arbitrary member". Population snapshots would settle it
-immediately; the asymmetric runs do not save them, and that is a design
-oversight rather than a discovery. It does not affect the win-rate result, which
-is measured over the populations themselves and not over their exported
-champions.
+**A 1.95 : 1 capacity advantage does not reliably decide the contest.** Neither
+2:1 condition is distinguishable from the symmetric control: Cliff's δ of −0.33
+(p = 0.39) for the common-σ variant and +0.11 (p = 0.82) for the matched-step
+variant. Whatever advantage twice the policy capacity confers here, it is
+smaller than the symmetry-breaking noise it would have to overcome. The naive
+intuition — that the materially stronger side wins a head-to-head contest — is
+not supported.
 
-## 6. Different machinery: a generational GA and an evolution strategy
+**The step size mattered more than the capacity did, which is the useful
+finding.** The two 2:1 conditions differ only in whether the larger side's
+mutation scale is corrected for its genome size, and they came out on opposite
+sides: with a common per-parameter σ the larger side led in 2 of 6 runs (median
+win rate 0.02), and with the step norm matched it led in 5 of 6 (median 0.95).
+The difference between them is the largest effect in this section — δ = +0.67,
+p = 0.065 — though at six seeds a side it is suggestive rather than
+established. The reading is that a bigger network is not automatically a
+stronger competitor: mutation is applied per parameter, so a larger genome takes
+a larger step in weight space, and left uncorrected that handicap roughly
+cancels the benefit of the extra capacity. Capability has to be matched by an
+adaptation process scaled to it, or it does not convert into advantage.
+
+**Limitations.** Six seeds against outcomes that are close to a coin flip is
+enough to say that a 1.95 : 1 capacity advantage does not *dominate* the
+symmetry-breaking noise; it is not enough to say capacity has no effect. The
+step-norm comparison, which is the most interesting result here, would need
+roughly three times the seeds to move from suggestive to established. Both are
+cheap in this environment — a run takes about fifteen minutes on one core — and
+are the obvious extension.
+
+## 6. Different machinery## 6. Different machinery: a generational GA and an evolution strategy
 
 Everything above varies the knobs of one algorithm. Two further families change
 the machinery itself, with the policy class and the environment held identical:
@@ -994,7 +1017,7 @@ champion of every other run.
 Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
 <!-- /table:6 -->
 
-## 8. Synthesis: eight lessons about competitive coevolution
+## 8. Synthesis: ten lessons about competitive coevolution
 
 None of what follows is about volleyball. Slime Volleyball is a probe — small
 enough that every claim can be checked, adversarial enough that the coevolutionary
@@ -1085,7 +1108,31 @@ and everything to do with not betting the run on one path — and it is invisibl
 to a single-seed study, which will simply report whichever mode it happened to
 land in.
 
-**8. In a purely relative ecology, the population is the unit that becomes
+**8. A bilateral contest resolves into one winner and one collapsed side;
+mutual improvement is the rare case.** Split one pool of agents into two that
+play only each other, and of eighteen runs exactly one ended with both sides
+holding a competent individual. Thirteen ended with one side winning
+essentially every game. Crucially, four of those runaways happened in the
+*symmetric* control, where the two sides were identical in every respect but
+their random seed — so runaway dominance is not caused by an imbalance, it is
+the default. The mechanism is disengagement: a contest you lose every time
+carries no gradient, so the side that falls behind stops improving while the
+leader keeps going. The same agents in a single shared ecology all improve
+together. The structure of the interaction, not the capability of the
+participants, decides whether both sides develop.
+
+**9. Capability does not convert into advantage unless the adaptation process
+is scaled to it.** Doubling one side's policy capacity did not reliably decide
+the contest — neither 2:1 condition was distinguishable from the symmetric
+control. But the two 2:1 conditions differed from *each other*: with a common
+per-parameter mutation scale the larger side led in 2 of 6 runs, and with the
+mutation scale corrected for genome size it led in 5 of 6. A bigger genome takes
+a bigger step in weight space at the same per-parameter σ, and that handicap
+roughly cancels the extra capacity. The general form: extra capability is not
+free, it changes the geometry of the search that has to exploit it, and an
+adaptation process tuned for the smaller system will squander the larger one.
+
+**10. In a purely relative ecology, the population is the unit that becomes
 competent, not the individual.** At the end of a control run, dozens of the 128
 members score above parity against an opponent none of them ever saw, while the
 individual the algorithm hands you does not. "The system is competent" and "the
@@ -1286,8 +1333,11 @@ python3 -m venv .venv
 # 1. the port is the benchmark: bit-level check against slimevolleygym
 .venv/bin/python validate_fastvolley.py --games 50
 
-# 2. the matrix: 27 runs x 500,000 games (~4.5 h on 3 cores)
+# 2. the matrix: single-population conditions, 500,000 games each
 .venv/bin/python run_experiments.py --workers 3
+
+# 2b. the two-population unequal-power conditions
+.venv/bin/python run_asymmetric.py --workers 3
 
 # 3. metrics, held-out re-scoring, condition comparisons
 .venv/bin/python analyze_matrix.py --holdout
@@ -1298,9 +1348,13 @@ python3 -m venv .venv
 # 5. the reference run, re-scored under the same protocol
 .venv/bin/python eval_reference.py
 
-# 6. tables and figures
+# 5b. the promotion-rule experiment (needs population snapshots)
+.venv/bin/python reexport.py
+
+# 6. tables, figures and the single-page write-up
 .venv/bin/python make_tables.py
 .venv/bin/python make_figures.py
+.venv/bin/python build_paper.py --md
 ```
 
 The reference run itself (unmodified `slimevolleygym`, ~12 core-hours for

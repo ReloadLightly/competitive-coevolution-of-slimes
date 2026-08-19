@@ -58,7 +58,20 @@ games produce no selection event at all**. The diagnostic generalises: log your
 archive's win rate; if it decays to zero, the archive has become a free win and
 its budget is being subtracted from the live arms race.
 
-**6. Reliability is where the methods differ — not ceiling.** Four families were
+**6. A bilateral contest produces one winner and one collapsed side.** Splitting
+one pool of agents into two populations that play only each other changes the
+outcome qualitatively: of 18 runs, exactly **one** ended with both sides holding
+a competent individual, and 13 ended with one side winning essentially every
+game. Four of those runaways occurred in the *symmetric* control, where the two
+sides differ only in their random seed — so runaway dominance is the default of
+the structure, not a consequence of imbalance. Doubling one side's policy
+capacity (531 vs 273 parameters) did **not** reliably decide the contest. What
+did move the needle was correcting the mutation scale for genome size: at a
+common per-parameter σ the larger side led in 2 of 6 runs, and with the step norm
+matched, in 5 of 6. Extra capability buys nothing unless the adaptation process
+is scaled to it.
+
+**7. Reliability is where the methods differ — not ceiling.** Four families were
 run at 500,000 games each: the 2020 GA, a generational GA in the style of Ha's
 2015 experiment, a self-play evolution strategy, and the corrected archive. They
 reach a *similar* ceiling — the best ES seed produces the single highest endpoint

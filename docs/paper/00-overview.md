@@ -42,6 +42,16 @@ are above it. A substantial part of what has been read as coevolutionary
 instability is measurement noise injected at the last step, and it is invisible
 because a champion curve looks the same either way.
 
+A separate condition splits the population in two and has the halves play only
+each other, with one side given twice the policy capacity. Doubling capacity did
+not reliably decide the contest — the outcome is dominated by spontaneous
+symmetry breaking, which occurs just as readily in a symmetric control where the
+two sides differ only in their random seed. What the condition does show, in 18
+runs, is that a bilateral contest is a qualitatively different thing from a
+shared ecology: exactly one run ended with both sides holding a competent
+individual. The side that falls behind loses every game, and a contest you always
+lose carries no gradient, so it stops improving while its opponent continues.
+
 We also report a negative result with a mechanism. Our first hall-of-fame
 implementation applied the replacement rule to archive games, making a winning
 archived genome the *parent* of the member it beat. That copies old genotypes
