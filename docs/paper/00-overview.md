@@ -1,6 +1,6 @@
 # The champion you export is not the champion you evolved
 
-**Competitive coevolution in Slime Volleyball, measured across dozens of runs —
+**Competitive coevolution in Slime Volleyball, measured across 59 runs —
 and the first of three experiments behind the ACTIR / ShinkaEvolve submission.**
 
 ## Abstract
@@ -9,8 +9,8 @@ Self-play evolution produces competent agents from an entirely internal signal:
 beat a randomly drawn peer, stay in the pool. Nothing tells the population what
 good play is. We replicate David Ha's tournament-selection genetic algorithm on
 Slime Volleyball and ask what that signal can and cannot deliver, using a design
-rather than a single run: dozens of independent runs of 500,000 self-play games
-each across eleven conditions, with every evaluation against a frozen 2015
+rather than a single run: 59 independent runs of 500,000 self-play games each across
+thirteen conditions, with every evaluation against a frozen 2015
 champion that is never seen during training.
 
 The internal signal works, and it works late. A population improves against

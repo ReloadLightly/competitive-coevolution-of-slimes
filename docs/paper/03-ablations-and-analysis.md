@@ -25,8 +25,16 @@ Bradley–Terry ratings fitted on the Elo scale.
 <!-- table:4 -->
 | condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | +0.72 | 1/421 (0.2%) | 10.0 |
-| archive as parent, p=0.25 | 5 | +0.28 | 17/127 (13.4%) | 23.4 |
+| control (Ha 2020 GA) | 6 | +0.74 | 1/499 (0.2%) | 10.2 |
+| archive as test, full span | 6 | +0.92 | 2/575 (0.3%) | 8.3 |
+| archive as parent, p=0.25 | 6 | +0.35 | 17/224 (7.6%) | 20.8 |
+| archive as parent, p=0.50 | 1 | +0.02 | 0/15 (0.0%) | 26.0 |
+| archive as parent, full span | 3 | +0.06 | 9/29 (31.0%) | 31.0 |
+| generational GA (Ha 2015) | 6 | +0.60 | 2/485 (0.4%) | 12.3 |
+| self-play ES | 6 | +0.69 | 3/424 (0.7%) | 14.3 |
+| sigma = 0.05 | 3 | +0.91 | 0/239 (0.0%) | 11.3 |
+| sigma = 0.20 | 3 | +0.62 | 1/175 (0.6%) | 15.7 |
+| population 32 | 1 | +0.01 | 2/6 (33.3%) | 29.0 |
 
 Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.
 <!-- /table:4 -->
@@ -67,18 +75,18 @@ entire population every 50,000 games, every member can be scored against the
 <!-- table:5 -->
 | games | exported champion | best in the same pool | gap | exported rank | ρ(streak, score) | above parity in pool | mean pairwise genotype distance |
 |---|---|---|---|---|---|---|---|
-| 50,000 | -4.74 | -4.46 | 0.28 | 58 / 128 | +0.12 | 0 | 12.92 |
-| 100,000 | -4.32 | -2.65 | 1.67 | 72 / 128 | -0.00 | 1 | 11.03 |
-| 150,000 | -3.40 | -2.53 | 0.87 | 45 / 128 | +0.09 | 3 | 10.32 |
-| 200,000 | -2.48 | -1.78 | 0.70 | 63 / 128 | +0.03 | 5 | 9.88 |
-| 250,000 | -1.57 | -0.62 | 0.94 | 46 / 128 | +0.09 | 20 | 9.18 |
-| 300,000 | -1.38 | -0.50 | 0.87 | 51 / 128 | +0.13 | 25 | 10.54 |
-| 350,000 | -1.67 | -0.46 | 1.21 | 72 / 128 | +0.08 | 30 | 10.33 |
-| 400,000 | -1.41 | -0.41 | 1.00 | 63 / 128 | +0.11 | 46 | 11.81 |
-| 450,000 | -0.58 | +0.60 | 1.18 | 71 / 128 | -0.02 | 45 | 12.23 |
-| 500,000 | -0.29 | +0.66 | 0.94 | 73 / 128 | +0.06 | 58 | 11.36 |
+| 50,000 | -4.73 | -4.51 | 0.22 | 50 / 128 | +0.09 | 0 | 12.66 |
+| 100,000 | -3.91 | -2.22 | 1.69 | 71 / 128 | +0.00 | 1 | 10.79 |
+| 150,000 | -2.94 | -2.05 | 0.89 | 58 / 128 | +0.04 | 5 | 10.43 |
+| 200,000 | -2.05 | -1.31 | 0.74 | 54 / 128 | +0.05 | 13 | 10.13 |
+| 250,000 | -1.36 | -0.42 | 0.93 | 50 / 128 | +0.07 | 23 | 9.07 |
+| 300,000 | -1.07 | -0.29 | 0.78 | 44 / 128 | +0.10 | 32 | 10.50 |
+| 350,000 | -1.41 | -0.31 | 1.09 | 73 / 128 | +0.04 | 34 | 10.53 |
+| 400,000 | -1.18 | -0.30 | 0.88 | 56 / 128 | +0.15 | 47 | 12.61 |
+| 450,000 | -0.48 | +0.54 | 1.03 | 76 / 128 | -0.03 | 49 | 12.23 |
+| 500,000 | -0.08 | +0.62 | 0.70 | 61 / 128 | +0.07 | 67 | 11.38 |
 
-Control runs only (5 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
+Control runs only (6 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
 <!-- /table:5 -->
 
 Three things in that table, in increasing order of how much they matter.
@@ -161,11 +169,12 @@ the first one we implemented was wrong in an instructive way.
 | archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
-| archive as parent, full span | 2 | -4.84 ± 0.00 | -4.84 ± 0.00 | -4.84 ± 0.00 | 0.02 | 0.05 | 0% | — (0/2) |
+| archive as parent, full span | 3 | -4.84 ± 0.00 | -4.83 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.05 | 0% | — (0/3) |
 | generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
 | self-play ES | 6 | -2.08 ± 0.94 | -1.56 ± 0.99 | -2.46 ± 0.93 | 0.21 | 0.18 | 7% | 398k (2/6) |
 | sigma = 0.05 | 3 | -0.17 ± 0.23 | +0.34 ± 0.07 | -0.29 ± 0.15 | 0.69 | 0.64 | 26% | 150k (3/3) |
 | sigma = 0.20 | 3 | -1.66 ± 1.60 | -1.44 ± 1.70 | -1.76 ± 1.54 | 0.38 | 0.36 | 11% | 290k (2/3) |
+| population 32 | 1 | -4.86 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.05 | 0% | — (0/1) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -183,11 +192,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 | archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
 | archive as parent, p=0.25 | `drawdown` | -0.366 | -0.67 | 0.065 |
 | archive as parent, p=0.25 | `above_parity` | -0.245 | -0.94 | 0.004 |
-| archive as parent, full span | `final_holdout` | -4.688 | -1.00 | 0.071 |
-| archive as parent, full span | `late_mean` | -4.527 | -1.00 | 0.071 |
-| archive as parent, full span | `volatility` | -0.657 | -1.00 | 0.071 |
-| archive as parent, full span | `drawdown` | -0.554 | -1.00 | 0.071 |
-| archive as parent, full span | `above_parity` | -0.263 | -1.00 | 0.071 |
+| archive as parent, full span | `final_holdout` | -4.688 | -1.00 | 0.024 |
+| archive as parent, full span | `late_mean` | -4.528 | -1.00 | 0.024 |
+| archive as parent, full span | `volatility` | -0.659 | -1.00 | 0.024 |
+| archive as parent, full span | `drawdown` | -0.550 | -1.00 | 0.024 |
+| archive as parent, full span | `above_parity` | -0.263 | -1.00 | 0.024 |
 | generational GA (Ha 2015) | `final_holdout` | -1.852 | -0.67 | 0.065 |
 | generational GA (Ha 2015) | `late_mean` | -1.299 | -0.78 | 0.026 |
 | generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
@@ -505,10 +514,18 @@ champion of every other run.
 <!-- table:6 -->
 | condition | runs | median Elo | best run | worst run |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | +373 | +785 | +238 |
-| archive as parent, p=0.25 | 5 | -421 | -355 | -483 |
+| control (Ha 2020 GA) | 6 | +289 | +688 | +218 |
+| archive as test, full span | 6 | +259 | +319 | -155 |
+| archive as parent, p=0.25 | 6 | -534 | +412 | -585 |
+| archive as parent, p=0.50 | 1 | -572 | -572 | -572 |
+| archive as parent, full span | 3 | -581 | -566 | -589 |
+| generational GA (Ha 2015) | 6 | +49 | +632 | -570 |
+| self-play ES | 6 | +111 | +512 | -583 |
+| sigma = 0.05 | 3 | +476 | +531 | +270 |
+| sigma = 0.20 | 3 | +191 | +331 | -594 |
+| population 32 | 1 | -573 | -573 | -573 |
 
-Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 24/7688 (0.3%).
 <!-- /table:6 -->
 
 ## 8. Synthesis: ten lessons about competitive coevolution

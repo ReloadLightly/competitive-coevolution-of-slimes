@@ -4,8 +4,8 @@
 of the two you actually measure.**
 
 Self-play neuroevolution on [David Ha's Slime Volleyball](https://otoro.net/slimevolley/),
-run as a designed experiment rather than a demo: several dozen independent runs
-of 500,000 self-play games each, across conditions that isolate *where the
+run as a designed experiment rather than a demo: 59 independent runs of 500,000
+self-play games each, across conditions that isolate *where the
 selection signal comes from* and *where the noise comes from*.
 
 The headline finding is not the one we expected. Competence in this setting is
@@ -31,7 +31,7 @@ transition "at roughly 100,000 games". That was one seed.
 
 **3. The population is not cycling.** Playing every checkpoint of a run against
 every other checkpoint, skill is essentially transitive: ρ(Elo, training time) =
-+0.72, and under 1% of decided checkpoint triples are cyclic. The textbook
++0.74, and under 1% of decided checkpoint triples are cyclic. The textbook
 explanation for the swings — the population forgets skills no current opponent
 punishes — does not fit this data.
 
@@ -88,11 +88,12 @@ ES. This is the clearest thing in the repository about why a design beats a run.
 | archive as test, full span | 6 | 6/6 | -0.44 ± 0.71 | -1.10 ± 0.78 | 8% |
 | archive as parent, p=0.25 | 6 | 1/6 | -3.94 ± 0.90 | -4.10 ± 0.74 | 2% |
 | archive as parent, p=0.50 | 1 | 0/1 | -4.84 ± — | -4.84 ± — | 0% |
-| archive as parent, full span | 2 | 0/2 | -4.84 ± 0.00 | -4.84 ± 0.00 | 0% |
+| archive as parent, full span | 3 | 0/3 | -4.83 ± 0.01 | -4.84 ± 0.00 | 0% |
 | generational GA (Ha 2015) | 6 | 5/6 | -0.68 ± 0.83 | -2.00 ± 0.82 | 3% |
 | self-play ES | 6 | 4/6 | -1.56 ± 0.99 | -2.08 ± 0.94 | 7% |
 | sigma = 0.05 | 3 | 3/3 | +0.34 ± 0.07 | -0.17 ± 0.23 | 26% |
 | sigma = 0.20 | 3 | 2/3 | -1.44 ± 1.70 | -1.66 ± 1.60 | 11% |
+| population 32 | 1 | 0/1 | -4.84 ± — | -4.86 ± — | 0% |
 | *reference run, unmodified environment* | 1 | 1/1 | *+0.50 ± 0.03* | *+0.04 ± 0.02* | *22%* |
 | *Ha (2020), same algorithm and budget* | 1 | — | *+0.35 ± 0.02* | — | — |
 
