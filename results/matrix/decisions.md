@@ -313,3 +313,20 @@ were produced with (found when reproducing them earlier today): `reexport.py`
 60 episodes per individual (default was 100), `validate_fastvolley.py` 50
 games per scenario (was 60), `resume_fast.py` 2 continuations (was 3). No
 output changes; the provenance records already carry these parameters.
+
+## 2026-10-02 — next phase: section 4 of CLAUDE.md lifted; confirmatory replication
+
+PR #8 (WP1–WP4) was merged into `main` the same evening; that state is tagged
+`paper-v1`. Roland then lifted the "out of scope" list in CLAUDE.md section 4
+("whatever is a blocker such as what is written in paragraph 4, i overrule
+it"): more seeds, new conditions, new environments and algorithms are now
+allowed where a work package calls for them. CLAUDE.md section 3b lists the
+new work packages (WP6–WP9), ordered by the paper's Limitations section.
+
+What was known when the replication was designed: everything in the paper.
+The replication's hypotheses, tests and decision rules were derived from the
+claims as published (C1–C5b) and from the original seeds' values, which are
+reported next to the hypotheses in `results/replication/PREREGISTRATION.md`.
+No replication run existed when that file and `replication.py` were committed.
+The replication writes into its own directory, so no existing table, number or
+figure changes when its runs land.
