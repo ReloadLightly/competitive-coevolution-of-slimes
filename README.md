@@ -8,14 +8,29 @@ what it forgets, and which of the two you measure*](paper/main.pdf) — LaTeX
 sources in [`paper/`](paper/); every number in it is generated from the run files.
 
 Self-play neuroevolution on [David Ha's Slime Volleyball](https://otoro.net/slimevolley/),
-run as a designed experiment rather than a demo: several dozen independent runs
-of <!-- n:budget -->500,000<!-- /n --> self-play games each, across conditions that isolate *where the
-selection signal comes from* and *where the noise comes from*.
+run as a designed experiment rather than a demo: <!-- n:n_runs_total -->59<!-- /n --> independent runs of
+<!-- n:budget -->500,000<!-- /n --> self-play games each, in a compiled environment that reproduces the
+original bit for bit, with every agent scored against a frozen opponent it never
+met in training. The headline finding is not the one we expected. Competence is
+reached and lost repeatedly, and most of that instability is not coevolution: it
+is injected at the last step, by the rule that decides which individual to call
+the champion. Ha's rule exports an individual that ranks on average <!-- n:proxy_rank_mean -->60<!-- /n --> of
+<!-- n:proxy_pop -->128<!-- /n --> in its own population, its lineage counter is uncorrelated with its skill
+(ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->), and the population itself is not cycling. Internal improvement
+precedes any external transfer by tens of thousands of games; the phase change is
+robust but its timing varies <!-- n:ctrl_t_internal_ratio -->7.5<!-- /n -->-fold across seeds; an archive of past
+champions abolishes learning when used as a parent and does nothing detectable
+when used as a test.
 
-The headline finding is not the one we expected. Competence in this setting is
-reached repeatedly and lost repeatedly — and most of that instability turns out
-not to be coevolution at all. It is injected at the last step, by the rule that
-decides which individual to call the champion.
+<table>
+<tr>
+<td align="center" width="20%"><a href="results/figures/fig6_champion_proxy.png"><img src="results/figures/fig6_champion_proxy.png" alt="the export rule"></a><br><sub>The exported champion vs its own population</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig1_reference_trajectory.png"><img src="results/figures/fig1_reference_trajectory.png" alt="reference run"></a><br><sub>Internal improvement before external transfer</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig2_control_seeds.png"><img src="results/figures/fig2_control_seeds.png" alt="six seeds"></a><br><sub>One phase change, six timings</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig5_coevolution.png"><img src="results/figures/fig5_coevolution.png" alt="transitivity"></a><br><sub>No cycling: skill is transitive</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig3_hall_of_fame.png"><img src="results/figures/fig3_hall_of_fame.png" alt="archives"></a><br><sub>Archives as parent and as test</sub></td>
+</tr>
+</table>
 
 ---
 

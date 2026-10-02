@@ -35,10 +35,12 @@ program evolution — inherits the export-rule failure mode of C4.
 
 ## 2. Standing rules (apply in every session)
 
-1. **Science code is frozen** except for the single bug fix in WP3:
-   `fastvolley.py`, `fastvolley_kernels.py`, `asymmetric.py`, `algorithms.py`
-   (other than `run_ga_hof_eval`), `train_ga_selfplay.py`. Refactors, renames
-   and "cleanups" of these files are forbidden.
+1. **The paper's science code is frozen**: `fastvolley.py`,
+   `fastvolley_kernels.py`, `asymmetric.py`, `algorithms.py`,
+   `train_ga_selfplay.py`. Refactors, renames and "cleanups" of these files are
+   forbidden; the tag `paper-v1` marks the state the paper was built from. New
+   environments, algorithms and archives (WP8, WP9) go into new modules that
+   leave these files and every result they produced untouched.
 2. **Never delete or overwrite raw results** (`results/**/*.npz`, `*.jsonl`,
    `protocol.json`). Superseded runs stay on disk under their old names and are
    marked as superseded in `results/matrix/decisions.md`.
@@ -56,7 +58,10 @@ program evolution — inherits the export-rule failure mode of C4.
    Long runs commit results as each seed finishes.
 8. Numbers in prose: 2–3 significant digits. Full precision lives in JSON.
 
-## 3. Work packages (October 2026) — do them in order
+## 3. Work packages (October 2026)
+
+WP1–WP4 are done (PR #8, merged 2026-10-02; tag `paper-v1`). They are
+kept below as the record of what was asked. Work continues at WP5.
 
 ### WP1 — Bring main up to date
 
@@ -157,18 +162,78 @@ STOP after WP4: write `paper/REVIEW_NOTES.md` listing (a) every claim whose
 wording changed in WP3, (b) every unverified reference, (c) anything you think
 a reviewer will attack. Roland reviews and submits; you do not submit anything.
 
-### WP5 — Repository finish (only after WP4)
+### WP5 — Repository finish
 
 - GitHub "About" text and topics (neuroevolution, coevolution, self-play,
-  reinforcement-learning, artificial-life).
+  reinforcement-learning, artificial-life). The session's tools cannot set
+  them; write the text into the PR for Roland to paste.
 - `pyproject.toml` or a pinned `requirements*.txt` that installs cleanly;
   verify the README quickstart on a fresh clone.
 - README top: one-paragraph abstract, the paper link, the five key figures.
 
-## 4. Things that will look tempting and are out of scope
+## 3b. Next phase: from one study to a lab (decided 2026-10-02)
 
-- New conditions, more seeds, longer runs (except WP3).
-- Re-running the asymmetric block or "strengthening" C7.
-- Changing the environment, the network, or Ha's algorithm.
-- Replacing the streak export rule in existing conditions (the finding IS that
-  it is broken; an alternative rule is future work).
+Roland's goal: turn the repository into a neuroevolution / evolutionary
+computation lab. The work packages follow the paper's Limitations section,
+cheapest and most valuable first. Section 4 below was lifted by Roland on
+2026-10-02 (see `results/matrix/decisions.md`); the standing rules in section
+2 still apply to everything.
+
+### WP6 — Preregistered confirmatory replication (answers "few seeds" and "post hoc design")
+
+1. Write `results/replication/PREREGISTRATION.md` and the analysis script
+   `replication.py` BEFORE any replication run starts; commit and push them.
+   The push timestamp is the proof of preregistration.
+2. Run `control`, `hof-0.25` and `hof-eval-v2` with fresh seeds 201–212
+   (36 runs) into `results/replication/`, with the frozen code and the
+   paper's parameters. Commit each run as it finishes.
+3. Run `python replication.py` once all 36 exist. Its verdicts are the result,
+   whatever they are. Record them in `decisions.md`.
+4. README and paper: add the replication as its own section, generated
+   numbers only. A claim that does not replicate is weakened (rule 5); a claim
+   that replicates keeps its wording and gains the replication as evidence.
+   C6 and C7 are not part of this replication and must not be described as
+   replicated.
+
+### WP7 — Analyses on data already on disk (no training)
+
+1. Within-run transitivity at 5,000-game spacing (every run already stores
+   100 champions), closing "cycles shorter than 50,000 games are invisible".
+2. Stronger external yardsticks: Ha's slimevolleygym zoo (the self-play GA
+   champion and the CMA-ES policy, Apache-2.0; verify the license and record
+   the source commit). Score every final champion against them.
+3. Each as its own generated table; the paper's existing numbers stay as they
+   are unless a result contradicts them (then rule 5).
+
+### WP8 — A second environment and a lab interface
+
+1. A small interface for environments and algorithms in a new package (e.g.
+   `lab/`), with Slime Volleyball wrapped, not rewritten.
+2. A second compiled game whose skill structure has a tunable cyclic
+   component, validated the way `fastvolley.py` was (bit-level or documented
+   deviations).
+3. Rerun the control, archive-as-test and export-rule analyses there: do C3,
+   C4 and C5b change when skill is cyclic? Preregister first, as in WP6.
+
+### WP9 — Structure and archives (NEAT, quality diversity)
+
+1. NEAT as specified in `docs/paper/04-appendix.md` §A.8, comparable to the
+   existing families.
+2. A quality-diversity archive (e.g. MAP-Elites over behaviour descriptors)
+   as a further archive design.
+
+Each WP ends with: tests and `make_tables.py --check` green, decisions.md
+updated, README/paper text matching the data, a PR for Roland.
+
+## 4. Formerly out of scope — lifted by Roland on 2026-10-02
+
+Until 2026-10-02 the following were out of scope. Roland lifted these limits
+("whatever is a blocker such as what is written in paragraph 4, i overrule
+it"), so they are now allowed where a work package calls for them:
+
+- New conditions, more seeds, longer runs.
+- Re-running the asymmetric block or extending C7 (it stays exploratory until
+  a preregistered replication says otherwise).
+- New environments, networks or algorithms, in new modules (rule 1).
+- Alternative export rules, as new conditions; existing conditions and
+  their results are never changed (rule 2).

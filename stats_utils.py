@@ -106,3 +106,75 @@ def spearman(x, y):
     ry = ry - ry.mean()
     d = math.sqrt(float((rx * rx).sum()) * float((ry * ry).sum()))
     return float((rx * ry).sum() / d) if d > 0 else float("nan")
+
+
+# --------------------------------------------------------------------------
+# Added for the confirmatory replication (12 runs per arm). Enumerating
+# C(24, 12) = 2.7 million assignments in Python is too slow, so the same exact
+# null distribution is counted by dynamic programming instead.
+# --------------------------------------------------------------------------
+def mannwhitney_dp(a, b):
+    """Exact two-sided Mann-Whitney U test, same definition as mannwhitney_u.
+
+    Under the null every n-subset of the pooled mid-ranks is equally likely to
+    be sample a. U = (rank sum of a) - n(n+1)/2 with ties at half, so counting
+    n-subsets by their (doubled, hence integer) rank sum gives the exact null
+    distribution of U, ties included. Returns (U, p).
+    """
+    a = np.asarray(a, dtype=float)
+    b = np.asarray(b, dtype=float)
+    n, m = len(a), len(b)
+    pooled = np.concatenate([a, b])
+    r2 = np.rint(2 * (_rank(pooled) + 1)).astype(int)    # doubled mid-ranks
+    top = int(r2.sum())
+    # ways[k][s]: number of k-subsets with doubled rank sum s (exact integers)
+    ways = [[0] * (top + 1) for _ in range(n + 1)]
+    ways[0][0] = 1
+    for r in r2:
+        for k in range(min(n, len(r2)) - 1, -1, -1):
+            row, nxt = ways[k], ways[k + 1]
+            for s in range(top - r, -1, -1):
+                if row[s]:
+                    nxt[s + r] += row[s]
+    obs2 = int(r2[:n].sum())
+    centre2 = n * (n + m + 1)            # doubled expected rank sum of a
+    extreme = sum(c for s, c in enumerate(ways[n])
+                  if c and abs(s - centre2) >= abs(obs2 - centre2))
+    u = obs2 / 2.0 - n * (n + 1) / 2.0
+    return u, extreme / math.comb(n + m, n)
+
+
+def sign_test_greater(x):
+    """Exact one-sided sign test that the median of x is above zero.
+
+    Zeros are dropped. Returns (positives, informative, p)."""
+    x = np.asarray(x, dtype=float)
+    k = int((x > 0).sum())
+    n = int((x != 0).sum())
+    if n == 0:
+        return 0, 0, 1.0
+    p = sum(math.comb(n, i) for i in range(k, n + 1)) / 2 ** n
+    return k, n, float(p)
+
+
+def fisher_less(k1, n1, k2, n2):
+    """Exact one-sided Fisher test that rate 1 (k1/n1) is below rate 2 (k2/n2).
+
+    P(X <= k1) under the hypergeometric null with the margins fixed."""
+    K, N = k1 + k2, n1 + n2
+    total = math.comb(N, n1)
+    p = sum(math.comb(K, x) * math.comb(N - K, n1 - x)
+            for x in range(max(0, n1 - (N - K)), k1 + 1)) / total
+    return float(p)
+
+
+def holm(pvals, alpha=0.05):
+    """Holm step-down: which hypotheses are rejected at family-wise alpha."""
+    order = sorted(range(len(pvals)), key=lambda i: pvals[i])
+    reject = [False] * len(pvals)
+    for step, i in enumerate(order):
+        if pvals[i] <= alpha / (len(pvals) - step):
+            reject[i] = True
+        else:
+            break
+    return reject

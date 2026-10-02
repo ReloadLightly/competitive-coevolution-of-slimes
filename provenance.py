@@ -68,6 +68,8 @@ SCOPES = {
                           + ["results/ga_selfplay/history.jsonl"]),
     # the committed population snapshot the compiled continuations start from
     "resume": lambda: ["results/analysis/resume_base.npz"],
+    # the preregistered confirmatory replication (fresh seeds, own directory)
+    "replication": lambda: sorted(glob.glob("results/replication/*_s*.npz")),
     # generated from code and fixed seeds only
     "none": lambda: [],
 }
