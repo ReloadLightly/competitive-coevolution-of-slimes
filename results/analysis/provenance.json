@@ -526,5 +526,19 @@
   },
   "scope": "reference",
   "script": "eval_reference.py"
+ },
+ "results/analysis/resume_fast.json": {
+  "inputs": {
+   "results/analysis/resume_base.npz": "7bd2dbb3c86dac9cf34f6a2f8e095b00ea9723170e8e0e2a75794f3df1450797"
+  },
+  "output_sha256": "06291e5a4c0d625eda096fe77f041068d512b028d9b5709d4abd9928c5868053",
+  "params": {
+   "save_every": 5000,
+   "seeds": 2,
+   "sigma": 0.1,
+   "tournaments": 176000
+  },
+  "scope": "resume",
+  "script": "resume_fast.py"
  }
 }
