@@ -358,6 +358,10 @@ def definitions():
         lambda d: _games(sum(x["n"] for x in v(d)["scenarios"].values())))
     add("val_steps", ["validation"], "environment steps compared")(
         lambda d: _games(sum(x["steps"] for x in v(d)["scenarios"].values())))
+    add("val_ref_core_hours", ["validation"],
+        "core-hours for one 500,000-game run at the reference implementation's "
+        "measured games per second")(
+        lambda d: f"{500_000 / v(d)['reference_games_per_sec'] / 3600:.0f}")
     add("val_speedup", ["validation"],
         "compiled / reference games per second on one core")(
         lambda d: f"{v(d)['speedup']:.0f}")
