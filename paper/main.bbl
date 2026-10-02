@@ -1,4 +1,4 @@
-\begin{thebibliography}{23}
+\begin{thebibliography}{24}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -138,6 +138,14 @@ Elena Popovici, Anthony Bucci, R.~Paul Wiegand, and Edwin~D. de~Jong.
 \newblock In \emph{Handbook of Natural Computing}, pages 987--1033. Springer,
   2012.
 \newblock \doi{10.1007/978-3-540-92910-9_31}.
+
+\bibitem[Risi et~al.(2026)Risi, Tang, Ha, and
+  Miikkulainen]{risi2026neuroevolution}
+Sebastian Risi, Yujin Tang, David Ha, and Risto Miikkulainen.
+\newblock \emph{Neuroevolution: Harnessing Creativity in {AI} Agent Design}.
+\newblock MIT Press, 2026.
+\newblock ISBN 9780262054768.
+\newblock Open-access online edition at \url{https://neuroevolutionbook.com}.
 
 \bibitem[Rosin and Belew(1997)]{rosin1997new}
 Christopher~D. Rosin and Richard~K. Belew.

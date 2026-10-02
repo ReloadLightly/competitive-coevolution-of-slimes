@@ -12,7 +12,7 @@ bug) are excluded everywhere; the corrected runs are `hof-eval-v2`.
 
 **C5b — archive used as a test (weakened).**
 
-| | before (README, write-up §3, CLAUDE.md) | after (README finding 5, write-up §3, paper §3.5) |
+| | before (README, write-up §3, CLAUDE.md) | after (README finding 5, write-up §3, paper §3.6) |
 |---|---|---|
 | headline | "A hall of fame is a tax, not insurance — when skill is transitive" | "An archive of past champions does not help when skill is transitive — and as a parent it destroys learning" |
 | effect vs control | "stops being destructive but still does not help"; write-up: "it makes the run *worse*" (above-parity δ = −0.75, p = 0.028) | "neither destructive nor helpful": indistinguishable from the control on every outcome at six seeds (all p ≥ 0.37); 5/6 learned to rally vs 6/6 |
@@ -104,7 +104,10 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
 5. **The 2015 baseline is a single, weak, recurrent opponent** that does not
    see its opponent. "Above parity" against it is a low bar, and a policy can
    specialise against it. The cross-run tournament (Appendix) is the check;
-   the paper could lean on it more.
+   the families section of the main text now quotes it (every control
+   champion rates above zero, each other family has a champion far below),
+   with the full tournament in Appendix A.5. It is still a tournament among
+   these runs' own champions, not an outside opponent.
 6. **Self-play ES was tuned only at pilot scale.** C6 says so; a reviewer will
    still discount the ES row.
 7. **The unequal-power block** is exploratory, was redesigned twice, and its
@@ -120,22 +123,51 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    (2026-10-02). No published number changed, but it shows that before this
    session the analysis was not fully reproducible from the documented
    commands.
-
-10. **"Neither harms nor helps detectably" (C5b) is a statement about power
+10. **The mutation-step subsection (§3.5) rests on three seeds per setting**
+   and one seed for population 32. "The mutation step is not the cause" is
+   the notebook's own reading (`docs/paper/03-ablations-and-analysis.md` §4);
+   the paper gives the run counts next to every number, but a reviewer may
+   read the heading as stronger than three seeds allow.
+11. **"Neither harms nor helps detectably" (C5b) is a statement about power
    as much as about the archive.** At six seeds a side, a moderate effect in
    either direction would not be detected. One archive-as-test seed never
    learned (the control: none); that is one run.
-11. **The decline measurement behind C4** uses the population snapshots
+12. **The decline measurement behind C4** uses the population snapshots
    (every 50,000 games, 60 episodes per individual), not the 5,000-game
    checkpoint curve where most of the visible swings are. It shows the pool
    does not lose ground between snapshots while the exported champion does; it
    does not decompose the checkpoint-level swings.
-12. **The write-up in `docs/paper/` is a lab notebook** and still contains
+13. **The write-up in `docs/paper/` is a lab notebook** and still contains
    hand-typed numbers outside the sections rewritten in this session (§3 of
    the analysis, the re-export lessons, the appendix design table). Every
    table there is generated, and README and `paper/main.tex` are fully
    generated; the notebook prose is not. Converting it, or marking it as
    superseded by the paper, is your call.
+
+## (d) The paper now covers the whole README
+
+After WP4 the paper was extended so that every README section and every
+result in the repository appears in it, each number generated
+(`prose_numbers.py` → `paper/numbers.tex`, tables from `make_tables.py`):
+
+- **Main text** (to the top of page 11): §3.1 says what competence means
+  (win/draw/loss of the final champion); §3.2 the damping of the
+  trajectory; new §3.5 the mutation-scale and population sweeps; the
+  families section quotes the cross-run tournament; Acknowledgements credit
+  Ha's environment, baseline and GA (Apache-2.0).
+- **Appendix A** (supplementary results): the reference run in detail, the
+  export rule over training and the alternative promotion rules, the sweeps,
+  the archive conditions, the cross-run tournament, the unequal-power block
+  (labelled exploratory), and the per-condition tables for every run.
+- **Appendix B**: the compiled environment, its three documented
+  deviations, the per-game validation and the compiled continuations of the
+  reference run.
+- **Appendix C**: the command list that regenerates every number, table
+  and figure, plus provenance, CI and the decision log.
+
+The PDF is 20 pages: about 10 of main text, 2 of references, 8 of appendix.
+Not carried over from the README: the quickstart, the documents index and
+the February postmortem, which are repository material rather than results.
 
 ## Decisions left to you
 

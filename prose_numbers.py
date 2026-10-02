@@ -495,6 +495,8 @@ def definitions():
         lambda d: _games(sum(x["n"] for x in v(d)["scenarios"].values())))
     add("val_steps", ["validation"], "environment steps compared")(
         lambda d: _games(sum(x["steps"] for x in v(d)["scenarios"].values())))
+    add("val_scenarios", ["validation"], "policy populations in the bit-level check")(
+        lambda d: str(len(v(d)["scenarios"])))
     add("val_ref_core_hours", ["validation"],
         "core-hours for one 500,000-game run at the reference implementation's "
         "measured games per second")(
@@ -607,6 +609,118 @@ def definitions():
         "largest ranking budget as a share of one run's games, in %")(
         lambda d: _f(100 * max(rx(d)["ranking_games_per_snapshot"].values())
                      / rx_.TOURNAMENTS, 1))
+
+    # ---- the reference run in detail --------------------------------------
+    def hold(d, tag):
+        return d["reference"]["holdout"][tag]
+    for tag in ("final", "peak"):
+        for k, field in (("win", "win"), ("tie", "tie"), ("loss", "loss")):
+            add(f"ref_{tag}_{k}_pct", ["reference"],
+                f"reference run, {tag} checkpoint held out: share of episodes "
+                f"{k}, in %")((lambda t, f: lambda d: _pct(hold(d, t)[f]))(tag, field))
+    add("ref_peak_t", ["reference"], "reference run: games at the best checkpoint")(
+        lambda d: _games(hold(d, "peak")["tournament"]))
+    add("ref_above_ckpt", ["reference"],
+        "reference run: checkpoints above parity on the sweep, of all")(
+        lambda d: _frac(int((np.array(d["reference"]["mean_score"]) > 0).sum()),
+                        len(d["reference"]["mean_score"])))
+
+    # ---- does the swing damp? (control, 100,000-game windows) -------------
+    def windows(d):
+        rows = [v["window_profile"] for v in d["per_run"].values()
+                if v["condition"] == "control"]
+        out = []
+        for i in range(min(len(r) for r in rows)):
+            ws = [r[i] for r in rows]
+            out.append({"sd": np.mean([w["sd"] for w in ws]),
+                        "mean": np.mean([w["mean"] for w in ws]),
+                        "above": sum(w["above"] for w in ws),
+                        "n": sum(w["n"] for w in ws)})
+        return out
+    add("window_sd_first", ["per_run"],
+        "control: within-run s.d. of checkpoint scores, first window")(
+        lambda d: _f(windows(d)[0]["sd"], 2))
+    add("window_sd_last", ["per_run"],
+        "control: within-run s.d. of checkpoint scores, last window")(
+        lambda d: _f(windows(d)[-1]["sd"], 2))
+    add("window_sd_min", ["per_run"], "control: smallest window s.d.")(
+        lambda d: _f(min(w["sd"] for w in windows(d)), 2))
+    add("window_sd_max", ["per_run"], "control: largest window s.d.")(
+        lambda d: _f(max(w["sd"] for w in windows(d)), 2))
+    add("window_level_first", ["per_run"], "control: mean score, first window")(
+        lambda d: _f(windows(d)[0]["mean"], 2, True))
+    add("window_level_last", ["per_run"], "control: mean score, last window")(
+        lambda d: _f(windows(d)[-1]["mean"], 2, True))
+    add("window_above_first", ["per_run"],
+        "control: checkpoints above parity, first window")(
+        lambda d: _frac(windows(d)[0]["above"], windows(d)[0]["n"]))
+    add("window_above_last", ["per_run"],
+        "control: checkpoints above parity, last window")(
+        lambda d: _frac(windows(d)[-1]["above"], windows(d)[-1]["n"]))
+
+    # ---- the cross-run tournament ---------------------------------------
+    def elo(d, c):
+        a = d["across"]
+        return [e for n, e in zip(a["runs"], a["elo"])
+                if n.rsplit("_s", 1)[0] == c]
+    add("across_n", ["across"], "final champions in the cross-run tournament")(
+        lambda d: str(len(d["across"]["runs"])))
+    add("across_cyclic_pct", ["across"],
+        "cross-run tournament: cyclic share of decided triads, in %")(
+        lambda d: _pct(d["across"]["cyclic"] / max(1, d["across"]["triads_decided"]), 1))
+    for key, c in (("ctrl", "control"), ("hoftest", "hof-eval-v2"),
+                   ("ga", "ga2015"), ("es", "es"), ("sigsmall", "sigma-0.05")):
+        add(f"elo_median_{key}", ["across"], f"{c}: median Elo of final champions")(
+            (lambda c: lambda d: _f(np.median(elo(d, c)), 0, True))(c))
+        add(f"elo_worst_{key}", ["across"], f"{c}: lowest Elo of its final champions")(
+            (lambda c: lambda d: _f(min(elo(d, c)), 0, True))(c))
+    add("elo_worst_others_max", ["across"],
+        "highest of the worst-champion Elos among generational GA, ES and archive "
+        "as test")(lambda d: _f(max(min(elo(d, c)) for c in
+                                    ("ga2015", "es", "hof-eval-v2")), 0, True))
+
+    # ---- mutation scale and population size --------------------------------
+    add("ctrl_vol_all", ["conditions"], "control: mean volatility, all runs")(
+        lambda d: _f(cond(d, "control")["volatility"]["mean"], 2))
+    add("sigbig_vol_all", ["conditions"],
+        "sigma 0.20: mean volatility over all runs (failed run included)")(
+        lambda d: _f(cond(d, "sigma-0.20")["volatility"]["mean"], 2))
+    add("popsmall_reached", ["conditions"], "population 32: runs that learned")(
+        lambda d: reached(d, "pop-32"))
+
+    # ---- the 2015 baseline --------------------------------------------
+    design("baseline_params", "parameters of the 2015 baseline policy",
+           lambda: str(fv.BASELINE_WEIGHT.size + fv.BASELINE_BIAS.size))
+    design("baseline_inputs", "inputs of the 2015 baseline policy",
+           lambda: str(fv.BASELINE_WEIGHT.shape[1]))
+    design("baseline_game_inputs", "game observations the baseline reads",
+           lambda: str(fv.BASELINE_WEIGHT.shape[1] - fv.BASELINE_WEIGHT.shape[0]))
+
+    # ---- compiled continuations of the reference snapshot ----------------
+    def cont(d):
+        r = d["resume"]
+        out = [float(np.mean(np.array(x["mean_score"]) > 0)) for x in r["runs"].values()]
+        return out
+    add("resume_n", ["resume"], "compiled continuations of the reference snapshot")(
+        lambda d: str(len(d["resume"]["runs"])))
+    add("resume_snapshot", ["resume"], "games at the continued snapshot")(
+        lambda d: _games(d["resume"]["snapshot_tournament"]))
+    add("resume_games", ["resume"], "games added by each continuation")(
+        lambda d: _games(d["resume"]["tournaments"]))
+    add("resume_above_min", ["resume"],
+        "compiled continuations: lowest share of checkpoints above parity, in %")(
+        lambda d: _pct(min(cont(d))))
+    add("resume_above_max", ["resume"],
+        "compiled continuations: highest share of checkpoints above parity, in %")(
+        lambda d: _pct(max(cont(d))))
+
+    def ref_cont(d):
+        t = np.array(d["reference"]["tournament"])
+        sc = np.array(d["reference"]["mean_score"])
+        return float(np.mean(sc[t > d["resume"]["snapshot_tournament"]] > 0))
+    add("ref_cont_above", ["resume", "reference"],
+        "reference continuation over the same games: share of checkpoints above "
+        "parity, in %")(lambda d: _pct(ref_cont(d)))
 
     # ---- inventory -------------------------------------------------------
     add("n_single_runs", ["per_run"], "single-population runs analysed")(
