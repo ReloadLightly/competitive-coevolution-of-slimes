@@ -9,7 +9,6 @@ re-scored curve. Writes results/figures/*.png.
 """
 
 import argparse
-import glob
 import json
 import os
 
@@ -18,6 +17,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+import provenance as pv
+
 FIGDIR = "results/figures"
 ANDIR = "results/analysis"
 MATRIX = "results/matrix"
@@ -25,7 +26,7 @@ MATRIX = "results/matrix"
 COLORS = {
     "reference": "#222222",
     "control": "#3B6EA8",
-    "hof-eval": "#1F7A5A",
+    "hof-eval-v2": "#1F7A5A",
     "hof-0.25": "#E08B3C",
     "hof-0.50": "#B0413E",
     "hof-full": "#8C5A2B",
@@ -38,7 +39,7 @@ COLORS = {
 }
 LABELS = {
     "control": "control (Ha 2020 GA)",
-    "hof-eval": "archive as test",
+    "hof-eval-v2": "archive as test",
     "hof-0.25": "archive as parent, p=0.25",
     "hof-0.50": "archive as parent, p=0.50",
     "hof-full": "archive as parent, full span",
@@ -76,7 +77,7 @@ def style():
 
 def load_matrix():
     runs = {}
-    for p in sorted(glob.glob(os.path.join(MATRIX, "*_s*.npz"))):
+    for p in pv.matrix_runs(MATRIX):            # superseded runs excluded
         name = os.path.basename(p)[:-4]
         cond, seed = name.rsplit("_s", 1)
         z = np.load(p)
@@ -221,7 +222,7 @@ def _strip(ax, per_run, conds, key, ylabel, title):
 
 
 def fig3_hof(runs, per_run):
-    conds = [c for c in ("control", "hof-eval", "hof-0.25", "hof-0.50",
+    conds = [c for c in ("control", "hof-eval-v2", "hof-0.25", "hof-0.50",
                          "hof-full") if c in runs]
     if len(conds) < 2:
         return "fig3: need control and a hall-of-fame condition"
@@ -475,19 +476,18 @@ def fig9_reexport(reexp):
 
 def fig10_archive_decay(runs, per_run):
     """Why the archive stops paying: it stops being able to win."""
-    conds = [c for c in ("hof-eval", "hof-0.25", "hof-full", "hof-0.50")
+    conds = [c for c in ("hof-eval-v2", "hof-0.25", "hof-full", "hof-0.50")
              if c in runs]
     if not conds:
         return "fig10: no archive runs yet"
     fig, axes = plt.subplots(1, 2, figsize=(6.8, 2.8))
     ax = axes[0]
+    # every checkpoint of an archive run contains archive games, so all of them
+    # are plotted -- including windows in which the archive won nothing
     for c in conds:
         for r in runs[c]:
-            aw = r["hofwin"]
-            m = aw > 0
-            if m.any():
-                ax.plot(r["t"][m] / 1000, aw[m], color=COLORS[c], lw=0.9,
-                        alpha=0.55)
+            ax.plot(r["t"] / 1000, r["hofwin"], color=COLORS[c], lw=0.9,
+                    alpha=0.55)
         ax.plot([], [], color=COLORS[c], lw=1.6, label=LABELS.get(c, c))
     ax.axhline(0.5, color="#999999", lw=0.9, ls=(0, (4, 3)))
     ax.set_ylim(0, 1)
@@ -499,14 +499,11 @@ def fig10_archive_decay(runs, per_run):
     ax = axes[1]
     for c in conds:
         for r in runs[c]:
-            aw = r["hofwin"]
-            m = aw > 0
-            if m.any():
-                # games that produce no selection event: an archive game the
-                # population member wins overwrites nothing
-                waste = 0.25 * (1.0 - aw[m]) if c != "hof-0.50" else 0.5 * (1.0 - aw[m])
-                ax.plot(r["t"][m] / 1000, 100 * waste, color=COLORS[c], lw=0.9,
-                        alpha=0.55)
+            # games that produce no selection event: an archive game the
+            # population member wins overwrites nothing
+            p = 0.5 if c == "hof-0.50" else 0.25
+            ax.plot(r["t"] / 1000, 100 * p * (1.0 - r["hofwin"]),
+                    color=COLORS[c], lw=0.9, alpha=0.55)
     ax.set_xlabel("self-play games (thousands)")
     ax.set_ylabel("% of games with no selection event")
     ax.set_title("What the archive costs", loc="left")

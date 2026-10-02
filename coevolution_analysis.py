@@ -39,7 +39,10 @@ import provenance as pv
 import stats_utils as su
 
 RR_SEED = 4242          # tournament seed, disjoint from training and evaluation
-PROXY_EPISODES = 40
+# episodes per individual in the proxy check. The committed
+# champion_proxy.json was computed with 30 (it reproduces bit for bit at 30
+# and not at 40, the value this constant held at the time); see decisions.md
+PROXY_EPISODES = 30
 
 
 # --------------------------------------------------------------------------

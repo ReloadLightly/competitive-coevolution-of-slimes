@@ -78,10 +78,19 @@ def metrics(run):
     # game the archive entry is immutable, so when the POPULATION member wins,
     # nothing is overwritten. Those conditions therefore run slightly fewer
     # selection events per game than the control at the same game budget.
+    #
+    # Every 5,000-game window of an archive run contains archive games (the
+    # archive is non-empty from game 1,000 on), so every checkpoint's archive
+    # win rate counts -- including windows in which the archive won nothing.
     hof_p = float(run["hof_prob"][0])
-    hof_win = float(np.mean(run["hof_winrate"][run["hof_winrate"] > 0])) \
-        if (run["hof_winrate"] > 0).any() else 0.0
+    hw = run["hof_winrate"]
+    hof_win = float(hw.mean()) if hof_p > 0 else 0.0
     skipped = hof_p * (1.0 - hof_win) if hof_p > 0 else 0.0
+    # how the archive's ability to win changes over the run: first and last
+    # 50,000 games (10 checkpoints each)
+    k = int(50_000 // every)
+    hof_early = float(hw[:k].mean()) if hof_p > 0 else None
+    hof_late = float(hw[-k:].mean()) if hof_p > 0 else None
 
     return {
         # Stability is only interpretable conditional on competence: a run that
@@ -91,7 +100,11 @@ def metrics(run):
         # stability comparisons are reported over that subset as well as over all.
         "reached": bool(t_int is not None),
         "hof_archive_winrate": hof_win,
+        "hof_winrate_early": hof_early,
+        "hof_winrate_late": hof_late,
         "replacements_skipped": skipped,
+        "replacements_skipped_late": (hof_p * (1.0 - hof_late)
+                                      if hof_p > 0 else 0.0),
         "window_profile": profile,
         "t_internal": t_int,
         "lag_internal_to_parity": ((t_par - t_int)

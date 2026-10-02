@@ -23,6 +23,11 @@ exactly which numbers moved.
     files on disk (provenance.py: an input deleted, added or changed, or the
     analysis file edited by hand);
   * injecting the tables would change any file.
+
+Numbers in running text are handled the same way: prose_numbers.py defines
+each one, markdown carries `<!-- n:key -->value<!-- /n -->` markers, and
+paper/numbers.tex is written from the same values. An unknown key, a stale
+value or a stale numbers.tex fails the check.
 """
 
 import argparse
@@ -34,16 +39,19 @@ import sys
 
 import numpy as np
 
+import prose_numbers as pn
 import provenance as pv
 
 ANDIR = "results/analysis"
 PAPER = "docs/paper"
+NUMBERS_TEX = "paper/numbers.tex"
+NUM = re.compile(r"(<!-- n:([A-Za-z_]+) -->)(.*?)(<!-- /n -->)")
 LABELS = {
     "control": "control (Ha 2020 GA)",
     "hof-0.25": "archive as parent, p=0.25",
     "hof-0.50": "archive as parent, p=0.50",
     "hof-full": "archive as parent, full span",
-    "hof-eval": "archive as test, full span",
+    "hof-eval-v2": "archive as test, full span",
     "ga2015": "generational GA (Ha 2015)",
     "es": "self-play ES",
     "sigma-0.05": "sigma = 0.05",
@@ -51,7 +59,7 @@ LABELS = {
     "pop-32": "population 32",
     "pop-512": "population 512",
 }
-ORDER = ["control", "hof-eval", "hof-0.25", "hof-0.50", "hof-full",
+ORDER = ["control", "hof-eval-v2", "hof-0.25", "hof-0.50", "hof-full",
          "ga2015", "es", "sigma-0.05", "sigma-0.20", "pop-32", "pop-512"]
 
 
@@ -598,9 +606,26 @@ def main():
         errors.append(f"table {k}: named in a document but cannot be built "
                       f"from the data on disk "
                       f"(needs {', '.join(FILES[f] for f in DEPS[k])})")
-    deps = sorted({FILES[f] for k in (required | set(built)) & set(DEPS)
-                   for f in DEPS[k]})
-    errors += pv.verify(deps)
+    # numbers in running text
+    values = pn.compute(d)
+    known = set(pn.definitions())
+    used = set()
+    for path in paths:
+        for m in NUM.finditer(open(path).read()):
+            used.add(m.group(2))
+    for k in sorted(used - known):
+        errors.append(f"number {k}: used in a document but not defined in "
+                      f"prose_numbers.py")
+    for k in sorted((used & known) - set(values)):
+        errors.append(f"number {k}: used in a document but cannot be "
+                      f"computed from the data on disk")
+
+    deps = {FILES[f] for k in (required | set(built)) & set(DEPS)
+            for f in DEPS[k]}
+    deps |= {FILES[f] for k in used & set(values) for f in values[k][1]}
+    if os.path.isdir(os.path.dirname(NUMBERS_TEX)):    # numbers.tex uses all
+        deps |= {FILES[f] for v in values.values() for f in v[1]}
+    errors += pv.verify(sorted(deps))
 
     # README.md carries markers too: the repository is public, so its headline
     # numbers must come from the same generator as the paper's.
@@ -611,6 +636,12 @@ def main():
         if not args.check:
             os.makedirs(PAPER, exist_ok=True)
             open(tm, "w").write(combined)
+    if os.path.isdir(os.path.dirname(NUMBERS_TEX)):
+        tex = pn.write_tex(values)
+        if not os.path.exists(NUMBERS_TEX) or open(NUMBERS_TEX).read() != tex:
+            stale.append(NUMBERS_TEX)
+            if not args.check:
+                open(NUMBERS_TEX, "w").write(tex)
     for path in paths:
         src = open(path).read()
         new = src
@@ -620,6 +651,8 @@ def main():
                              re.DOTALL)
             if pat.search(new):
                 new = pat.sub(lambda m: m.group(1) + md + m.group(2), new)
+        new = NUM.sub(lambda m: (m.group(1) + values[m.group(2)][0] + m.group(4))
+                      if m.group(2) in values else m.group(0), new)
         if new != src:
             stale.append(path)
             if not args.check:
