@@ -112,6 +112,10 @@ def main():
                   f"  external {np.mean([r['external_score'] for r in rows]):+.2f}",
                   flush=True)
 
+    # workers finish in any order; the per-run lists below follow run names
+    out = dict(sorted(out.items()))
+    summary_runs = list(out)
+
     # volatility of each series, per run: the causal test
     allrows = [r for rows in out.values() for r in rows]
     opps = [int(o) for o in str(args.opponents).split(",")]
@@ -146,6 +150,7 @@ def main():
         f"internal_{o}": allrows[0][f"games_{o}"] for o in opps}
     summary["episodes_per_individual"] = args.episodes
     summary["n_runs"] = len(out)
+    summary["runs"] = summary_runs          # order of every *_per_run list
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     json.dump({"per_run": out, "summary": summary}, open(args.out, "w"), indent=1)
