@@ -34,9 +34,10 @@ import numpy as np
 import fastvolley as fv
 import provenance as pv
 import stats_utils as su
-from run_experiments import CONDITIONS, SELECT_EPISODES, SELECT_SEED
+from run_experiments import CONDITIONS, LONG_RALLY, SELECT_EPISODES, SELECT_SEED
 
 WINDOW = 20  # checkpoints = 100,000 games
+HOF_WINDOW = 50_000  # games: early and late archive win rate
 
 
 def load_run(path):
@@ -58,7 +59,7 @@ def metrics(run):
     # ITSELF well before any of that shows up against the frozen 2015 opponent.
     # Measured with no external opponent involved, from the training games.
     tl = run["train_meanlen"]
-    long_rally = tl > 1500
+    long_rally = tl > LONG_RALLY
     t_int = int(np.argmax(long_rally) + 1) * every if long_rally.any() else None
     # Windowed profile, 100,000 games per window. The single-run version of
     # this study claimed the swings damp as the level rises; with many seeds
@@ -88,7 +89,7 @@ def metrics(run):
     skipped = hof_p * (1.0 - hof_win) if hof_p > 0 else 0.0
     # how the archive's ability to win changes over the run: first and last
     # 50,000 games (10 checkpoints each)
-    k = int(50_000 // every)
+    k = int(HOF_WINDOW // every)
     hof_early = float(hw[:k].mean()) if hof_p > 0 else None
     hof_late = float(hw[-k:].mean()) if hof_p > 0 else None
 

@@ -24,7 +24,8 @@ import numpy as np
 
 import fastvolley as fv
 import provenance as pv
-from run_experiments import SELECT_EPISODES, SELECT_SEED, SWEEP_EPISODES, SWEEP_SEED
+from run_experiments import (LONG_RALLY, SELECT_EPISODES, SELECT_SEED,
+                             SWEEP_EPISODES, SWEEP_SEED)
 
 
 def load_champion(path):
@@ -88,7 +89,7 @@ def main():
             train_len.append((r["tournament"], r["mean_duration"]))
         train_len.sort()
         for t, d in train_len:
-            if d > 1500:
+            if d > LONG_RALLY:
                 t_internal = t
                 break
     above = mean > 0

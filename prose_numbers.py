@@ -33,6 +33,12 @@ MATRIX = "results/matrix"
 # the same GA at the same budget (slimevolleygym TRAINING.md, 1,000 episodes).
 HA_PUBLISHED = 0.353
 
+# A two-population run ends in runaway dominance when one side wins more than
+# this share of the cross-population games over the last 50,000 games.
+RUNAWAY = 0.9
+# ... measured over the last this-many checkpoints (as in make_tables table 10)
+ASYM_LAST = 10
+
 
 def _f(x, nd=2, sign=False):
     return f"{{:{'+' if sign else ''}.{nd}f}}".format(x)
@@ -72,7 +78,7 @@ def _asym():
             # cross-population win rate of the first (larger) side over the
             # last 50,000 games, and the best member of each pool at the end
             rows.append({"seed": int(seed),
-                         "winrate": float(s[ka]["a_winrate"][-10:].mean()),
+                         "winrate": float(s[ka]["a_winrate"][-ASYM_LAST:].mean()),
                          "best_a": float(s[ka]["pop_best"][-1]),
                          "best_b": float(s[kb]["pop_best"][-1])})
         out[cond] = rows
@@ -132,6 +138,21 @@ def definitions():
     add("ctrl_t_internal_ratio", ["conditions"],
         "control: latest / earliest internal transition")(
         lambda d: _f(t_int(d, "max") / t_int(d, "min"), 1))
+
+    def ctrl_cond(d, key, which):
+        return d["conditions"]["conditions"]["control"][key][which]
+    add("ctrl_t_parity_min", ["conditions"],
+        "control: earliest first-above-parity checkpoint across seeds")(
+        lambda d: _games(ctrl_cond(d, "t_parity", "min")))
+    add("ctrl_t_parity_max", ["conditions"],
+        "control: latest first-above-parity checkpoint across seeds")(
+        lambda d: _games(ctrl_cond(d, "t_parity", "max")))
+    add("ctrl_lag_min", ["conditions"],
+        "control: shortest internal-to-external lag across seeds")(
+        lambda d: _games(ctrl_cond(d, "lag_internal_to_parity", "min")))
+    add("ctrl_lag_max", ["conditions"],
+        "control: longest internal-to-external lag across seeds")(
+        lambda d: _games(ctrl_cond(d, "lag_internal_to_parity", "max")))
 
     # ---- C3: transitivity --------------------------------------------------
     def within(d, cond):
@@ -201,6 +222,22 @@ def definitions():
         "largest internal round robin: peers per individual")(
         lambda d: str(max(int(k.split("_")[1])
                           for k in rx(d)["recovered_fraction"])))
+    add("reexport_streak_level", ["reexport"],
+        "mean score of the streak-exported individual over all snapshots")(
+        lambda d: _f(rx(d)["streak_score"]["level_mean"], 2, True))
+    add("reexport_median_level", ["reexport"],
+        "mean score of the population's median member over all snapshots")(
+        lambda d: _f(rx(d)["median_score"]["level_mean"], 2, True))
+    add("reexport_best_level", ["reexport"],
+        "mean score of the best member (oracle) over all snapshots")(
+        lambda d: _f(rx(d)["external_score"]["level_mean"], 2, True))
+    add("reexport_rho_streak", ["reexport"],
+        "rho(streak counter, true skill) in the re-export analysis")(
+        lambda d: _f(rx(d)["rho_streak_external"], 2, True))
+    add("reexport_games_max", ["reexport"],
+        "ranking games per snapshot at the largest internal round robin")(
+        lambda d: _games(rx(d)["ranking_games_per_snapshot"][
+            max(rx(d)["ranking_games_per_snapshot"], key=lambda k: int(k.split("_")[1]))]))
     add("reexport_rho_max", ["reexport"],
         "rho(internal margin, true skill) at the largest round robin")(
         lambda d: _f(rx(d)["rho_internal_external"][
@@ -209,6 +246,9 @@ def definitions():
     # ---- C5: the archive -------------------------------------------------
     def cond(d, c):
         return d["conditions"]["conditions"][c]
+
+    def vs_ctrl(d, c, metric, field):
+        return d["conditions"]["vs_control"][c][metric][field]
 
     def reached(d, c):
         a = cond(d, c)
@@ -233,6 +273,29 @@ def definitions():
             f"{c}: mean share of checkpoints above parity, in %")(
             (lambda c: lambda d: _pct(cond(d, c)["above_parity"]["mean"]))(c))
 
+    def reached_sum(d, conds):
+        cc = d["conditions"]["conditions"]
+        return (sum(cc[c]["n_reached"] for c in conds if c in cc),
+                sum(cc[c]["n_runs"] for c in conds if c in cc))
+    add("hofparent_other_reached", ["conditions"],
+        "archive as parent at p = 0.5 or with a full-run archive: runs that "
+        "learned to rally, pooled")(
+        lambda d: _frac(*reached_sum(d, ("hof-0.50", "hof-full"))))
+    for key, c in (("sigsmall", "sigma-0.05"), ("sigbig", "sigma-0.20")):
+        add(f"{key}_reached", ["conditions"],
+            f"{c}: runs that learned to rally")(
+            (lambda c: lambda d: reached(d, c))(c))
+        add(f"{key}_vol_reached_p", ["conditions"],
+            f"{c} vs control, volatility over runs that learned: exact p")(
+            (lambda c: lambda d: _f(vs_ctrl(d, c, "volatility_reached",
+                                            "p_two_sided"), 3))(c))
+        add(f"{key}_vol_reached_delta", ["conditions"],
+            f"{c} vs control, volatility over runs that learned: Cliff's delta")(
+            (lambda c: lambda d: _f(vs_ctrl(d, c, "volatility_reached",
+                                            "cliffs_delta"), 2, True))(c))
+        add(f"{key}_above_pct", ["conditions"],
+            f"{c}: mean share of checkpoints above parity, in %")(
+            (lambda c: lambda d: _pct(cond(d, c)["above_parity"]["mean"]))(c))
     add("hofparent_regress_pct", ["per_run"],
         "archive as parent: share of all games that copy an archived genome "
         "back into the pool (p x archive win rate), in %")(
@@ -262,8 +325,6 @@ def definitions():
         "event, last 50,000 games, in %")(
         lambda d: _pct(max(hoftest(d, "replacements_skipped_late"))))
 
-    def vs_ctrl(d, c, metric, field):
-        return d["conditions"]["vs_control"][c][metric][field]
     for metric in ("final_holdout", "peak_holdout", "above_parity",
                    "late_mean"):
         short = {"final_holdout": "final", "peak_holdout": "peak",
@@ -319,7 +380,7 @@ def definitions():
                           for v in A(d).values() for r in v)))
 
     def runaway(r):
-        return r["winrate"] > 0.9 or r["winrate"] < 0.1
+        return r["winrate"] > RUNAWAY or r["winrate"] < 1 - RUNAWAY
     add("asym_runaway", ["per_run"],
         "two-population runs ending in runaway dominance: cross-population "
         "win rate over the last 50,000 games above 0.9 or below 0.1")(
@@ -365,6 +426,77 @@ def definitions():
     add("val_speedup", ["validation"],
         "compiled / reference games per second on one core")(
         lambda d: f"{v(d)['speedup']:.0f}")
+
+    # ---- design constants ----------------------------------------------
+    # Read from the code and the recorded protocol that define them, so the
+    # paper cannot describe a design other than the one that ran.
+    import fastvolley as fv
+    import run_experiments as rx_
+    from math import comb
+
+    def design(key, doc, fn):
+        add(key, [], doc)(lambda d: fn())
+    design("budget", "self-play games per run", lambda: _games(rx_.TOURNAMENTS))
+    design("save_every", "games between exported checkpoints",
+           lambda: _games(rx_.SAVE_EVERY))
+    design("n_ckpt", "checkpoints per run",
+           lambda: str(rx_.TOURNAMENTS // rx_.SAVE_EVERY))
+    design("pop_every", "games between population snapshots",
+           lambda: _games(rx_.POP_EVERY))
+    design("sweep_episodes", "episodes per checkpoint in the sweep",
+           lambda: _games(rx_.SWEEP_EPISODES))
+    design("select_episodes", "episodes per held-out re-score",
+           lambda: _games(rx_.SELECT_EPISODES))
+    design("hof_every", "games between archive entries",
+           lambda: _games(rx_.HOF_EVERY))
+    design("pop", "population size of the control",
+           lambda: str(rx_.CONDITIONS["control"]["pop"]))
+    design("sigma", "mutation scale of the control",
+           lambda: str(rx_.CONDITIONS["control"]["sigma"]))
+    design("init_scale", "s.d. of the initial weights",
+           lambda: str(rx_.INIT_SCALE))
+    design("hof_p", "probability of an archive game, main archive conditions",
+           lambda: str(rx_.CONDITIONS["hof-eval-v2"]["hof_prob"]))
+    design("hof_cap_full", "archive capacity spanning the whole run",
+           lambda: str(rx_.CONDITIONS["hof-eval-v2"]["cap"]))
+    design("long_rally", "self-play rally length that counts as learned",
+           lambda: _games(rx_.LONG_RALLY))
+    import analyze_matrix as am
+    design("late_window", "games in the late window of every metric",
+           lambda: _games(am.WINDOW * rx_.SAVE_EVERY))
+    design("hof_window", "games over which early and late archive win rates "
+           "are averaged", lambda: _games(am.HOF_WINDOW))
+    design("asym_window", "games over which the final cross-population win "
+           "rate is averaged", lambda: _games(ASYM_LAST * rx_.SAVE_EVERY))
+    design("param_count", "parameters of the evolved policy",
+           lambda: str(fv.PARAM_COUNT))
+    design("obs_size", "observation size", lambda: str(fv.OBS_SIZE))
+    design("lives", "lives per side", lambda: str(fv.MAXLIVES))
+    design("t_limit", "episode step limit", lambda: _games(fv.T_LIMIT))
+    import asymmetric as az
+    design("n_act", "buttons (network outputs)", lambda: str(az.N_ACT))
+    design("hidden", "hidden units per layer, standard network",
+           lambda: str(next(h for h in range(1, az.MAX_H + 1)
+                            if az.param_count(h) == fv.PARAM_COUNT)))
+    add("hidden_large", ["per_run"], "hidden units per layer, larger network")(
+        lambda d: str(int(np.load(sorted(glob.glob(os.path.join(
+            MATRIX, "asym2x-strong_s*.npz")))[0])["hidden"][0])))
+    design("seeds_main", "seeds of the conditions that carry a claim",
+           lambda: str(len(rx_.SEEDS_MAIN)))
+    design("min_p_six", "smallest attainable two-sided exact p with six runs "
+           "a side", lambda: _f(2 / comb(12, 6), 3))
+    design("runaway_cut", "win rate beyond which a two-population run is a "
+           "runaway (and its complement)", lambda: _f(RUNAWAY, 1))
+    add("asym_param_large", ["per_run"], "parameters of the larger network")(
+        lambda d: str(max(int(np.load(f)["param_count"][0]) for f in
+                          glob.glob(os.path.join(MATRIX, "asym2x-strong_s*.npz")))))
+    add("asym_cross", ["per_run"], "share of games crossing populations")(
+        lambda d: str(float(np.load(sorted(glob.glob(os.path.join(
+            MATRIX, "asym1x-a_s*.npz")))[0])["cross_prob"][0])))
+    add("reexport_budget_pct", ["reexport"],
+        "largest ranking budget as a share of one run's games, in %")(
+        lambda d: _f(100 * max(rx(d)["ranking_games_per_snapshot"].values())
+                     / rx_.TOURNAMENTS, 1))
 
     # ---- inventory -------------------------------------------------------
     add("n_single_runs", ["per_run"], "single-population runs analysed")(

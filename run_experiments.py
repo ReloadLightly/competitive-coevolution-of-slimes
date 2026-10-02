@@ -55,6 +55,9 @@ SWEEP_EPISODES = 200        # episodes per checkpoint in the learning-curve swee
 SWEEP_SEED = 20260901       # evaluation seed for the sweep
 SELECT_SEED = 20260902      # disjoint seed for re-evaluating selected champions
 SELECT_EPISODES = 1_000
+# Analysis threshold, used since the first analysis: a population "learned to
+# rally" once its own training games average more than this many steps.
+LONG_RALLY = 1_500
 
 SEEDS_MAIN = [101, 102, 103, 104, 105, 106]
 SEEDS_SIDE = [101, 102, 103]
