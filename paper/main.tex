@@ -21,6 +21,13 @@
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf}
 
+% let text share pages with figures instead of leaving float-only pages
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.8}
+\setcounter{totalnumber}{4}
+
 \input{numbers.tex}
 
 % marks text that waits on data; must be empty before submission
@@ -173,7 +180,7 @@ conditions that were cut when the design was revised. Every change after the
 first run started is recorded, with what was known at the time, in a decision
 log that ships with the data.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering\small
 \caption{Conditions analysed. Two-population runs count once per seed.}
 \label{tab:conditions}
@@ -198,14 +205,14 @@ stability comparison is also reported over the runs that learned.
 \section{Results}
 \label{sec:results}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering\small
 \caption{Headline results. Points per episode against the 2015 policy, mean
 $\pm$ s.e.m.\ across runs, held out. ``Learned to rally'': the population ever
 held \nLongRally-step rallies against itself. The last two rows are the single run
 on the unmodified environment and Ha's published value.}
 \label{tab:headline}
-\resizebox{\linewidth}{!}{\input{tables/r.tex}}
+\input{tables/r.tex}
 \end{table}
 
 \subsection{Internal improvement precedes external transfer}
@@ -223,9 +230,9 @@ the best checkpoint scores \nRefPeakHoldout{} and the final one
 \nRefFinalHoldout, against Ha's published \nHaPublished{} for the same
 algorithm and budget.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.85\linewidth]{figures/fig1_reference_trajectory.pdf}
+\includegraphics[width=0.68\linewidth]{figures/fig1_reference_trajectory.pdf}
 \caption{The reference run. Top: rally length of the population's training
 games against itself. Bottom: score of the exported champion against the 2015
 policy, every checkpoint (thin) and a moving average (thick). Dotted lines mark
@@ -247,9 +254,9 @@ replicates and its timing does not. A single run supports no claim about when
 self-play starts working, although the first version of this study, with
 one seed, reported a single transition time.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.85\linewidth]{figures/fig2_control_seeds.pdf}
+\includegraphics[width=0.64\linewidth]{figures/fig2_control_seeds.pdf}
 \caption{Every control seed (thin), median and inter-quartile band (thick), and
 the reference run on the same checkpoint grid (dashed).}
 \label{fig:seeds}
@@ -269,9 +276,9 @@ equally bad policies whose pairwise results are noise. The game, at the scale
 of skill explored here, is dominated by its transitive component
 \citep{balduzzi2019openended,czarnecki2020spinning}.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\linewidth]{figures/fig5_coevolution.pdf}
+\includegraphics[width=0.88\linewidth]{figures/fig5_coevolution.pdf}
 \caption{Left: Elo of each checkpoint within its own run, control seeds. Middle:
 pairwise margin matrix of one control run, later checkpoints against earlier.
 Right: share of decided checkpoint triads that are cyclic, per condition.}
@@ -309,9 +316,9 @@ against the current population, which is not the same as skill against an
 unseen opponent, so held-out evaluation remains necessary for selection as
 well as for reporting.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/fig6_champion_proxy.pdf}
+\includegraphics[width=0.8\linewidth]{figures/fig6_champion_proxy.pdf}
 \caption{Left: the exported champion (red) and the best member of the same
 population (blue), every control seed. Right: Spearman correlation between the
 streak counter and score against the 2015 policy, every seed and snapshot.}
@@ -364,9 +371,9 @@ trajectory. Those runs are superseded and excluded. With the bug the archive
 looked measurably worse than the control and learned later; the corrected runs
 do not, and the decision log shipped with the data gives both side by side.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/fig10_archive_decay.pdf}
+\includegraphics[width=0.8\linewidth]{figures/fig10_archive_decay.pdf}
 \caption{Left: the archive's win rate against the current population, every
 archive run. Right: the share of games that produce no selection event,
 because an archive game the population member wins overwrites nothing.}
@@ -398,9 +405,9 @@ generational update are plausible reasons we cannot separate here.
 The self-play ES was tuned only at pilot scale, so its result is a statement
 about the configuration we could afford, not about the method.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/fig8_algorithm_families.pdf}
+\includegraphics[width=0.7\linewidth]{figures/fig8_algorithm_families.pdf}
 \caption{Three families at an identical budget. Top: median and inter-quartile
 band. Bottom: per-seed level and volatility of the last \nLateWindow{} games and the
 share of checkpoints above parity (ctrl: control; gen.\ GA: generational GA).}
@@ -419,7 +426,7 @@ has a \nObsSize--\nHiddenLarge--\nHiddenLarge--\nNAct{} network with
 \nAsymParamLarge{} parameters against \nParamCount, in one with a common per-parameter
 $\sigma$ and in one with the larger side's $\sigma$ scaled to equalise the
 mutation step norm. A symmetric two-population control has \nParamCount{} a side
-(Figure~\ref{fig:asym}, Table~\ref{tab:asym}).
+(Appendix, Figure~\ref{fig:asym} and Table~\ref{tab:asym}).
 
 Of \nAsymRuns{} runs, \nAsymMutual{} ended with both pools holding a member
 above parity; \nAsymOneSided{} ended with exactly one, \nAsymNeither{} with
@@ -435,23 +442,7 @@ establish, that extra capacity converts into advantage only when the mutation
 scale is adjusted to it. The pattern of one side collapsing is consistent with
 disengagement \citep{cartlidge2004combating}.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\linewidth]{figures/fig11_asymmetric.pdf}
-\caption{Two-population runs. Top: the larger side's win rate in
-cross-population games, one line per seed. Bottom: the best member of each pool
-against the 2015 policy (red: larger side, blue: smaller).}
-\label{fig:asym}
-\end{figure}
 
-\begin{table}[t]
-\centering\small
-\caption{Two-population outcomes (exploratory). Win rate over the last
-\nAsymWindow{} games; ``best member'' is the best individual in each pool at the end,
-against the 2015 policy.}
-\label{tab:asym}
-\resizebox{\linewidth}{!}{\input{tables/10.tex}}
-\end{table}
 
 % =========================================================================
 \section{Discussion}
@@ -484,12 +475,9 @@ the candidates it chose between, and compare the promoted candidate with the
 population's median.
 
 \paragraph{Diagnose before applying a remedy.}
-The archive is the standard remedy for intransitivity. A within-run round robin
-costs a few thousand games, found skill transitive, and so predicted that an
-archive would have little to do here, and an archive used as a test indeed
-changed nothing measurable. Past artefacts belong on the evaluation side of a loop;
-once they can contribute material to the current generation, the loop has a
-pull backwards.
+A cheap within-run round robin found skill transitive and so predicted that an
+archive, the remedy for intransitivity, would have little to do; used as a test
+it changed nothing measurable, used as a parent it pulled the loop backwards.
 
 % =========================================================================
 \section{Limitations}
@@ -508,10 +496,10 @@ pull backwards.
   by the unequal-power block, the rerun of the archive-as-test condition after a
   bug fix). Each change is logged with what was known when it was made, but the
   final design is not the one pre-registered.
-\item \textbf{The export analysis is control-only}, because only the control
-  stores population snapshots.
-\item \textbf{Fixed topology and one archive design per reading}; the ES was
-  tuned only at pilot scale.
+\item \textbf{Scope of the measurements.} The export analysis is
+  control-only, because only the control stores population snapshots; the
+  topology is fixed, each archive reading has one design, and the ES was tuned
+  only at pilot scale.
 \item \textbf{The unequal-power block is exploratory} and underpowered for its
   most interesting comparison.
 \end{itemize}
@@ -547,6 +535,24 @@ closed'': share of the distance between the streak-exported and the best
 member recovered by the rule.}
 \label{tab:reexport}
 \resizebox{\linewidth}{!}{\input{tables/9.tex}}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig11_asymmetric.pdf}
+\caption{Two-population runs (exploratory, Section~\ref{sec:asym}). Top: the larger side's win rate in
+cross-population games, one line per seed. Bottom: the best member of each pool
+against the 2015 policy (red: larger side, blue: smaller).}
+\label{fig:asym}
+\end{figure}
+
+\begin{table}[h]
+\centering\small
+\caption{Two-population outcomes (exploratory). Win rate over the last
+\nAsymWindow{} games; ``best member'' is the best individual in each pool at the end,
+against the 2015 policy.}
+\label{tab:asym}
+\input{tables/10.tex}
 \end{table}
 
 \begin{table}[h]

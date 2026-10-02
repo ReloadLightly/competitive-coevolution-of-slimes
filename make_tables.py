@@ -652,7 +652,15 @@ def md_cell_to_tex(cell):
 
 
 # column types where the default (left, then right-aligned) does not fit
-TEX_SPEC = {"c": r"l>{\raggedright\arraybackslash}p{0.66\linewidth}r"}
+_L = r">{\raggedright\arraybackslash}p{%s}"
+_R = r">{\raggedleft\arraybackslash}p{%s}"
+TEX_SPEC = {
+    "c": r"l>{\raggedright\arraybackslash}p{0.66\linewidth}r",
+    "r": _L % "0.24\\linewidth" + "r" + "".join(_R % "0.13\\linewidth"
+                                              for _ in range(4)),
+    "10": _L % "0.17\\linewidth" + "r" + _L % "0.27\\linewidth"
+          + "".join(_R % "0.12\\linewidth" for _ in range(3)),
+}
 
 
 def md_table_to_tex(md, spec=None):
