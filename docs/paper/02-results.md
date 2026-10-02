@@ -13,10 +13,13 @@ mutation σ = 0.1, no opponent but itself.
 
 ![reference trajectory](../../results/figures/fig1_reference_trajectory.png)
 
-*Figure 1. The reference run on the unmodified environment. Top: score against
-the 2015 champion at every checkpoint (thin) with a moving average (thick); the
-dotted line marks the first checkpoint above parity. Bottom: mean evaluation
-rally length, which rises from roughly 600 steps to the 3,000-step cap.*
+*Figure 1. The reference run on the unmodified environment. Top: mean rally
+length of the population's training games against itself, which rises from
+roughly 600 steps to the 3,000-step cap; the blue dotted line marks where it
+first exceeds 1,500 steps. Bottom: score against the 2015 champion at every
+checkpoint (thin) with a moving average (thick); the red dotted line marks the
+first checkpoint above parity. The gap between the two dotted lines is the
+internal-to-external lag.*
 
 Its trajectory has two regimes (Figure 1). For the first hundred thousand games
 the champion loses every episode to the 2015 baseline by nearly the maximum
@@ -82,14 +85,15 @@ specific way. Every control run reaches the same *place*; almost nothing about
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
-| archive as test, full span | 6 | 6/6 | 350k (155k–495k) | 365k (210k–445k) (4/6) | 58k |
+| archive as test, full span | 6 | 5/6 | 150k (115k–190k) | 195k (145k–260k) (4/6) | 62k |
 | archive as parent, p=0.25 | 6 | 1/6 | 80k (80k–80k) | 365k (365k–365k) (1/6) | 285k |
 | archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
-| archive as parent, full span | 2 | 0/2 | never | never (0/2) | — |
+| archive as parent, full span | 3 | 0/3 | never | never (0/3) | — |
 | generational GA (Ha 2015) | 6 | 5/6 | 205k (160k–420k) | 345k (290k–480k) (5/6) | 105k |
 | self-play ES | 6 | 4/6 | 372k (320k–490k) | 398k (385k–410k) (2/6) | 70k |
 | sigma = 0.05 | 3 | 3/3 | 120k (80k–250k) | 150k (145k–405k) (3/3) | 65k |
 | sigma = 0.20 | 3 | 2/3 | 228k (215k–240k) | 290k (275k–305k) (2/3) | 62k |
+| population 32 | 1 | 0/1 | never | never (0/1) | — |
 | *reference run (1 run, real environment)* | 1 | 1/1 | *104k* | *172k* | *68k* |
 
 'Internal transition' is the first checkpoint at which the population's own training games average more than 1,500 steps — measured with no external opponent involved. 'First parity' is the first checkpoint scoring above 0 against the 2015 baseline. The lag between them is how far internal progress runs ahead of anything an external evaluation can see.

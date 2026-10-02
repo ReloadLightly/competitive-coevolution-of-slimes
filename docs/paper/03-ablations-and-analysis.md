@@ -25,8 +25,16 @@ Bradley–Terry ratings fitted on the Elo scale.
 <!-- table:4 -->
 | condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | +0.72 | 1/421 (0.2%) | 10.0 |
-| archive as parent, p=0.25 | 5 | +0.28 | 17/127 (13.4%) | 23.4 |
+| control (Ha 2020 GA) | 6 | +0.74 | 1/499 (0.2%) | 10.2 |
+| archive as test, full span | 6 | +0.79 | 0/451 (0.0%) | 12.8 |
+| archive as parent, p=0.25 | 6 | +0.35 | 17/224 (7.6%) | 20.8 |
+| archive as parent, p=0.50 | 1 | +0.02 | 0/15 (0.0%) | 26.0 |
+| archive as parent, full span | 3 | +0.06 | 9/29 (31.0%) | 31.0 |
+| generational GA (Ha 2015) | 6 | +0.60 | 2/485 (0.4%) | 12.3 |
+| self-play ES | 6 | +0.69 | 3/424 (0.7%) | 14.3 |
+| sigma = 0.05 | 3 | +0.91 | 0/239 (0.0%) | 11.3 |
+| sigma = 0.20 | 3 | +0.62 | 1/175 (0.6%) | 15.7 |
+| population 32 | 1 | +0.01 | 2/6 (33.3%) | 29.0 |
 
 Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.
 <!-- /table:4 -->
@@ -67,18 +75,18 @@ entire population every 50,000 games, every member can be scored against the
 <!-- table:5 -->
 | games | exported champion | best in the same pool | gap | exported rank | ρ(streak, score) | above parity in pool | mean pairwise genotype distance |
 |---|---|---|---|---|---|---|---|
-| 50,000 | -4.74 | -4.46 | 0.28 | 58 / 128 | +0.12 | 0 | 12.92 |
-| 100,000 | -4.32 | -2.65 | 1.67 | 72 / 128 | -0.00 | 1 | 11.03 |
-| 150,000 | -3.40 | -2.53 | 0.87 | 45 / 128 | +0.09 | 3 | 10.32 |
-| 200,000 | -2.48 | -1.78 | 0.70 | 63 / 128 | +0.03 | 5 | 9.88 |
-| 250,000 | -1.57 | -0.62 | 0.94 | 46 / 128 | +0.09 | 20 | 9.18 |
-| 300,000 | -1.38 | -0.50 | 0.87 | 51 / 128 | +0.13 | 25 | 10.54 |
-| 350,000 | -1.67 | -0.46 | 1.21 | 72 / 128 | +0.08 | 30 | 10.33 |
-| 400,000 | -1.41 | -0.41 | 1.00 | 63 / 128 | +0.11 | 46 | 11.81 |
-| 450,000 | -0.58 | +0.60 | 1.18 | 71 / 128 | -0.02 | 45 | 12.23 |
-| 500,000 | -0.29 | +0.66 | 0.94 | 73 / 128 | +0.06 | 58 | 11.36 |
+| 50,000 | -4.73 | -4.51 | 0.22 | 50 / 128 | +0.09 | 0 | 12.66 |
+| 100,000 | -3.91 | -2.22 | 1.69 | 71 / 128 | +0.00 | 1 | 10.79 |
+| 150,000 | -2.94 | -2.05 | 0.89 | 58 / 128 | +0.04 | 5 | 10.43 |
+| 200,000 | -2.05 | -1.31 | 0.74 | 54 / 128 | +0.05 | 13 | 10.13 |
+| 250,000 | -1.36 | -0.42 | 0.93 | 50 / 128 | +0.07 | 23 | 9.07 |
+| 300,000 | -1.07 | -0.29 | 0.78 | 44 / 128 | +0.10 | 32 | 10.50 |
+| 350,000 | -1.41 | -0.31 | 1.09 | 73 / 128 | +0.04 | 34 | 10.53 |
+| 400,000 | -1.18 | -0.30 | 0.88 | 56 / 128 | +0.15 | 47 | 12.61 |
+| 450,000 | -0.48 | +0.54 | 1.03 | 76 / 128 | -0.03 | 49 | 12.23 |
+| 500,000 | -0.08 | +0.62 | 0.70 | 61 / 128 | +0.07 | 67 | 11.38 |
 
-Control runs only (5 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
+Control runs only (6 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
 <!-- /table:5 -->
 
 Three things in that table, in increasing order of how much they matter.
@@ -134,7 +142,7 @@ correlation between the winning-streak counter and score against the 2015
 baseline, every seed and snapshot — indistinguishable from zero.*
 
 This reframes the headline result of the reference run. The published number for
-this algorithm — Ha's +0.353, our reference run's +0.304 — is not the quality
+this algorithm — Ha's <!-- n:ha_published -->+0.35<!-- /n -->, our reference run's <!-- n:ref_final_holdout -->+0.04<!-- /n --> at its final checkpoint — is not the quality
 the population reaches. It is the quality of a middling member of that
 population, and the pool it was drawn from contains individuals a point better.
 **A meaningful part of what looked like coevolutionary instability is
@@ -158,14 +166,15 @@ the first one we implemented was wrong in an instructive way.
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | -0.15 ± 0.27 | +0.32 ± 0.06 | -0.32 ± 0.23 | 0.67 | 0.60 | 26% | 192k (6/6) |
-| archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
+| archive as test, full span | 6 | -1.01 ± 0.83 | -0.55 ± 0.86 | -1.06 ± 0.78 | 0.51 | 0.52 | 18% | 195k (4/6) |
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
-| archive as parent, full span | 2 | -4.84 ± 0.00 | -4.84 ± 0.00 | -4.84 ± 0.00 | 0.02 | 0.05 | 0% | — (0/2) |
+| archive as parent, full span | 3 | -4.84 ± 0.00 | -4.83 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.05 | 0% | — (0/3) |
 | generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
 | self-play ES | 6 | -2.08 ± 0.94 | -1.56 ± 0.99 | -2.46 ± 0.93 | 0.21 | 0.18 | 7% | 398k (2/6) |
 | sigma = 0.05 | 3 | -0.17 ± 0.23 | +0.34 ± 0.07 | -0.29 ± 0.15 | 0.69 | 0.64 | 26% | 150k (3/3) |
 | sigma = 0.20 | 3 | -1.66 ± 1.60 | -1.44 ± 1.70 | -1.76 ± 1.54 | 0.38 | 0.36 | 11% | 290k (2/3) |
+| population 32 | 1 | -4.86 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.05 | 0% | — (0/1) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -173,21 +182,21 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 <!-- table:2 -->
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as test, full span | `final_holdout` | -0.953 | -0.28 | 0.485 |
-| archive as test, full span | `late_mean` | -1.178 | -0.67 | 0.065 |
-| archive as test, full span | `volatility` | -0.015 | +0.00 | 1.000 |
-| archive as test, full span | `drawdown` | -0.014 | +0.00 | 1.000 |
-| archive as test, full span | `above_parity` | -0.187 | -0.75 | 0.028 |
+| archive as test, full span | `final_holdout` | -0.859 | -0.28 | 0.485 |
+| archive as test, full span | `late_mean` | -0.745 | -0.22 | 0.589 |
+| archive as test, full span | `volatility` | -0.157 | -0.22 | 0.589 |
+| archive as test, full span | `drawdown` | -0.083 | -0.11 | 0.818 |
+| archive as test, full span | `above_parity` | -0.087 | -0.33 | 0.370 |
 | archive as parent, p=0.25 | `final_holdout` | -3.951 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `late_mean` | -3.828 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
 | archive as parent, p=0.25 | `drawdown` | -0.366 | -0.67 | 0.065 |
 | archive as parent, p=0.25 | `above_parity` | -0.245 | -0.94 | 0.004 |
-| archive as parent, full span | `final_holdout` | -4.688 | -1.00 | 0.071 |
-| archive as parent, full span | `late_mean` | -4.527 | -1.00 | 0.071 |
-| archive as parent, full span | `volatility` | -0.657 | -1.00 | 0.071 |
-| archive as parent, full span | `drawdown` | -0.554 | -1.00 | 0.071 |
-| archive as parent, full span | `above_parity` | -0.263 | -1.00 | 0.071 |
+| archive as parent, full span | `final_holdout` | -4.688 | -1.00 | 0.024 |
+| archive as parent, full span | `late_mean` | -4.528 | -1.00 | 0.024 |
+| archive as parent, full span | `volatility` | -0.659 | -1.00 | 0.024 |
+| archive as parent, full span | `drawdown` | -0.550 | -1.00 | 0.024 |
+| archive as parent, full span | `above_parity` | -0.263 | -1.00 | 0.024 |
 | generational GA (Ha 2015) | `final_holdout` | -1.852 | -0.67 | 0.065 |
 | generational GA (Ha 2015) | `late_mean` | -1.299 | -0.78 | 0.026 |
 | generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
@@ -230,50 +239,63 @@ which on those two metrics alone makes them the most stable condition in the
 matrix. A dead run is perfectly stable. Every stability comparison in Table 2 is
 therefore also reported over the subset of runs that actually learned.
 
-**The archive as a test (`hof-eval`).** The literature's reading
+**The archive as a test (`hof-eval-v2`).** The literature's reading
 (Rosin & Belew, 1997) uses the archive to supply *opponents against which
-fitness is measured*; archive members are never parents. In `hof-eval` an
+fitness is measured*; archive members are never parents. In `hof-eval-v2` an
 archive game that the population member loses costs it its slot, but the
 replacement genes come from the living pool, so genetic material never leaves
-the population. The archive spans the whole run (capacity 512).
+the population. The archive spans the whole run (capacity <!-- n:hof_cap_full -->512<!-- /n -->).
 
-Done this way the archive stops being destructive — every seed learns to rally,
-as reliably as the control — but it does not stabilise anything either. It makes
-the run *worse*: a lower level in the last 100,000 games and fewer above-parity
-checkpoints than the control, with a large effect size and a p-value that, at six
-seeds a side, sits just outside conventional significance.
+An earlier version of this condition, `hof-eval`, credited a +1 streak to the
+living peer that supplied the replacement genes, although that peer had not
+played. Because the individual with the longest streak is what enters the
+archive, the bug changed the archive and with it the whole trajectory, so the
+condition was rerun rather than re-exported. The `hof-eval` runs are kept on
+disk, excluded from every table, and compared with the rerun in the decision
+log. The bug matters: it made the archive look measurably worse than the
+control, and it slowed the transition to long rallies. The text below is from
+the corrected runs only.
 
-The mechanism is visible in the data and it follows directly from §1.
+Done this way the archive is **neither destructive nor helpful**.
+<!-- n:hoftest_reached -->5/6<!-- /n --> seeds learned to rally (control <!-- n:ctrl_reached -->6/6<!-- /n -->) and <!-- n:hoftest_parity -->4/6<!-- /n --> produced an
+above-parity champion (control <!-- n:ctrl_parity -->6/6<!-- /n -->). At <!-- n:seeds_main -->6<!-- /n --> seeds a side it is
+indistinguishable from the control on every outcome: checkpoints above parity
+<!-- n:hoftest_above_pct -->18<!-- /n -->% against <!-- n:ctrl_above_pct -->26<!-- /n -->% (Cliff's δ = <!-- n:hoftest_vs_ctrl_above_delta -->-0.33<!-- /n -->, exact p = <!-- n:hoftest_vs_ctrl_above_p -->0.370<!-- /n -->), mean
+level over the last <!-- n:late_window -->100,000<!-- /n --> games δ = <!-- n:hoftest_vs_ctrl_late_delta -->-0.22<!-- /n --> (p = <!-- n:hoftest_vs_ctrl_late_p -->0.589<!-- /n -->), best held-out
+champion δ = <!-- n:hoftest_vs_ctrl_peak_delta -->+0.00<!-- /n --> (p = <!-- n:hoftest_vs_ctrl_peak_p -->1.000<!-- /n -->). The runs that learned did so at a median
+of <!-- n:hoftest_t_internal_median -->150,000<!-- /n --> games, in line with the control.
+
+Why it has little to do is visible in the data, and it follows directly from §1.
 
 ![archive decay](../../results/figures/fig10_archive_decay.png)
 
 *Figure 10. Left: the archive's win rate against the current population, every
-archive run. It starts at chance and collapses. Right: the share of the game
-budget that produces no selection event at all, because an archive game the
-population member wins overwrites nothing.*
+archive run. Right: the share of games that produce no selection event at all,
+because an archive game the population member wins overwrites nothing.*
 
 Early in a run, archived champions are genuine opposition and win about half
-their games. By the end they win under a tenth. Skill in this environment is
-transitive (§1), so a past champion is simply a weaker player, and playing it is
-a nearly foregone conclusion. Since an archive game that the population member
-wins overwrites nothing, roughly **22% of all games late in training produce no
-selection event whatsoever** — the archive is not insurance, it is a tax levied
-on the live arms race.
+their games (<!-- n:hoftest_win_early_min -->0.46<!-- /n -->–<!-- n:hoftest_win_early_max -->0.50<!-- /n --> over the first <!-- n:hof_window -->50,000<!-- /n --> games). In every run whose
+population learned, they end at <!-- n:hoftest_win_late_learned_min -->0.11<!-- /n -->–<!-- n:hoftest_win_late_learned_max -->0.16<!-- /n -->: skill in this environment is
+transitive (§1), so a past champion is simply a weaker player. Since an archive
+game that the population member wins overwrites nothing,
+<!-- n:hoftest_skip_late_learned_min -->21<!-- /n -->–<!-- n:hoftest_skip_late_learned_max -->22<!-- /n -->% of late-training games produce no selection event. In the run
+that never learned, the archive's win rate stayed at <!-- n:hoftest_win_late_failed -->0.50<!-- /n -->: past and present
+were equally bad.
 
-That yields a general rule with a number attached, and a cheap diagnostic:
+That suggests a cheap diagnostic, offered as a description of these runs rather
+than a validated rule:
 
-> **A hall of fame pays for itself only to the extent that archived opponents
-> can still win.** Log the archive's win rate against the current population. If
-> it decays towards zero, the archive has become a free win and the budget spent
-> on it is subtracted from the arms race that is actually driving progress. In a
-> genuinely intransitive domain it would not decay — old strategies would keep
-> beating some current ones, which is exactly the case the remedy was designed
-> for.
+> **Log the archive's win rate against the current population.** If it decays
+> towards zero, the archive has become a near-certain win and its games buy
+> little selection; in a genuinely intransitive domain it would not decay — old
+> strategies would keep beating some current ones, which is the case the remedy
+> was designed for. Here the decay tracked whether the population improved, and
+> the budget it consumed did not measurably slow learning.
 
 The two archive conditions together therefore say something more useful than
 either alone: an archive that supplies *parents* destroys learning, an archive
-that supplies *tests* wastes budget, and neither helps, because the pathology
-they were built to fix is not present here.
+that supplies *tests* neither harms nor helps detectably, and neither is worth
+its complexity here, because the pathology it was built to fix is not present.
 
 ![hall of fame](../../results/figures/fig3_hall_of_fame.png)
 
@@ -339,74 +361,68 @@ strong side's σ to equalise the step norms and isolate capacity from search
 granularity.
 
 <!-- table:10 -->
-| condition | seed | win rate of the larger side | larger side, final score | smaller side, final score | who learned |
+| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
 |---|---|---|---|---|---|
-| symmetric control (273 v 273) | 101 | 0.812 | -4.72 | -4.80 | neither |
-| symmetric control (273 v 273) | 102 | 0.001 | -4.82 | -0.15 | smaller |
-| symmetric control (273 v 273) | 103 | 0.247 | -2.67 | -0.83 | both |
-| 2:1 capacity (531 v 273), same σ | 101 | 0.001 | -4.83 | +0.23 | smaller |
-| 2:1 capacity (531 v 273), same σ | 102 | 0.896 | -0.94 | -4.85 | larger |
+| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
+| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
+| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
 
-Two populations of 128 playing only each other, 750,000 games, 25% of each population's games crossed with the other side. 'Win rate of the larger side' is over cross-population games in the last 100,000 games; 0.5 means the sides are holding each other. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking. 'Who learned' counts a side as having learned if its final champion scores above −4.0 against the 2015 baseline.
+Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
 <!-- /table:10 -->
 
 ![unequal power](../../results/figures/fig11_asymmetric.png)
 
 *Figure 11. Top: the larger side's win rate in cross-population games; 0.5 means
-the sides are holding each other. Bottom: each side's champion against the 2015
-baseline. Left column is the symmetric control, where both populations have the
-identical architecture.*
+the sides are holding each other. Bottom: the best individual each population
+contains, scored against the 2015 baseline — the pool, not an exported champion.
+Left column is the symmetric control, where both populations are identical.*
 
-**Three things, in order of how much they surprised us.**
+**Mutual improvement essentially never happens.** This is the robust result, and
+it holds across all three conditions. Of eighteen runs, exactly **one** ended
+with both populations containing an above-parity individual. The normal outcome
+is that one side's pool learns and the other's does not (ten runs), or that
+neither does (seven). Single-population self-play has no analogue: there the
+whole pool improves together, and every control seed in this study reached
+competence. Split the same agents into two pools that play each other, and the
+contest resolves into one competent side and one that never gets off the floor.
 
-*A two-population contest is winner-take-all.* Not one run ended anywhere near a
-balanced 0.5. The cross-population win rate always runs away to one side or the
-other, usually to an extreme — 0.001 in some seeds, meaning one population lost
-essentially every game it played against the other for the last hundred thousand
-games. Single-population self-play has no analogue of this: there, everyone
-improves together.
+**The contest is decisive, and it is decisive without any asymmetry.** Thirteen
+of eighteen runs end with a cross-population win rate below 0.1 or above 0.9 —
+one side winning essentially every game it plays. Four of those are in the
+*symmetric* control, where the two populations have identical architecture,
+identical budget and identical mutation scale, and differ only in their random
+initialisation. Runaway dominance is therefore not something asymmetry causes.
+It is the default behaviour of this kind of contest, and it is the null against
+which any asymmetry has to be measured.
 
-*In the symmetric control, which side wins is arbitrary.* Both populations have
-identical architecture, identical budget, identical mutation scale. There is
-nothing to distinguish them but their random initialisation, and yet the same
-runaway happens, in whichever direction the early noise pushed. That is
-spontaneous symmetry breaking, and it is the baseline against which any effect
-of asymmetry has to be judged.
+**A 1.95 : 1 capacity advantage does not reliably decide the contest.** Neither
+2:1 condition is distinguishable from the symmetric control: Cliff's δ of −0.33
+(p = 0.39) for the common-σ variant and +0.11 (p = 0.82) for the matched-step
+variant. Whatever advantage twice the policy capacity confers here, it is
+smaller than the symmetry-breaking noise it would have to overcome. The naive
+intuition — that the materially stronger side wins a head-to-head contest — is
+not supported.
 
-*Twice the capacity does not decide the contest.* Across the seeds of the 2:1
-condition, the larger side both lost essentially every game and won essentially
-every game, depending on nothing more than the seed — the same spread as the
-symmetric control produces with no asymmetry at all. If a 1.95 : 1 advantage in
-policy capacity mattered here, it is smaller than the symmetry-breaking noise it
-would have to overcome.
+**The step size mattered more than the capacity did, which is the useful
+finding.** The two 2:1 conditions differ only in whether the larger side's
+mutation scale is corrected for its genome size, and they came out on opposite
+sides: with a common per-parameter σ the larger side led in 2 of 6 runs (median
+win rate 0.02), and with the step norm matched it led in 5 of 6 (median 0.95).
+The difference between them is the largest effect in this section — δ = +0.67,
+p = 0.065 — though at six seeds a side it is suggestive rather than
+established. The reading is that a bigger network is not automatically a
+stronger competitor: mutation is applied per parameter, so a larger genome takes
+a larger step in weight space, and left uncorrected that handicap roughly
+cancels the benefit of the extra capacity. Capability has to be matched by an
+adaptation process scaled to it, or it does not convert into advantage.
 
-**The mechanism is disengagement, and it is the interesting part.** In this
-game, whoever falls behind loses *every* cross-population game, and a contest
-you always lose carries no information: there is no gradient in a uniform
-defeat. The side that pulls ahead keeps improving; the side that falls behind
-stops. It is not that the weaker side competes badly — it is that it stops
-having a usable opponent at all, while the leader still does. The failure is
-structural, not a matter of capability.
-
-**Two caveats, both important.** First, three seeds per condition against an
-outcome that is close to a coin flip is very little power: what we can say is
-that a 1.95 : 1 capacity advantage does not *dominate* the symmetry-breaking
-noise, not that capacity has no effect at all. Establishing a smaller effect
-would need tens of seeds, which is cheap in this environment and is the obvious
-extension.
-
-Second, a caveat about our own rule. When a population member loses a
-cross-population game it is replaced by a mutant of a randomly drawn peer, and
-that peer's streak counter is incremented even though the peer did not play. In
-the losing population, which loses nearly every cross game, this inflates streak
-counters more or less at random — and §2 has already shown that the streak
-counter is what selects the exported champion. So for the losing side we cannot
-separate "the population stopped improving" from "the export rule was corrupted
-and is now reporting an arbitrary member". Population snapshots would settle it
-immediately; the asymmetric runs do not save them, and that is a design
-oversight rather than a discovery. It does not affect the win-rate result, which
-is measured over the populations themselves and not over their exported
-champions.
+**Limitations.** Six seeds against outcomes that are close to a coin flip is
+enough to say that a 1.95 : 1 capacity advantage does not *dominate* the
+symmetry-breaking noise; it is not enough to say capacity has no effect. The
+step-norm comparison, which is the most interesting result here, would need
+roughly three times the seeds to move from suggestive to established. Both are
+cheap in this environment — a run takes about fifteen minutes on one core — and
+are the obvious extension.
 
 ## 6. Different machinery: a generational GA and an evolution strategy
 
@@ -494,13 +510,21 @@ champion of every other run.
 <!-- table:6 -->
 | condition | runs | median Elo | best run | worst run |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | +373 | +785 | +238 |
-| archive as parent, p=0.25 | 5 | -421 | -355 | -483 |
+| control (Ha 2020 GA) | 6 | +295 | +657 | +225 |
+| archive as test, full span | 6 | +381 | +650 | -596 |
+| archive as parent, p=0.25 | 6 | -557 | +406 | -606 |
+| archive as parent, p=0.50 | 1 | -588 | -588 | -588 |
+| archive as parent, full span | 3 | -584 | -580 | -589 |
+| generational GA (Ha 2015) | 6 | +56 | +595 | -607 |
+| self-play ES | 6 | +99 | +526 | -576 |
+| sigma = 0.05 | 3 | +472 | +492 | +279 |
+| sigma = 0.20 | 3 | +181 | +346 | -582 |
+| population 32 | 1 | -577 | -577 | -577 |
 
-Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 10/7651 (0.1%).
 <!-- /table:6 -->
 
-## 8. Synthesis: eight lessons about competitive coevolution
+## 8. Synthesis: ten lessons about competitive coevolution
 
 None of what follows is about volleyball. Slime Volleyball is a probe — small
 enough that every claim can be checked, adversarial enough that the coevolutionary
@@ -519,21 +543,21 @@ evolution that must promote one program out of a generation. The diagnostic is
 cheap and should come first: *before* attributing a noisy progress curve to
 coevolutionary dynamics, check whether your promotion rule can rank your
 population at all. Ours could not: the correlation between the exported
-individual's selection statistic and its actual skill was +0.04, and the rule
+individual's selection statistic and its actual skill was <!-- n:reexport_rho_streak -->+0.04<!-- /n -->, and the rule
 performed slightly *worse* than picking the population's median member. It is not
 a weak selector; it is very nearly an uninformative one.
 
 **2. The promotion rule is fixable, cheaply, and it is worth fixing.** Ranking a
 population by having it play *itself* — using no external information, so this is
-a deployable rule and not an oracle — recovers most of the gap. At 4,096 games,
-which is eight tenths of one percent of a 500,000-game training run, an internal
-round robin closes about two thirds of the distance between the streak-exported
+a deployable rule and not an oracle — recovers most of the gap. At <!-- n:reexport_games_max -->4,096<!-- /n --> games,
+which is <!-- n:reexport_budget_pct -->0.8<!-- /n -->% of a <!-- n:budget -->500,000<!-- /n -->-game training run, an internal
+round robin closes <!-- n:reexport_rec_max -->65<!-- /n -->% of the distance between the streak-exported
 champion and the genuinely best member, and reduces the volatility of the
-reported curve by roughly a fifth. The returns diminish but do not reverse.
+reported curve by <!-- n:reexport_vol_reduction_pct -->19<!-- /n -->%. The returns diminish but do not reverse.
 
 The residual gap is the more interesting half. The rank correlation between
-internal margin and true skill saturates around +0.6 and does not keep climbing
-with budget, so the remaining third of the gap is not sampling noise — it is a
+internal margin and true skill saturates around <!-- n:reexport_rho_max -->+0.57<!-- /n --> and does not keep climbing
+with budget, so the remaining gap is not sampling noise — it is a
 genuine mismatch. Internal fitness measures skill against the *current* opponent
 distribution, which is a narrow and self-referential slice of the strategy space,
 and being best inside that slice is not the same as being best against an unseen
@@ -591,7 +615,31 @@ and everything to do with not betting the run on one path — and it is invisibl
 to a single-seed study, which will simply report whichever mode it happened to
 land in.
 
-**8. In a purely relative ecology, the population is the unit that becomes
+**8. A bilateral contest resolves into one winner and one collapsed side;
+mutual improvement is the rare case.** Split one pool of agents into two that
+play only each other, and of eighteen runs exactly one ended with both sides
+holding a competent individual. Thirteen ended with one side winning
+essentially every game. Crucially, four of those runaways happened in the
+*symmetric* control, where the two sides were identical in every respect but
+their random seed — so runaway dominance is not caused by an imbalance, it is
+the default. The mechanism is disengagement: a contest you lose every time
+carries no gradient, so the side that falls behind stops improving while the
+leader keeps going. The same agents in a single shared ecology all improve
+together. The structure of the interaction, not the capability of the
+participants, decides whether both sides develop.
+
+**9. Capability does not convert into advantage unless the adaptation process
+is scaled to it.** Doubling one side's policy capacity did not reliably decide
+the contest — neither 2:1 condition was distinguishable from the symmetric
+control. But the two 2:1 conditions differed from *each other*: with a common
+per-parameter mutation scale the larger side led in 2 of 6 runs, and with the
+mutation scale corrected for genome size it led in 5 of 6. A bigger genome takes
+a bigger step in weight space at the same per-parameter σ, and that handicap
+roughly cancels the extra capacity. The general form: extra capability is not
+free, it changes the geometry of the search that has to exploit it, and an
+adaptation process tuned for the smaller system will squander the larger one.
+
+**10. In a purely relative ecology, the population is the unit that becomes
 competent, not the individual.** At the end of a control run, dozens of the 128
 members score above parity against an opponent none of them ever saw, while the
 individual the algorithm hands you does not. "The system is competent" and "the

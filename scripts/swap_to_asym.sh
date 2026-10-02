@@ -2,7 +2,7 @@
 # Stops the main queue once everything before the population sweep is done, then
 # runs the asymmetric-power condition in its place. The queue process already
 # holds its job list, so editing queue.sh alone would not take effect.
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 for i in $(seq 1 500); do
   if [ -f results/matrix/hof-full_s103.npz ]; then
     Q=$(pgrep -f 'run_experiments[.]py --workers 3 --only hof-eval' | head -1)

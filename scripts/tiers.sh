@@ -1,7 +1,7 @@
 #!/bin/bash
 # tiers.sh — run the matrix in priority order, so the scientific core lands
 # first and the precision-only runs come last.
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 P=.venv/bin/python
 run () { $P -W ignore run_experiments.py --workers 3 "$@" >> results/matrix.log 2>&1; }
 echo "TIER 1a: finish control + hof-0.25" >> results/matrix.log

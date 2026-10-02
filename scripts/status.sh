@@ -1,6 +1,6 @@
 #!/bin/bash
 # status.sh — one-line view of everything in flight.
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 echo "== $(date -u +%H:%M) =="
 echo "matrix runs done: $(ls results/matrix/*.npz 2>/dev/null | wc -l)"
 tail -n 3 results/matrix.log | grep "min\]" || true

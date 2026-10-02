@@ -12,7 +12,22 @@ results land refreshes the paper in place, and `git diff docs/paper` shows
 exactly which numbers moved.
 
     python make_tables.py            # inject into docs/paper/*.md
-    python make_tables.py --check    # fail if injection would change anything
+    python make_tables.py --check    # fail unless every table follows from disk
+
+`--check` fails when
+
+  * any table named by a marker (README.md, docs/paper/*.md) or present in
+    docs/paper/_tables.md cannot be built — a table is never silently
+    skipped because its data is missing;
+  * any analysis file a table is built from does not follow from the raw
+    files on disk (provenance.py: an input deleted, added or changed, or the
+    analysis file edited by hand);
+  * injecting the tables would change any file.
+
+Numbers in running text are handled the same way: prose_numbers.py defines
+each one, markdown carries `<!-- n:key -->value<!-- /n -->` markers, and
+paper/numbers.tex is written from the same values. An unknown key, a stale
+value or a stale numbers.tex fails the check.
 """
 
 import argparse
@@ -24,14 +39,19 @@ import sys
 
 import numpy as np
 
+import prose_numbers as pn
+import provenance as pv
+
 ANDIR = "results/analysis"
 PAPER = "docs/paper"
+NUMBERS_TEX = "paper/numbers.tex"
+NUM = re.compile(r"(<!-- n:([A-Za-z_]+) -->)(.*?)(<!-- /n -->)")
 LABELS = {
     "control": "control (Ha 2020 GA)",
     "hof-0.25": "archive as parent, p=0.25",
     "hof-0.50": "archive as parent, p=0.50",
     "hof-full": "archive as parent, full span",
-    "hof-eval": "archive as test, full span",
+    "hof-eval-v2": "archive as test, full span",
     "ga2015": "generational GA (Ha 2015)",
     "es": "self-play ES",
     "sigma-0.05": "sigma = 0.05",
@@ -39,13 +59,8 @@ LABELS = {
     "pop-32": "population 32",
     "pop-512": "population 512",
 }
-ORDER = ["control", "hof-eval", "hof-0.25", "hof-0.50", "hof-full",
+ORDER = ["control", "hof-eval-v2", "hof-0.25", "hof-0.50", "hof-full",
          "ga2015", "es", "sigma-0.05", "sigma-0.20", "pop-32", "pop-512"]
-
-
-def load(name):
-    p = os.path.join(ANDIR, name)
-    return json.load(open(p)) if os.path.exists(p) else None
 
 
 def fmt(x, nd=2, sign=False):
@@ -453,7 +468,7 @@ def table_9(d):
 
 
 def table_10(d):
-    """Unequal power: who dominates, and does either side keep learning."""
+    """Unequal power: who dominates, and whose population learns."""
     import glob as _glob
     import numpy as _np
     rows = {}
@@ -465,39 +480,148 @@ def table_10(d):
     if not rows:
         return None
     label = {"asym1x": "symmetric control (273 v 273)",
-             "asym2x": "2:1 capacity (531 v 273), same σ",
-             "asym2x-norm": "2:1 capacity (531 v 273), matched step norm"}
-    out = ["| condition | seed | win rate of the larger side | larger side, "
-           "final score | smaller side, final score | who learned |",
+             "asym2x": "2:1 capacity, common σ",
+             "asym2x-norm": "2:1 capacity, matched step norm"}
+    out = ["| condition | seeds | larger side wins cross-play | larger side's "
+           "pool, best member | smaller side's pool, best member | runs where "
+           "only one side's pool learned |",
            "|---|---|---|---|---|---|"]
     for cond in ("asym1x", "asym2x", "asym2x-norm"):
         if cond not in rows:
             continue
+        wr, ba, bb, one_sided, dom = [], [], [], 0, 0
         for seed, sides in sorted(rows[cond].items()):
             ka = "strong" if "strong" in sides else "a"
             kb = "weak" if "weak" in sides else "b"
-            wr = float(sides[ka]["a_winrate"][-20:].mean())
-            fa = float(sides[ka]["mean_score"][-1])
-            fb = float(sides[kb]["mean_score"][-1])
-            la, lb = fa > -4.0, fb > -4.0
-            who = ("both" if la and lb else "larger" if la else
-                   "smaller" if lb else "neither")
-            out.append(f"| {label[cond]} | {seed} | {wr:.3f} | {fa:+.2f} | "
-                       f"{fb:+.2f} | {who} |")
+            if "pop_best" not in sides[ka]:
+                continue
+            w = float(sides[ka]["a_winrate"][-10:].mean())
+            a = float(sides[ka]["pop_best"][-1])
+            b = float(sides[kb]["pop_best"][-1])
+            wr.append(w); ba.append(a); bb.append(b)
+            if (a > 0) != (b > 0):
+                one_sided += 1
+            if w > 0.5:
+                dom += 1
+        if not wr:
+            continue
+        out.append(f"| {label[cond]} | {len(wr)} | "
+                   f"{_np.median(wr):.2f} (range {min(wr):.2f}–{max(wr):.2f}); "
+                   f"larger side ahead in {dom}/{len(wr)} | "
+                   f"{_np.median(ba):+.2f} | {_np.median(bb):+.2f} | "
+                   f"{one_sided}/{len(wr)} |")
     out.append("")
-    out.append("Two populations of 128 playing only each other, 750,000 games, "
-               "25% of each population's games crossed with the other side. "
-               "'Win rate of the larger side' is over cross-population games in "
-               "the last 100,000 games; 0.5 means the sides are holding each "
-               "other. In the symmetric control both sides have identical "
-               "architecture, so any departure from 0.5 there is spontaneous "
-               "symmetry breaking. 'Who learned' counts a side as having "
-               "learned if its final champion scores above −4.0 against the "
-               "2015 baseline.")
+    out.append("Two populations of 128 playing only each other for 500,000 "
+               "games; a quarter of each population's games are crossed with "
+               "the other side. Win rate is over cross-population games in the "
+               "last 50,000 games — 0.5 means the sides are holding each other. "
+               "'Pool, best member' is the best individual the population "
+               "contains at the end, scored against the 2015 baseline, not the "
+               "exported champion. In the symmetric control both sides have "
+               "identical architecture, so any departure from 0.5 there is "
+               "spontaneous symmetry breaking and is the null the other two "
+               "rows are judged against.")
     return "\n".join(out)
 
 
+def table_c(d):
+    """The design: every condition analysed, what it changes, how many runs.
+
+    Parameters come from protocol.json (single population) and from the run
+    files themselves (two populations), so the table describes what ran.
+    """
+    per_run = d["per_run"]
+    if not per_run:
+        return None
+    proto = json.load(open("results/matrix/protocol.json"))
+    pc = proto["conditions"]
+    ctrl = pc["control"]
+    runs = {}
+    for v in per_run.values():
+        c = v["condition"]
+        base = c.rsplit("-", 1)[0] if c.startswith("asym") else c
+        runs.setdefault(base, set()).add(v["seed"])
+
+    def single(c):
+        a = pc[c]
+        algo = a.get("algo", "ga")
+        if algo == "ga2015":
+            return (f"generational GA: population {a['pop']}, {a['n_opponents']} "
+                    f"games per individual per generation, top {a['n_elite']} "
+                    f"kept, uniform crossover, σ = {a['sigma']}")
+        if algo == "es":
+            return (f"self-play OpenAI-ES: {a['pop']} mirrored perturbations, "
+                    f"{a['n_opponents']} games each, learning rate {a['alpha']}, "
+                    f"σ = {a['sigma']}; reports the mean")
+        if algo == "hof_eval":
+            return (f"archive as test: with p = {a['hof_prob']} the opponent is "
+                    f"an archived champion (capacity {a['cap']}); genes come "
+                    f"only from the living pool")
+        if a["hof_prob"] > 0:
+            return (f"archive as parent: with p = {a['hof_prob']} the opponent "
+                    f"is an archived champion (capacity {a['cap']}) whose "
+                    f"mutant replaces a member it beats")
+        diff = []
+        if a["sigma"] != ctrl["sigma"]:
+            diff.append(f"mutation scale σ = {a['sigma']}")
+        if a["pop"] != ctrl["pop"]:
+            diff.append(f"population {a['pop']}")
+        return ", ".join(diff) or (
+            f"Ha's 2020 GA: population {a['pop']}, σ = {a['sigma']}, "
+            f"champion = longest winning streak")
+
+    out = ["| condition | what it changes relative to the control | runs |",
+           "|---|---|---|"]
+    for k in ORDER:
+        if k in runs and k in pc:
+            out.append(f"| `{k}` | {single(k)} | {len(runs[k])} |")
+    for base in ("asym1x", "asym2x", "asym2x-norm"):
+        if base not in runs:
+            continue
+        sides = {}
+        for f in sorted(glob.glob("results/matrix/asym*_s*.npz")):
+            cond, side = os.path.basename(f)[:-4].rsplit("_s", 1)[0].rsplit("-", 1)
+            if cond == base and side not in sides:
+                z = np.load(f)
+                sides[side] = (int(z["param_count"][0]), float(z["sigma"][0]),
+                               float(z["cross_prob"][0]))
+        if len(sides) != 2:
+            continue
+        # larger side first; the symmetric control's sides are equal
+        (pa, sa, cp), (pb, sb, _) = sorted(sides.values(), reverse=True)
+        out.append(f"| `{base}` | two populations of {pc['control']['pop']}, "
+                   f"{pa} v {pb} parameters, σ = {sa:.3f} v {sb:.3f}; a share "
+                   f"{cp} of games crosses populations | {len(runs[base])} |")
+    out.append("")
+    out.append("Every run plays 500,000 games. Two-population runs count once "
+               "per seed.")
+    return "\n".join(out)
+
+
+# The analysis files each table is built from. Table 10 reads the raw
+# two-population runs directly; per_run.json's provenance covers those files.
+FILES = {
+    "per_run": f"{ANDIR}/per_run.json",
+    "conditions": f"{ANDIR}/conditions.json",
+    "within": f"{ANDIR}/within_run.json",
+    "across": f"{ANDIR}/across_runs.json",
+    "proxy": f"{ANDIR}/champion_proxy.json",
+    "reference": f"{ANDIR}/reference_curve.json",
+    "reexport": f"{ANDIR}/reexport.json",
+    "resume": f"{ANDIR}/resume_fast.json",
+    "validation": "results/validation.json",
+}
+DEPS = {
+    "c": ["per_run"],
+    "1": ["conditions"], "2": ["conditions"], "3": ["reference"],
+    "4": ["within"], "5": ["proxy"], "6": ["across"], "7": ["per_run"],
+    "8": ["per_run", "reference"], "9": ["reexport"], "10": ["per_run"],
+    "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
+    "a2": ["per_run"], "a3": ["resume", "reference"],
+}
+
 TABLES = {
+    "c": table_c,
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
     "r": table_r,
@@ -505,24 +629,81 @@ TABLES = {
 }
 
 
+# Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
+PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3"]
+TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
+           ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
+           ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),
+           ("#", r"\#")]
+
+
+def md_cell_to_tex(cell):
+    cell = cell.strip()
+    code = re.findall(r"`([^`]*)`", cell)
+    cell = re.sub(r"`([^`]*)`", "\x00", cell)
+    cell = cell.replace("_", r"\_")
+    for a, b in TEX_MAP:
+        cell = cell.replace(a, b)
+    cell = re.sub(r"(?<![\w.$-])-(\d)", r"$-$\1", cell)   # not the 2nd '-' of '--'
+    cell = re.sub(r"\*([^*]+)\*", r"\\emph{\1}", cell)
+    for c in code:
+        cell = cell.replace("\x00", r"\texttt{" + c.replace("_", r"\_") + "}", 1)
+    return cell
+
+
+# column types where the default (left, then right-aligned) does not fit
+_L = r">{\raggedright\arraybackslash}p{%s}"
+_R = r">{\raggedleft\arraybackslash}p{%s}"
+TEX_SPEC = {
+    "c": r"l>{\raggedright\arraybackslash}p{0.66\linewidth}r",
+    "r": _L % "0.24\\linewidth" + "r" + "".join(_R % "0.13\\linewidth"
+                                              for _ in range(4)),
+    "10": _L % "0.17\\linewidth" + "r" + _L % "0.27\\linewidth"
+          + "".join(_R % "0.12\\linewidth" for _ in range(3)),
+}
+
+
+def md_table_to_tex(md, spec=None):
+    """The table part of a generated markdown table as a booktabs tabular."""
+    rows = [l for l in md.split("\n") if l.startswith("|")]
+    head = [c for c in rows[0].strip("|").split("|")]
+    body = [[c for c in r.strip("|").split("|")] for r in rows[2:]]
+    spec = spec or "l" + "r" * (len(head) - 1)
+    out = ["% generated by make_tables.py from the markdown table -- do not edit",
+           f"\\begin{{tabular}}{{{spec}}}", "\\toprule",
+           " & ".join(md_cell_to_tex(c) for c in head) + r" \\", "\\midrule"]
+    out += [" & ".join(md_cell_to_tex(c) for c in r) + r" \\" for r in body]
+    out += ["\\bottomrule", "\\end{tabular}"]
+    return "\n".join(out) + "\n"
+
+
+def targets():
+    """Every file that carries table markers."""
+    out = [p for p in sorted(glob.glob(os.path.join(PAPER, "*.md")))
+           if not os.path.basename(p).startswith("_")]
+    return out + [p for p in ("README.md",) if os.path.exists(p)]
+
+
+def required_tables(paths):
+    """Tables some document expects: a marker, or a section of _tables.md."""
+    keys = set()
+    for path in paths:
+        keys |= set(re.findall(r"<!-- table:([\w-]+) -->", open(path).read()))
+    tm = os.path.join(PAPER, "_tables.md")
+    if os.path.exists(tm):
+        keys |= {k.lower() for k in
+                 re.findall(r"^### Table (\S+)$", open(tm).read(), re.M)}
+    return keys
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true",
-                    help="exit non-zero if any table is out of date")
+                    help="exit non-zero unless every table follows from disk")
     args = ap.parse_args()
 
-    d = {
-        "per_run": load("per_run.json"),
-        "conditions": load("conditions.json"),
-        "within": load("within_run.json"),
-        "across": load("across_runs.json"),
-        "proxy": load("champion_proxy.json"),
-        "reference": load("reference_curve.json"),
-        "reexport": load("reexport.json"),
-        "resume": load("resume_fast.json"),
-        "validation": (json.load(open("results/validation.json"))
-                       if os.path.exists("results/validation.json") else None),
-    }
+    d = {k: (json.load(open(p)) if os.path.exists(p) else None)
+         for k, p in FILES.items()}
 
     built = {}
     for key, fn in TABLES.items():
@@ -538,18 +719,67 @@ def main():
     for key in TABLES:
         if key in built:
             combined.append(f"\n### Table {key.upper()}\n\n{built[key]}\n")
-    os.makedirs(PAPER, exist_ok=True)
-    with open(os.path.join(PAPER, "_tables.md"), "w") as f:
-        f.write("\n".join(combined))
+    combined = "\n".join(combined)
+
+    paths = targets()
+    required = required_tables(paths)
+    errors = []
+    for k in sorted(required - set(TABLES)):
+        errors.append(f"table {k}: named in a document but no generator exists")
+    for k in sorted((required & set(TABLES)) - set(built)):
+        errors.append(f"table {k}: named in a document but cannot be built "
+                      f"from the data on disk "
+                      f"(needs {', '.join(FILES[f] for f in DEPS[k])})")
+    # numbers in running text
+    values = pn.compute(d)
+    known = set(pn.definitions())
+    used = set()
+    for path in paths:
+        for m in NUM.finditer(open(path).read()):
+            used.add(m.group(2))
+    for k in sorted(used - known):
+        errors.append(f"number {k}: used in a document but not defined in "
+                      f"prose_numbers.py")
+    for k in sorted((used & known) - set(values)):
+        errors.append(f"number {k}: used in a document but cannot be "
+                      f"computed from the data on disk")
+
+    deps = {FILES[f] for k in (required | set(built)) & set(DEPS)
+            for f in DEPS[k]}
+    deps |= {FILES[f] for k in used & set(values) for f in values[k][1]}
+    if os.path.isdir(os.path.dirname(NUMBERS_TEX)):    # numbers.tex uses all
+        deps |= {FILES[f] for v in values.values() for f in v[1]}
+    errors += pv.verify(sorted(deps))
 
     # README.md carries markers too: the repository is public, so its headline
     # numbers must come from the same generator as the paper's.
-    targets = [p for p in sorted(glob.glob(os.path.join(PAPER, "*.md")))
-               if not os.path.basename(p).startswith("_")]
-    targets += [p for p in ("README.md",) if os.path.exists(p)]
-
     stale = []
-    for path in targets:
+    tm = os.path.join(PAPER, "_tables.md")
+    if not os.path.exists(tm) or open(tm).read() != combined:
+        stale.append(tm)
+        if not args.check:
+            os.makedirs(PAPER, exist_ok=True)
+            open(tm, "w").write(combined)
+    if os.path.isdir("paper"):
+        os.makedirs("paper/tables", exist_ok=True)
+        for key in PAPER_TABLES:
+            path = f"paper/tables/{key}.tex"
+            if key not in built:
+                errors.append(f"table {key}: needed by the paper but cannot be "
+                              f"built")
+                continue
+            tex = md_table_to_tex(built[key], TEX_SPEC.get(key))
+            if not os.path.exists(path) or open(path).read() != tex:
+                stale.append(path)
+                if not args.check:
+                    open(path, "w").write(tex)
+    if os.path.isdir(os.path.dirname(NUMBERS_TEX)):
+        tex = pn.write_tex(values)
+        if not os.path.exists(NUMBERS_TEX) or open(NUMBERS_TEX).read() != tex:
+            stale.append(NUMBERS_TEX)
+            if not args.check:
+                open(NUMBERS_TEX, "w").write(tex)
+    for path in paths:
         src = open(path).read()
         new = src
         for key, md in built.items():
@@ -558,18 +788,22 @@ def main():
                              re.DOTALL)
             if pat.search(new):
                 new = pat.sub(lambda m: m.group(1) + md + m.group(2), new)
+        new = NUM.sub(lambda m: (m.group(1) + values[m.group(2)][0] + m.group(4))
+                      if m.group(2) in values else m.group(0), new)
         if new != src:
             stale.append(path)
             if not args.check:
                 open(path, "w").write(new)
 
     print(f"built {len(built)}/{len(TABLES)} tables: {', '.join(sorted(built))}")
-    missing = [k for k in TABLES if k not in built]
-    if missing:
-        print(f"not yet available: {', '.join(missing)}")
+    for e in errors:
+        print(f"ERROR {e}")
     if args.check:
-        print("OUT OF DATE: " + ", ".join(stale) if stale else "up to date")
-        sys.exit(1 if stale else 0)
+        if stale:
+            print("OUT OF DATE: " + ", ".join(stale))
+        ok = not stale and not errors
+        print("up to date" if ok else "CHECK FAILED")
+        sys.exit(0 if ok else 1)
     print(f"updated: {', '.join(os.path.basename(p) for p in stale) or 'nothing'}")
 
 

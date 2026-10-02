@@ -7,7 +7,12 @@ This shows they produce the same *training dynamics*: both continuations start
 from the identical committed population (results/ga_selfplay/snapshot.npz) and
 are compared over the games that follow.
 
-    python resume_fast.py --tournaments 213000 --seeds 3
+The population is the reference run's snapshot at tournament 324,000, kept
+in results/analysis/resume_base.npz (the live snapshot in results/ga_selfplay
+has since been continued to 500,000). The defaults reproduce the committed
+result:
+
+    python resume_fast.py
 """
 
 import argparse
@@ -18,15 +23,16 @@ import numpy as np
 
 import fastvolley as fv
 import fastvolley_kernels as fk
+import provenance as pv
 from run_experiments import SWEEP_EPISODES, SWEEP_SEED
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--snapshot", default="results/ga_selfplay/snapshot.npz")
+    ap.add_argument("--snapshot", default="results/analysis/resume_base.npz")
     ap.add_argument("--tournaments", type=int, default=None,
                     help="default: however many are left to reach 500,000")
-    ap.add_argument("--seeds", type=int, default=3,
+    ap.add_argument("--seeds", type=int, default=2,       # as committed
                     help="independent continuations of the same population")
     ap.add_argument("--sigma", type=float, default=0.1)
     ap.add_argument("--save-every", type=int, default=5000)
@@ -62,6 +68,10 @@ def main():
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     json.dump(out, open(args.out, "w"))
+    if args.snapshot == "results/analysis/resume_base.npz":
+        pv.record(args.out, "resume",
+                  params={"tournaments": n, "seeds": args.seeds,
+                          "sigma": args.sigma, "save_every": args.save_every})
     print(f"-> {args.out}")
 
 

@@ -9,7 +9,6 @@ re-scored curve. Writes results/figures/*.png.
 """
 
 import argparse
-import glob
 import json
 import os
 
@@ -18,14 +17,17 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+import provenance as pv
+
 FIGDIR = "results/figures"
+PAPER_FIGDIR = "paper/figures"
 ANDIR = "results/analysis"
 MATRIX = "results/matrix"
 
 COLORS = {
     "reference": "#222222",
     "control": "#3B6EA8",
-    "hof-eval": "#1F7A5A",
+    "hof-eval-v2": "#1F7A5A",
     "hof-0.25": "#E08B3C",
     "hof-0.50": "#B0413E",
     "hof-full": "#8C5A2B",
@@ -38,7 +40,7 @@ COLORS = {
 }
 LABELS = {
     "control": "control (Ha 2020 GA)",
-    "hof-eval": "archive as test",
+    "hof-eval-v2": "archive as test",
     "hof-0.25": "archive as parent, p=0.25",
     "hof-0.50": "archive as parent, p=0.50",
     "hof-full": "archive as parent, full span",
@@ -74,9 +76,17 @@ def style():
     })
 
 
+def save(fig, name):
+    """PNG for the README and write-up, vector PDF for the LaTeX paper."""
+    fig.savefig(f"{FIGDIR}/{name}.png")
+    if os.path.isdir(PAPER_FIGDIR):
+        # no creation date, so an unchanged figure is an unchanged file
+        fig.savefig(f"{PAPER_FIGDIR}/{name}.pdf", metadata={"CreationDate": None})
+
+
 def load_matrix():
     runs = {}
-    for p in sorted(glob.glob(os.path.join(MATRIX, "*_s*.npz"))):
+    for p in pv.matrix_runs(MATRIX):            # superseded runs excluded
         name = os.path.basename(p)[:-4]
         cond, seed = name.rsplit("_s", 1)
         z = np.load(p)
@@ -121,11 +131,32 @@ def fig1_reference():
         return "fig1: no reference curve yet"
     t = np.array(ref["tournament"]) / 1000
     s = np.array(ref["mean_score"])
-    ln = np.array(ref["meanlen"])
 
+    # Top: the internal signal (the population's rallies against itself, from
+    # the training log). Bottom: the external one (score against the 2015
+    # baseline, never seen in training). The gap between the two marked
+    # transitions is the internal-to-external lag.
     fig, axes = plt.subplots(2, 1, figsize=(6.6, 4.4), sharex=True,
-                             gridspec_kw={"height_ratios": [2, 1], "hspace": 0.12})
-    ax = axes[0]
+                             gridspec_kw={"height_ratios": [1, 2], "hspace": 0.12})
+    ax2 = axes[0]
+    tl = np.array(ref["train_len"], dtype=float)
+    ax2.plot(tl[:, 0] / 1000, tl[:, 1], color="#3B6EA8", lw=0.9)
+    ax2.axhline(1500, color="#999999", lw=0.9, ls=(0, (4, 3)))
+    ax2.set_ylabel("self-play rally\nlength (steps)")
+    ax2.set_ylim(0, 3100)
+    ax2.set_title(f"Reference run on slimevolleygym: {t.max()*1000:,.0f} "
+                  f"self-play games", loc="left")
+    if ref.get("t_internal"):
+        ti = ref["t_internal"] / 1000
+        for a in axes:
+            a.axvline(ti, color="#3B6EA8", lw=0.9, ls=":")
+        ax2.annotate(f"rallies pass 1,500 steps: {ti*1000:,.0f} games",
+                     xy=(ti, 1500), xytext=(t.max() * 0.30, 600), fontsize=7,
+                     color="#3B6EA8", va="center",
+                     arrowprops=dict(arrowstyle="->", color="#3B6EA8", lw=0.7,
+                                     shrinkA=2, shrinkB=2))
+
+    ax = axes[1]
     parity(ax)
     ax.plot(t, s, color=COLORS["reference"], lw=0.8, alpha=0.45)
     k = 9
@@ -138,21 +169,14 @@ def fig1_reference():
         first = t[np.argmax(above)]
         ax.axvline(first, color="#C0392B", lw=0.9, ls=":")
         ax.annotate(f"first checkpoint above parity: {first*1000:,.0f} games",
-                    xy=(first, -0.15), xytext=(t.max() * 0.02, -1.9), fontsize=7,
+                    xy=(first, -0.15), xytext=(t.max() * 0.42, -3.3), fontsize=7,
                     color="#C0392B", va="center",
                     arrowprops=dict(arrowstyle="->", color="#C0392B", lw=0.7,
                                     shrinkA=2, shrinkB=2))
     ax.set_ylabel("score vs 2015 baseline\n(points per episode)")
-    ax.set_title(f"Reference run on slimevolleygym: {t.max()*1000:,.0f} "
-                 f"self-play games", loc="left")
+    ax.set_xlabel("self-play games (thousands)")
     ax.legend(loc="lower right")
-
-    ax2 = axes[1]
-    ax2.plot(t, ln, color="#3B6EA8", lw=1.2)
-    ax2.set_ylabel("evaluation rally\nlength (steps)")
-    ax2.set_xlabel("self-play games (thousands)")
-    ax2.set_ylim(0, 3100)
-    fig.savefig(f"{FIGDIR}/fig1_reference_trajectory.png")
+    save(fig, "fig1_reference_trajectory")
     plt.close(fig)
     return "fig1_reference_trajectory.png"
 
@@ -183,9 +207,15 @@ def fig2_control(runs):
     ax.set_title(f"The same algorithm, {n_seeds} seeds: the phase change is "
                  f"real, its timing is not reproducible", loc="left")
     ax.legend(loc="lower right")
-    fig.savefig(f"{FIGDIR}/fig2_control_seeds.png")
+    save(fig, "fig2_control_seeds")
     plt.close(fig)
     return "fig2_control_seeds.png"
+
+
+# tick labels for the small strip panels; the legends carry the full names
+SHORT = {"control": "ctrl", "hof-eval-v2": "test", "hof-0.25": "par.\n.25",
+         "hof-0.50": "par.\n.50", "hof-full": "par.\nfull", "ga2015": "gen.\nGA",
+         "es": "ES"}
 
 
 def _strip(ax, per_run, conds, key, ylabel, title):
@@ -200,19 +230,19 @@ def _strip(ax, per_run, conds, key, ylabel, title):
         ax.plot([i - 0.26, i + 0.26], [np.median(vals)] * 2,
                 color=COLORS[cond], lw=2.0, zorder=2)
     ax.set_xticks(range(len(conds)))
-    ax.set_xticklabels([LABELS.get(c, c) for c in conds], rotation=18,
-                       ha="right")
+    ax.set_xticklabels([SHORT.get(c, LABELS.get(c, c)) for c in conds],
+                       fontsize=7)
     ax.set_ylabel(ylabel)
     ax.set_title(title, loc="left")
 
 
 def fig3_hof(runs, per_run):
-    conds = [c for c in ("control", "hof-eval", "hof-0.25", "hof-0.50",
+    conds = [c for c in ("control", "hof-eval-v2", "hof-0.25", "hof-0.50",
                          "hof-full") if c in runs]
     if len(conds) < 2:
         return "fig3: need control and a hall-of-fame condition"
     fig = plt.figure(figsize=(6.8, 5.0))
-    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.55, wspace=0.45)
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.5, wspace=0.62)
 
     ax = fig.add_subplot(gs[0, :])
     parity(ax)
@@ -222,7 +252,7 @@ def fig3_hof(runs, per_run):
     ax.set_ylabel("score vs 2015 baseline")
     ax.set_title("An archive of past champions: as a test, and as a parent",
                  loc="left")
-    ax.legend(loc="lower right")
+    ax.legend(loc="center right", fontsize=7)
 
     if per_run:
         for j, (key, lab, ttl) in enumerate([
@@ -230,7 +260,7 @@ def fig3_hof(runs, per_run):
                 ("volatility", "|Δ| between checkpoints", "volatility"),
                 ("drawdown", "best-so-far − current", "drawdown")]):
             _strip(fig.add_subplot(gs[1, j]), per_run, conds, key, lab, ttl)
-    fig.savefig(f"{FIGDIR}/fig3_hall_of_fame.png")
+    save(fig, "fig3_hall_of_fame")
     plt.close(fig)
     return "fig3_hall_of_fame.png"
 
@@ -253,7 +283,7 @@ def fig4_ablations(runs, per_run):
         ax.set_ylabel("score vs 2015 baseline")
         ax.set_title(title, loc="left")
         ax.legend(loc="lower right")
-    fig.savefig(f"{FIGDIR}/fig4_ablations.png")
+    save(fig, "fig4_ablations")
     plt.close(fig)
     return "fig4_ablations.png"
 
@@ -261,8 +291,11 @@ def fig4_ablations(runs, per_run):
 def fig5_coevolution(within, per_run):
     if not within:
         return "fig5: no within-run tournaments yet"
-    fig = plt.figure(figsize=(6.8, 2.9))
-    gs = fig.add_gridspec(1, 3, wspace=0.42, width_ratios=[1.1, 1, 1])
+    # the right panel lists conditions on its y axis, so it gets room for
+    # their names; the colour bar sits in its own column
+    fig = plt.figure(figsize=(7.4, 3.0))
+    gs = fig.add_gridspec(1, 4, wspace=0.35,
+                          width_ratios=[1.0, 0.95, 0.05, 1.15])
 
     ax = fig.add_subplot(gs[0, 0])
     for name, d in within.items():
@@ -286,11 +319,12 @@ def fig5_coevolution(within, per_run):
     ax.set_yticklabels([f"{ts[i]:.0f}" for i in range(0, len(ts), max(1, len(ts) // 4))])
     ax.set_xlabel("opponent (thousands of games)")
     ax.set_ylabel("champion")
-    ax.set_title(f"margin matrix, {name}", loc="left")
+    ax.set_title(f"margin matrix,\n{name}", loc="left")
     ax.grid(False)
-    fig.colorbar(im, ax=ax, fraction=0.046, label="points")
+    cb = fig.colorbar(im, cax=fig.add_subplot(gs[0, 2]))
+    cb.ax.set_title("points", fontsize=7)
 
-    ax = fig.add_subplot(gs[0, 2])
+    ax = fig.add_subplot(gs[0, 3])
     conds, fracs = [], []
     for cond in COLORS:
         vals = [d["cyclic_frac"] for n, d in within.items()
@@ -299,15 +333,17 @@ def fig5_coevolution(within, per_run):
             conds.append(cond)
             fracs.append(vals)
     for i, (c, vals) in enumerate(zip(conds, fracs)):
-        x = np.full(len(vals), i, dtype=float) + np.linspace(-0.12, 0.12, len(vals))
-        ax.scatter(x, vals, s=14, color=COLORS[c], zorder=3,
+        y = np.full(len(vals), i, dtype=float) + np.linspace(-0.12, 0.12, len(vals))
+        ax.scatter(vals, y, s=14, color=COLORS[c], zorder=3,
                    edgecolor="white", linewidth=0.4)
-        ax.plot([i - 0.25, i + 0.25], [np.median(vals)] * 2, color=COLORS[c], lw=2)
-    ax.set_xticks(range(len(conds)))
-    ax.set_xticklabels([LABELS.get(c, c) for c in conds], rotation=25, ha="right")
-    ax.set_ylabel("cyclic triads (fraction)")
+        ax.plot([np.median(vals)] * 2, [i - 0.3, i + 0.3], color=COLORS[c], lw=2)
+    ax.set_yticks(range(len(conds)))
+    ax.set_yticklabels([LABELS.get(c, c) for c in conds], fontsize=6.5)
+    ax.yaxis.tick_right()
+    ax.invert_yaxis()
+    ax.set_xlabel("cyclic triads (fraction)")
     ax.set_title("Intransitivity", loc="left")
-    fig.savefig(f"{FIGDIR}/fig5_coevolution.png")
+    save(fig, "fig5_coevolution")
     plt.close(fig)
     return "fig5_coevolution.png"
 
@@ -341,7 +377,7 @@ def fig6_proxy(proxy):
     ax.set_ylabel(r"Spearman $\rho$(streak, score)")
     ax.set_title("Does the streak counter track quality?", loc="left")
     ax.set_ylim(-1, 1)
-    fig.savefig(f"{FIGDIR}/fig6_champion_proxy.png")
+    save(fig, "fig6_champion_proxy")
     plt.close(fig)
     return "fig6_champion_proxy.png"
 
@@ -367,7 +403,7 @@ def fig7_cross_run(across):
     ax.set_xlabel("Elo in the all-runs tournament of final champions")
     ax.set_title("Which condition's champions actually beat the others?",
                  loc="left")
-    fig.savefig(f"{FIGDIR}/fig7_cross_run_elo.png")
+    save(fig, "fig7_cross_run_elo")
     plt.close(fig)
     return "fig7_cross_run_elo.png"
 
@@ -377,7 +413,7 @@ def fig8_families(runs, per_run):
     if len(conds) < 2:
         return "fig8: need at least two algorithm families"
     fig = plt.figure(figsize=(6.8, 4.9))
-    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.55, wspace=0.45)
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.5, wspace=0.62)
     ax = fig.add_subplot(gs[0, :])
     parity(ax)
     for c in conds:
@@ -388,14 +424,14 @@ def fig8_families(runs, per_run):
     ax.set_ylabel("score vs 2015 baseline")
     ax.set_title("Three ways to turn a population into the next population",
                  loc="left")
-    ax.legend(loc="lower right")
+    ax.legend(loc="center left", fontsize=7)
     if per_run:
         for j, (key, lab, ttl) in enumerate([
                 ("late_mean", "points/episode", "mean, last 100k games"),
                 ("volatility", "|Δ| between checkpoints", "volatility"),
                 ("above_parity", "fraction of checkpoints", "above parity")]):
             _strip(fig.add_subplot(gs[1, j]), per_run, conds, key, lab, ttl)
-    fig.savefig(f"{FIGDIR}/fig8_algorithm_families.png")
+    save(fig, "fig8_algorithm_families")
     plt.close(fig)
     return "fig8_algorithm_families.png"
 
@@ -454,26 +490,25 @@ def fig9_reexport(reexp):
     ax.set_title("Does the rule know?", loc="left", fontsize=8.5)
     ax.legend(loc="center right", fontsize=6.2, handlelength=1.5,
               borderpad=0.2, labelspacing=0.3)
-    fig.savefig(f"{FIGDIR}/fig9_reexport.png")
+    save(fig, "fig9_reexport")
     plt.close(fig)
     return "fig9_reexport.png"
 
 
 def fig10_archive_decay(runs, per_run):
     """Why the archive stops paying: it stops being able to win."""
-    conds = [c for c in ("hof-eval", "hof-0.25", "hof-full", "hof-0.50")
+    conds = [c for c in ("hof-eval-v2", "hof-0.25", "hof-full", "hof-0.50")
              if c in runs]
     if not conds:
         return "fig10: no archive runs yet"
     fig, axes = plt.subplots(1, 2, figsize=(6.8, 2.8))
     ax = axes[0]
+    # every checkpoint of an archive run contains archive games, so all of them
+    # are plotted -- including windows in which the archive won nothing
     for c in conds:
         for r in runs[c]:
-            aw = r["hofwin"]
-            m = aw > 0
-            if m.any():
-                ax.plot(r["t"][m] / 1000, aw[m], color=COLORS[c], lw=0.9,
-                        alpha=0.55)
+            ax.plot(r["t"] / 1000, r["hofwin"], color=COLORS[c], lw=0.9,
+                    alpha=0.55)
         ax.plot([], [], color=COLORS[c], lw=1.6, label=LABELS.get(c, c))
     ax.axhline(0.5, color="#999999", lw=0.9, ls=(0, (4, 3)))
     ax.set_ylim(0, 1)
@@ -485,41 +520,37 @@ def fig10_archive_decay(runs, per_run):
     ax = axes[1]
     for c in conds:
         for r in runs[c]:
-            aw = r["hofwin"]
-            m = aw > 0
-            if m.any():
-                # games that produce no selection event: an archive game the
-                # population member wins overwrites nothing
-                waste = 0.25 * (1.0 - aw[m]) if c != "hof-0.50" else 0.5 * (1.0 - aw[m])
-                ax.plot(r["t"][m] / 1000, 100 * waste, color=COLORS[c], lw=0.9,
-                        alpha=0.55)
+            # games that produce no selection event: an archive game the
+            # population member wins overwrites nothing
+            p = 0.5 if c == "hof-0.50" else 0.25
+            ax.plot(r["t"] / 1000, 100 * p * (1.0 - r["hofwin"]),
+                    color=COLORS[c], lw=0.9, alpha=0.55)
     ax.set_xlabel("self-play games (thousands)")
     ax.set_ylabel("% of games with no selection event")
-    ax.set_title("What the archive costs", loc="left")
+    ax.set_title("Games without a selection event", loc="left")
     ax.set_ylim(0, 55)
-    fig.savefig(f"{FIGDIR}/fig10_archive_decay.png")
+    save(fig, "fig10_archive_decay")
     plt.close(fig)
     return "fig10_archive_decay.png"
 
 
 def fig11_asymmetric(runs):
-    """Unequal power: who wins, and does either side keep learning."""
+    """Unequal power: who wins the contest, and whose population learns."""
     import glob as _glob
     conds = {}
     for f in sorted(_glob.glob(os.path.join(MATRIX, "asym*_s*.npz"))):
         name = os.path.basename(f)[:-4]
         base, seed = name.rsplit("_s", 1)
         cond, side = base.rsplit("-", 1)
-        z = np.load(f)
-        conds.setdefault(cond, {}).setdefault(seed, {})[side] = z
+        conds.setdefault(cond, {}).setdefault(seed, {})[side] = np.load(f)
     if not conds:
         return "fig11: no asymmetric runs yet"
 
     order = [c for c in ("asym1x", "asym2x", "asym2x-norm") if c in conds]
-    titles = {"asym1x": "symmetric control\n(273 vs 273 parameters)",
-              "asym2x": "2:1 capacity\n(531 vs 273, same $\\sigma$)",
-              "asym2x-norm": "2:1 capacity\n(531 vs 273, matched step)"}
-    fig, axes = plt.subplots(2, len(order), figsize=(2.5 * len(order) + 0.9, 4.6),
+    titles = {"asym1x": "symmetric control\n273 v 273 parameters",
+              "asym2x": "2:1 capacity, common $\\sigma$\n531 v 273",
+              "asym2x-norm": "2:1 capacity, matched step\n531 v 273"}
+    fig, axes = plt.subplots(2, len(order), figsize=(2.55 * len(order) + 0.9, 4.8),
                              squeeze=False)
     for j, cond in enumerate(order):
         ax = axes[0][j]
@@ -527,32 +558,36 @@ def fig11_asymmetric(runs):
             k = "strong" if "strong" in sides else "a"
             z = sides[k]
             t = (np.arange(len(z["a_winrate"])) + 1) * int(z["save_every"][0])
-            ax.plot(t / 1000, z["a_winrate"], lw=1.1, alpha=0.85)
+            ax.plot(t / 1000, z["a_winrate"], lw=1.0, alpha=0.85)
         ax.axhline(0.5, color="#999999", lw=0.9, ls=(0, (4, 3)))
         ax.set_ylim(0, 1)
         ax.set_title(titles.get(cond, cond), loc="left", fontsize=8)
         ax.set_ylabel("win rate of the\nlarger side" if j == 0 else "")
         ax.set_xlabel("games (thousands)")
 
+        # population level: the best individual each pool contains
         ax = axes[1][j]
         for seed, sides in sorted(conds[cond].items()):
             ka = "strong" if "strong" in sides else "a"
             kb = "weak" if "weak" in sides else "b"
-            ta = (np.arange(len(sides[ka]["mean_score"])) + 1) * int(sides[ka]["save_every"][0])
-            ax.plot(ta / 1000, sides[ka]["mean_score"], lw=1.0, color="#B0413E",
-                    alpha=0.8)
-            ax.plot(ta / 1000, sides[kb]["mean_score"], lw=1.0, color="#3B6EA8",
-                    alpha=0.8)
+            for k, colour in ((ka, "#B0413E"), (kb, "#3B6EA8")):
+                z = sides[k]
+                if "pop_best" not in z:
+                    continue
+                pe = int(z["pop_every"][0])
+                t = (np.arange(len(z["pop_best"])) + 1) * pe
+                ax.plot(t / 1000, z["pop_best"], lw=1.0, color=colour, alpha=0.8,
+                        marker="o", ms=2.0)
         parity(ax)
         ax.set_ylim(-5.2, 1)
-        ax.set_ylabel("score vs 2015\nbaseline" if j == 0 else "")
+        ax.set_ylabel("best individual in\nthe pool" if j == 0 else "")
         ax.set_xlabel("games (thousands)")
         if j == 0:
             ax.plot([], [], color="#B0413E", lw=1.6, label="larger side")
             ax.plot([], [], color="#3B6EA8", lw=1.6, label="smaller side")
             ax.legend(loc="upper left", fontsize=6.6, handlelength=1.4)
-    fig.subplots_adjust(hspace=0.45, wspace=0.3)
-    fig.savefig(f"{FIGDIR}/fig11_asymmetric.png")
+    fig.subplots_adjust(hspace=0.5, wspace=0.32)
+    save(fig, "fig11_asymmetric")
     plt.close(fig)
     return "fig11_asymmetric.png"
 

@@ -177,9 +177,74 @@ def main():
         check("compiled GA runs and exports 273-parameter champions",
               champs.shape[1] == 273 and streaks[-1] > 0,
               f"{champs.shape[0]} checkpoints, best streak {streaks[-1]}")
+
+        # --- hof-eval: an archive loss must not credit a bystander ------
+        # When an archived champion beats population member m, m is replaced
+        # by a mutant of a living peer n and inherits n's streak. n did not
+        # play, so no other individual's streak may change. The streak is not
+        # cosmetic: argmax(streak) decides what enters the archive.
+        #
+        # The kernel's own source (py_func) is driven with a stubbed game in
+        # which the right-hand side always wins. Game 1 is an ordinary game
+        # (the archive is empty) and leaves one streak at 1; every later game
+        # is an archive loss, which may only copy existing streak values. The
+        # best streak in the pool must therefore never exceed 1.
+        import algorithms as alg
+        real_play = alg.play_game
+        try:
+            alg.play_game = lambda *args: (1, 100, 0)
+            _, st, _, _ = alg.run_ga_hof_eval.py_func(
+                7, 200, 4, 0.1, 1, 1.0, 1, 512, w, b, 0.5)
+        finally:
+            alg.play_game = real_play
+        check("hof-eval: an archive loss leaves every other streak unchanged",
+              int(st.max()) <= 1,
+              f"best streak after 199 archive losses: {int(st.max())}")
+
+        # The compiled kernel cannot be compared with py_func bit for bit:
+        # play_game draws its serves from numba's RNG, which py_func does not
+        # seed. So the compiled version is only checked to run and to play
+        # real archive games.
+        ch, st, _, aw = alg.run_ga_hof_eval(3, 2000, 16, 0.1, 500, 0.5, 100,
+                                            32, w, b, 0.5)
+        check("hof-eval: compiled kernel runs and plays archive games",
+              ch.shape == (4, 273) and 0.0 < aw[-1] < 1.0,
+              f"{ch.shape[0]} checkpoints, archive win rates "
+              f"{np.round(aw, 2).tolist()}")
     except ImportError as e:
         check("compiled environment available", False,
               f"{e} — install requirements-fast.txt")
+
+    # --- every table follows from the raw files, and notices if one goes -
+    # make_tables.py --check refuses tables whose analysis files fail
+    # provenance verification. Here: the tree as committed must verify, and
+    # hiding any single run file (simulated, nothing on disk is touched) must
+    # make verification fail.
+    import provenance as pv
+    clean = pv.verify()
+    check("analysis files follow from the raw files on disk", not clean,
+          f"{len(pv._load())} outputs verified" if not clean
+          else f"{len(clean)} problems, first: {clean[0]}")
+    if not clean:
+        import glob as glob_mod
+        real_glob, real_exists, real_sha = glob_mod.glob, os.path.exists, pv.sha256
+        cache = {}
+        pv.sha256 = lambda p: cache.setdefault(p, real_sha(p))
+        runs = sorted(real_glob("results/matrix/*_s*.npz"))
+        caught = []
+        try:
+            for hidden in runs:
+                glob_mod.glob = lambda pat, **k: [p for p in real_glob(pat, **k)
+                                                  if p != hidden]
+                os.path.exists = lambda p: p != hidden and real_exists(p)
+                caught.append(bool(pv.verify()))
+        finally:
+            glob_mod.glob, os.path.exists, pv.sha256 = real_glob, real_exists, real_sha
+        missed = [r for r, c in zip(runs, caught) if not c]
+        check("removing any single run file fails the consistency check",
+              runs and not missed,
+              f"{len(runs)} files, each caught" if not missed
+              else f"not caught: {missed[:3]}")
 
     print("=" * 62)
     if FAILS:

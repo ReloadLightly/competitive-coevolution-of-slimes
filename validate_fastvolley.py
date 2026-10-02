@@ -28,6 +28,7 @@ import time
 import numpy as np
 
 import fastvolley as fv
+import provenance as pv
 
 
 class ServeStub:
@@ -113,7 +114,7 @@ def load_champion(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--games", type=int, default=60,
+    ap.add_argument("--games", type=int, default=50,      # as committed
                     help="games per scenario")
     ap.add_argument("--seed", type=int, default=20260818)
     ap.add_argument("--ckpt-dir", default="results/ga_selfplay")
@@ -211,6 +212,9 @@ def main():
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w") as f:
         json.dump(summary, f, indent=1)
+    # the champions it replays are drawn from the reference run's checkpoints
+    pv.record(args.out, "reference",
+              params={"games": args.games, "seed": args.seed})
     print(f"\n{'PASS' if ok else 'FAIL'} -> {args.out}")
     return 0 if ok else 1
 

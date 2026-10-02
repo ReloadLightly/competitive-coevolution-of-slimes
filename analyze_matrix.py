@@ -25,7 +25,6 @@ Usage:
 """
 
 import argparse
-import glob
 import json
 import multiprocessing as mp
 import os
@@ -33,10 +32,12 @@ import os
 import numpy as np
 
 import fastvolley as fv
+import provenance as pv
 import stats_utils as su
-from run_experiments import CONDITIONS, SELECT_EPISODES, SELECT_SEED
+from run_experiments import CONDITIONS, LONG_RALLY, SELECT_EPISODES, SELECT_SEED
 
 WINDOW = 20  # checkpoints = 100,000 games
+HOF_WINDOW = 50_000  # games: early and late archive win rate
 
 
 def load_run(path):
@@ -58,7 +59,7 @@ def metrics(run):
     # ITSELF well before any of that shows up against the frozen 2015 opponent.
     # Measured with no external opponent involved, from the training games.
     tl = run["train_meanlen"]
-    long_rally = tl > 1500
+    long_rally = tl > LONG_RALLY
     t_int = int(np.argmax(long_rally) + 1) * every if long_rally.any() else None
     # Windowed profile, 100,000 games per window. The single-run version of
     # this study claimed the swings damp as the level rises; with many seeds
@@ -78,10 +79,19 @@ def metrics(run):
     # game the archive entry is immutable, so when the POPULATION member wins,
     # nothing is overwritten. Those conditions therefore run slightly fewer
     # selection events per game than the control at the same game budget.
+    #
+    # Every 5,000-game window of an archive run contains archive games (the
+    # archive is non-empty from game 1,000 on), so every checkpoint's archive
+    # win rate counts -- including windows in which the archive won nothing.
     hof_p = float(run["hof_prob"][0])
-    hof_win = float(np.mean(run["hof_winrate"][run["hof_winrate"] > 0])) \
-        if (run["hof_winrate"] > 0).any() else 0.0
+    hw = run["hof_winrate"]
+    hof_win = float(hw.mean()) if hof_p > 0 else 0.0
     skipped = hof_p * (1.0 - hof_win) if hof_p > 0 else 0.0
+    # how the archive's ability to win changes over the run: first and last
+    # 50,000 games (10 checkpoints each)
+    k = int(HOF_WINDOW // every)
+    hof_early = float(hw[:k].mean()) if hof_p > 0 else None
+    hof_late = float(hw[-k:].mean()) if hof_p > 0 else None
 
     return {
         # Stability is only interpretable conditional on competence: a run that
@@ -91,7 +101,11 @@ def metrics(run):
         # stability comparisons are reported over that subset as well as over all.
         "reached": bool(t_int is not None),
         "hof_archive_winrate": hof_win,
+        "hof_winrate_early": hof_early,
+        "hof_winrate_late": hof_late,
         "replacements_skipped": skipped,
+        "replacements_skipped_late": (hof_p * (1.0 - hof_late)
+                                      if hof_p > 0 else 0.0),
         "window_profile": profile,
         "t_internal": t_int,
         "lag_internal_to_parity": ((t_par - t_int)
@@ -159,7 +173,8 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    paths = sorted(glob.glob(os.path.join(args.matrix, "*_s*.npz")))
+    # superseded conditions stay on disk but are never analysed
+    paths = pv.matrix_runs(args.matrix)
     if not paths:
         print("no runs yet")
         return
@@ -177,6 +192,12 @@ def main():
 
     hold_path = os.path.join(args.outdir, "holdout.json")
     holdout = json.load(open(hold_path)) if os.path.exists(hold_path) else {}
+    # The cache is keyed by run name, so it also records which file each entry
+    # was scored from: a run that is rerun under the same name, or an entry
+    # without a hash, is re-scored rather than silently reused.
+    digests = {os.path.basename(p)[:-4]: pv.sha256(p) for p in paths}
+    holdout = {n: v for n, v in holdout.items()
+               if n in digests and v.get("npz_sha256") == digests[n]}
     if args.holdout:
         todo = [(p,) for p in paths
                 if os.path.basename(p)[:-4] not in holdout]
@@ -185,13 +206,16 @@ def main():
                   f"({SELECT_EPISODES} episodes)", flush=True)
             with mp.get_context("spawn").Pool(args.workers) as pool:
                 for name, out in pool.imap_unordered(_holdout_job, todo):
-                    holdout[name] = out
+                    holdout[name] = {**out, "npz_sha256": digests[name]}
                     print(f"  {name}: final {out['final_holdout']:+.3f} "
                           f"peak {out['peak_holdout']:+.3f}", flush=True)
-            json.dump(holdout, open(hold_path, "w"), indent=1)
+    # always rewritten, so entries for removed or superseded runs drop out
+    json.dump(dict(sorted(holdout.items())), open(hold_path, "w"), indent=1)
     for name, out in holdout.items():
         if name in per_run:
-            per_run[name].update(out)
+            per_run[name].update(
+                {k: v for k, v in out.items() if k != "npz_sha256"})
+    unscored = sorted(set(per_run) - set(holdout))
 
     json.dump(per_run, open(os.path.join(args.outdir, "per_run.json"), "w"),
               indent=1)
@@ -261,6 +285,16 @@ def main():
 
     json.dump({"conditions": conds, "vs_control": comparisons},
               open(os.path.join(args.outdir, "conditions.json"), "w"), indent=1)
+
+    # Provenance only once every run has its held-out score: tables built
+    # from a partial analysis must not pass make_tables.py --check.
+    if unscored:
+        print(f"\nWARNING: {len(unscored)} runs have no held-out score "
+              f"({', '.join(unscored[:4])}{', ...' if len(unscored) > 4 else ''}); "
+              f"rerun with --holdout. Provenance not recorded.")
+    else:
+        for out in ("holdout.json", "per_run.json", "conditions.json"):
+            pv.record(os.path.join(args.outdir, out), "matrix")
 
     # ---- console summary -------------------------------------------------
     hdr = f"{'condition':<12}{'n':>3}{'lrn':>5}  {'final':>16}  {'late_mean':>16}  " \

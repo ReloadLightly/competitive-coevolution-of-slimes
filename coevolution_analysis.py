@@ -27,7 +27,6 @@ frozen opponent. Three questions about coevolution are invisible to it:
 """
 
 import argparse
-import glob
 import json
 import multiprocessing as mp
 import os
@@ -36,10 +35,14 @@ import numpy as np
 
 import fastvolley as fv
 import fastvolley_kernels as fk
+import provenance as pv
 import stats_utils as su
 
 RR_SEED = 4242          # tournament seed, disjoint from training and evaluation
-PROXY_EPISODES = 40
+# episodes per individual in the proxy check. The committed
+# champion_proxy.json was computed with 30 (it reproduces bit for bit at 30
+# and not at 40, the value this constant held at the time); see decisions.md
+PROXY_EPISODES = 30
 
 
 # --------------------------------------------------------------------------
@@ -139,7 +142,12 @@ def _proxy_job(job):
     path, episodes = job
     z = np.load(path)
     name = os.path.basename(path)[:-4]
-    if z["pops"].size == 0:
+    # needs both a population snapshot and the streak counters that selected the
+    # exported champion; the two-population runs save pools but no streaks, and
+    # are analysed separately in section 5 of the ablations
+    if z["pops"].size == 0 or z["pop_streaks"].size == 0:
+        return name, None
+    if z["champs"].shape[1] != fv.PARAM_COUNT:
         return name, None
     pops = z["pops"]
     pop_streaks = z["pop_streaks"]
@@ -198,7 +206,10 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    paths = sorted(glob.glob(os.path.join(args.matrix, "*_s*.npz")))
+    paths = pv.matrix_runs(args.matrix)     # superseded runs excluded
+    # the two-population conditions have their own analysis (ablations section 5)
+    # and their champions are not comparable members of the single-population pool
+    paths = [p for p in paths if not os.path.basename(p).startswith("asym")]
     if not paths:
         print("no runs yet")
         return
@@ -215,6 +226,8 @@ def main():
                 print(f"  {name}: rho(elo,time)={res['spearman_elo_vs_time']:+.2f} "
                       f"cyclic {res['cyclic']}/{res['triads_decided']}", flush=True)
         json.dump(out, open(os.path.join(args.outdir, "within_run.json"), "w"))
+        pv.record(os.path.join(args.outdir, "within_run.json"), "single",
+                  params={"every": args.every, "games": args.games})
 
     if args.across:
         names, finals = [], []
@@ -234,13 +247,17 @@ def main():
                "games_per_pair": 2 * args.games,
                "margin": margin.tolist(), **triad_stats(margin)}
         json.dump(res, open(os.path.join(args.outdir, "across_runs.json"), "w"))
+        pv.record(os.path.join(args.outdir, "across_runs.json"), "single",
+                  params={"games": args.games})
         order = np.argsort(-elo)
         print("  Elo (best first):")
         for i in order:
             print(f"    {names[i]:<18} {elo[i]:+8.1f}")
 
     if args.proxy:
-        jobs = [(p, args.proxy_episodes) for p in paths]
+        # only the control keeps population snapshots
+        jobs = [(p, args.proxy_episodes) for p in paths
+                if os.path.basename(p).startswith("control_s")]
         out = {}
         print("champion-selection proxy check", flush=True)
         with mp.get_context("spawn").Pool(args.workers) as pool:
@@ -253,6 +270,8 @@ def main():
                       f"(exported vs best in pool)", flush=True)
         json.dump(out, open(os.path.join(args.outdir, "champion_proxy.json"), "w"),
                   indent=1)
+        pv.record(os.path.join(args.outdir, "champion_proxy.json"), "control",
+                  params={"episodes": args.proxy_episodes})
 
     print(f"-> {args.outdir}")
 

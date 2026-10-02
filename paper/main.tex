@@ -1,0 +1,848 @@
+% main.tex — arXiv draft (cs.NE).
+%
+% Every number in this file is a macro from numbers.tex, which make_tables.py
+% writes from prose_numbers.py; every table is \input from tables/, written by
+% make_tables.py; every figure is in figures/, written by make_figures.py.
+% Nothing quantitative is typed here. Build with ./build.sh.
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage[round,authoryear]{natbib}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{caption}
+\usepackage{placeins}   % \FloatBarrier, used in the appendix only
+\captionsetup{font=small,labelfont=bf}
+
+% let text share pages with figures instead of leaving float-only pages
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.8}
+\setcounter{totalnumber}{4}
+
+\input{numbers.tex}
+
+\newcommand{\cond}[1]{\texttt{#1}}
+
+\title{What a self-playing population learns, what it forgets,\\
+       and which of the two you measure}
+\author{Roland Loechli}
+\date{Draft, \today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+In a self-play genetic algorithm, the individual exported as ``the champion''
+is close to a median member of its own population, and much of what looks like
+coevolutionary instability in its learning curve is noise added by the rule
+that picks it. We show this for David Ha's tournament-selection algorithm on
+Slime Volleyball, run as a designed experiment rather than a single run:
+\nNRunsTotal{} independent runs of \nBudget{} self-play games, in a compiled
+environment that reproduces the reference implementation bit for bit, with
+every agent scored against a frozen opponent never seen in training. Ha's export
+rule promotes the individual with the longest winning lineage; scored against
+its whole population, that individual ranks on average \nProxyRankMean{} of
+\nProxyPop, its lineage counter is uncorrelated with its skill
+($\rho=\nProxyRho$), and the best member of the same pool is \nProxyGap{}
+points per episode better. The population itself is not cycling: skill is
+almost perfectly transitive across checkpoints. Internal improvement precedes
+any external transfer by tens of thousands of games, and the timing of the
+phase change varies \nCtrlTInternalRatio-fold across seeds. An archive of past
+champions used as a parent abolishes learning; used as a test, it neither
+harms nor helps detectably, because past champions soon stop being able to win.
+Algorithm families differ in reliability, not ceiling. A two-population variant with unequal capacity is reported as
+exploratory. Any evolutionary loop that promotes one artefact out of a
+population, including LLM-driven program evolution, has the same exposure; we
+state this as a hypothesis and give the diagnostic.
+\end{abstract}
+
+% =========================================================================
+\section{Introduction}
+
+Self-play evolution produces competent agents from an entirely internal signal.
+In the steady-state genetic algorithm that \citet{ha2020slimevolleygym} uses
+for Slime Volleyball, two members of a population of \nPop{} play one game, the
+loser is overwritten by a mutated copy of the winner, and that is all: nothing
+in the loop refers to an absolute standard of play. Run for \nBudget{} games, it
+produces an agent that holds the expert policy shipped with the environment to
+a draw. The learning curve by which this is usually reported, the score of an
+exported champion against that expert, is also strikingly unstable: competence
+is reached, lost and regained between adjacent checkpoints.
+
+The textbook explanation is coevolutionary forgetting. Fitness is relative, so
+a skill that no current opponent punishes is not selected for and can be lost,
+and the population cycles \citep{cliff1995tracking,popovici2012coevolutionary};
+the standard remedy is a hall of fame of past champions to test against
+\citep{rosin1997new}. This paper asks where the instability actually lives, and
+answers with a design rather than a run: \nNRunsTotal{} runs across conditions
+that each change one thing, a pre-registered evaluation protocol, and
+measurements the external learning curve cannot make.
+
+The main finding is that the explanation is wrong here and the instability is
+mostly a reporting artefact. Ha's algorithm exports the individual with the
+longest winning lineage, by design ``without actually computing who is best to
+save time'' \citep{ha2020slimevolleygym}. Because the lineage counter is
+inherited by the loser on every replacement, it measures the age of a lineage,
+not the merit of an individual. Scored against the whole population, the
+exported champion is a middling member of it, and the population contains
+individuals almost a point per episode better. Meanwhile a round robin of every
+checkpoint against every other shows skill to be almost perfectly transitive:
+later champions beat earlier ones, and the population is not going in circles.
+In \citeauthor{miconi2009why}'s \citeyearpar{miconi2009why} terms, historical
+progress is steady; what fluctuates is our estimate of global progress, and
+it fluctuates because of which individual we chose to measure.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+\item The export rule, not coevolution, is the dominant noise source in the
+  reported curve (\S\ref{sec:export}); an internal round robin recovers most of
+  the loss cheaply.
+\item Internal improvement precedes external transfer by tens of thousands of
+  games, and the phase change is robust in occurrence but not in timing
+  (\S\ref{sec:lag}, \S\ref{sec:timing}).
+\item An archive used as a parent abolishes learning; used as a test it is
+  indistinguishable from no archive, and the archive's own win rate shows why
+  (\S\ref{sec:archive}).
+\item Four algorithm families reach a similar ceiling and differ in how
+  reliably they reach it (\S\ref{sec:families}).
+\item An exploratory two-population block with unequal capacity
+  (\S\ref{sec:asym}).
+\item A compiled port of the environment, validated bit for bit, and an
+  analysis pipeline in which every number is generated and checked against the
+  raw files (\S\ref{sec:repro}).
+\end{enumerate}
+
+\paragraph{Related work.}
+Measuring progress in coevolution is an old problem: \citet{cliff1995tracking}
+introduced tests of current individuals against ancestral opponents,
+\citet{miconi2009why} separated local, historical and global progress, and
+recent work compares archive-based methods for global progress
+\citep{simione2020longterm,nolfi2025global} and measures deceptive progress
+in algorithms that use a hall of fame \citep{seals2026tripping}. Memory
+mechanisms range from the hall of fame \citep{rosin1997new} to Pareto and
+Nash-based archives \citep{ficici2001pareto,ficici2003memory}; disengagement
+between unequal populations is studied by \citet{cartlidge2004combating}. In
+symmetric zero-sum games, any game decomposes into a transitive and a cyclic
+part \citep{balduzzi2019openended}, and real games appear to be transitive at
+the extremes of skill with cycles concentrated in between
+\citep{czarnecki2020spinning}. On the evaluation side, single-seed results in
+reinforcement learning have repeatedly been shown to mislead
+\citep{henderson2018matters,agarwal2021precipice}. What we add is a measurement
+of the step that all of these take as given: which individual is reported.
+
+% =========================================================================
+\section{Setup}
+\label{sec:setup}
+
+\paragraph{Task.}
+Slime Volleyball is a two-player, zero-sum, symmetric game
+\citep{ha2015slime}, used here through \texttt{slimevolleygym}
+\citep{ha2020slimevolleygym}. Each agent observes a \nObsSize-dimensional state in its
+own frame and presses \nNAct{} binary buttons. An episode ends when a side loses
+\nLives{} lives or after \nTLimit{} steps; its score is points won minus points
+lost, in $[-\nLives,\nLives]$. Every evolved agent is the same fixed
+\nObsSize--\nHidden--\nHidden--\nNAct{} $\tanh$ network with \nParamCount{}
+parameters. Nothing but the weights evolves.
+
+\paragraph{External yardstick.}
+The environment ships a small recurrent policy evolved by \citet{ha2015slime}:
+\nBaselineParams{} parameters, whose \nBaselineInputs{} inputs are
+\nBaselineGameInputs{} game observations (its own and the ball's state, never
+its opponent's) and its own previous outputs. It is never used in training. Every checkpoint is scored against it over
+\nSweepEpisodes{} episodes on one evaluation seed; the final and the best
+checkpoint of each run are re-scored over \nSelectEpisodes{} episodes on a
+disjoint seed, because the best of \nNCkpt{} checkpoints is a selected
+maximum. All headline numbers are held out. The
+protocol was fixed before the runs and is recorded with the data.
+
+\paragraph{The control algorithm.}
+A faithful replication of Ha's tournament-selection GA: population \nPop,
+initial weights $\mathcal N(0,\nInitScale^2)$, mutation $\sigma=\nSigma$.
+Each of \nBudget{} games
+draws two members; the loser is replaced by a mutant of the winner and
+inherits the winner's streak counter, which then grows by one; a tie mutates
+one player in place. Every \nSaveEvery{} games the member with the largest streak is
+exported, giving \nNCkpt{} checkpoints per run.
+
+\paragraph{Conditions.}
+Each condition changes one thing (Table~\ref{tab:conditions}). Seed counts
+differ by design: \nSeedsMain{} for every condition that carries a claim, fewer for side
+conditions that were cut when the design was revised. Every change after the
+first run started is recorded, with what was known at the time, in a decision
+log that ships with the data.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Conditions analysed. Two-population runs count once per seed.}
+\label{tab:conditions}
+\input{tables/c.tex}
+\end{table}
+
+\paragraph{Measurements.}
+Beyond the learning curve, three measurements need no external opponent:
+(i)~a round robin of a run's checkpoints, spaced \nPopEvery{} games apart, with
+Bradley--Terry ratings \citep{bradley1952rank} on the Elo scale and a count of
+cyclic triads; (ii)~for the control, which snapshots its whole population every
+\nPopEvery{} games, every member is scored against the yardstick and compared with
+the exported one; (iii)~the internal transition, the first point at which the
+population's own training games last more than \nLongRally{} steps. Comparisons use
+the exact two-sided Mann--Whitney test with full enumeration
+\citep{mann1947test} and Cliff's $\delta$ as effect size; with \nSeedsMain{} runs a
+side the smallest attainable $p$ is \nMinPSix. Secondary comparisons are uncorrected for
+multiplicity. Because a run that never learns has no volatility, every
+stability comparison is also reported over the runs that learned.
+
+% =========================================================================
+\section{Results}
+\label{sec:results}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Headline results. Points per episode against the 2015 policy, mean
+$\pm$ s.e.m.\ across runs, held out. ``Learned to rally'': the population ever
+held \nLongRally-step rallies against itself. The last two rows are the single run
+on the unmodified environment and Ha's published value.}
+\label{tab:headline}
+\input{tables/r.tex}
+\end{table}
+
+\subsection{Internal improvement precedes external transfer}
+\label{sec:lag}
+
+The reference run, Ha's algorithm at Ha's budget on the unmodified environment,
+has two regimes (Figure~\ref{fig:reference}). At first its champion loses
+almost every point to the 2015 policy; then it climbs steeply and starts
+producing champions that beat it. The internal signal moves first: the
+population's own rallies pass \nLongRally{} steps at
+\nRefTInternal{} games, and the first champion above parity appears at
+\nRefTParity, a lag of \nRefLag{} games. An evaluation stopped in between
+reports total failure from a population that is already improving. Competence here
+means not losing: after the transition the modal outcome is a draw at the
+step limit, and the final champion wins \nRefFinalWinPct\%, draws
+\nRefFinalTiePct\% and loses \nRefFinalLossPct\% of held-out episodes
+(Appendix~\ref{app:reference}). Held out,
+the best checkpoint scores \nRefPeakHoldout{} and the final one
+\nRefFinalHoldout, against Ha's published \nHaPublished{} for the same
+algorithm and budget.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.68\linewidth]{figures/fig1_reference_trajectory.pdf}
+\caption{The reference run. Top: rally length of the population's training
+games against itself. Bottom: score of the exported champion against the 2015
+policy, every checkpoint (thin) and a moving average (thick). Dotted lines mark
+the internal transition and the first checkpoint above parity.}
+\label{fig:reference}
+\end{figure}
+
+\subsection{The phase change is robust; its timing is not}
+\label{sec:timing}
+
+Across \nCtrlRuns{} control seeds the internal transition happens anywhere from
+\nCtrlTInternalMin{} to \nCtrlTInternalMax{} games, a
+\nCtrlTInternalRatio-fold spread, and the first above-parity checkpoint from
+\nCtrlTParityMin{} to \nCtrlTParityMax{} (Figure~\ref{fig:seeds}). The lag
+between them is always present, \nCtrlLagMin{} to \nCtrlLagMax{} games. Every
+seed reaches the same band (\nCtrlReached{} learned to rally, \nCtrlParity{}
+produced an above-parity champion), so the occurrence of the transition
+replicates and its timing does not. A single run supports no claim about when
+self-play starts working, although the first version of this study, with
+one seed, reported a single transition time. Nor does the swing settle once
+the level rises: in \nLateWindow-game windows the control's mean climbs from
+\nWindowLevelFirst{} to \nWindowLevelLast, while the spread of checkpoint
+scores within a run stays between \nWindowSdMin{} and \nWindowSdMax{}
+(Appendix~\ref{app:reference}).
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.64\linewidth]{figures/fig2_control_seeds.pdf}
+\caption{Every control seed (thin), median and inter-quartile band (thick), and
+the reference run on the same checkpoint grid (dashed).}
+\label{fig:seeds}
+\end{figure}
+
+\subsection{The population is not cycling}
+\label{sec:transitive}
+
+If the swings were forgetting, later champions should not reliably beat
+earlier ones, and the checkpoint tournament should contain cycles. Neither is
+the case (Figure~\ref{fig:transitive}). Within control runs the rank
+correlation between Elo and training time averages \nRhoWithinCtrl, and
+\nCyclicCtrlPct\% of decided checkpoint triads are cyclic; no condition whose
+runs all learned exceeds \nCyclicLearningMaxPct\%. Only the archive-as-parent
+runs, which never learned, show substantial intransitivity: their champions are
+equally bad policies whose pairwise results are noise. The game, at the scale
+of skill explored here, is dominated by its transitive component
+\citep{balduzzi2019openended,czarnecki2020spinning}.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.88\linewidth]{figures/fig5_coevolution.pdf}
+\caption{Left: Elo of each checkpoint within its own run, control seeds. Middle:
+pairwise margin matrix of one control run, later checkpoints against earlier.
+Right: share of decided checkpoint triads that are cyclic, per condition.}
+\label{fig:transitive}
+\end{figure}
+
+\subsection{The export rule is the noise source}
+\label{sec:export}
+
+Because the control snapshots its whole population, the exported champion can
+be compared with every individual it was chosen from
+(Figure~\ref{fig:export}). Over \nProxyRuns{} seeds and all snapshots, the
+exported individual ranks on average \nProxyRankMean{} of \nProxyPop{} in its
+own pool. The rank correlation between the streak counter and actual skill is
+\nProxyRho, and the best member of the same pool is \nProxyGap{} points per
+episode better. At the last snapshot the exported champion averages
+\nProxyEndExported{} while \nProxyEndAbove{} of its peers are above parity.
+The reported curve also loses competence that the population does not: summed
+over all control runs, the exported champion's score fell by \nDeclineExported{}
+points between consecutive snapshots, the best member of the same pools by
+\nDeclineBest{} and the median member by \nDeclineMedian. The population
+almost never gets worse; the individual we report does. The counter cannot do
+better: it is inherited on every replacement, so it records
+how long a lineage has survived, not how good its current member is. In a
+separate re-scoring of the same snapshots, the streak rule (\nReexportStreakLevel)
+does no better than picking the population's median member
+(\nReexportMedianLevel); the best member averages \nReexportBestLevel.
+
+The rule can be replaced without external information. Ranking the pool by an
+internal round robin of \nReexportGamesMax{} games per snapshot,
+\nReexportBudgetPct\% of the training budget, closes \nReexportRecMax\% of the gap between the exported
+and the best member (Appendix, Table~\ref{tab:reexport}). Its correlation with
+true skill saturates near \nReexportRhoMax: internal fitness measures skill
+against the current population, which is not the same as skill against an
+unseen opponent, so held-out evaluation remains necessary for selection as
+well as for reporting.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{figures/fig6_champion_proxy.pdf}
+\caption{Left: the exported champion (red) and the best member of the same
+population (blue), every control seed. Right: Spearman correlation between the
+streak counter and score against the 2015 policy, every seed and snapshot.}
+\label{fig:export}
+\end{figure}
+
+\subsection{The mutation step is not the cause}
+\label{sec:sigma}
+
+A third explanation for the swings is a mutation step too large for the
+landscape (Appendix~\ref{app:sweeps}). Halving it changes nothing that
+matters: \nSigsmallReached{} runs learned, \nSigsmallAbovePct\% of checkpoints
+are above parity (control \nCtrlAbovePct\%), and the volatility of the runs that
+learned matches the control's ($\delta=\nSigsmallVolReachedDelta$,
+$p=\nSigsmallVolReachedP$). Doubling it costs runs (\nSigbigReached{} learned)
+but not stability ($\delta=\nSigbigVolReachedDelta$, $p=\nSigbigVolReachedP$
+among the runs that learned). Over all runs the larger step even looks calmest
+(volatility \nSigbigVolAll{} against \nCtrlVolAll), because a run that never
+learns contributes a flat line, which is why stability is only compared among
+runs that learned. A population of \nPopSmall, run once, never learned
+(\nPopsmallReached).
+
+\subsection{An archive of past champions: as a parent, and as a test}
+\label{sec:archive}
+
+The standard remedy for forgetting is a hall of fame \citep{rosin1997new}. We
+tested two readings of it. Our first implementation applied Ha's replacement
+rule to archive games, so a winning archived genome became the parent of the
+member it beat: an archive used as a \emph{parent}. With $p=\nHofP$ that copies
+an old genotype back into the pool in \nHofparentRegressPct\% of all games, and
+it abolishes learning: \nHofparentReached{} runs learned to rally, against
+\nCtrlReached{} for the control, and \nHofparentOtherReached{} at a higher dose
+or with a full-run archive (Table~\ref{tab:headline}). These runs are also the
+most ``stable'' in the matrix, with near-zero volatility and drawdown, which is
+why stability is only compared among runs that learned.
+
+The literature's reading uses the archive as a \emph{test}: archived champions
+are opponents, never parents. In \cond{hof-eval-v2} an archive game that the
+population member loses costs it its slot, but the replacement comes from the
+living pool; the archive holds a champion from every \nHofEvery{} games of the
+run (capacity \nHofCapFull).
+Done this way the archive is neither destructive nor helpful
+(Figure~\ref{fig:archive}). \nHoftestReached{} runs learned to rally and
+\nHoftestParity{} produced an above-parity champion, against \nCtrlReached{}
+and \nCtrlParity{} for the control, and at \nSeedsMain{} runs a side no outcome
+is distinguishable from the control: checkpoints above parity
+\nHoftestAbovePct\% against \nCtrlAbovePct\% ($\delta=\nHoftestVsCtrlAboveDelta$,
+$p=\nHoftestVsCtrlAboveP$), mean level over the last \nLateWindow{} games
+$\delta=\nHoftestVsCtrlLateDelta$ ($p=\nHoftestVsCtrlLateP$), best held-out
+champion $\delta=\nHoftestVsCtrlPeakDelta$ ($p=\nHoftestVsCtrlPeakP$). The
+archive's own win rate shows why it has little to do. Early in a run, archived
+champions win \nHoftestWinEarlyMin--\nHoftestWinEarlyMax{} of their games; in
+every run whose population learned they end at
+\nHoftestWinLateLearnedMin--\nHoftestWinLateLearnedMax, so
+\nHoftestSkipLateLearnedMin--\nHoftestSkipLateLearnedMax\% of late games produce
+no selection event (an archive game the member wins overwrites nothing). Skill
+is transitive (\S\ref{sec:transitive}), so a past champion is simply a weaker
+player. In the run that never learned, the archive's win rate stayed at
+\nHoftestWinLateFailed. Logging that win rate is a cheap check on whether an
+archive still has anything to teach; here it tracked progress, but it is a
+description of \nSeedsMain{} runs, not a validated predictor.
+An earlier version of this condition credited a win to the living peer that
+supplied the replacement genes, although that peer had not played; since the
+longest streak decides what enters the archive, the bug changed the whole
+trajectory. Those runs are superseded and excluded. With the bug the archive
+looked measurably worse than the control and learned later; the corrected runs
+do not, and the decision log shipped with the data gives both side by side.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{figures/fig10_archive_decay.pdf}
+\caption{Left: the archive's win rate against the current population, every
+archive run. Right: the share of games that produce no selection event,
+because an archive game the population member wins overwrites nothing.}
+\label{fig:archive}
+\end{figure}
+
+\subsection{Algorithm families differ in reliability, not ceiling}
+\label{sec:families}
+
+Two further families change the machinery with policy and environment fixed: a
+generational GA in the style of Ha's 2015 experiment, which ranks by an
+explicitly computed fitness and uses crossover, and a self-play evolution
+strategy \citep{salimans2017evolution,ha2017estool}, which reports its
+distribution mean and so has no export rule at all (Figure~\ref{fig:families}).
+With the archive-as-test condition as a fourth family, all four reach a
+similar ceiling: the single highest end-of-run champion of the study,
+\nBestEndpoint, is a \nBestEndpointLabel{} seed, above every control seed
+(best \nCtrlBestEndpoint). They differ in their floor. Only the control learned
+to rally and produced an above-parity champion in every seed (\nCtrlReached,
+\nCtrlParity); the generational GA managed \nGaReached{} and \nGaParity, the ES
+\nEsReached{} and \nEsParity, the archive as test \nHoftestReached{} and
+\nHoftestParity. Across seeds, the spread of end-of-run champions is
+\nFamilySdRatioMin--\nFamilySdRatioMax{} times the control's for the other three
+families. A study with one seed per family could have crowned the ES on the
+strength of a seed that happened to work. The cross-run tournament, in which
+the final champions of all \nAcrossN{} single-population runs play each other
+with no external opponent, shows the same floor
+(Appendix~\ref{app:crossrun}): every control champion rates above zero (worst
+\nEloWorstCtrl), while each of the other three families has a champion at or
+below \nEloWorstOthersMax; across runs, too, skill is transitive
+(\nAcrossCyclicPct\% of decided triads cyclic). The generational GA ranks by a
+computed fitness, which \S\ref{sec:export} suggests should help, and still does
+not come out ahead; crossover between weight vectors and its coarser,
+generational update are plausible reasons we cannot separate here.
+The self-play ES was tuned only at pilot scale, so its result is a statement
+about the configuration we could afford, not about the method.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/fig8_algorithm_families.pdf}
+\caption{Three families at an identical budget. Top: median and inter-quartile
+band. Bottom: per-seed level and volatility of the last \nLateWindow{} games and the
+share of checkpoints above parity (ctrl: control; gen.\ GA: generational GA).}
+\label{fig:families}
+\end{figure}
+
+% =========================================================================
+\section{Unequal power (exploratory)}
+\label{sec:asym}
+
+This block was designed after the main matrix had run and re-implemented twice
+before the runs reported here; it is exploratory and we draw no confirmatory
+conclusion from it. Two populations of \nPop{} play only each other, a share
+\nAsymCross{} of each side's games crossing over; in two conditions one side
+has a \nObsSize--\nHiddenLarge--\nHiddenLarge--\nNAct{} network with
+\nAsymParamLarge{} parameters against \nParamCount, in one with a common per-parameter
+$\sigma$ and in one with the larger side's $\sigma$ scaled to equalise the
+mutation step norm. A symmetric two-population control has \nParamCount{} a side
+(Appendix, Figure~\ref{fig:asym} and Table~\ref{tab:asym}).
+
+Of \nAsymRuns{} runs, \nAsymMutual{} ended with both pools holding a member
+above parity; \nAsymOneSided{} ended with exactly one, \nAsymNeither{} with
+neither. \nAsymRunaway{} ended in runaway dominance (one side winning more
+than a share \nRunawayCut{} of the cross-population games at the end), \nAsymRunawaySym{} of them in the symmetric
+control, where the sides differ only in their seed. Neither capacity condition
+is distinguishable from that control (common $\sigma$: $\delta=\nAsymCapVsSymDelta$,
+$p=\nAsymCapVsSymP$; matched step: $\delta=\nAsymNormVsSymDelta$,
+$p=\nAsymNormVsSymP$). The larger side led in \nAsymCapLead{} runs at common
+$\sigma$ and in \nAsymNormLead{} with the step norm matched ($\delta=\nAsymNormVsCapDelta$,
+$p=\nAsymNormVsCapP$), which suggests, but at \nSeedsMain{} seeds a side does not
+establish, that extra capacity converts into advantage only when the mutation
+scale is adjusted to it. The pattern of one side collapsing is consistent with
+disengagement \citep{cartlidge2004combating}.
+
+
+
+% =========================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Three sources of variance, not two.}
+Coevolutionary methodology separates the \emph{ecology}, which selects, from
+the \emph{yardstick}, which measures. This study found a third component with
+its own error term: the \emph{promotion rule} that names one artefact out of
+the population. In the control, the reported curve lost about \nDeclineRatio{}
+times as much ground between population snapshots as the population's best
+member did, and it does so invisibly, because a champion curve looks the same
+whether its swings come from the population or from the choice of
+individual.
+
+\paragraph{A hypothesis about other evolutionary loops.}
+Any loop that promotes one artefact out of a population has a promotion rule,
+and that rule is usually cheaper than a measurement of quality. LLM-driven
+program evolution \citep{novikov2025alphaevolve,lange2025shinkaevolve} promotes
+one program per generation or per run on the strength of an evaluator that may
+be noisy, small or proxy-based. \citet{gideoni2026simple} report the closely
+related failure in that setting: agentic scaffolds selected on small validation
+sets lose much of their apparent advantage on held-out data, because the
+selection was partly by chance. We do not test program evolution here. We
+state as a hypothesis that its reported progress curves contain a
+promotion-rule component of the kind measured above, and propose the same
+diagnostic: before attributing a noisy progress curve to the search, check
+whether the statistic used to promote correlates with held-out quality across
+the candidates it chose between, and compare the promoted candidate with the
+population's median.
+
+\paragraph{Diagnose before applying a remedy.}
+A cheap within-run round robin found skill transitive and so predicted that an
+archive, the remedy for intransitivity, would have little to do; used as a test
+it changed nothing measurable, used as a parent it pulled the loop backwards.
+
+% =========================================================================
+\section{Limitations}
+\label{sec:limitations}
+
+\begin{itemize}
+\item \textbf{One environment}, symmetric, zero-sum and fully observed: the most
+  favourable setting for purely relative selection, and one whose skill
+  structure is largely transitive. In a genuinely cyclic game the archive and
+  the export rule may behave differently.
+\item \textbf{Few seeds.} \nSeedsMain{} runs per condition separate large
+  effects from seed noise, not small ones; several conditions have fewer.
+  Secondary comparisons are uncorrected for multiplicity.
+\item \textbf{Post hoc design changes.} The design was revised while it ran
+  (seed counts, the archive conditions, the replacement of the population sweep
+  by the unequal-power block, the rerun of the archive-as-test condition after a
+  bug fix). Each change is logged with what was known when it was made, but the
+  final design is not the one pre-registered.
+\item \textbf{Scope of the measurements.} The export analysis is
+  control-only, because only the control stores population snapshots; the
+  topology is fixed, each archive reading has one design, and the ES was tuned
+  only at pilot scale.
+\item \textbf{The unequal-power block is exploratory} and underpowered for its
+  most interesting comparison.
+\end{itemize}
+
+% =========================================================================
+\section{Reproducibility}
+\label{sec:repro}
+
+The code, every run file, the protocol, the decision log and this paper's
+sources are in the repository. A \nBudget-game run would take about
+\nValRefCoreHours{} core-hours on the reference implementation; the compiled
+port runs \nValSpeedup{} times faster on one core. It is validated by driving
+both implementations from one stream of serve velocities: \nValGames{} paired
+games agree on every ball and agent position, every rally end, every score and
+every episode length, over \nValSteps{} environment steps (Appendix,
+Table~\ref{tab:validation}). Every table and every number in this paper is
+generated from the analysis files, and every analysis file records the hash of
+each raw file it was computed from; a consistency check, run on every push,
+fails if any number does not follow from the files on disk. Rerunning the
+analysis pipeline reproduces the committed analysis files.
+
+\section*{Acknowledgements}
+The environment, the 2015 baseline policy and the genetic algorithm studied
+here are David Ha's \citep{ha2015slime,ha2020slimevolleygym}, released under
+the Apache-2.0 licence; the compiled port in this study transcribes them. For
+background on neuroevolution and coevolution see \citet{risi2026neuroevolution}.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+% =========================================================================
+\appendix
+\FloatBarrier
+\section{Supplementary results}
+\label{app:results}
+
+\FloatBarrier
+\subsection{The reference run in detail}
+\label{app:reference}
+
+The best checkpoint of the reference run, at \nRefPeakT{} games, wins
+\nRefPeakWinPct\%, draws \nRefPeakTiePct\% and loses \nRefPeakLossPct\% of
+held-out episodes; the final one wins \nRefFinalWinPct\%, draws
+\nRefFinalTiePct\% and loses \nRefFinalLossPct\% (Table~\ref{tab:reference}). On
+the sweep, \nRefAboveCkpt{} of its checkpoints score above parity. What
+transfers to the 2015 policy is a general ability not to lose, not a
+counter-strategy: the population never sees that opponent.
+
+The single-run version of this study reported that the swings shrink as the
+level rises. With \nCtrlRuns{} seeds that is testable, and it does not hold
+(Table~\ref{tab:windows}): from the first to the last \nLateWindow-game window
+the control's mean rises from \nWindowLevelFirst{} to \nWindowLevelLast{} and the
+checkpoints above parity from \nWindowAboveFirst{} to \nWindowAboveLast, but the
+within-run spread of checkpoint scores is \nWindowSdFirst{} in the first window
+and \nWindowSdLast{} in the last.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{The reference run: final and best checkpoint, held out.}
+\label{tab:reference}
+\resizebox{\linewidth}{!}{\input{tables/3.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{The control in \nLateWindow-game windows: mean score across seeds,
+within-run spread of checkpoint scores, spread of window means across seeds,
+and checkpoints above parity.}
+\label{tab:windows}
+\input{tables/7.tex}
+\end{table}
+
+\FloatBarrier
+\subsection{The export rule over training, and promotion rules}
+\label{app:export}
+
+Table~\ref{tab:proxy} follows the comparison of \S\ref{sec:export} through
+training: at every snapshot the exported individual sits in the middle of its
+population, the streak counter's correlation with skill stays near zero, and
+the gap to the best member of the pool persists. Table~\ref{tab:reexport} and
+Figure~\ref{fig:reexport} replace the streak rule with an internal round robin
+of increasing size; the rule uses no information the algorithm does not
+already have, so it is deployable, unlike the best-in-pool oracle.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{The exported champion against its own population, control runs,
+averaged across seeds at each snapshot.}
+\label{tab:proxy}
+\resizebox{\linewidth}{!}{\input{tables/5.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Promotion rules on the control's population snapshots. ``Gap
+closed'': share of the distance between the streak-exported and the best
+member recovered by the rule.}
+\label{tab:reexport}
+\resizebox{\linewidth}{!}{\input{tables/9.tex}}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig9_reexport.pdf}
+\caption{Promotion rules as a function of the games spent ranking: level of
+the exported individual, volatility of the reported curve, and rank
+correlation between the rule's statistic and true skill.}
+\label{fig:reexport}
+\end{figure}
+
+\FloatBarrier
+\subsection{Mutation scale and population size}
+\label{app:sweeps}
+
+Figure~\ref{fig:sweeps} shows the sweeps discussed in \S\ref{sec:sigma}. The
+population sweep was cut to a single run of the smaller population when the
+unequal-power block replaced it; the larger population was never run.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig4_ablations.pdf}
+\caption{Mutation scale (left) and population size (right) against the
+control, median and inter-quartile band across seeds.}
+\label{fig:sweeps}
+\end{figure}
+
+\FloatBarrier
+\subsection{The archive conditions}
+\label{app:archive}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig3_hall_of_fame.pdf}
+\caption{The archive conditions against the control. Top: median and
+inter-quartile band. Bottom: per-seed level, volatility and drawdown of the
+last \nLateWindow{} games (ctrl, control; test, archive as test; par.,
+archive as parent at the dose or span given in the legend).}
+\label{fig:hof}
+\end{figure}
+
+\FloatBarrier
+\subsection{The cross-run tournament}
+\label{app:crossrun}
+
+Scores against a single frozen opponent can reward specialising against it.
+The final champion of every single-population run therefore played the final
+champion of every other (Figure~\ref{fig:crossrun}, Table~\ref{tab:crossrun}).
+The control's median rating is \nEloMedianCtrl{} and its worst champion
+\nEloWorstCtrl; the archive as test has a higher median (\nEloMedianHoftest)
+but also a champion at \nEloWorstHoftest; the generational GA and the ES have
+medians of \nEloMedianGa{} and \nEloMedianEs. The highest median belongs to the
+smaller mutation step (\nEloMedianSigsmall), a side condition with fewer runs.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\linewidth]{figures/fig7_cross_run_elo.pdf}
+\caption{Bradley--Terry ratings on the Elo scale of every run's final
+champion in one all-play-all tournament; bars mark condition medians.}
+\label{fig:crossrun}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Cross-run tournament of final champions, by condition.}
+\label{tab:crossrun}
+\input{tables/6.tex}
+\end{table}
+
+\FloatBarrier
+\subsection{Unequal power (exploratory)}
+\label{app:asym}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig11_asymmetric.pdf}
+\caption{Two-population runs (exploratory, Section~\ref{sec:asym}). Top: the larger side's win rate in
+cross-population games, one line per seed. Bottom: the best member of each pool
+against the 2015 policy (red: larger side, blue: smaller).}
+\label{fig:asym}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Two-population outcomes (exploratory). Win rate over the last
+\nAsymWindow{} games; ``best member'' is the best individual in each pool at the end,
+against the 2015 policy.}
+\label{tab:asym}
+\input{tables/10.tex}
+\end{table}
+
+
+\FloatBarrier
+\subsection{Every condition}
+\label{app:all}
+
+Tables~\ref{tab:full}--\ref{tab:timing} give every metric for every condition,
+each condition's comparison with the control, the within-run tournaments and
+the timing of the phase change.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Every condition: endpoint and best checkpoint (held out), level,
+volatility and drawdown of the last \nLateWindow{} games, share of checkpoints above
+parity, median first-parity time.}
+\label{tab:full}
+\resizebox{\linewidth}{!}{\input{tables/1.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Each condition against the control, exact two-sided Mann--Whitney.}
+\label{tab:stats}
+\input{tables/2.tex}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Within-run checkpoint tournaments.}
+\label{tab:within}
+\input{tables/4.tex}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Phase-change timing per condition.}
+\label{tab:timing}
+\resizebox{\linewidth}{!}{\input{tables/8.tex}}
+\end{table}
+
+
+\FloatBarrier
+\section{The compiled environment}
+\label{app:compiled}
+
+The environment, the evolved policy and the 2015 baseline were transcribed
+statement for statement into a numba-compiled module, including behaviour
+that looks like a bug but changes trajectories (for example, observations are
+not refreshed on a frame in which a point is scored). Three deviations are
+deliberate: the random-number generator family, the way two distinct
+population members are drawn, and the floating-point details of the network's
+forward pass. The last can change a trajectory only by flipping the sign of a
+network output, because the game reads only whether each output is positive.
+
+\emph{Per game.} Driven from one stream of serve velocities, both
+implementations agree on every ball and agent position, every rally end, every
+score and every episode length in all \nValGames{} paired games
+(\nValSteps{} steps), across \nValScenarios{} populations chosen to exercise different parts
+of the state space (Table~\ref{tab:validation}). The compiled version is
+\nValSpeedup{} times faster on one core.
+
+\emph{Per trajectory.} Continuing the reference run's committed population
+snapshot at \nResumeSnapshot{} games for another \nResumeGames{} games,
+\nResumeN{} compiled continuations put \nResumeAboveMin--\nResumeAboveMax\% of
+their checkpoints above parity, against \nRefContAbove\% for the reference
+environment over the same games (Table~\ref{tab:resume}). Independent
+continuations diverge because the algorithm is stochastic; they land in the
+same band.
+
+\emph{Per distribution.} The reference run's transition times and best score
+lie inside the compiled control's seed distribution (\S\ref{sec:timing},
+Table~\ref{tab:headline}).
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Bit-level validation of the compiled environment.}
+\label{tab:validation}
+\resizebox{\linewidth}{!}{\input{tables/a1.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Continuations of the reference run's population snapshot.}
+\label{tab:resume}
+\input{tables/a3.tex}
+\end{table}
+
+\FloatBarrier
+\section{Reproducing the results}
+\label{app:repro}
+
+Every number in this paper is regenerated from the run files by the
+repository's scripts; with the pinned requirements installed, the sequence is
+
+\begin{small}
+\begin{verbatim}
+python test_repo.py                      # self-test, incl. bit-level checks
+python validate_fastvolley.py            # per-game validation
+python run_experiments.py                # the single-population matrix
+python run_asymmetric.py                 # the two-population block
+python train_ga_selfplay.py --resume     # the reference run, slimevolleygym
+python eval_reference.py
+python analyze_matrix.py --holdout       # metrics and held-out re-scoring
+python coevolution_analysis.py --within --across --proxy
+python reexport.py                       # promotion rules
+python resume_fast.py                    # compiled continuations
+python make_tables.py && python make_figures.py
+paper/build.sh
+\end{verbatim}
+\end{small}
+
+\noindent Runs whose files exist are skipped, so the matrix can be resumed
+after an interruption. Each analysis script records the hash of every raw file
+it read and of its own output; \texttt{make\_tables.py --check} fails if any
+table or number in the paper or the README no longer follows from the files
+on disk, and a continuous-integration job runs it, with the self-test, on every
+change. Rerunning the analysis reproduced the committed files: the reference
+curve and the compiled continuations byte for byte, the held-out scores, the
+within-run tournaments, the export-rule check and the promotion-rule analysis
+in every reported value. Every change to the design after the first run
+started is recorded, with what was known at the time, in the decision log
+shipped with the data; it includes the archive-as-test bug, its rerun and the
+comparison of the two.
+
+\FloatBarrier
+\end{document}

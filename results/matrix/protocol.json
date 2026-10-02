@@ -161,6 +161,25 @@
     106
    ],
    "pops": false
+  },
+  "hof-eval-v2": {
+   "algo": "hof_eval",
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.25,
+   "cap": 512,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
   }
+ },
+ "superseded": {
+  "hof-eval": "hof-eval-v2"
  }
 }

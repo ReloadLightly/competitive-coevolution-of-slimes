@@ -15,7 +15,7 @@
    "len_match": 50,
    "trace_exact": 50,
    "max_abs_dev": 0.0,
-   "steps": 39900,
+   "steps": 60465,
    "first_div_step": []
   },
   "champion vs champion": {
@@ -24,7 +24,7 @@
    "len_match": 50,
    "trace_exact": 50,
    "max_abs_dev": 0.0,
-   "steps": 45017,
+   "steps": 62376,
    "first_div_step": []
   },
   "champion vs 2015 baseline": {
@@ -33,12 +33,12 @@
    "len_match": 50,
    "trace_exact": 50,
    "max_abs_dev": 0.0,
-   "steps": 148909,
+   "steps": 150000,
    "first_div_step": []
   }
  },
- "reference_games_per_sec": 8.723724043307634,
- "compiled_games_per_sec": 273.56530890208245,
- "speedup": 31.358776085076517,
+ "reference_games_per_sec": 11.023022097008178,
+ "compiled_games_per_sec": 290.66329177960324,
+ "speedup": 26.368747991396464,
  "all_exact": true
 }

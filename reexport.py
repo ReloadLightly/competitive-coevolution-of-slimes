@@ -25,7 +25,6 @@ source of volatility in a champion curve.
 """
 
 import argparse
-import glob
 import json
 import multiprocessing as mp
 import os
@@ -34,6 +33,7 @@ import numpy as np
 
 import fastvolley as fv
 import fastvolley_kernels as fk
+import provenance as pv
 import stats_utils as su
 
 RANK_SEED = 5150          # disjoint from training, evaluation and tournament seeds
@@ -88,12 +88,12 @@ def main():
     ap.add_argument("--out", default="results/analysis/reexport.json")
     ap.add_argument("--opponents", default="4,8,16,32,64",
                     help="comma-separated round-robin sizes to sweep")
-    ap.add_argument("--episodes", type=int, default=100,
+    ap.add_argument("--episodes", type=int, default=60,   # as committed
                     help="episodes per individual against the 2015 baseline")
     ap.add_argument("--workers", type=int, default=3)
     args = ap.parse_args()
 
-    paths = sorted(glob.glob(os.path.join(args.matrix, "control_s*.npz")))
+    paths = pv.matrix_runs(args.matrix, "control_s*.npz")
     if not paths:
         print("no control runs with population snapshots yet")
         return
@@ -111,6 +111,10 @@ def main():
             print(f"  {name}: streak {np.mean([r['streak_score'] for r in rows]):+.2f}"
                   f"  external {np.mean([r['external_score'] for r in rows]):+.2f}",
                   flush=True)
+
+    # workers finish in any order; the per-run lists below follow run names
+    out = dict(sorted(out.items()))
+    summary_runs = list(out)
 
     # volatility of each series, per run: the causal test
     allrows = [r for rows in out.values() for r in rows]
@@ -146,9 +150,12 @@ def main():
         f"internal_{o}": allrows[0][f"games_{o}"] for o in opps}
     summary["episodes_per_individual"] = args.episodes
     summary["n_runs"] = len(out)
+    summary["runs"] = summary_runs          # order of every *_per_run list
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     json.dump({"per_run": out, "summary": summary}, open(args.out, "w"), indent=1)
+    pv.record(args.out, "control",
+              params={"opponents": args.opponents, "episodes": args.episodes})
 
     print("\nwhich individual you export, and what it costs")
     print(f"  {'rule':<22}{'games':>7}{'level':>8}{'volatility':>12}"

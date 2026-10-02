@@ -6,3 +6,10 @@ nohup.out
 _scratch/
 results/train.pid
 results/_smoke*
+results/analysis/provenance.json.lock
+paper/*.aux
+paper/*.log
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.out
+paper/*.blg

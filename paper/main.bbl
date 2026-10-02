@@ -1,0 +1,179 @@
+\begin{thebibliography}{24}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Agarwal et~al.(2021)Agarwal, Schwarzer, Castro, Courville, and
+  Bellemare]{agarwal2021precipice}
+Rishabh Agarwal, Max Schwarzer, Pablo~Samuel Castro, Aaron Courville, and
+  Marc~G. Bellemare.
+\newblock Deep reinforcement learning at the edge of the statistical precipice.
+\newblock In \emph{Advances in Neural Information Processing Systems 34
+  (NeurIPS 2021)}, 2021.
+
+\bibitem[Balduzzi et~al.(2019)Balduzzi, Garnelo, Bachrach, Czarnecki,
+  P{\'e}rolat, Jaderberg, and Graepel]{balduzzi2019openended}
+David Balduzzi, Marta Garnelo, Yoram Bachrach, Wojciech~M. Czarnecki, Julien
+  P{\'e}rolat, Max Jaderberg, and Thore Graepel.
+\newblock Open-ended learning in symmetric zero-sum games.
+\newblock In \emph{Proceedings of the 36th International Conference on Machine
+  Learning}, volume~97 of \emph{Proceedings of Machine Learning Research},
+  pages 434--443, 2019.
+
+\bibitem[Bradley and Terry(1952)]{bradley1952rank}
+Ralph~Allan Bradley and Milton~E. Terry.
+\newblock Rank analysis of incomplete block designs: {I}. the method of paired
+  comparisons.
+\newblock \emph{Biometrika}, 39\penalty0 (3--4):\penalty0 324--345, 1952.
+\newblock URL
+  \url{https://academic.oup.com/biomet/article-abstract/39/3-4/324/326091}.
+
+\bibitem[Cartlidge and Bullock(2004)]{cartlidge2004combating}
+John Cartlidge and Seth Bullock.
+\newblock Combating coevolutionary disengagement by reducing parasite
+  virulence.
+\newblock \emph{Evolutionary Computation}, 12\penalty0 (2):\penalty0 193--222,
+  2004.
+\newblock URL \url{https://ieeexplore.ieee.org/document/6790490}.
+
+\bibitem[Cliff and Miller(1995)]{cliff1995tracking}
+Dave Cliff and Geoffrey~F. Miller.
+\newblock Tracking the red queen: Measurements of adaptive progress in
+  co-evolutionary simulations.
+\newblock In \emph{Advances in Artificial Life (ECAL 1995)}, volume 929 of
+  \emph{Lecture Notes in Computer Science}, pages 200--218. Springer, 1995.
+\newblock \doi{10.1007/3-540-59496-5_300}.
+
+\bibitem[Czarnecki et~al.(2020)Czarnecki, Gidel, Tracey, Tuyls, Omidshafiei,
+  Balduzzi, and Jaderberg]{czarnecki2020spinning}
+Wojciech~M. Czarnecki, Gauthier Gidel, Brendan Tracey, Karl Tuyls, Shayegan
+  Omidshafiei, David Balduzzi, and Max Jaderberg.
+\newblock Real world games look like spinning tops.
+\newblock In \emph{Advances in Neural Information Processing Systems 33
+  (NeurIPS 2020)}, 2020.
+
+\bibitem[Ficici and Pollack(2001)]{ficici2001pareto}
+Sevan~G. Ficici and Jordan~B. Pollack.
+\newblock Pareto optimality in coevolutionary learning.
+\newblock In \emph{Advances in Artificial Life (ECAL 2001)}, volume 2159 of
+  \emph{Lecture Notes in Computer Science}, pages 316--325. Springer, 2001.
+\newblock \doi{10.1007/3-540-44811-X_34}.
+
+\bibitem[Ficici and Pollack(2003)]{ficici2003memory}
+Sevan~G. Ficici and Jordan~B. Pollack.
+\newblock A game-theoretic memory mechanism for coevolution.
+\newblock In \emph{Genetic and Evolutionary Computation (GECCO 2003)}, volume
+  2723 of \emph{Lecture Notes in Computer Science}, pages 286--297. Springer,
+  2003.
+\newblock \doi{10.1007/3-540-45105-6_35}.
+
+\bibitem[Gideoni et~al.(2026)Gideoni, Risi, and Gal]{gideoni2026simple}
+Yonatan Gideoni, Sebastian Risi, and Yarin Gal.
+\newblock Simple baselines are competitive with code evolution, 2026.
+
+\bibitem[Ha(2015)]{ha2015slime}
+David Ha.
+\newblock Neural slime volleyball.
+\newblock Blog post,
+  \url{https://blog.otoro.net/2015/03/28/neural-slime-volleyball/}, 2015.
+
+\bibitem[Ha(2017)]{ha2017estool}
+David Ha.
+\newblock {ESTool}: Evolution strategies tool.
+\newblock \url{https://github.com/hardmaru/estool}, 2017.
+
+\bibitem[Ha(2020)]{ha2020slimevolleygym}
+David Ha.
+\newblock Slime volleyball gym environment.
+\newblock \url{https://github.com/hardmaru/slimevolleygym}, 2020.
+
+\bibitem[Henderson et~al.(2018)Henderson, Islam, Bachman, Pineau, Precup, and
+  Meger]{henderson2018matters}
+Peter Henderson, Riashat Islam, Philip Bachman, Joelle Pineau, Doina Precup,
+  and David Meger.
+\newblock Deep reinforcement learning that matters.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~32, 2018.
+\newblock \doi{10.1609/aaai.v32i1.11694}.
+
+\bibitem[Lange et~al.(2025)Lange, Imajuku, and Cetin]{lange2025shinkaevolve}
+Robert~Tjarko Lange, Yuki Imajuku, and Edoardo Cetin.
+\newblock {ShinkaEvolve}: Towards open-ended and sample-efficient program
+  evolution, 2025.
+
+\bibitem[Mann and Whitney(1947)]{mann1947test}
+Henry~B. Mann and Donald~R. Whitney.
+\newblock On a test of whether one of two random variables is stochastically
+  larger than the other.
+\newblock \emph{The Annals of Mathematical Statistics}, 18\penalty0
+  (1):\penalty0 50--60, 1947.
+\newblock \doi{10.1214/aoms/1177730491}.
+
+\bibitem[Miconi(2009)]{miconi2009why}
+Thomas Miconi.
+\newblock Why coevolution doesn't ``work'': Superiority and progress in
+  coevolution.
+\newblock In \emph{Genetic Programming (EuroGP 2009)}, volume 5481 of
+  \emph{Lecture Notes in Computer Science}, pages 49--60. Springer, 2009.
+\newblock \doi{10.1007/978-3-642-01181-8_5}.
+
+\bibitem[Nolfi and Pagliuca(2025)]{nolfi2025global}
+Stefano Nolfi and Paolo Pagliuca.
+\newblock Global progress in competitive co-evolution: A systematic comparison
+  of alternative methods.
+\newblock \emph{Frontiers in Robotics and AI}, 2025.
+\newblock \doi{10.3389/frobt.2024.1470886}.
+
+\bibitem[Novikov et~al.(2025)]{novikov2025alphaevolve}
+Alexander Novikov et~al.
+\newblock {AlphaEvolve}: A coding agent for scientific and algorithmic
+  discovery, 2025.
+
+\bibitem[Popovici et~al.(2012)Popovici, Bucci, Wiegand, and
+  de~Jong]{popovici2012coevolutionary}
+Elena Popovici, Anthony Bucci, R.~Paul Wiegand, and Edwin~D. de~Jong.
+\newblock Coevolutionary principles.
+\newblock In \emph{Handbook of Natural Computing}, pages 987--1033. Springer,
+  2012.
+\newblock \doi{10.1007/978-3-540-92910-9_31}.
+
+\bibitem[Risi et~al.(2026)Risi, Tang, Ha, and
+  Miikkulainen]{risi2026neuroevolution}
+Sebastian Risi, Yujin Tang, David Ha, and Risto Miikkulainen.
+\newblock \emph{Neuroevolution: Harnessing Creativity in {AI} Agent Design}.
+\newblock MIT Press, 2026.
+\newblock ISBN 9780262054768.
+\newblock Open-access online edition at \url{https://neuroevolutionbook.com}.
+
+\bibitem[Rosin and Belew(1997)]{rosin1997new}
+Christopher~D. Rosin and Richard~K. Belew.
+\newblock New methods for competitive coevolution.
+\newblock \emph{Evolutionary Computation}, 5\penalty0 (1):\penalty0 1--29,
+  1997.
+\newblock URL
+  \url{https://direct.mit.edu/evco/article-abstract/5/1/1/790/New-Methods-for-Competitive-Coevolution}.
+
+\bibitem[Salimans et~al.(2017)Salimans, Ho, Chen, Sidor, and
+  Sutskever]{salimans2017evolution}
+Tim Salimans, Jonathan Ho, Xi~Chen, Szymon Sidor, and Ilya Sutskever.
+\newblock Evolution strategies as a scalable alternative to reinforcement
+  learning, 2017.
+
+\bibitem[Seals and Tauritz(2026)]{seals2026tripping}
+Deacon Seals and Daniel~R. Tauritz.
+\newblock Tripping over the past: Measuring deceptive progress in competitive
+  coevolutionary algorithms employing hall of fame.
+\newblock In \emph{Applications of Evolutionary Computation (EvoApplications
+  2026)}, Lecture Notes in Computer Science. Springer, 2026.
+\newblock \doi{10.1007/978-3-032-23607-4_32}.
+
+\bibitem[Simione and Nolfi(2020)]{simione2020longterm}
+Luca Simione and Stefano Nolfi.
+\newblock Long-term progress and behavior complexification in competitive
+  coevolution.
+\newblock \emph{Artificial Life}, 26\penalty0 (4):\penalty0 409--430, 2020.
+\newblock URL \url{https://direct.mit.edu/artl/article/26/4/409/97302}.
+
+\end{thebibliography}

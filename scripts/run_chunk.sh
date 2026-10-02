@@ -5,11 +5,11 @@
 # session goes idle: a chunk must therefore BLOCK (keeping the session busy)
 # rather than launch training in the background and return.
 #
-#   bash run_chunk.sh [seconds]     # default 540 (9 minutes)
+#   bash scripts/run_chunk.sh [seconds]     # default 540 (9 minutes)
 #
 # Exits immediately (status 0, prints COMPLETE) once 500,000 games are done.
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 SECS=${1:-540}
 HIST=results/ga_selfplay/history.jsonl
 
