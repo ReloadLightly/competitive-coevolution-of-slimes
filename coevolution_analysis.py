@@ -139,7 +139,12 @@ def _proxy_job(job):
     path, episodes = job
     z = np.load(path)
     name = os.path.basename(path)[:-4]
-    if z["pops"].size == 0:
+    # needs both a population snapshot and the streak counters that selected the
+    # exported champion; the two-population runs save pools but no streaks, and
+    # are analysed separately in section 5 of the ablations
+    if z["pops"].size == 0 or z["pop_streaks"].size == 0:
+        return name, None
+    if z["champs"].shape[1] != fv.PARAM_COUNT:
         return name, None
     pops = z["pops"]
     pop_streaks = z["pop_streaks"]
@@ -199,6 +204,9 @@ def main():
 
     os.makedirs(args.outdir, exist_ok=True)
     paths = sorted(glob.glob(os.path.join(args.matrix, "*_s*.npz")))
+    # the two-population conditions have their own analysis (ablations section 5)
+    # and their champions are not comparable members of the single-population pool
+    paths = [p for p in paths if not os.path.basename(p).startswith("asym")]
     if not paths:
         print("no runs yet")
         return

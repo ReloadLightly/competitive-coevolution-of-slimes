@@ -188,3 +188,17 @@ fewer seeds of every condition rather than no seeds of some.
 
 The earlier asymmetric result files were deleted. Nothing else in the matrix is
 affected.
+
+## 2026-08-19 01:45 UTC — final inventory
+
+59 runs completed: 41 single-population and 18 two-population, plus the
+reference run on the unmodified environment, which reached its full 500,000
+games. Seed counts per condition are in Table A2 and vary by design (see the
+entries above): 6 for the conditions that carry the argument, 3 for the
+mutation-scale sweep, 1 for `hof-0.50` and `pop-32`, which were dropped from the
+queue in favour of the unequal-power condition and are reported with the single
+seed they have rather than deleted.
+
+`pop-512` never ran. The population sweep was replaced by the unequal-power
+condition; `pop-32` has one run because it had already started when the queue
+was stopped. Both remain defined in `run_experiments.py` and can be run later.

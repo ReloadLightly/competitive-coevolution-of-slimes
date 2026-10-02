@@ -25,8 +25,16 @@ Bradley–Terry ratings fitted on the Elo scale.
 <!-- table:4 -->
 | condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | +0.72 | 1/421 (0.2%) | 10.0 |
-| archive as parent, p=0.25 | 5 | +0.28 | 17/127 (13.4%) | 23.4 |
+| control (Ha 2020 GA) | 6 | +0.74 | 1/499 (0.2%) | 10.2 |
+| archive as test, full span | 6 | +0.92 | 2/575 (0.3%) | 8.3 |
+| archive as parent, p=0.25 | 6 | +0.35 | 17/224 (7.6%) | 20.8 |
+| archive as parent, p=0.50 | 1 | +0.02 | 0/15 (0.0%) | 26.0 |
+| archive as parent, full span | 3 | +0.06 | 9/29 (31.0%) | 31.0 |
+| generational GA (Ha 2015) | 6 | +0.60 | 2/485 (0.4%) | 12.3 |
+| self-play ES | 6 | +0.69 | 3/424 (0.7%) | 14.3 |
+| sigma = 0.05 | 3 | +0.91 | 0/239 (0.0%) | 11.3 |
+| sigma = 0.20 | 3 | +0.62 | 1/175 (0.6%) | 15.7 |
+| population 32 | 1 | +0.01 | 2/6 (33.3%) | 29.0 |
 
 Checkpoints 50,000 games apart play a round robin, 50 games per pair over both court sides. A pair whose mean margin is inside ±0.25 points counts as undecided and its triads are skipped. A cyclic triad is A beats B beats C beats A.
 <!-- /table:4 -->
@@ -67,18 +75,18 @@ entire population every 50,000 games, every member can be scored against the
 <!-- table:5 -->
 | games | exported champion | best in the same pool | gap | exported rank | ρ(streak, score) | above parity in pool | mean pairwise genotype distance |
 |---|---|---|---|---|---|---|---|
-| 50,000 | -4.74 | -4.46 | 0.28 | 58 / 128 | +0.12 | 0 | 12.92 |
-| 100,000 | -4.32 | -2.65 | 1.67 | 72 / 128 | -0.00 | 1 | 11.03 |
-| 150,000 | -3.40 | -2.53 | 0.87 | 45 / 128 | +0.09 | 3 | 10.32 |
-| 200,000 | -2.48 | -1.78 | 0.70 | 63 / 128 | +0.03 | 5 | 9.88 |
-| 250,000 | -1.57 | -0.62 | 0.94 | 46 / 128 | +0.09 | 20 | 9.18 |
-| 300,000 | -1.38 | -0.50 | 0.87 | 51 / 128 | +0.13 | 25 | 10.54 |
-| 350,000 | -1.67 | -0.46 | 1.21 | 72 / 128 | +0.08 | 30 | 10.33 |
-| 400,000 | -1.41 | -0.41 | 1.00 | 63 / 128 | +0.11 | 46 | 11.81 |
-| 450,000 | -0.58 | +0.60 | 1.18 | 71 / 128 | -0.02 | 45 | 12.23 |
-| 500,000 | -0.29 | +0.66 | 0.94 | 73 / 128 | +0.06 | 58 | 11.36 |
+| 50,000 | -4.73 | -4.51 | 0.22 | 50 / 128 | +0.09 | 0 | 12.66 |
+| 100,000 | -3.91 | -2.22 | 1.69 | 71 / 128 | +0.00 | 1 | 10.79 |
+| 150,000 | -2.94 | -2.05 | 0.89 | 58 / 128 | +0.04 | 5 | 10.43 |
+| 200,000 | -2.05 | -1.31 | 0.74 | 54 / 128 | +0.05 | 13 | 10.13 |
+| 250,000 | -1.36 | -0.42 | 0.93 | 50 / 128 | +0.07 | 23 | 9.07 |
+| 300,000 | -1.07 | -0.29 | 0.78 | 44 / 128 | +0.10 | 32 | 10.50 |
+| 350,000 | -1.41 | -0.31 | 1.09 | 73 / 128 | +0.04 | 34 | 10.53 |
+| 400,000 | -1.18 | -0.30 | 0.88 | 56 / 128 | +0.15 | 47 | 12.61 |
+| 450,000 | -0.48 | +0.54 | 1.03 | 76 / 128 | -0.03 | 49 | 12.23 |
+| 500,000 | -0.08 | +0.62 | 0.70 | 61 / 128 | +0.07 | 67 | 11.38 |
 
-Control runs only (5 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
+Control runs only (6 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
 <!-- /table:5 -->
 
 Three things in that table, in increasing order of how much they matter.
@@ -161,11 +169,12 @@ the first one we implemented was wrong in an instructive way.
 | archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
-| archive as parent, full span | 2 | -4.84 ± 0.00 | -4.84 ± 0.00 | -4.84 ± 0.00 | 0.02 | 0.05 | 0% | — (0/2) |
+| archive as parent, full span | 3 | -4.84 ± 0.00 | -4.83 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.05 | 0% | — (0/3) |
 | generational GA (Ha 2015) | 6 | -2.00 ± 0.82 | -0.68 ± 0.83 | -1.61 ± 0.70 | 0.63 | 0.70 | 3% | 345k (5/6) |
 | self-play ES | 6 | -2.08 ± 0.94 | -1.56 ± 0.99 | -2.46 ± 0.93 | 0.21 | 0.18 | 7% | 398k (2/6) |
 | sigma = 0.05 | 3 | -0.17 ± 0.23 | +0.34 ± 0.07 | -0.29 ± 0.15 | 0.69 | 0.64 | 26% | 150k (3/3) |
 | sigma = 0.20 | 3 | -1.66 ± 1.60 | -1.44 ± 1.70 | -1.76 ± 1.54 | 0.38 | 0.36 | 11% | 290k (2/3) |
+| population 32 | 1 | -4.86 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.05 | 0% | — (0/1) |
 
 Scores are points per episode against the 2015 baseline, mean ± s.e.m. across runs. `final` and `peak` are re-scored on the held-out evaluation seed over 1,000 episodes; the other columns come from the 200-episode sweep.
 <!-- /table:1 -->
@@ -183,11 +192,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 | archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
 | archive as parent, p=0.25 | `drawdown` | -0.366 | -0.67 | 0.065 |
 | archive as parent, p=0.25 | `above_parity` | -0.245 | -0.94 | 0.004 |
-| archive as parent, full span | `final_holdout` | -4.688 | -1.00 | 0.071 |
-| archive as parent, full span | `late_mean` | -4.527 | -1.00 | 0.071 |
-| archive as parent, full span | `volatility` | -0.657 | -1.00 | 0.071 |
-| archive as parent, full span | `drawdown` | -0.554 | -1.00 | 0.071 |
-| archive as parent, full span | `above_parity` | -0.263 | -1.00 | 0.071 |
+| archive as parent, full span | `final_holdout` | -4.688 | -1.00 | 0.024 |
+| archive as parent, full span | `late_mean` | -4.528 | -1.00 | 0.024 |
+| archive as parent, full span | `volatility` | -0.659 | -1.00 | 0.024 |
+| archive as parent, full span | `drawdown` | -0.550 | -1.00 | 0.024 |
+| archive as parent, full span | `above_parity` | -0.263 | -1.00 | 0.024 |
 | generational GA (Ha 2015) | `final_holdout` | -1.852 | -0.67 | 0.065 |
 | generational GA (Ha 2015) | `late_mean` | -1.299 | -0.78 | 0.026 |
 | generational GA (Ha 2015) | `volatility` | -0.046 | +0.00 | 1.000 |
@@ -339,15 +348,13 @@ strong side's σ to equalise the step norms and isolate capacity from search
 granularity.
 
 <!-- table:10 -->
-| condition | seed | win rate of the larger side | larger side, final score | smaller side, final score | who learned |
+| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
 |---|---|---|---|---|---|
-| symmetric control (273 v 273) | 101 | 0.812 | -4.72 | -4.80 | neither |
-| symmetric control (273 v 273) | 102 | 0.001 | -4.82 | -0.15 | smaller |
-| symmetric control (273 v 273) | 103 | 0.247 | -2.67 | -0.83 | both |
-| 2:1 capacity (531 v 273), same σ | 101 | 0.001 | -4.83 | +0.23 | smaller |
-| 2:1 capacity (531 v 273), same σ | 102 | 0.896 | -0.94 | -4.85 | larger |
+| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
+| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
+| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
 
-Two populations of 128 playing only each other, 750,000 games, 25% of each population's games crossed with the other side. 'Win rate of the larger side' is over cross-population games in the last 100,000 games; 0.5 means the sides are holding each other. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking. 'Who learned' counts a side as having learned if its final champion scores above −4.0 against the 2015 baseline.
+Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
 <!-- /table:10 -->
 
 ![unequal power](../../results/figures/fig11_asymmetric.png)
@@ -357,58 +364,71 @@ the sides are holding each other. Bottom: each side's champion against the 2015
 baseline. Left column is the symmetric control, where both populations have the
 identical architecture.*
 
-**Three things, in order of how much they surprised us.**
+<!-- table:10 -->
+| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
+|---|---|---|---|---|---|
+| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
+| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
+| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
 
-*A two-population contest is winner-take-all.* Not one run ended anywhere near a
-balanced 0.5. The cross-population win rate always runs away to one side or the
-other, usually to an extreme — 0.001 in some seeds, meaning one population lost
-essentially every game it played against the other for the last hundred thousand
-games. Single-population self-play has no analogue of this: there, everyone
-improves together.
+Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
+<!-- /table:10 -->
 
-*In the symmetric control, which side wins is arbitrary.* Both populations have
-identical architecture, identical budget, identical mutation scale. There is
-nothing to distinguish them but their random initialisation, and yet the same
-runaway happens, in whichever direction the early noise pushed. That is
-spontaneous symmetry breaking, and it is the baseline against which any effect
-of asymmetry has to be judged.
+![unequal power](../../results/figures/fig11_asymmetric.png)
 
-*Twice the capacity does not decide the contest.* Across the seeds of the 2:1
-condition, the larger side both lost essentially every game and won essentially
-every game, depending on nothing more than the seed — the same spread as the
-symmetric control produces with no asymmetry at all. If a 1.95 : 1 advantage in
-policy capacity mattered here, it is smaller than the symmetry-breaking noise it
-would have to overcome.
+*Figure 11. Top: the larger side's win rate in cross-population games; 0.5 means
+the sides are holding each other. Bottom: the best individual each population
+contains, scored against the 2015 baseline — the pool, not an exported champion.
+Left column is the symmetric control, where both populations are identical.*
 
-**The mechanism is disengagement, and it is the interesting part.** In this
-game, whoever falls behind loses *every* cross-population game, and a contest
-you always lose carries no information: there is no gradient in a uniform
-defeat. The side that pulls ahead keeps improving; the side that falls behind
-stops. It is not that the weaker side competes badly — it is that it stops
-having a usable opponent at all, while the leader still does. The failure is
-structural, not a matter of capability.
+**Mutual improvement essentially never happens.** This is the robust result, and
+it holds across all three conditions. Of eighteen runs, exactly **one** ended
+with both populations containing an above-parity individual. The normal outcome
+is that one side's pool learns and the other's does not (ten runs), or that
+neither does (seven). Single-population self-play has no analogue: there the
+whole pool improves together, and every control seed in this study reached
+competence. Split the same agents into two pools that play each other, and the
+contest resolves into one competent side and one that never gets off the floor.
 
-**Two caveats, both important.** First, three seeds per condition against an
-outcome that is close to a coin flip is very little power: what we can say is
-that a 1.95 : 1 capacity advantage does not *dominate* the symmetry-breaking
-noise, not that capacity has no effect at all. Establishing a smaller effect
-would need tens of seeds, which is cheap in this environment and is the obvious
-extension.
+**The contest is decisive, and it is decisive without any asymmetry.** Thirteen
+of eighteen runs end with a cross-population win rate below 0.1 or above 0.9 —
+one side winning essentially every game it plays. Four of those are in the
+*symmetric* control, where the two populations have identical architecture,
+identical budget and identical mutation scale, and differ only in their random
+initialisation. Runaway dominance is therefore not something asymmetry causes.
+It is the default behaviour of this kind of contest, and it is the null against
+which any asymmetry has to be measured.
 
-Second, a caveat about our own rule. When a population member loses a
-cross-population game it is replaced by a mutant of a randomly drawn peer, and
-that peer's streak counter is incremented even though the peer did not play. In
-the losing population, which loses nearly every cross game, this inflates streak
-counters more or less at random — and §2 has already shown that the streak
-counter is what selects the exported champion. So for the losing side we cannot
-separate "the population stopped improving" from "the export rule was corrupted
-and is now reporting an arbitrary member". Population snapshots would settle it
-immediately; the asymmetric runs do not save them, and that is a design
-oversight rather than a discovery. It does not affect the win-rate result, which
-is measured over the populations themselves and not over their exported
-champions.
+**A 1.95 : 1 capacity advantage does not reliably decide the contest.** Neither
+2:1 condition is distinguishable from the symmetric control: Cliff's δ of −0.33
+(p = 0.39) for the common-σ variant and +0.11 (p = 0.82) for the matched-step
+variant. Whatever advantage twice the policy capacity confers here, it is
+smaller than the symmetry-breaking noise it would have to overcome. The naive
+intuition — that the materially stronger side wins a head-to-head contest — is
+not supported.
 
-## 6. Different machinery: a generational GA and an evolution strategy
+**The step size mattered more than the capacity did, which is the useful
+finding.** The two 2:1 conditions differ only in whether the larger side's
+mutation scale is corrected for its genome size, and they came out on opposite
+sides: with a common per-parameter σ the larger side led in 2 of 6 runs (median
+win rate 0.02), and with the step norm matched it led in 5 of 6 (median 0.95).
+The difference between them is the largest effect in this section — δ = +0.67,
+p = 0.065 — though at six seeds a side it is suggestive rather than
+established. The reading is that a bigger network is not automatically a
+stronger competitor: mutation is applied per parameter, so a larger genome takes
+a larger step in weight space, and left uncorrected that handicap roughly
+cancels the benefit of the extra capacity. Capability has to be matched by an
+adaptation process scaled to it, or it does not convert into advantage.
+
+**Limitations.** Six seeds against outcomes that are close to a coin flip is
+enough to say that a 1.95 : 1 capacity advantage does not *dominate* the
+symmetry-breaking noise; it is not enough to say capacity has no effect. The
+step-norm comparison, which is the most interesting result here, would need
+roughly three times the seeds to move from suggestive to established. Both are
+cheap in this environment — a run takes about fifteen minutes on one core — and
+are the obvious extension.
+
+## 6. Different machinery## 6. Different machinery: a generational GA and an evolution strategy
 
 Everything above varies the knobs of one algorithm. Two further families change
 the machinery itself, with the policy class and the environment held identical:
@@ -494,13 +514,21 @@ champion of every other run.
 <!-- table:6 -->
 | condition | runs | median Elo | best run | worst run |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 5 | +373 | +785 | +238 |
-| archive as parent, p=0.25 | 5 | -421 | -355 | -483 |
+| control (Ha 2020 GA) | 6 | +289 | +688 | +218 |
+| archive as test, full span | 6 | +259 | +319 | -155 |
+| archive as parent, p=0.25 | 6 | -534 | +412 | -585 |
+| archive as parent, p=0.50 | 1 | -572 | -572 | -572 |
+| archive as parent, full span | 3 | -581 | -566 | -589 |
+| generational GA (Ha 2015) | 6 | +49 | +632 | -570 |
+| self-play ES | 6 | +111 | +512 | -583 |
+| sigma = 0.05 | 3 | +476 | +531 | +270 |
+| sigma = 0.20 | 3 | +191 | +331 | -594 |
+| population 32 | 1 | -573 | -573 | -573 |
 
-Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 10 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 0/83 (0.0%).
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 24/7688 (0.3%).
 <!-- /table:6 -->
 
-## 8. Synthesis: eight lessons about competitive coevolution
+## 8. Synthesis: ten lessons about competitive coevolution
 
 None of what follows is about volleyball. Slime Volleyball is a probe — small
 enough that every claim can be checked, adversarial enough that the coevolutionary
@@ -591,7 +619,31 @@ and everything to do with not betting the run on one path — and it is invisibl
 to a single-seed study, which will simply report whichever mode it happened to
 land in.
 
-**8. In a purely relative ecology, the population is the unit that becomes
+**8. A bilateral contest resolves into one winner and one collapsed side;
+mutual improvement is the rare case.** Split one pool of agents into two that
+play only each other, and of eighteen runs exactly one ended with both sides
+holding a competent individual. Thirteen ended with one side winning
+essentially every game. Crucially, four of those runaways happened in the
+*symmetric* control, where the two sides were identical in every respect but
+their random seed — so runaway dominance is not caused by an imbalance, it is
+the default. The mechanism is disengagement: a contest you lose every time
+carries no gradient, so the side that falls behind stops improving while the
+leader keeps going. The same agents in a single shared ecology all improve
+together. The structure of the interaction, not the capability of the
+participants, decides whether both sides develop.
+
+**9. Capability does not convert into advantage unless the adaptation process
+is scaled to it.** Doubling one side's policy capacity did not reliably decide
+the contest — neither 2:1 condition was distinguishable from the symmetric
+control. But the two 2:1 conditions differed from *each other*: with a common
+per-parameter mutation scale the larger side led in 2 of 6 runs, and with the
+mutation scale corrected for genome size it led in 5 of 6. A bigger genome takes
+a bigger step in weight space at the same per-parameter σ, and that handicap
+roughly cancels the extra capacity. The general form: extra capability is not
+free, it changes the geometry of the search that has to exploit it, and an
+adaptation process tuned for the smaller system will squander the larger one.
+
+**10. In a purely relative ecology, the population is the unit that becomes
 competent, not the individual.** At the end of a control run, dozens of the 128
 members score above parity against an opponent none of them ever saw, while the
 individual the algorithm hands you does not. "The system is competent" and "the

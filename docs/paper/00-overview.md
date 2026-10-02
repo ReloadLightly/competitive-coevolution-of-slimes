@@ -1,6 +1,6 @@
 # The champion you export is not the champion you evolved
 
-**Competitive coevolution in Slime Volleyball, measured across dozens of runs —
+**Competitive coevolution in Slime Volleyball, measured across 59 runs —
 and the first of three experiments behind the ACTIR / ShinkaEvolve submission.**
 
 ## Abstract
@@ -9,8 +9,8 @@ Self-play evolution produces competent agents from an entirely internal signal:
 beat a randomly drawn peer, stay in the pool. Nothing tells the population what
 good play is. We replicate David Ha's tournament-selection genetic algorithm on
 Slime Volleyball and ask what that signal can and cannot deliver, using a design
-rather than a single run: dozens of independent runs of 500,000 self-play games
-each across eleven conditions, with every evaluation against a frozen 2015
+rather than a single run: 59 independent runs of 500,000 self-play games each across
+thirteen conditions, with every evaluation against a frozen 2015
 champion that is never seen during training.
 
 The internal signal works, and it works late. A population improves against
@@ -41,6 +41,16 @@ best of them; at the end of a run it is below parity while dozens of its peers
 are above it. A substantial part of what has been read as coevolutionary
 instability is measurement noise injected at the last step, and it is invisible
 because a champion curve looks the same either way.
+
+A separate condition splits the population in two and has the halves play only
+each other, with one side given twice the policy capacity. Doubling capacity did
+not reliably decide the contest — the outcome is dominated by spontaneous
+symmetry breaking, which occurs just as readily in a symmetric control where the
+two sides differ only in their random seed. What the condition does show, in 18
+runs, is that a bilateral contest is a qualitatively different thing from a
+shared ecology: exactly one run ended with both sides holding a competent
+individual. The side that falls behind loses every game, and a contest you always
+lose carries no gradient, so it stops improving while its opponent continues.
 
 We also report a negative result with a mechanism. Our first hall-of-fame
 implementation applied the replacement rule to archive games, making a winning

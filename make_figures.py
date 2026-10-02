@@ -503,23 +503,22 @@ def fig10_archive_decay(runs, per_run):
 
 
 def fig11_asymmetric(runs):
-    """Unequal power: who wins, and does either side keep learning."""
+    """Unequal power: who wins the contest, and whose population learns."""
     import glob as _glob
     conds = {}
     for f in sorted(_glob.glob(os.path.join(MATRIX, "asym*_s*.npz"))):
         name = os.path.basename(f)[:-4]
         base, seed = name.rsplit("_s", 1)
         cond, side = base.rsplit("-", 1)
-        z = np.load(f)
-        conds.setdefault(cond, {}).setdefault(seed, {})[side] = z
+        conds.setdefault(cond, {}).setdefault(seed, {})[side] = np.load(f)
     if not conds:
         return "fig11: no asymmetric runs yet"
 
     order = [c for c in ("asym1x", "asym2x", "asym2x-norm") if c in conds]
-    titles = {"asym1x": "symmetric control\n(273 vs 273 parameters)",
-              "asym2x": "2:1 capacity\n(531 vs 273, same $\\sigma$)",
-              "asym2x-norm": "2:1 capacity\n(531 vs 273, matched step)"}
-    fig, axes = plt.subplots(2, len(order), figsize=(2.5 * len(order) + 0.9, 4.6),
+    titles = {"asym1x": "symmetric control\n273 v 273 parameters",
+              "asym2x": "2:1 capacity, common $\\sigma$\n531 v 273",
+              "asym2x-norm": "2:1 capacity, matched step\n531 v 273"}
+    fig, axes = plt.subplots(2, len(order), figsize=(2.55 * len(order) + 0.9, 4.8),
                              squeeze=False)
     for j, cond in enumerate(order):
         ax = axes[0][j]
@@ -527,31 +526,35 @@ def fig11_asymmetric(runs):
             k = "strong" if "strong" in sides else "a"
             z = sides[k]
             t = (np.arange(len(z["a_winrate"])) + 1) * int(z["save_every"][0])
-            ax.plot(t / 1000, z["a_winrate"], lw=1.1, alpha=0.85)
+            ax.plot(t / 1000, z["a_winrate"], lw=1.0, alpha=0.85)
         ax.axhline(0.5, color="#999999", lw=0.9, ls=(0, (4, 3)))
         ax.set_ylim(0, 1)
         ax.set_title(titles.get(cond, cond), loc="left", fontsize=8)
         ax.set_ylabel("win rate of the\nlarger side" if j == 0 else "")
         ax.set_xlabel("games (thousands)")
 
+        # population level: the best individual each pool contains
         ax = axes[1][j]
         for seed, sides in sorted(conds[cond].items()):
             ka = "strong" if "strong" in sides else "a"
             kb = "weak" if "weak" in sides else "b"
-            ta = (np.arange(len(sides[ka]["mean_score"])) + 1) * int(sides[ka]["save_every"][0])
-            ax.plot(ta / 1000, sides[ka]["mean_score"], lw=1.0, color="#B0413E",
-                    alpha=0.8)
-            ax.plot(ta / 1000, sides[kb]["mean_score"], lw=1.0, color="#3B6EA8",
-                    alpha=0.8)
+            for k, colour in ((ka, "#B0413E"), (kb, "#3B6EA8")):
+                z = sides[k]
+                if "pop_best" not in z:
+                    continue
+                pe = int(z["pop_every"][0])
+                t = (np.arange(len(z["pop_best"])) + 1) * pe
+                ax.plot(t / 1000, z["pop_best"], lw=1.0, color=colour, alpha=0.8,
+                        marker="o", ms=2.0)
         parity(ax)
         ax.set_ylim(-5.2, 1)
-        ax.set_ylabel("score vs 2015\nbaseline" if j == 0 else "")
+        ax.set_ylabel("best individual in\nthe pool" if j == 0 else "")
         ax.set_xlabel("games (thousands)")
         if j == 0:
             ax.plot([], [], color="#B0413E", lw=1.6, label="larger side")
             ax.plot([], [], color="#3B6EA8", lw=1.6, label="smaller side")
             ax.legend(loc="upper left", fontsize=6.6, handlelength=1.4)
-    fig.subplots_adjust(hspace=0.45, wspace=0.3)
+    fig.subplots_adjust(hspace=0.5, wspace=0.32)
     fig.savefig(f"{FIGDIR}/fig11_asymmetric.png")
     plt.close(fig)
     return "fig11_asymmetric.png"
