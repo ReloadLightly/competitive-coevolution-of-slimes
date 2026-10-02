@@ -22,11 +22,11 @@ Findings currently claimed (README + `docs/paper/`):
 |---|---|---|
 | C1 | Internal improvement precedes external transfer (reference run: rallies pass 1,500 steps at 104,200 games; first champion beating the 2015 baseline at 172,000) | keep |
 | C2 | The phase change is robust but its timing is not (55,000–415,000 games across 6 control seeds) | keep |
-| C3 | The population is not cycling: ρ(Elo, time) = +0.72, <1% cyclic checkpoint triples | keep |
+| C3 | The population is not cycling: ρ(Elo, time) = +0.74 in the control (the earlier +0.72 did not match the data), <1% cyclic checkpoint triples | keep |
 | C4 | Ha's winning-streak export rule is the main noise source: the exported champion ranks near the median of its own 128; streak and skill are uncorrelated | keep |
 | C5a | Hall of fame as PARENT destroys learning (1/6 vs 6/6) | keep |
-| C5b | Hall of fame as TEST is useless, with a portable diagnostic (archive win rate 0.50 → <0.10) | **invalid until WP3 rerun** |
-| C6 | The algorithm families differ in reliability, not ceiling | keep, recheck after WP3 |
+| C5b | Hall of fame as TEST (`hof-eval-v2`): neither harms nor helps detectably (all p ≥ 0.37 vs control, 5/6 learned); archive win rate 0.5 → 0.11–0.16 in runs that learned, a description rather than a validated diagnostic | rewritten in WP3 from `hof-eval-v2` (decisions.md 2026-10-02) |
+| C6 | The algorithm families differ in reliability, not ceiling | keep; rechecked in WP3 with `hof-eval-v2` as the fourth family, unchanged |
 | C7 | Unequal power (asym block, 18 runs): mutual improvement 1/18, runaway 13/18; 2:1 capacity not decisive; norm-matched σ flips dominance 2/6 → 5/6 (p≈0.065) | exploratory only; never state as confirmed |
 
 The paper's broader hook (Discussion only, never a Result): any evolutionary

@@ -652,7 +652,7 @@ correlation between the winning-streak counter and score against the 2015
 baseline, every seed and snapshot — indistinguishable from zero.*
 
 This reframes the headline result of the reference run. The published number for
-this algorithm — Ha's +0.353, our reference run's +0.304 — is not the quality
+this algorithm — Ha's <!-- n:ha_published -->+0.35<!-- /n -->, our reference run's <!-- n:ref_final_holdout -->+0.04<!-- /n --> at its final checkpoint — is not the quality
 the population reaches. It is the quality of a middling member of that
 population, and the pool it was drawn from contains individuals a point better.
 **A meaningful part of what looked like coevolutionary instability is
@@ -749,50 +749,63 @@ which on those two metrics alone makes them the most stable condition in the
 matrix. A dead run is perfectly stable. Every stability comparison in Table 2 is
 therefore also reported over the subset of runs that actually learned.
 
-**The archive as a test (`hof-eval`).** The literature's reading
+**The archive as a test (`hof-eval-v2`).** The literature's reading
 (Rosin & Belew, 1997) uses the archive to supply *opponents against which
-fitness is measured*; archive members are never parents. In `hof-eval` an
+fitness is measured*; archive members are never parents. In `hof-eval-v2` an
 archive game that the population member loses costs it its slot, but the
 replacement genes come from the living pool, so genetic material never leaves
-the population. The archive spans the whole run (capacity 512).
+the population. The archive spans the whole run (capacity <!-- n:hof_cap_full -->512<!-- /n -->).
 
-Done this way the archive stops being destructive — every seed learns to rally,
-as reliably as the control — but it does not stabilise anything either. It makes
-the run *worse*: a lower level in the last 100,000 games and fewer above-parity
-checkpoints than the control, with a large effect size and a p-value that, at six
-seeds a side, sits just outside conventional significance.
+An earlier version of this condition, `hof-eval`, credited a +1 streak to the
+living peer that supplied the replacement genes, although that peer had not
+played. Because the individual with the longest streak is what enters the
+archive, the bug changed the archive and with it the whole trajectory, so the
+condition was rerun rather than re-exported. The `hof-eval` runs are kept on
+disk, excluded from every table, and compared with the rerun in the decision
+log. The bug matters: it made the archive look measurably worse than the
+control, and it slowed the transition to long rallies. The text below is from
+the corrected runs only.
 
-The mechanism is visible in the data and it follows directly from §1.
+Done this way the archive is **neither destructive nor helpful**.
+<!-- n:hoftest_reached -->5/6<!-- /n --> seeds learned to rally (control <!-- n:ctrl_reached -->6/6<!-- /n -->) and <!-- n:hoftest_parity -->4/6<!-- /n --> produced an
+above-parity champion (control <!-- n:ctrl_parity -->6/6<!-- /n -->). At <!-- n:seeds_main -->6<!-- /n --> seeds a side it is
+indistinguishable from the control on every outcome: checkpoints above parity
+<!-- n:hoftest_above_pct -->18<!-- /n -->% against <!-- n:ctrl_above_pct -->26<!-- /n -->% (Cliff's δ = <!-- n:hoftest_vs_ctrl_above_delta -->-0.33<!-- /n -->, exact p = <!-- n:hoftest_vs_ctrl_above_p -->0.370<!-- /n -->), mean
+level over the last <!-- n:late_window -->100,000<!-- /n --> games δ = <!-- n:hoftest_vs_ctrl_late_delta -->-0.22<!-- /n --> (p = <!-- n:hoftest_vs_ctrl_late_p -->0.589<!-- /n -->), best held-out
+champion δ = <!-- n:hoftest_vs_ctrl_peak_delta -->+0.00<!-- /n --> (p = <!-- n:hoftest_vs_ctrl_peak_p -->1.000<!-- /n -->). The runs that learned did so at a median
+of <!-- n:hoftest_t_internal_median -->150,000<!-- /n --> games, in line with the control.
+
+Why it has little to do is visible in the data, and it follows directly from §1.
 
 ![archive decay](../../results/figures/fig10_archive_decay.png)
 
 *Figure 10. Left: the archive's win rate against the current population, every
-archive run. It starts at chance and collapses. Right: the share of the game
-budget that produces no selection event at all, because an archive game the
-population member wins overwrites nothing.*
+archive run. Right: the share of games that produce no selection event at all,
+because an archive game the population member wins overwrites nothing.*
 
 Early in a run, archived champions are genuine opposition and win about half
-their games. By the end they win under a tenth. Skill in this environment is
-transitive (§1), so a past champion is simply a weaker player, and playing it is
-a nearly foregone conclusion. Since an archive game that the population member
-wins overwrites nothing, roughly **22% of all games late in training produce no
-selection event whatsoever** — the archive is not insurance, it is a tax levied
-on the live arms race.
+their games (<!-- n:hoftest_win_early_min -->0.46<!-- /n -->–<!-- n:hoftest_win_early_max -->0.50<!-- /n --> over the first <!-- n:hof_window -->50,000<!-- /n --> games). In every run whose
+population learned, they end at <!-- n:hoftest_win_late_learned_min -->0.11<!-- /n -->–<!-- n:hoftest_win_late_learned_max -->0.16<!-- /n -->: skill in this environment is
+transitive (§1), so a past champion is simply a weaker player. Since an archive
+game that the population member wins overwrites nothing,
+<!-- n:hoftest_skip_late_learned_min -->21<!-- /n -->–<!-- n:hoftest_skip_late_learned_max -->22<!-- /n -->% of late-training games produce no selection event. In the run
+that never learned, the archive's win rate stayed at <!-- n:hoftest_win_late_failed -->0.50<!-- /n -->: past and present
+were equally bad.
 
-That yields a general rule with a number attached, and a cheap diagnostic:
+That suggests a cheap diagnostic, offered as a description of these runs rather
+than a validated rule:
 
-> **A hall of fame pays for itself only to the extent that archived opponents
-> can still win.** Log the archive's win rate against the current population. If
-> it decays towards zero, the archive has become a free win and the budget spent
-> on it is subtracted from the arms race that is actually driving progress. In a
-> genuinely intransitive domain it would not decay — old strategies would keep
-> beating some current ones, which is exactly the case the remedy was designed
-> for.
+> **Log the archive's win rate against the current population.** If it decays
+> towards zero, the archive has become a near-certain win and its games buy
+> little selection; in a genuinely intransitive domain it would not decay — old
+> strategies would keep beating some current ones, which is the case the remedy
+> was designed for. Here the decay tracked whether the population improved, and
+> the budget it consumed did not measurably slow learning.
 
 The two archive conditions together therefore say something more useful than
 either alone: an archive that supplies *parents* destroys learning, an archive
-that supplies *tests* wastes budget, and neither helps, because the pathology
-they were built to fix is not present here.
+that supplies *tests* neither harms nor helps detectably, and neither is worth
+its complexity here, because the pathology it was built to fix is not present.
 
 ![hall of fame](../../results/figures/fig3_hall_of_fame.png)
 
@@ -870,23 +883,6 @@ Two populations of 128 playing only each other for 500,000 games; a quarter of e
 ![unequal power](../../results/figures/fig11_asymmetric.png)
 
 *Figure 11. Top: the larger side's win rate in cross-population games; 0.5 means
-the sides are holding each other. Bottom: each side's champion against the 2015
-baseline. Left column is the symmetric control, where both populations have the
-identical architecture.*
-
-<!-- table:10 -->
-| condition | seeds | larger side wins cross-play | larger side's pool, best member | smaller side's pool, best member | runs where only one side's pool learned |
-|---|---|---|---|---|---|
-| symmetric control (273 v 273) | 6 | 0.62 (range 0.01–1.00); larger side ahead in 4/6 | -2.35 | -2.30 | 3/6 |
-| 2:1 capacity, common σ | 6 | 0.02 (range 0.00–0.75); larger side ahead in 2/6 | -4.71 | +0.25 | 4/6 |
-| 2:1 capacity, matched step norm | 6 | 0.95 (range 0.00–0.99); larger side ahead in 5/6 | -1.21 | -4.76 | 3/6 |
-
-Two populations of 128 playing only each other for 500,000 games; a quarter of each population's games are crossed with the other side. Win rate is over cross-population games in the last 50,000 games — 0.5 means the sides are holding each other. 'Pool, best member' is the best individual the population contains at the end, scored against the 2015 baseline, not the exported champion. In the symmetric control both sides have identical architecture, so any departure from 0.5 there is spontaneous symmetry breaking and is the null the other two rows are judged against.
-<!-- /table:10 -->
-
-![unequal power](../../results/figures/fig11_asymmetric.png)
-
-*Figure 11. Top: the larger side's win rate in cross-population games; 0.5 means
 the sides are holding each other. Bottom: the best individual each population
 contains, scored against the 2015 baseline — the pool, not an exported champion.
 Left column is the symmetric control, where both populations are identical.*
@@ -938,7 +934,7 @@ roughly three times the seeds to move from suggestive to established. Both are
 cheap in this environment — a run takes about fifteen minutes on one core — and
 are the obvious extension.
 
-## 6. Different machinery## 6. Different machinery: a generational GA and an evolution strategy
+## 6. Different machinery: a generational GA and an evolution strategy
 
 Everything above varies the knobs of one algorithm. Two further families change
 the machinery itself, with the policy class and the environment held identical:
@@ -1057,21 +1053,21 @@ evolution that must promote one program out of a generation. The diagnostic is
 cheap and should come first: *before* attributing a noisy progress curve to
 coevolutionary dynamics, check whether your promotion rule can rank your
 population at all. Ours could not: the correlation between the exported
-individual's selection statistic and its actual skill was +0.04, and the rule
+individual's selection statistic and its actual skill was <!-- n:reexport_rho_streak -->+0.04<!-- /n -->, and the rule
 performed slightly *worse* than picking the population's median member. It is not
 a weak selector; it is very nearly an uninformative one.
 
 **2. The promotion rule is fixable, cheaply, and it is worth fixing.** Ranking a
 population by having it play *itself* — using no external information, so this is
-a deployable rule and not an oracle — recovers most of the gap. At 4,096 games,
-which is eight tenths of one percent of a 500,000-game training run, an internal
-round robin closes about two thirds of the distance between the streak-exported
+a deployable rule and not an oracle — recovers most of the gap. At <!-- n:reexport_games_max -->4,096<!-- /n --> games,
+which is <!-- n:reexport_budget_pct -->0.8<!-- /n -->% of a <!-- n:budget -->500,000<!-- /n -->-game training run, an internal
+round robin closes <!-- n:reexport_rec_max -->65<!-- /n -->% of the distance between the streak-exported
 champion and the genuinely best member, and reduces the volatility of the
-reported curve by roughly a fifth. The returns diminish but do not reverse.
+reported curve by <!-- n:reexport_vol_reduction_pct -->19<!-- /n -->%. The returns diminish but do not reverse.
 
 The residual gap is the more interesting half. The rank correlation between
-internal margin and true skill saturates around +0.6 and does not keep climbing
-with budget, so the remaining third of the gap is not sampling noise — it is a
+internal margin and true skill saturates around <!-- n:reexport_rho_max -->+0.57<!-- /n --> and does not keep climbing
+with budget, so the remaining gap is not sampling noise — it is a
 genuine mismatch. Internal fitness measures skill against the *current* opponent
 distribution, which is a narrow and self-referential slice of the strategy space,
 and being best inside that slice is not the same as being best against an unseen
@@ -1205,7 +1201,7 @@ here; nothing in this appendix depends on the main text.*
 | condition | what changes | archive |
 |---|---|---|
 | `control` | nothing — Ha's 2020 GA | — |
-| `hof-eval` | archive supplies opponents; genes stay in the living pool | capacity 512 (whole run), p = 0.25 |
+| `hof-eval-v2` | archive supplies opponents; genes stay in the living pool | capacity <!-- n:hof_cap_full -->512<!-- /n --> (whole run), p = <!-- n:hof_p -->0.25<!-- /n --> |
 | `hof-0.25` | archive supplies opponents **and** parents | capacity 64 (last 64k games), p = 0.25 |
 | `hof-0.50` | as `hof-0.25` at twice the dose | capacity 64, p = 0.50 |
 | `hof-full` | as `hof-0.25` with an archive spanning the whole run | capacity 512, p = 0.25 |
@@ -1229,11 +1225,14 @@ counter. This injects old genetic material back into the pool and, as §3 of the
 analysis reports, abolishes learning. It is retained in the study as a measured
 negative result rather than deleted.
 
-*Archive as test* (`hof-eval`) follows Rosin & Belew (1997): if the archived
+*Archive as test* (`hof-eval-v2`) follows Rosin & Belew (1997): if the archived
 genome wins, the population member is overwritten by a mutant **of the living
-population member it was originally paired with**. Failing a test the pool is
-expected to pass costs the member its slot, but no archive genome is ever a
-parent, so genetic material never leaves the living population.
+population member it was originally paired with**, and inherits that member's
+streak counter; the member that supplied the genes did not play and is not
+credited. Failing a test the pool is expected to pass costs the member its slot,
+but no archive genome is ever a parent, so genetic material never leaves the
+living population. The superseded `hof-eval` runs credited that member a +1
+streak; they are excluded from every table (decision log, 2026-10-02).
 
 **The unequal-power conditions.** Two populations of 128 play only each other
 for 500,000 games; a quarter of each population's games are crossed with the

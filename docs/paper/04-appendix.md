@@ -24,7 +24,7 @@ here; nothing in this appendix depends on the main text.*
 | condition | what changes | archive |
 |---|---|---|
 | `control` | nothing — Ha's 2020 GA | — |
-| `hof-eval` | archive supplies opponents; genes stay in the living pool | capacity 512 (whole run), p = 0.25 |
+| `hof-eval-v2` | archive supplies opponents; genes stay in the living pool | capacity <!-- n:hof_cap_full -->512<!-- /n --> (whole run), p = <!-- n:hof_p -->0.25<!-- /n --> |
 | `hof-0.25` | archive supplies opponents **and** parents | capacity 64 (last 64k games), p = 0.25 |
 | `hof-0.50` | as `hof-0.25` at twice the dose | capacity 64, p = 0.50 |
 | `hof-full` | as `hof-0.25` with an archive spanning the whole run | capacity 512, p = 0.25 |
@@ -48,11 +48,14 @@ counter. This injects old genetic material back into the pool and, as §3 of the
 analysis reports, abolishes learning. It is retained in the study as a measured
 negative result rather than deleted.
 
-*Archive as test* (`hof-eval`) follows Rosin & Belew (1997): if the archived
+*Archive as test* (`hof-eval-v2`) follows Rosin & Belew (1997): if the archived
 genome wins, the population member is overwritten by a mutant **of the living
-population member it was originally paired with**. Failing a test the pool is
-expected to pass costs the member its slot, but no archive genome is ever a
-parent, so genetic material never leaves the living population.
+population member it was originally paired with**, and inherits that member's
+streak counter; the member that supplied the genes did not play and is not
+credited. Failing a test the pool is expected to pass costs the member its slot,
+but no archive genome is ever a parent, so genetic material never leaves the
+living population. The superseded `hof-eval` runs credited that member a +1
+streak; they are excluded from every table (decision log, 2026-10-02).
 
 **The unequal-power conditions.** Two populations of 128 play only each other
 for 500,000 games; a quarter of each population's games are crossed with the

@@ -242,6 +242,14 @@ def definitions():
         "ranking games per snapshot at the largest internal round robin")(
         lambda d: _games(rx(d)["ranking_games_per_snapshot"][
             max(rx(d)["ranking_games_per_snapshot"], key=lambda k: int(k.split("_")[1]))]))
+    def maxkey(dct):
+        return max(dct, key=lambda k: int(k.split("_")[-1]))
+    add("reexport_vol_reduction_pct", ["reexport"],
+        "reduction in the volatility of the reported curve, streak rule to the "
+        "largest internal round robin, in %")(
+        lambda d: _pct(1 - rx(d)[maxkey({k: 0 for k in rx(d)
+                                         if k.startswith("internal_score_")})][
+            "volatility_mean"] / rx(d)["streak_score"]["volatility_mean"]))
     add("reexport_rho_max", ["reexport"],
         "rho(internal margin, true skill) at the largest round robin")(
         lambda d: _f(rx(d)["rho_internal_external"][
