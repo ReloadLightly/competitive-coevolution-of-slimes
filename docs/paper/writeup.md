@@ -348,10 +348,13 @@ mutation σ = 0.1, no opponent but itself.
 
 ![reference trajectory](../../results/figures/fig1_reference_trajectory.png)
 
-*Figure 1. The reference run on the unmodified environment. Top: score against
-the 2015 champion at every checkpoint (thin) with a moving average (thick); the
-dotted line marks the first checkpoint above parity. Bottom: mean evaluation
-rally length, which rises from roughly 600 steps to the 3,000-step cap.*
+*Figure 1. The reference run on the unmodified environment. Top: mean rally
+length of the population's training games against itself, which rises from
+roughly 600 steps to the 3,000-step cap; the blue dotted line marks where it
+first exceeds 1,500 steps. Bottom: score against the 2015 champion at every
+checkpoint (thin) with a moving average (thick); the red dotted line marks the
+first checkpoint above parity. The gap between the two dotted lines is the
+internal-to-external lag.*
 
 Its trajectory has two regimes (Figure 1). For the first hundred thousand games
 the champion loses every episode to the 2015 baseline by nearly the maximum

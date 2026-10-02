@@ -121,11 +121,32 @@ def fig1_reference():
         return "fig1: no reference curve yet"
     t = np.array(ref["tournament"]) / 1000
     s = np.array(ref["mean_score"])
-    ln = np.array(ref["meanlen"])
 
+    # Top: the internal signal (the population's rallies against itself, from
+    # the training log). Bottom: the external one (score against the 2015
+    # baseline, never seen in training). The gap between the two marked
+    # transitions is the internal-to-external lag.
     fig, axes = plt.subplots(2, 1, figsize=(6.6, 4.4), sharex=True,
-                             gridspec_kw={"height_ratios": [2, 1], "hspace": 0.12})
-    ax = axes[0]
+                             gridspec_kw={"height_ratios": [1, 2], "hspace": 0.12})
+    ax2 = axes[0]
+    tl = np.array(ref["train_len"], dtype=float)
+    ax2.plot(tl[:, 0] / 1000, tl[:, 1], color="#3B6EA8", lw=0.9)
+    ax2.axhline(1500, color="#999999", lw=0.9, ls=(0, (4, 3)))
+    ax2.set_ylabel("self-play rally\nlength (steps)")
+    ax2.set_ylim(0, 3100)
+    ax2.set_title(f"Reference run on slimevolleygym: {t.max()*1000:,.0f} "
+                  f"self-play games", loc="left")
+    if ref.get("t_internal"):
+        ti = ref["t_internal"] / 1000
+        for a in axes:
+            a.axvline(ti, color="#3B6EA8", lw=0.9, ls=":")
+        ax2.annotate(f"rallies pass 1,500 steps: {ti*1000:,.0f} games",
+                     xy=(ti, 1500), xytext=(t.max() * 0.30, 600), fontsize=7,
+                     color="#3B6EA8", va="center",
+                     arrowprops=dict(arrowstyle="->", color="#3B6EA8", lw=0.7,
+                                     shrinkA=2, shrinkB=2))
+
+    ax = axes[1]
     parity(ax)
     ax.plot(t, s, color=COLORS["reference"], lw=0.8, alpha=0.45)
     k = 9
@@ -138,20 +159,13 @@ def fig1_reference():
         first = t[np.argmax(above)]
         ax.axvline(first, color="#C0392B", lw=0.9, ls=":")
         ax.annotate(f"first checkpoint above parity: {first*1000:,.0f} games",
-                    xy=(first, -0.15), xytext=(t.max() * 0.02, -1.9), fontsize=7,
+                    xy=(first, -0.15), xytext=(t.max() * 0.42, -3.3), fontsize=7,
                     color="#C0392B", va="center",
                     arrowprops=dict(arrowstyle="->", color="#C0392B", lw=0.7,
                                     shrinkA=2, shrinkB=2))
     ax.set_ylabel("score vs 2015 baseline\n(points per episode)")
-    ax.set_title(f"Reference run on slimevolleygym: {t.max()*1000:,.0f} "
-                 f"self-play games", loc="left")
+    ax.set_xlabel("self-play games (thousands)")
     ax.legend(loc="lower right")
-
-    ax2 = axes[1]
-    ax2.plot(t, ln, color="#3B6EA8", lw=1.2)
-    ax2.set_ylabel("evaluation rally\nlength (steps)")
-    ax2.set_xlabel("self-play games (thousands)")
-    ax2.set_ylim(0, 3100)
     fig.savefig(f"{FIGDIR}/fig1_reference_trajectory.png")
     plt.close(fig)
     return "fig1_reference_trajectory.png"

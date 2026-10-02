@@ -4,8 +4,8 @@
 of the two you actually measure.**
 
 Self-play neuroevolution on [David Ha's Slime Volleyball](https://otoro.net/slimevolley/),
-run as a designed experiment rather than a demo: 59 independent runs of 500,000
-self-play games each, across conditions that isolate *where the
+run as a designed experiment rather than a demo: several dozen independent runs
+of 500,000 self-play games each, across conditions that isolate *where the
 selection signal comes from* and *where the noise comes from*.
 
 The headline finding is not the one we expected. Competence in this setting is
@@ -24,16 +24,33 @@ own rallies pass 1,500 steps at 104,200 games; the first champion that beats the
 2015 expert appears at 172,000. An evaluation stopped in between reports total
 failure from a population that is already working.
 
+![reference trajectory](results/figures/fig1_reference_trajectory.png)
+
+*The reference run over 500,000 self-play games. Top: rally length when the
+population plays itself. Bottom: score against the 2015 baseline, which is never
+seen during training. The two curves rise tens of thousands of games apart.*
+
 **2. The phase change is real; its timing does not replicate.** Across control
 seeds the internal transition happens anywhere from 55,000 to 415,000 games — a
 spread of more than 7×. The single-run version of this repository reported a
 transition "at roughly 100,000 games". That was one seed.
+
+![six control seeds](results/figures/fig2_control_seeds.png)
+
+*The same algorithm under six seeds. The phase change appears in all of them and
+at a different time in each, from 55,000 to 415,000 games.*
 
 **3. The population is not cycling.** Playing every checkpoint of a run against
 every other checkpoint, skill is essentially transitive: ρ(Elo, training time) =
 +0.74, and under 1% of decided checkpoint triples are cyclic. The textbook
 explanation for the swings — the population forgets skills no current opponent
 punishes — does not fit this data.
+
+![within-run tournament and intransitivity](results/figures/fig5_coevolution.png)
+
+*Every checkpoint of a run played against every other. Left: the margin matrix,
+later against earlier. Centre: Elo within the run against training time. Right:
+the fraction of decided checkpoint triples that are cyclic, under 1%.*
 
 **4. The champion-export rule is the noise source.** Ha selects the individual
 with the longest winning lineage, "without actually computing who is best to save
@@ -44,6 +61,19 @@ between its streak counter and its actual skill is indistinguishable from zero,
 and it scores about a point per episode worse than the best individual in the
 same pool. At the end of a run the exported champion is below parity while dozens
 of its own peers are above it.
+
+![what the export rule costs](results/figures/fig6_champion_proxy.png)
+
+*Left: the exported champion against the best individual in the same population.
+Right: Spearman correlation between the streak counter and actual skill, over
+training.*
+
+![the re-export experiment](results/figures/fig9_reexport.png)
+
+*Re-exporting the same runs under a ranking rule that spends games measuring who
+is best. Left to right: level of the exported individual, volatility of the
+resulting curve, and correlation between rule and true skill, as a function of
+the ranking budget.*
 
 **5. A hall of fame is a tax, not insurance — when skill is transitive.** We
 tested both readings of the archive. Used as a *parent* (a winning archived
@@ -58,18 +88,38 @@ games produce no selection event at all**. The diagnostic generalises: log your
 archive's win rate; if it decays to zero, the archive has become a free win and
 its budget is being subtracted from the live arms race.
 
-**6. A bilateral contest produces one winner and one collapsed side.** Splitting
-one pool of agents into two populations that play only each other changes the
-outcome qualitatively: of 18 runs, exactly **one** ended with both sides holding
-a competent individual, and 13 ended with one side winning essentially every
-game. Four of those runaways occurred in the *symmetric* control, where the two
-sides differ only in their random seed — so runaway dominance is the default of
-the structure, not a consequence of imbalance. Doubling one side's policy
-capacity (531 vs 273 parameters) did **not** reliably decide the contest. What
-did move the needle was correcting the mutation scale for genome size: at a
-common per-parameter σ the larger side led in 2 of 6 runs, and with the step norm
-matched, in 5 of 6. Extra capability buys nothing unless the adaptation process
-is scaled to it.
+![hall of fame, both readings](results/figures/fig3_hall_of_fame.png)
+
+*The archive used as a test (opponents only) and as a parent (genes flow back).
+As a parent it abolishes learning: one seed in six left the floor.*
+
+![archive decay](results/figures/fig10_archive_decay.png)
+
+*Left: the archive's win rate against the current population, falling from about
+0.50 to under 0.10 in every seed. Right: the share of games that therefore
+produce no selection event, reaching roughly 22% late in training.*
+
+**6. Exploratory: a bilateral contest produces one winner and one collapsed
+side.** Splitting one pool of agents into two populations of 128 that play only
+each other changes the outcome qualitatively: of 18 runs, exactly **one** ended
+with both pools holding an individual above parity, and 13 ended with one side
+winning more than 90% of the cross-population games. Four of those runaways
+occurred in the *symmetric* control, where the two sides differ only in their
+random seed — so in this block runaway dominance looks like the default of the
+structure, not a consequence of imbalance. Doubling one side's policy capacity
+(531 vs 273 parameters) did **not** reliably decide the contest. Correcting the
+mutation scale for genome size may have: at a common per-parameter σ the larger
+side led in 2 of 6 runs, with the step norm matched in 5 of 6 (p ≈ 0.065, six
+seeds per arm). This block was designed after the main matrix had run and was
+re-implemented twice (see `results/matrix/decisions.md`); it is reported as
+exploratory and suggests hypotheses rather than confirming any.
+
+![unequal sides](results/figures/fig11_asymmetric.png)
+
+*Two populations of 128 with unequal policy capacity, selecting only against
+each other. Top: the larger-network side's win rate in cross-population games.
+Bottom: the best individual each pool contains, scored against the 2015
+baseline — red the larger side, blue the smaller.*
 
 **7. Reliability is where the methods differ — not ceiling.** Four families were
 run at 500,000 games each: the 2020 GA, a generational GA in the style of Ha's
@@ -80,6 +130,12 @@ Only the plain 2020 GA learned to rally in every seed and beat the 2015 expert i
 every seed; the others are bimodal, and their across-seed spread is about three
 times larger. A study running one seed per family could easily have crowned the
 ES. This is the clearest thing in the repository about why a design beats a run.
+
+![algorithm families](results/figures/fig8_algorithm_families.png)
+
+*Three of the four families at an identical budget of 500,000 games (the
+archive variant is in the hall-of-fame figure above). The ceilings are close
+together. The floors are not.*
 
 <!-- table:r -->
 | condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
@@ -100,9 +156,10 @@ ES. This is the clearest thing in the repository about why a design beats a run.
 Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.
 <!-- /table:r -->
 
-![the same algorithm, many seeds](results/figures/fig2_control_seeds.png)
+![cross-run tournament](results/figures/fig7_cross_run_elo.png)
 
-![what the export rule costs](results/figures/fig6_champion_proxy.png)
+*Final champions from every run of every condition, played against each other in
+one tournament and scored by Elo.*
 
 ---
 
@@ -136,7 +193,7 @@ on every stability metric. The archive-as-parent runs are exactly that case, and
 they are the reason every stability comparison is also reported over the subset of
 runs that actually learned.
 
-**Statistics match the sample size.** 3–12 runs per condition rules out anything
+**Statistics match the sample size.** 1–6 runs per condition rules out anything
 asymptotic, so comparisons use the exact Mann–Whitney U test with full
 enumeration, Cliff's δ, and percentile bootstrap intervals — written out in
 `stats_utils.py` rather than imported, so every number can be audited.
@@ -173,7 +230,13 @@ parameters — and the identical environment. Only the machinery differs.
 | **Ha 2015 GA** | generational: population 100, each agent plays ten random peers, top 20% retained, remainder refilled by uniform crossover + mutation. Champion = highest *computed* fitness. |
 | **Self-play ES** | OpenAI-ES: one mean vector, 50 mirrored perturbations per iteration, fitness from games among the perturbations, rank-shaped gradient. Reports the distribution mean — so it has no champion-selection problem at all. |
 | **Archive variants** | the control plus a hall of fame, tested both as a parent (wrong) and as a test (right). |
-| **Knob sweeps** | mutation scale σ ∈ {0.05, 0.10, 0.20}; population ∈ {32, 128, 512}. |
+| **Knob sweeps** | mutation scale σ ∈ {0.05, 0.10, 0.20}; population ∈ {32, 128} (512 was defined but never run). |
+
+![mutation scale and population size](results/figures/fig4_ablations.png)
+
+*The two knob sweeps against the control. Left: mutation scale. Right:
+population size — only population 32 ran, with a single seed, before the sweep
+was replaced by the unequal-power block.*
 
 Topology-evolving methods (NEAT) are deliberately out of scope; `docs/paper/04-appendix.md`
 §A.8 specifies exactly what a later NEAT run would need and how it would stay
@@ -225,6 +288,7 @@ population snapshot with
 | `make_tables.py` / `make_figures.py` / `build_paper.py` | everything in the write-up, generated |
 | `train_ga_selfplay.py` / `eval_vs_baseline.py` | the reference implementations, unmodified |
 | `test_repo.py` | 12-check self-test |
+| `scripts/` | the shell scripts that drove the runs in ephemeral containers (queueing, watchdog, autocommit) |
 | `results/matrix/` | one file per run: 100 champion genomes, streaks, rally lengths, evaluations |
 | `results/ga_selfplay/` | the reference run: checkpoints, population snapshot, training history |
 | `archive/february/` | the earlier failed attempt, unmodified, as evidence |
@@ -235,8 +299,8 @@ population snapshot with
 
 - **One environment.** Slime Volleyball is symmetric, zero-sum and fully
   observed — the friendliest possible setting for purely relative selection.
-- **3–12 runs per condition.** Enough to separate a large effect from seed noise,
-  not a small one.
+- **1–6 runs per condition.** Six for every condition that carries a claim:
+  enough to separate a large effect from seed noise, not a small one.
 - **Fixed topology.** Nothing here evolves structure; see §A.8 for what NEAT
   would need.
 - **One archive design per reading.** A quality-diversity or curated archive is a
