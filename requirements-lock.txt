@@ -1,0 +1,24 @@
+# Every package, transitive ones included, at the versions this repository was
+# last verified with (Python 3.11: fresh clone, test_repo.py, make_tables.py
+# --check). requirements.txt and requirements-fast.txt remain the specification;
+# this file pins the rest so a later install cannot drift.
+cloudpickle==3.1.2
+contourpy==1.3.3
+cycler==0.12.1
+fonttools==4.66.1
+gym==0.26.2
+gym-notices==0.1.0
+imageio==2.36.1
+kiwisolver==1.5.1
+llvmlite==0.49.0
+Markdown==3.11
+matplotlib==3.9.2
+numba==0.67.0
+numpy==1.26.4
+opencv-python==4.10.0.84
+packaging==26.3
+pillow==12.3.0
+pyparsing==3.3.3
+python-dateutil==2.9.0.post0
+six==1.17.0
+slimevolleygym @ git+https://github.com/hardmaru/slimevolleygym@8ac22434fc5a587a3395311f7854aeda17d10303

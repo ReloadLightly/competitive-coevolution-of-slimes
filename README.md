@@ -289,8 +289,9 @@ comparable to these results.
 ## Quickstart
 
 ```bash
-python3 -m venv .venv
+python3 -m venv .venv          # Python 3.11
 .venv/bin/pip install -r requirements.txt -r requirements-fast.txt
+# or, for every transitive package pinned too:  pip install -r requirements-lock.txt
 
 # the repository self-test: the three February failures, a bit-level
 # comparison of the compiled environment against slimevolleygym, and the
@@ -307,9 +308,10 @@ python3 -m venv .venv
 .venv/bin/python analyze_matrix.py --holdout
 .venv/bin/python coevolution_analysis.py --within --across --proxy
 
-# tables, figures, and the single-page HTML write-up
+# tables, figures, the single-page HTML write-up and the paper
 .venv/bin/python make_tables.py && .venv/bin/python make_figures.py
-.venv/bin/python build_paper.py --md
+.venv/bin/pip install -r requirements-docs.txt && .venv/bin/python build_paper.py --md
+paper/build.sh                 # needs a TeX distribution with latexmk
 ```
 
 The reference run on the unmodified environment is continued from its committed

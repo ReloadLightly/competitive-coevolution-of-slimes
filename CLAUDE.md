@@ -38,9 +38,10 @@ program evolution — inherits the export-rule failure mode of C4.
 1. **The paper's science code is frozen**: `fastvolley.py`,
    `fastvolley_kernels.py`, `asymmetric.py`, `algorithms.py`,
    `train_ga_selfplay.py`. Refactors, renames and "cleanups" of these files are
-   forbidden; the tag `paper-v1` marks the state the paper was built from. New
-   environments, algorithms and archives (WP8, WP9) go into new modules that
-   leave these files and every result they produced untouched.
+   forbidden; commit `376b658` (tag `paper-v1`) is the state the paper was
+   built from. New environments, algorithms and archives (WP8, WP9) go into
+   new modules that leave these files and every result they produced
+   untouched.
 2. **Never delete or overwrite raw results** (`results/**/*.npz`, `*.jsonl`,
    `protocol.json`). Superseded runs stay on disk under their old names and are
    marked as superseded in `results/matrix/decisions.md`.
@@ -60,7 +61,7 @@ program evolution — inherits the export-rule failure mode of C4.
 
 ## 3. Work packages (October 2026)
 
-WP1–WP4 are done (PR #8, merged 2026-10-02; tag `paper-v1`). They are
+WP1–WP4 are done (PR #8, merged 2026-10-02 as `376b658`, tag `paper-v1`). They are
 kept below as the record of what was asked. Work continues at WP5.
 
 ### WP1 — Bring main up to date
