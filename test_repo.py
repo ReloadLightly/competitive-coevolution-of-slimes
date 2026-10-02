@@ -215,6 +215,37 @@ def main():
         check("compiled environment available", False,
               f"{e} — install requirements-fast.txt")
 
+    # --- every table follows from the raw files, and notices if one goes -
+    # make_tables.py --check refuses tables whose analysis files fail
+    # provenance verification. Here: the tree as committed must verify, and
+    # hiding any single run file (simulated, nothing on disk is touched) must
+    # make verification fail.
+    import provenance as pv
+    clean = pv.verify()
+    check("analysis files follow from the raw files on disk", not clean,
+          f"{len(pv._load())} outputs verified" if not clean
+          else f"{len(clean)} problems, first: {clean[0]}")
+    if not clean:
+        import glob as glob_mod
+        real_glob, real_exists, real_sha = glob_mod.glob, os.path.exists, pv.sha256
+        cache = {}
+        pv.sha256 = lambda p: cache.setdefault(p, real_sha(p))
+        runs = sorted(real_glob("results/matrix/*_s*.npz"))
+        caught = []
+        try:
+            for hidden in runs:
+                glob_mod.glob = lambda pat, **k: [p for p in real_glob(pat, **k)
+                                                  if p != hidden]
+                os.path.exists = lambda p: p != hidden and real_exists(p)
+                caught.append(bool(pv.verify()))
+        finally:
+            glob_mod.glob, os.path.exists, pv.sha256 = real_glob, real_exists, real_sha
+        missed = [r for r, c in zip(runs, caught) if not c]
+        check("removing any single run file fails the consistency check",
+              runs and not missed,
+              f"{len(runs)} files, each caught" if not missed
+              else f"not caught: {missed[:3]}")
+
     print("=" * 62)
     if FAILS:
         print(f"{len(FAILS)} CHECK(S) FAILED: {', '.join(FAILS)}")

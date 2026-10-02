@@ -53,8 +53,10 @@ def matrix_runs(matrix=MATRIX, pattern="*_s*.npz"):
 # from". The rule is re-evaluated at verification time, so a file that
 # appears later makes every output in its scope stale.
 SCOPES = {
-    # every run in the matrix, one- and two-population
-    "matrix": lambda: matrix_runs(),
+    # every run file on disk, one- and two-population, INCLUDING superseded
+    # ones: no analysis reads those, but they are raw results that must never
+    # be deleted (CLAUDE.md, rule 2), so their absence is caught too
+    "matrix": lambda: sorted(glob.glob(os.path.join(MATRIX, "*_s*.npz"))),
     # single-population runs: the two-population conditions have their own
     # analysis and their genomes differ in size
     "single": lambda: [p for p in matrix_runs()

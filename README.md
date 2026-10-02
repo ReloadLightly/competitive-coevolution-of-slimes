@@ -20,8 +20,8 @@ decides which individual to call the champion.
 **1. The internal signal leads the external one by tens of thousands of games.**
 A population improves against *itself* long before any of that improvement
 transfers to an opponent it has never met. In the reference run, the population's
-own rallies pass 1,500 steps at 104,200 games; the first champion that beats the
-2015 expert appears at 172,000. An evaluation stopped in between reports total
+own rallies pass 1,500 steps at <!-- n:ref_t_internal -->104,200<!-- /n --> games; the first champion that beats the
+2015 expert appears at <!-- n:ref_t_parity -->172,000<!-- /n -->. An evaluation stopped in between reports total
 failure from a population that is already working.
 
 ![reference trajectory](results/figures/fig1_reference_trajectory.png)
@@ -31,18 +31,19 @@ population plays itself. Bottom: score against the 2015 baseline, which is never
 seen during training. The two curves rise tens of thousands of games apart.*
 
 **2. The phase change is real; its timing does not replicate.** Across control
-seeds the internal transition happens anywhere from 55,000 to 415,000 games — a
-spread of more than 7×. The single-run version of this repository reported a
+seeds the internal transition happens anywhere from <!-- n:ctrl_t_internal_min -->55,000<!-- /n --> to <!-- n:ctrl_t_internal_max -->415,000<!-- /n --> games — a
+<!-- n:ctrl_t_internal_ratio -->7.5<!-- /n -->-fold spread. The single-run version of this repository reported a
 transition "at roughly 100,000 games". That was one seed.
 
 ![six control seeds](results/figures/fig2_control_seeds.png)
 
 *The same algorithm under six seeds. The phase change appears in all of them and
-at a different time in each, from 55,000 to 415,000 games.*
+at a different time in each, from <!-- n:ctrl_t_internal_min -->55,000<!-- /n --> to <!-- n:ctrl_t_internal_max -->415,000<!-- /n --> games.*
 
 **3. The population is not cycling.** Playing every checkpoint of a run against
 every other checkpoint, skill is essentially transitive: ρ(Elo, training time) =
-+0.74, and under 1% of decided checkpoint triples are cyclic. The textbook
+<!-- n:rho_within_ctrl -->+0.74<!-- /n --> in the control, and <!-- n:cyclic_ctrl_pct -->0.2<!-- /n -->% of its decided checkpoint triples are
+cyclic (at most <!-- n:cyclic_learning_max_pct -->0.3<!-- /n -->% in any condition whose runs all learned). The textbook
 explanation for the swings — the population forgets skills no current opponent
 punishes — does not fit this data.
 
@@ -50,17 +51,17 @@ punishes — does not fit this data.
 
 *Every checkpoint of a run played against every other. Left: the margin matrix,
 later against earlier. Centre: Elo within the run against training time. Right:
-the fraction of decided checkpoint triples that are cyclic, under 1%.*
+the fraction of decided checkpoint triples that are cyclic.*
 
 **4. The champion-export rule is the noise source.** Ha selects the individual
 with the longest winning lineage, "without actually computing who is best to save
 time". That counter is inherited by the loser on every replacement, so it
 measures the age of a lineage, not merit. Measured against the whole population:
-the exported individual ranks around the *median* of its own 128, the correlation
-between its streak counter and its actual skill is indistinguishable from zero,
-and it scores about a point per episode worse than the best individual in the
-same pool. At the end of a run the exported champion is below parity while dozens
-of its own peers are above it.
+the exported individual ranks, on average, number <!-- n:proxy_rank_mean -->60<!-- /n --> of <!-- n:proxy_pop -->128<!-- /n --> in its own
+pool, the correlation between its streak counter and its actual skill is
+indistinguishable from zero (ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->), and it scores <!-- n:proxy_gap -->0.90<!-- /n --> points per episode
+worse than the best individual in the same pool. At the last snapshot the
+exported champion averages <!-- n:proxy_end_exported -->-0.08<!-- /n --> while <!-- n:proxy_end_above -->67<!-- /n --> of its peers are above parity.
 
 ![what the export rule costs](results/figures/fig6_champion_proxy.png)
 
@@ -101,16 +102,16 @@ produce no selection event, reaching roughly 22% late in training.*
 
 **6. Exploratory: a bilateral contest produces one winner and one collapsed
 side.** Splitting one pool of agents into two populations of 128 that play only
-each other changes the outcome qualitatively: of 18 runs, exactly **one** ended
-with both pools holding an individual above parity, and 13 ended with one side
-winning more than 90% of the cross-population games. Four of those runaways
+each other changes the outcome qualitatively: of <!-- n:asym_runs -->18<!-- /n --> runs, exactly **<!-- n:asym_mutual -->1<!-- /n -->** ended
+with both pools holding an individual above parity, and <!-- n:asym_runaway -->13<!-- /n --> ended with one side
+winning more than 90% of the cross-population games. <!-- n:asym_runaway_sym -->4<!-- /n --> of those runaways
 occurred in the *symmetric* control, where the two sides differ only in their
 random seed — so in this block runaway dominance looks like the default of the
 structure, not a consequence of imbalance. Doubling one side's policy capacity
 (531 vs 273 parameters) did **not** reliably decide the contest. Correcting the
 mutation scale for genome size may have: at a common per-parameter σ the larger
-side led in 2 of 6 runs, with the step norm matched in 5 of 6 (p ≈ 0.065, six
-seeds per arm). This block was designed after the main matrix had run and was
+side led in <!-- n:asym_cap_lead -->2/6<!-- /n --> runs, with the step norm matched in <!-- n:asym_norm_lead -->5/6<!-- /n --> (exact Mann–Whitney
+p = <!-- n:asym_norm_vs_cap_p -->0.065<!-- /n --> on the final win rates, six seeds per arm). This block was designed after the main matrix had run and was
 re-implemented twice (see `results/matrix/decisions.md`); it is reported as
 exploratory and suggests hypotheses rather than confirming any.
 
@@ -177,12 +178,12 @@ the archive bug above, which was found after three runs had completed and is
 reported rather than quietly fixed.
 
 **The fast environment is the benchmark, not an approximation.** A 500,000-game
-run costs about twelve core-hours on the reference `slimevolleygym`, which is why
+run costs about <!-- n:val_ref_core_hours -->16<!-- /n --> core-hours on the reference `slimevolleygym`, which is why
 the first version of this repository had exactly one run. `fastvolley.py` is a
 numba-compiled transcription, and it is validated bit for bit: driven from an
-identical stream of serve velocities, 200 paired games match on every ball
+identical stream of serve velocities, <!-- n:val_games -->200<!-- /n --> paired games match on every ball
 position, every agent position, every rally end, every score and every episode
-length, across 265,797 environment steps — at 31× the throughput. Three
+length, across <!-- n:val_steps -->265,797<!-- /n --> environment steps — at <!-- n:val_speedup -->31<!-- /n -->× the throughput. Three
 deviations (RNG family, pair-sampling call, BLAS vs libm in the forward pass) are
 documented; the third cannot change a trajectory because the game only ever reads
 `action[i] > 0`.
@@ -250,8 +251,9 @@ comparable to these results.
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt -r requirements-fast.txt
 
-# the repository self-test: 12 checks, including the three February failures
-# and a bit-level comparison of the compiled environment against slimevolleygym
+# the repository self-test: the three February failures, a bit-level
+# comparison of the compiled environment against slimevolleygym, and the
+# archive streak regression
 .venv/bin/python test_repo.py
 
 # the port is the benchmark: 200 paired games, step by step
@@ -287,7 +289,7 @@ population snapshot with
 | `coevolution_analysis.py` | within-run Elo and intransitivity, cross-run tournament, the champion-proxy check |
 | `make_tables.py` / `make_figures.py` / `build_paper.py` | everything in the write-up, generated |
 | `train_ga_selfplay.py` / `eval_vs_baseline.py` | the reference implementations, unmodified |
-| `test_repo.py` | 12-check self-test |
+| `test_repo.py` | the repository self-test |
 | `scripts/` | the shell scripts that drove the runs in ephemeral containers (queueing, watchdog, autocommit) |
 | `results/matrix/` | one file per run: 100 champion genomes, streaks, rally lengths, evaluations |
 | `results/ga_selfplay/` | the reference run: checkpoints, population snapshot, training history |
