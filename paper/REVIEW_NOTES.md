@@ -6,14 +6,56 @@ from the `hof-eval-v2` analysis.
 
 ## (a) Claims whose wording changed in WP3
 
-_Filled in after the hof-eval-v2 analysis._
+Source of every number below: `results/matrix/decisions.md`, entry
+"2026-10-02 — hof-eval-v2 analysed". The superseded `hof-eval` runs (streak
+bug) are excluded everywhere; the corrected runs are `hof-eval-v2`.
+
+**C5b — archive used as a test (weakened).**
+
+| | before (README, write-up §3, CLAUDE.md) | after (README finding 5, write-up §3, paper §3.5) |
+|---|---|---|
+| headline | "A hall of fame is a tax, not insurance — when skill is transitive" | "An archive of past champions does not help when skill is transitive — and as a parent it destroys learning" |
+| effect vs control | "stops being destructive but still does not help"; write-up: "it makes the run *worse*" (above-parity δ = −0.75, p = 0.028) | "neither destructive nor helpful": indistinguishable from the control on every outcome at six seeds (all p ≥ 0.37); 5/6 learned to rally vs 6/6 |
+| learning speed | (buggy runs transitioned at a median 350k games; not stated) | median 150k, in line with the control's 120k |
+| archive win rate | "decays from ~0.50 to under 0.10 over a run, in every seed" | from 0.46–0.50 to 0.11–0.16 in every run that learned; stays at 0.50 in the one run that did not |
+| games without selection | "roughly 22% of late-training games" | 21–22% in the runs that learned |
+| diagnostic | "The diagnostic generalises: … if it decays to zero, the archive has become a free win and its budget is being subtracted from the live arms race" | "a cheap check …; here it tracked progress, but that is a description of six runs, not a validated predictor" |
+| fig10 | caption "falling … to under 0.10 in every seed"; right panel "What the archive costs" | caption as above; right panel "Games without a selection event" |
+
+The bug made the archive look worse than it is: the "tax" reading (a
+measurable cost to learning) was largely the bug and is withdrawn.
+
+**C6 — families differ in reliability, not ceiling (unchanged in substance).**
+Rechecked with `hof-eval-v2` as the fourth family: only the control learned to
+rally and beat the 2015 policy in every seed; the archive as test is 5/6 and
+4/6; the spread of end-of-run scores is 3.0–3.5× the control's (was "about
+three times") for the other three families; the best single endpoint is still
+a self-play ES seed.
+
+**Also changed this session, outside WP3:**
+
+- **C3**: ρ(Elo, time) is +0.74 over the control seeds, not +0.72 (WP1).
+- **C4** gained a direct measurement instead of an inference: between
+  consecutive 50,000-game population snapshots, the exported champion's score
+  fell by 8.6 points in total over the six control runs, the best member of
+  the same pools by 1.1, the median member by 0.9. The paper's Discussion now
+  quotes this ratio (about 8×) instead of "contributed more of the measured
+  volatility than the coevolutionary dynamics did".
+- **Compiled environment**: the validation was rerun on today's checkpoints:
+  still 200/200 games bit-identical, now over 304,812 steps; measured speed-up
+  26× (was 31×), so a reference run is about 13 core-hours (README said
+  "about twelve"; an intermediate generated value was 16, from the old
+  throughput measurement).
+- **README (WP1)**: seed counts are 1–6 per condition, not 3–12; fig11 shows
+  unequal capacity, not unequal size; fig8 shows three families, not four;
+  only population 32 ran (one seed).
 
 ## (b) References that could not be verified
 
 Not cited in `main.tex`; details and the reason in `UNVERIFIED_REFS.md`.
 
 - **Cliff (1993)**, the source of Cliff's δ. The paper names and uses the
-  statistic without a citation. Worth verifying (Psychological Bulletin
+  statistic without a citation (Section 2, Measurements). Worth verifying (Psychological Bulletin
   114(3), believed DOI 10.1037/0033-2909.114.3.494) and adding.
 - **Watson & Pollack (2001)**, coevolutionary dynamics in a minimal substrate
   (GECCO 2001, no DOI). Natural citation for intransitivity/disengagement.
@@ -78,6 +120,22 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    (2026-10-02). No published number changed, but it shows that before this
    session the analysis was not fully reproducible from the documented
    commands.
+
+10. **"Neither harms nor helps detectably" (C5b) is a statement about power
+   as much as about the archive.** At six seeds a side, a moderate effect in
+   either direction would not be detected. One archive-as-test seed never
+   learned (the control: none); that is one run.
+11. **The decline measurement behind C4** uses the population snapshots
+   (every 50,000 games, 60 episodes per individual), not the 5,000-game
+   checkpoint curve where most of the visible swings are. It shows the pool
+   does not lose ground between snapshots while the exported champion does; it
+   does not decompose the checkpoint-level swings.
+12. **The write-up in `docs/paper/` is a lab notebook** and still contains
+   hand-typed numbers outside the sections rewritten in this session (§3 of
+   the analysis, the re-export lessons, the appendix design table). Every
+   table there is generated, and README and `paper/main.tex` are fully
+   generated; the notebook prose is not. Converting it, or marking it as
+   superseded by the paper, is your call.
 
 ## Decisions left to you
 
