@@ -247,6 +247,32 @@ def definitions():
     def cond(d, c):
         return d["conditions"]["conditions"][c]
 
+    def hoftest_split(d, key, learned):
+        return [r[key] for r in _rows(d["per_run"], "hof-eval-v2")
+                if bool(r["reached"]) == learned]
+    add("hoftest_n_failed", ["per_run"],
+        "archive as test: runs that never learned to rally")(
+        lambda d: str(len(hoftest_split(d, "hof_winrate_late", False))))
+    add("hoftest_win_late_learned_min", ["per_run"],
+        "archive as test, runs that learned: lowest late archive win rate")(
+        lambda d: _f(min(hoftest_split(d, "hof_winrate_late", True)), 2))
+    add("hoftest_win_late_learned_max", ["per_run"],
+        "archive as test, runs that learned: highest late archive win rate")(
+        lambda d: _f(max(hoftest_split(d, "hof_winrate_late", True)), 2))
+    add("hoftest_win_late_failed", ["per_run"],
+        "archive as test, runs that never learned: mean late archive win rate")(
+        lambda d: _f(np.mean(hoftest_split(d, "hof_winrate_late", False)), 2))
+    add("hoftest_skip_late_learned_min", ["per_run"],
+        "archive as test, runs that learned: lowest late share of games "
+        "without a selection event, in %")(
+        lambda d: _pct(min(hoftest_split(d, "replacements_skipped_late", True))))
+    add("hoftest_skip_late_learned_max", ["per_run"],
+        "archive as test, runs that learned: highest late share of games "
+        "without a selection event, in %")(
+        lambda d: _pct(max(hoftest_split(d, "replacements_skipped_late", True))))
+    add("hoftest_t_internal_median", ["conditions"],
+        "archive as test: median internal transition of the runs that learned")(
+        lambda d: _games(cond(d, "hof-eval-v2")["t_internal"]["median"]))
     def vs_ctrl(d, c, metric, field):
         return d["conditions"]["vs_control"][c][metric][field]
 

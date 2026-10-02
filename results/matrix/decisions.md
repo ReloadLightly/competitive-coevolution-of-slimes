@@ -257,3 +257,50 @@ produced it and compared with the committed version before it is replaced.
   the documented command reproduces them. No number changes.
 * `reexport.json` records 60 episodes per individual in its own summary and is
   rerun with `--episodes 60`.
+
+## 2026-10-02 — `hof-eval-v2` analysed: C5b rewritten from the new runs
+
+All six `hof-eval-v2` seeds finished (78.6 min on four workers) and the
+analysis was rerun over every file on disk with the superseded `hof-eval`
+runs excluded. Before (superseded `hof-eval`, streak bug) and after
+(`hof-eval-v2`), six seeds each; control for reference:
+
+| | `hof-eval` (bug) | `hof-eval-v2` | control |
+|---|---|---|---|
+| learned to rally | 6/6 | 5/6 | 6/6 |
+| at least one checkpoint above parity | 4/6 | 4/6 | 6/6 |
+| internal transition, median (range) | 350k (155k–495k) | 150k (115k–190k) | 120k (55k–415k) |
+| checkpoints above parity, mean (median) | 7.7% (3.5%) | 17.7% (21%) | 26% (26%) |
+| best champion, held out, mean (median) | -0.44 (+0.32) | -0.55 (+0.38) | +0.32 (+0.36) |
+| end-of-run champion, held out, mean (median) | -1.10 (-0.33) | -1.01 (-0.07) | -0.15 (+0.02) |
+| vs control, above parity: Cliff's δ, exact p | -0.75, 0.028 | -0.33, 0.370 | |
+| vs control, mean last 100k: δ, p | -0.67, 0.065 | -0.22, 0.589 | |
+| vs control, best champion: δ, p | -0.33, 0.372 | 0.00, 1.000 | |
+| archive win rate, first 50k games | 0.48–0.51 | 0.46–0.50 | |
+| archive win rate, last 50k games | 0.03–0.14 (all seeds) | 0.11–0.16 (the 5 that learned); 0.50 (the one that did not) | |
+| games without a selection event, last 50k | 21–24% | 21–22% (learned); 12% (not) | |
+
+What changes in the claim. The old C5b said the archive used as a test
+"stops being destructive but still does not help", made runs measurably
+worse than the control, and that its win rate decays "from ~0.50 to under
+0.10 in every seed". With the bug fixed:
+
+* The archive as a test is **not distinguishable from the control** on any
+  outcome at six seeds (all p ≥ 0.37). One seed in six never learned to
+  rally, against none of six in the control; that is a difference of one run.
+  The corrected archive therefore shows **no detectable benefit and no
+  detectable cost**; the earlier "measurably worse" was largely the bug.
+* The bug slowed learning: the buggy runs transitioned at a median of 350k
+  games, the corrected ones at 150k, in line with the control.
+* The decay of the archive's win rate holds qualitatively — from about 0.5 to
+  0.11–0.16 in every seed that learned, so about a fifth of late games
+  produce no selection event — but **not "under 0.10"**. In the seed that
+  never learned the archive keeps winning half its games: the decay tracks
+  whether the population improves, which is what the diagnostic is meant to
+  detect, but it is a description of these runs, not a validated predictor.
+
+C6 rechecked with `hof-eval-v2` as the fourth family: unchanged. Only the
+control learned to rally and produced an above-parity champion in every
+seed; the s.d. of end-of-run champions across seeds is 3.0×, 3.5× and 3.1×
+the control's for the generational GA, the ES and the corrected archive; the
+highest end-of-run champion of the study is still a self-play ES seed.
