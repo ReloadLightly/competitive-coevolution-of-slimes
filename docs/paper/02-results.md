@@ -85,7 +85,7 @@ specific way. Every control run reaches the same *place*; almost nothing about
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
-| archive as test, full span | 6 | 6/6 | 350k (155k–495k) | 365k (210k–445k) (4/6) | 58k |
+| archive as test, full span | 6 | 5/6 | 150k (115k–190k) | 195k (145k–260k) (4/6) | 62k |
 | archive as parent, p=0.25 | 6 | 1/6 | 80k (80k–80k) | 365k (365k–365k) (1/6) | 285k |
 | archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
 | archive as parent, full span | 3 | 0/3 | never | never (0/3) | — |

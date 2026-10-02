@@ -26,7 +26,7 @@ Bradley–Terry ratings fitted on the Elo scale.
 | condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
 |---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | +0.74 | 1/499 (0.2%) | 10.2 |
-| archive as test, full span | 6 | +0.92 | 2/575 (0.3%) | 8.3 |
+| archive as test, full span | 6 | +0.79 | 0/451 (0.0%) | 12.8 |
 | archive as parent, p=0.25 | 6 | +0.35 | 17/224 (7.6%) | 20.8 |
 | archive as parent, p=0.50 | 1 | +0.02 | 0/15 (0.0%) | 26.0 |
 | archive as parent, full span | 3 | +0.06 | 9/29 (31.0%) | 31.0 |
@@ -166,7 +166,7 @@ the first one we implemented was wrong in an instructive way.
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | -0.15 ± 0.27 | +0.32 ± 0.06 | -0.32 ± 0.23 | 0.67 | 0.60 | 26% | 192k (6/6) |
-| archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
+| archive as test, full span | 6 | -1.01 ± 0.83 | -0.55 ± 0.86 | -1.06 ± 0.78 | 0.51 | 0.52 | 18% | 195k (4/6) |
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
 | archive as parent, full span | 3 | -4.84 ± 0.00 | -4.83 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.05 | 0% | — (0/3) |
@@ -182,11 +182,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 <!-- table:2 -->
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as test, full span | `final_holdout` | -0.953 | -0.28 | 0.485 |
-| archive as test, full span | `late_mean` | -1.178 | -0.67 | 0.065 |
-| archive as test, full span | `volatility` | -0.015 | +0.00 | 1.000 |
-| archive as test, full span | `drawdown` | -0.014 | +0.00 | 1.000 |
-| archive as test, full span | `above_parity` | -0.187 | -0.75 | 0.028 |
+| archive as test, full span | `final_holdout` | -0.859 | -0.28 | 0.485 |
+| archive as test, full span | `late_mean` | -0.745 | -0.22 | 0.589 |
+| archive as test, full span | `volatility` | -0.157 | -0.22 | 0.589 |
+| archive as test, full span | `drawdown` | -0.083 | -0.11 | 0.818 |
+| archive as test, full span | `above_parity` | -0.087 | -0.33 | 0.370 |
 | archive as parent, p=0.25 | `final_holdout` | -3.951 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `late_mean` | -3.828 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
@@ -497,18 +497,18 @@ champion of every other run.
 <!-- table:6 -->
 | condition | runs | median Elo | best run | worst run |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 6 | +289 | +688 | +218 |
-| archive as test, full span | 6 | +259 | +319 | -155 |
-| archive as parent, p=0.25 | 6 | -534 | +412 | -585 |
-| archive as parent, p=0.50 | 1 | -572 | -572 | -572 |
-| archive as parent, full span | 3 | -581 | -566 | -589 |
-| generational GA (Ha 2015) | 6 | +49 | +632 | -570 |
-| self-play ES | 6 | +111 | +512 | -583 |
-| sigma = 0.05 | 3 | +476 | +531 | +270 |
-| sigma = 0.20 | 3 | +191 | +331 | -594 |
-| population 32 | 1 | -573 | -573 | -573 |
+| control (Ha 2020 GA) | 6 | +295 | +657 | +225 |
+| archive as test, full span | 6 | +381 | +650 | -596 |
+| archive as parent, p=0.25 | 6 | -557 | +406 | -606 |
+| archive as parent, p=0.50 | 1 | -588 | -588 | -588 |
+| archive as parent, full span | 3 | -584 | -580 | -589 |
+| generational GA (Ha 2015) | 6 | +56 | +595 | -607 |
+| self-play ES | 6 | +99 | +526 | -576 |
+| sigma = 0.05 | 3 | +472 | +492 | +279 |
+| sigma = 0.20 | 3 | +181 | +346 | -582 |
+| population 32 | 1 | -577 | -577 | -577 |
 
-Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 24/7688 (0.3%).
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 10/7651 (0.1%).
 <!-- /table:6 -->
 
 ## 8. Synthesis: ten lessons about competitive coevolution

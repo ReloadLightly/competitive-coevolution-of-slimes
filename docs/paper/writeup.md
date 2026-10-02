@@ -420,7 +420,7 @@ specific way. Every control run reaches the same *place*; almost nothing about
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
-| archive as test, full span | 6 | 6/6 | 350k (155k–495k) | 365k (210k–445k) (4/6) | 58k |
+| archive as test, full span | 6 | 5/6 | 150k (115k–190k) | 195k (145k–260k) (4/6) | 62k |
 | archive as parent, p=0.25 | 6 | 1/6 | 80k (80k–80k) | 365k (365k–365k) (1/6) | 285k |
 | archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
 | archive as parent, full span | 3 | 0/3 | never | never (0/3) | — |
@@ -536,7 +536,7 @@ Bradley–Terry ratings fitted on the Elo scale.
 | condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
 |---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | +0.74 | 1/499 (0.2%) | 10.2 |
-| archive as test, full span | 6 | +0.92 | 2/575 (0.3%) | 8.3 |
+| archive as test, full span | 6 | +0.79 | 0/451 (0.0%) | 12.8 |
 | archive as parent, p=0.25 | 6 | +0.35 | 17/224 (7.6%) | 20.8 |
 | archive as parent, p=0.50 | 1 | +0.02 | 0/15 (0.0%) | 26.0 |
 | archive as parent, full span | 3 | +0.06 | 9/29 (31.0%) | 31.0 |
@@ -676,7 +676,7 @@ the first one we implemented was wrong in an instructive way.
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | -0.15 ± 0.27 | +0.32 ± 0.06 | -0.32 ± 0.23 | 0.67 | 0.60 | 26% | 192k (6/6) |
-| archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
+| archive as test, full span | 6 | -1.01 ± 0.83 | -0.55 ± 0.86 | -1.06 ± 0.78 | 0.51 | 0.52 | 18% | 195k (4/6) |
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
 | archive as parent, full span | 3 | -4.84 ± 0.00 | -4.83 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.05 | 0% | — (0/3) |
@@ -692,11 +692,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 <!-- table:2 -->
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as test, full span | `final_holdout` | -0.953 | -0.28 | 0.485 |
-| archive as test, full span | `late_mean` | -1.178 | -0.67 | 0.065 |
-| archive as test, full span | `volatility` | -0.015 | +0.00 | 1.000 |
-| archive as test, full span | `drawdown` | -0.014 | +0.00 | 1.000 |
-| archive as test, full span | `above_parity` | -0.187 | -0.75 | 0.028 |
+| archive as test, full span | `final_holdout` | -0.859 | -0.28 | 0.485 |
+| archive as test, full span | `late_mean` | -0.745 | -0.22 | 0.589 |
+| archive as test, full span | `volatility` | -0.157 | -0.22 | 0.589 |
+| archive as test, full span | `drawdown` | -0.083 | -0.11 | 0.818 |
+| archive as test, full span | `above_parity` | -0.087 | -0.33 | 0.370 |
 | archive as parent, p=0.25 | `final_holdout` | -3.951 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `late_mean` | -3.828 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
@@ -1024,18 +1024,18 @@ champion of every other run.
 <!-- table:6 -->
 | condition | runs | median Elo | best run | worst run |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 6 | +289 | +688 | +218 |
-| archive as test, full span | 6 | +259 | +319 | -155 |
-| archive as parent, p=0.25 | 6 | -534 | +412 | -585 |
-| archive as parent, p=0.50 | 1 | -572 | -572 | -572 |
-| archive as parent, full span | 3 | -581 | -566 | -589 |
-| generational GA (Ha 2015) | 6 | +49 | +632 | -570 |
-| self-play ES | 6 | +111 | +512 | -583 |
-| sigma = 0.05 | 3 | +476 | +531 | +270 |
-| sigma = 0.20 | 3 | +191 | +331 | -594 |
-| population 32 | 1 | -573 | -573 | -573 |
+| control (Ha 2020 GA) | 6 | +295 | +657 | +225 |
+| archive as test, full span | 6 | +381 | +650 | -596 |
+| archive as parent, p=0.25 | 6 | -557 | +406 | -606 |
+| archive as parent, p=0.50 | 1 | -588 | -588 | -588 |
+| archive as parent, full span | 3 | -584 | -580 | -589 |
+| generational GA (Ha 2015) | 6 | +56 | +595 | -607 |
+| self-play ES | 6 | +99 | +526 | -576 |
+| sigma = 0.05 | 3 | +472 | +492 | +279 |
+| sigma = 0.20 | 3 | +181 | +346 | -582 |
+| population 32 | 1 | -577 | -577 | -577 |
 
-Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 24/7688 (0.3%).
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 10/7651 (0.1%).
 <!-- /table:6 -->
 
 ## 8. Synthesis: ten lessons about competitive coevolution
@@ -1415,7 +1415,7 @@ numbers moved.
 | condition | runs | final (held out) | peak (held out) | mean, last 100k | volatility | drawdown | above parity | median first parity |
 |---|---|---|---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | -0.15 ± 0.27 | +0.32 ± 0.06 | -0.32 ± 0.23 | 0.67 | 0.60 | 26% | 192k (6/6) |
-| archive as test, full span | 6 | -1.10 ± 0.78 | -0.44 ± 0.71 | -1.49 ± 0.68 | 0.66 | 0.59 | 8% | 365k (4/6) |
+| archive as test, full span | 6 | -1.01 ± 0.83 | -0.55 ± 0.86 | -1.06 ± 0.78 | 0.51 | 0.52 | 18% | 195k (4/6) |
 | archive as parent, p=0.25 | 6 | -4.10 ± 0.74 | -3.94 ± 0.90 | -4.14 ± 0.70 | 0.12 | 0.24 | 2% | 365k (1/6) |
 | archive as parent, p=0.50 | 1 | -4.84 ± — | -4.84 ± — | -4.85 ± — | 0.01 | 0.06 | 0% | — (0/1) |
 | archive as parent, full span | 3 | -4.84 ± 0.00 | -4.83 ± 0.01 | -4.84 ± 0.00 | 0.01 | 0.05 | 0% | — (0/3) |
@@ -1433,11 +1433,11 @@ Scores are points per episode against the 2015 baseline, mean ± s.e.m. across r
 <!-- table:2 -->
 | condition | metric | difference | Cliff's δ | exact p |
 |---|---|---|---|---|
-| archive as test, full span | `final_holdout` | -0.953 | -0.28 | 0.485 |
-| archive as test, full span | `late_mean` | -1.178 | -0.67 | 0.065 |
-| archive as test, full span | `volatility` | -0.015 | +0.00 | 1.000 |
-| archive as test, full span | `drawdown` | -0.014 | +0.00 | 1.000 |
-| archive as test, full span | `above_parity` | -0.187 | -0.75 | 0.028 |
+| archive as test, full span | `final_holdout` | -0.859 | -0.28 | 0.485 |
+| archive as test, full span | `late_mean` | -0.745 | -0.22 | 0.589 |
+| archive as test, full span | `volatility` | -0.157 | -0.22 | 0.589 |
+| archive as test, full span | `drawdown` | -0.083 | -0.11 | 0.818 |
+| archive as test, full span | `above_parity` | -0.087 | -0.33 | 0.370 |
 | archive as parent, p=0.25 | `final_holdout` | -3.951 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `late_mean` | -3.828 | -0.94 | 0.004 |
 | archive as parent, p=0.25 | `volatility` | -0.557 | -0.83 | 0.015 |
@@ -1490,7 +1490,7 @@ Exact two-sided Mann–Whitney U over all label assignments. Difference is condi
 | condition | runs | ρ(Elo, training time) | cyclic triads | undecided pairs |
 |---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | +0.74 | 1/499 (0.2%) | 10.2 |
-| archive as test, full span | 6 | +0.92 | 2/575 (0.3%) | 8.3 |
+| archive as test, full span | 6 | +0.79 | 0/451 (0.0%) | 12.8 |
 | archive as parent, p=0.25 | 6 | +0.35 | 17/224 (7.6%) | 20.8 |
 | archive as parent, p=0.50 | 1 | +0.02 | 0/15 (0.0%) | 26.0 |
 | archive as parent, full span | 3 | +0.06 | 9/29 (31.0%) | 31.0 |
@@ -1527,18 +1527,18 @@ Control runs only (6 seeds), averaged across seeds. Every member of the snapshot
 <!-- table:6 -->
 | condition | runs | median Elo | best run | worst run |
 |---|---|---|---|---|
-| control (Ha 2020 GA) | 6 | +289 | +688 | +218 |
-| archive as test, full span | 6 | +259 | +319 | -155 |
-| archive as parent, p=0.25 | 6 | -534 | +412 | -585 |
-| archive as parent, p=0.50 | 1 | -572 | -572 | -572 |
-| archive as parent, full span | 3 | -581 | -566 | -589 |
-| generational GA (Ha 2015) | 6 | +49 | +632 | -570 |
-| self-play ES | 6 | +111 | +512 | -583 |
-| sigma = 0.05 | 3 | +476 | +531 | +270 |
-| sigma = 0.20 | 3 | +191 | +331 | -594 |
-| population 32 | 1 | -573 | -573 | -573 |
+| control (Ha 2020 GA) | 6 | +295 | +657 | +225 |
+| archive as test, full span | 6 | +381 | +650 | -596 |
+| archive as parent, p=0.25 | 6 | -557 | +406 | -606 |
+| archive as parent, p=0.50 | 1 | -588 | -588 | -588 |
+| archive as parent, full span | 3 | -584 | -580 | -589 |
+| generational GA (Ha 2015) | 6 | +56 | +595 | -607 |
+| self-play ES | 6 | +99 | +526 | -576 |
+| sigma = 0.05 | 3 | +472 | +492 | +279 |
+| sigma = 0.20 | 3 | +181 | +346 | -582 |
+| population 32 | 1 | -577 | -577 | -577 |
 
-Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 24/7688 (0.3%).
+Bradley–Terry ratings on the Elo scale from an all-play-all tournament of the 41 final champions, 50 games per pair over both court sides. Cyclic triads across the whole tournament: 10/7651 (0.1%).
 <!-- /table:6 -->
 
 ### Table 7 — the damping claim, across seeds
@@ -1561,7 +1561,7 @@ Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 | condition | runs | reached long rallies | internal transition (median, range) | first parity (median, range) | lag (median) |
 |---|---|---|---|---|---|
 | control (Ha 2020 GA) | 6 | 6/6 | 120k (55k–415k) | 192k (85k–440k) (6/6) | 58k |
-| archive as test, full span | 6 | 6/6 | 350k (155k–495k) | 365k (210k–445k) (4/6) | 58k |
+| archive as test, full span | 6 | 5/6 | 150k (115k–190k) | 195k (145k–260k) (4/6) | 62k |
 | archive as parent, p=0.25 | 6 | 1/6 | 80k (80k–80k) | 365k (365k–365k) (1/6) | 285k |
 | archive as parent, p=0.50 | 1 | 0/1 | never | never (0/1) | — |
 | archive as parent, full span | 3 | 0/3 | never | never (0/3) | — |
@@ -1610,11 +1610,11 @@ Two populations of 128 playing only each other for 500,000 games; a quarter of e
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |
 |---|---|---|---|---|---|---|
 | random vs random | 50 | 50/50 | 50/50 | 50/50 | 0 | 31,971 |
-| champion vs random | 50 | 50/50 | 50/50 | 50/50 | 0 | 39,900 |
-| champion vs champion | 50 | 50/50 | 50/50 | 50/50 | 0 | 45,017 |
-| champion vs 2015 baseline | 50 | 50/50 | 50/50 | 50/50 | 0 | 148,909 |
+| champion vs random | 50 | 50/50 | 50/50 | 50/50 | 0 | 60,465 |
+| champion vs champion | 50 | 50/50 | 50/50 | 50/50 | 0 | 62,376 |
+| champion vs 2015 baseline | 50 | 50/50 | 50/50 | 50/50 | 0 | 150,000 |
 
-All 200 paired games agree bit for bit over 265,797 environment steps. Throughput on one core: 8.7 games/s reference, 274 games/s compiled (31×).
+All 200 paired games agree bit for bit over 304,812 environment steps. Throughput on one core: 11.0 games/s reference, 291 games/s compiled (26×).
 <!-- /table:a1 -->
 
 ### Table A2 — every run
@@ -1628,12 +1628,12 @@ All 200 paired games agree bit for bit over 265,797 environment steps. Throughpu
 | control | 104 | +0.50 | +0.41 | +0.32 | -0.23 | 0.78 | 0.77 | 32% | 55k | 85k | 43.9 |
 | control | 105 | -0.33 | -0.23 | +0.36 | +0.02 | 0.35 | 0.42 | 25% | 160k | 250k | 38.8 |
 | control | 106 | +0.32 | +0.32 | +0.49 | +0.06 | 0.48 | 0.46 | 50% | 80k | 120k | 50.0 |
-| hof-eval | 101 | -2.17 | -2.06 | +0.34 | -1.12 | 1.33 | 1.18 | 4% | 330k | 445k | 33.2 |
-| hof-eval | 102 | -0.36 | -0.45 | -0.05 | -2.07 | 0.42 | 0.35 | 0% | 435k | — | 20.8 |
-| hof-eval | 103 | -0.27 | -0.21 | +0.30 | -0.46 | 0.93 | 0.82 | 17% | 265k | 300k | 39.8 |
-| hof-eval | 104 | +0.49 | +0.43 | +0.43 | -0.06 | 0.57 | 0.52 | 22% | 155k | 210k | 37.7 |
-| hof-eval | 105 | -4.50 | -4.54 | -3.99 | -4.59 | 0.11 | 0.10 | 0% | 495k | — | 12.2 |
-| hof-eval | 106 | +0.24 | +0.21 | +0.36 | -0.66 | 0.59 | 0.55 | 3% | 370k | 430k | 17.7 |
+| hof-eval-v2 | 101 | +0.26 | +0.23 | +0.38 | +0.03 | 0.35 | 0.45 | 23% | 190k | 260k | 52.9 |
+| hof-eval-v2 | 102 | +0.35 | +0.27 | +0.37 | -0.02 | 0.41 | 0.51 | 35% | 115k | 170k | 60.7 |
+| hof-eval-v2 | 103 | +0.29 | +0.35 | +0.43 | +0.05 | 0.48 | 0.36 | 29% | 150k | 220k | 57.2 |
+| hof-eval-v2 | 104 | -4.82 | -4.83 | -4.85 | -4.84 | 0.01 | 0.07 | 0% | — | — | 13.4 |
+| hof-eval-v2 | 105 | -0.42 | -0.37 | +0.43 | -0.35 | 0.77 | 0.82 | 19% | 130k | 145k | 54.3 |
+| hof-eval-v2 | 106 | -1.90 | -1.71 | -0.05 | -1.24 | 1.06 | 0.91 | 0% | 190k | — | 23.8 |
 | hof-0.25 | 101 | -4.85 | -4.83 | -4.83 | -4.84 | 0.02 | 0.06 | 0% | — | — | 15.2 |
 | hof-0.25 | 102 | -4.82 | -4.84 | -4.83 | -4.85 | 0.01 | 0.08 | 0% | — | — | 11.2 |
 | hof-0.25 | 103 | -4.85 | -4.86 | -4.84 | -4.85 | 0.01 | 0.06 | 0% | — | — | 10.9 |

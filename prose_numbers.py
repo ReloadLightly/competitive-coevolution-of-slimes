@@ -33,6 +33,10 @@ MATRIX = "results/matrix"
 # the same GA at the same budget (slimevolleygym TRAINING.md, 1,000 episodes).
 HA_PUBLISHED = 0.353
 
+# readable names for conditions quoted in prose
+FAMILY_LABEL = {"control": "2020 GA", "ga2015": "generational GA",
+                "es": "self-play ES", "hof-eval-v2": "archive-as-test"}
+
 # A two-population run ends in runaway dominance when one side wins more than
 # this share of the cross-population games over the last 50,000 games.
 RUNAWAY = 0.9
@@ -374,6 +378,16 @@ def definitions():
             (lambda c: lambda d: _f(np.std(fh(d, c), ddof=1)
                                     / np.std(fh(d, "control"), ddof=1), 1))(c))
 
+    def sd_ratios(d):
+        return [np.std(fh(d, c), ddof=1) / np.std(fh(d, "control"), ddof=1)
+                for c in ("ga2015", "es", "hof-eval-v2")]
+    add("family_sd_ratio_min", ["per_run"],
+        "smallest endpoint s.d. ratio (vs control) among the other three "
+        "families")(lambda d: _f(min(sd_ratios(d)), 1))
+    add("family_sd_ratio_max", ["per_run"],
+        "largest endpoint s.d. ratio (vs control) among the other three "
+        "families")(lambda d: _f(max(sd_ratios(d)), 1))
+
     def single(d):
         return [v for v in d["per_run"].values()
                 if not v["condition"].startswith("asym")]
@@ -383,6 +397,10 @@ def definitions():
     add("best_endpoint_condition", ["per_run"],
         "condition of that run")(
         lambda d: max(single(d), key=lambda v: v["final_holdout"])["condition"])
+    add("best_endpoint_label", ["per_run"],
+        "readable name of the condition with the highest endpoint")(
+        lambda d: FAMILY_LABEL.get(max(single(d), key=lambda v: v["final_holdout"])[
+            "condition"], max(single(d), key=lambda v: v["final_holdout"])["condition"]))
     add("ctrl_best_endpoint", ["per_run"],
         "highest end-of-run champion (held out) among control seeds")(
         lambda d: _f(max(fh(d, "control")), 2, True))
@@ -507,12 +525,46 @@ def definitions():
     add("hidden_large", ["per_run"], "hidden units per layer, larger network")(
         lambda d: str(int(np.load(sorted(glob.glob(os.path.join(
             MATRIX, "asym2x-strong_s*.npz")))[0])["hidden"][0])))
+    C = rx_.CONDITIONS
+    design("ga_pop", "generational GA: population", lambda: str(C["ga2015"]["pop"]))
+    design("ga_opponents", "generational GA: games per individual per generation",
+           lambda: str(C["ga2015"]["n_opponents"]))
+    design("ga_elite_pct", "generational GA: share retained per generation, in %",
+           lambda: _pct(C["ga2015"]["n_elite"] / C["ga2015"]["pop"]))
+    design("es_candidates", "self-play ES: mirrored perturbations per iteration",
+           lambda: str(C["es"]["pop"]))
+    design("sigma_small", "mutation-scale sweep: smaller sigma",
+           lambda: _f(C["sigma-0.05"]["sigma"], 2))
+    design("sigma_big", "mutation-scale sweep: larger sigma",
+           lambda: _f(C["sigma-0.20"]["sigma"], 2))
+    design("sigma_ctrl", "control sigma, two decimals",
+           lambda: _f(C["control"]["sigma"], 2))
+    design("pop_small", "population sweep: smaller population",
+           lambda: str(C["pop-32"]["pop"]))
+    design("pop_big", "population sweep: larger population (defined, never run)",
+           lambda: str(C["pop-512"]["pop"]))
     design("seeds_main", "seeds of the conditions that carry a claim",
            lambda: str(len(rx_.SEEDS_MAIN)))
     design("min_p_six", "smallest attainable two-sided exact p with six runs "
            "a side", lambda: _f(2 / comb(12, 6), 3))
     design("runaway_cut", "win rate beyond which a two-population run is a "
            "runaway (and its complement)", lambda: _f(RUNAWAY, 1))
+    design("runaway_pct", "runaway cut as a percentage of games",
+           lambda: _pct(RUNAWAY))
+
+    def runs_per_condition(d):
+        n = {}
+        for v in d["per_run"].values():
+            c = v["condition"]
+            c = c.rsplit("-", 1)[0] if c.startswith("asym") else c
+            n.setdefault(c, set()).add(v["seed"])
+        return [len(x) for x in n.values()]
+    add("runs_min", ["per_run"], "fewest runs of any analysed condition")(
+        lambda d: str(min(runs_per_condition(d))))
+    add("runs_max", ["per_run"], "most runs of any analysed condition")(
+        lambda d: str(max(runs_per_condition(d))))
+    add("pop_small_runs", ["per_run"], "runs of the smaller population")(
+        lambda d: str(len(_rows(d["per_run"], "pop-32"))))
     add("asym_param_large", ["per_run"], "parameters of the larger network")(
         lambda d: str(max(int(np.load(f)["param_count"][0]) for f in
                           glob.glob(os.path.join(MATRIX, "asym2x-strong_s*.npz")))))

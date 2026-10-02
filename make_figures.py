@@ -515,7 +515,7 @@ def fig10_archive_decay(runs, per_run):
                     color=COLORS[c], lw=0.9, alpha=0.55)
     ax.set_xlabel("self-play games (thousands)")
     ax.set_ylabel("% of games with no selection event")
-    ax.set_title("What the archive costs", loc="left")
+    ax.set_title("Games without a selection event", loc="left")
     ax.set_ylim(0, 55)
     save(fig, "fig10_archive_decay")
     plt.close(fig)
