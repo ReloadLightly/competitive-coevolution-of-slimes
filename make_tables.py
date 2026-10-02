@@ -644,7 +644,7 @@ def md_cell_to_tex(cell):
     cell = cell.replace("_", r"\_")
     for a, b in TEX_MAP:
         cell = cell.replace(a, b)
-    cell = re.sub(r"(?<![\w.$])-(\d)", r"$-$\1", cell)
+    cell = re.sub(r"(?<![\w.$-])-(\d)", r"$-$\1", cell)   # not the 2nd '-' of '--'
     cell = re.sub(r"\*([^*]+)\*", r"\\emph{\1}", cell)
     for c in code:
         cell = cell.replace("\x00", r"\texttt{" + c.replace("_", r"\_") + "}", 1)

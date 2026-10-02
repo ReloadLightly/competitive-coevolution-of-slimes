@@ -212,6 +212,12 @@ def fig2_control(runs):
     return "fig2_control_seeds.png"
 
 
+# tick labels for the small strip panels; the legends carry the full names
+SHORT = {"control": "ctrl", "hof-eval-v2": "test", "hof-0.25": "par.\n.25",
+         "hof-0.50": "par.\n.50", "hof-full": "par.\nfull", "ga2015": "gen.\nGA",
+         "es": "ES"}
+
+
 def _strip(ax, per_run, conds, key, ylabel, title):
     for i, cond in enumerate(conds):
         vals = [v[key] for v in per_run.values() if v["condition"] == cond]
@@ -224,8 +230,8 @@ def _strip(ax, per_run, conds, key, ylabel, title):
         ax.plot([i - 0.26, i + 0.26], [np.median(vals)] * 2,
                 color=COLORS[cond], lw=2.0, zorder=2)
     ax.set_xticks(range(len(conds)))
-    ax.set_xticklabels([LABELS.get(c, c) for c in conds], rotation=18,
-                       ha="right")
+    ax.set_xticklabels([SHORT.get(c, LABELS.get(c, c)) for c in conds],
+                       fontsize=7)
     ax.set_ylabel(ylabel)
     ax.set_title(title, loc="left")
 
@@ -236,7 +242,7 @@ def fig3_hof(runs, per_run):
     if len(conds) < 2:
         return "fig3: need control and a hall-of-fame condition"
     fig = plt.figure(figsize=(6.8, 5.0))
-    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.55, wspace=0.45)
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.5, wspace=0.62)
 
     ax = fig.add_subplot(gs[0, :])
     parity(ax)
@@ -246,7 +252,7 @@ def fig3_hof(runs, per_run):
     ax.set_ylabel("score vs 2015 baseline")
     ax.set_title("An archive of past champions: as a test, and as a parent",
                  loc="left")
-    ax.legend(loc="lower right")
+    ax.legend(loc="center right", fontsize=7)
 
     if per_run:
         for j, (key, lab, ttl) in enumerate([
@@ -285,8 +291,11 @@ def fig4_ablations(runs, per_run):
 def fig5_coevolution(within, per_run):
     if not within:
         return "fig5: no within-run tournaments yet"
-    fig = plt.figure(figsize=(6.8, 2.9))
-    gs = fig.add_gridspec(1, 3, wspace=0.42, width_ratios=[1.1, 1, 1])
+    # the right panel lists conditions on its y axis, so it gets room for
+    # their names; the colour bar sits in its own column
+    fig = plt.figure(figsize=(7.4, 3.0))
+    gs = fig.add_gridspec(1, 4, wspace=0.35,
+                          width_ratios=[1.0, 0.95, 0.05, 1.15])
 
     ax = fig.add_subplot(gs[0, 0])
     for name, d in within.items():
@@ -310,11 +319,12 @@ def fig5_coevolution(within, per_run):
     ax.set_yticklabels([f"{ts[i]:.0f}" for i in range(0, len(ts), max(1, len(ts) // 4))])
     ax.set_xlabel("opponent (thousands of games)")
     ax.set_ylabel("champion")
-    ax.set_title(f"margin matrix, {name}", loc="left")
+    ax.set_title(f"margin matrix,\n{name}", loc="left")
     ax.grid(False)
-    fig.colorbar(im, ax=ax, fraction=0.046, label="points")
+    cb = fig.colorbar(im, cax=fig.add_subplot(gs[0, 2]))
+    cb.ax.set_title("points", fontsize=7)
 
-    ax = fig.add_subplot(gs[0, 2])
+    ax = fig.add_subplot(gs[0, 3])
     conds, fracs = [], []
     for cond in COLORS:
         vals = [d["cyclic_frac"] for n, d in within.items()
@@ -323,13 +333,15 @@ def fig5_coevolution(within, per_run):
             conds.append(cond)
             fracs.append(vals)
     for i, (c, vals) in enumerate(zip(conds, fracs)):
-        x = np.full(len(vals), i, dtype=float) + np.linspace(-0.12, 0.12, len(vals))
-        ax.scatter(x, vals, s=14, color=COLORS[c], zorder=3,
+        y = np.full(len(vals), i, dtype=float) + np.linspace(-0.12, 0.12, len(vals))
+        ax.scatter(vals, y, s=14, color=COLORS[c], zorder=3,
                    edgecolor="white", linewidth=0.4)
-        ax.plot([i - 0.25, i + 0.25], [np.median(vals)] * 2, color=COLORS[c], lw=2)
-    ax.set_xticks(range(len(conds)))
-    ax.set_xticklabels([LABELS.get(c, c) for c in conds], rotation=25, ha="right")
-    ax.set_ylabel("cyclic triads (fraction)")
+        ax.plot([np.median(vals)] * 2, [i - 0.3, i + 0.3], color=COLORS[c], lw=2)
+    ax.set_yticks(range(len(conds)))
+    ax.set_yticklabels([LABELS.get(c, c) for c in conds], fontsize=6.5)
+    ax.yaxis.tick_right()
+    ax.invert_yaxis()
+    ax.set_xlabel("cyclic triads (fraction)")
     ax.set_title("Intransitivity", loc="left")
     save(fig, "fig5_coevolution")
     plt.close(fig)
@@ -401,7 +413,7 @@ def fig8_families(runs, per_run):
     if len(conds) < 2:
         return "fig8: need at least two algorithm families"
     fig = plt.figure(figsize=(6.8, 4.9))
-    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.55, wspace=0.45)
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.35, 1], hspace=0.5, wspace=0.62)
     ax = fig.add_subplot(gs[0, :])
     parity(ax)
     for c in conds:
@@ -412,7 +424,7 @@ def fig8_families(runs, per_run):
     ax.set_ylabel("score vs 2015 baseline")
     ax.set_title("Three ways to turn a population into the next population",
                  loc="left")
-    ax.legend(loc="lower right")
+    ax.legend(loc="center left", fontsize=7)
     if per_run:
         for j, (key, lab, ttl) in enumerate([
                 ("late_mean", "points/episode", "mean, last 100k games"),
