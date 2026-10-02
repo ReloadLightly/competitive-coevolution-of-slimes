@@ -6,3 +6,4 @@ nohup.out
 _scratch/
 results/train.pid
 results/_smoke*
+results/analysis/provenance.json.lock

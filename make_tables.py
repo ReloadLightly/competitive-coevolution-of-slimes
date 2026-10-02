@@ -12,7 +12,17 @@ results land refreshes the paper in place, and `git diff docs/paper` shows
 exactly which numbers moved.
 
     python make_tables.py            # inject into docs/paper/*.md
-    python make_tables.py --check    # fail if injection would change anything
+    python make_tables.py --check    # fail unless every table follows from disk
+
+`--check` fails when
+
+  * any table named by a marker (README.md, docs/paper/*.md) or present in
+    docs/paper/_tables.md cannot be built — a table is never silently
+    skipped because its data is missing;
+  * any analysis file a table is built from does not follow from the raw
+    files on disk (provenance.py: an input deleted, added or changed, or the
+    analysis file edited by hand);
+  * injecting the tables would change any file.
 """
 
 import argparse
@@ -23,6 +33,8 @@ import re
 import sys
 
 import numpy as np
+
+import provenance as pv
 
 ANDIR = "results/analysis"
 PAPER = "docs/paper"
@@ -41,11 +53,6 @@ LABELS = {
 }
 ORDER = ["control", "hof-eval", "hof-0.25", "hof-0.50", "hof-full",
          "ga2015", "es", "sigma-0.05", "sigma-0.20", "pop-32", "pop-512"]
-
-
-def load(name):
-    p = os.path.join(ANDIR, name)
-    return json.load(open(p)) if os.path.exists(p) else None
 
 
 def fmt(x, nd=2, sign=False):
@@ -509,6 +516,27 @@ def table_10(d):
     return "\n".join(out)
 
 
+# The analysis files each table is built from. Table 10 reads the raw
+# two-population runs directly; per_run.json's provenance covers those files.
+FILES = {
+    "per_run": f"{ANDIR}/per_run.json",
+    "conditions": f"{ANDIR}/conditions.json",
+    "within": f"{ANDIR}/within_run.json",
+    "across": f"{ANDIR}/across_runs.json",
+    "proxy": f"{ANDIR}/champion_proxy.json",
+    "reference": f"{ANDIR}/reference_curve.json",
+    "reexport": f"{ANDIR}/reexport.json",
+    "resume": f"{ANDIR}/resume_fast.json",
+    "validation": "results/validation.json",
+}
+DEPS = {
+    "1": ["conditions"], "2": ["conditions"], "3": ["reference"],
+    "4": ["within"], "5": ["proxy"], "6": ["across"], "7": ["per_run"],
+    "8": ["per_run", "reference"], "9": ["reexport"], "10": ["per_run"],
+    "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
+    "a2": ["per_run"], "a3": ["resume", "reference"],
+}
+
 TABLES = {
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
@@ -517,24 +545,33 @@ TABLES = {
 }
 
 
+def targets():
+    """Every file that carries table markers."""
+    out = [p for p in sorted(glob.glob(os.path.join(PAPER, "*.md")))
+           if not os.path.basename(p).startswith("_")]
+    return out + [p for p in ("README.md",) if os.path.exists(p)]
+
+
+def required_tables(paths):
+    """Tables some document expects: a marker, or a section of _tables.md."""
+    keys = set()
+    for path in paths:
+        keys |= set(re.findall(r"<!-- table:([\w-]+) -->", open(path).read()))
+    tm = os.path.join(PAPER, "_tables.md")
+    if os.path.exists(tm):
+        keys |= {k.lower() for k in
+                 re.findall(r"^### Table (\S+)$", open(tm).read(), re.M)}
+    return keys
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true",
-                    help="exit non-zero if any table is out of date")
+                    help="exit non-zero unless every table follows from disk")
     args = ap.parse_args()
 
-    d = {
-        "per_run": load("per_run.json"),
-        "conditions": load("conditions.json"),
-        "within": load("within_run.json"),
-        "across": load("across_runs.json"),
-        "proxy": load("champion_proxy.json"),
-        "reference": load("reference_curve.json"),
-        "reexport": load("reexport.json"),
-        "resume": load("resume_fast.json"),
-        "validation": (json.load(open("results/validation.json"))
-                       if os.path.exists("results/validation.json") else None),
-    }
+    d = {k: (json.load(open(p)) if os.path.exists(p) else None)
+         for k, p in FILES.items()}
 
     built = {}
     for key, fn in TABLES.items():
@@ -550,18 +587,31 @@ def main():
     for key in TABLES:
         if key in built:
             combined.append(f"\n### Table {key.upper()}\n\n{built[key]}\n")
-    os.makedirs(PAPER, exist_ok=True)
-    with open(os.path.join(PAPER, "_tables.md"), "w") as f:
-        f.write("\n".join(combined))
+    combined = "\n".join(combined)
+
+    paths = targets()
+    required = required_tables(paths)
+    errors = []
+    for k in sorted(required - set(TABLES)):
+        errors.append(f"table {k}: named in a document but no generator exists")
+    for k in sorted((required & set(TABLES)) - set(built)):
+        errors.append(f"table {k}: named in a document but cannot be built "
+                      f"from the data on disk "
+                      f"(needs {', '.join(FILES[f] for f in DEPS[k])})")
+    deps = sorted({FILES[f] for k in (required | set(built)) & set(DEPS)
+                   for f in DEPS[k]})
+    errors += pv.verify(deps)
 
     # README.md carries markers too: the repository is public, so its headline
     # numbers must come from the same generator as the paper's.
-    targets = [p for p in sorted(glob.glob(os.path.join(PAPER, "*.md")))
-               if not os.path.basename(p).startswith("_")]
-    targets += [p for p in ("README.md",) if os.path.exists(p)]
-
     stale = []
-    for path in targets:
+    tm = os.path.join(PAPER, "_tables.md")
+    if not os.path.exists(tm) or open(tm).read() != combined:
+        stale.append(tm)
+        if not args.check:
+            os.makedirs(PAPER, exist_ok=True)
+            open(tm, "w").write(combined)
+    for path in paths:
         src = open(path).read()
         new = src
         for key, md in built.items():
@@ -576,12 +626,14 @@ def main():
                 open(path, "w").write(new)
 
     print(f"built {len(built)}/{len(TABLES)} tables: {', '.join(sorted(built))}")
-    missing = [k for k in TABLES if k not in built]
-    if missing:
-        print(f"not yet available: {', '.join(missing)}")
+    for e in errors:
+        print(f"ERROR {e}")
     if args.check:
-        print("OUT OF DATE: " + ", ".join(stale) if stale else "up to date")
-        sys.exit(1 if stale else 0)
+        if stale:
+            print("OUT OF DATE: " + ", ".join(stale))
+        ok = not stale and not errors
+        print("up to date" if ok else "CHECK FAILED")
+        sys.exit(0 if ok else 1)
     print(f"updated: {', '.join(os.path.basename(p) for p in stale) or 'nothing'}")
 
 

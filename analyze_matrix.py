@@ -25,7 +25,6 @@ Usage:
 """
 
 import argparse
-import glob
 import json
 import multiprocessing as mp
 import os
@@ -33,6 +32,7 @@ import os
 import numpy as np
 
 import fastvolley as fv
+import provenance as pv
 import stats_utils as su
 from run_experiments import CONDITIONS, SELECT_EPISODES, SELECT_SEED
 
@@ -159,7 +159,8 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    paths = sorted(glob.glob(os.path.join(args.matrix, "*_s*.npz")))
+    # superseded conditions stay on disk but are never analysed
+    paths = pv.matrix_runs(args.matrix)
     if not paths:
         print("no runs yet")
         return
@@ -177,6 +178,12 @@ def main():
 
     hold_path = os.path.join(args.outdir, "holdout.json")
     holdout = json.load(open(hold_path)) if os.path.exists(hold_path) else {}
+    # The cache is keyed by run name, so it also records which file each entry
+    # was scored from: a run that is rerun under the same name, or an entry
+    # without a hash, is re-scored rather than silently reused.
+    digests = {os.path.basename(p)[:-4]: pv.sha256(p) for p in paths}
+    holdout = {n: v for n, v in holdout.items()
+               if n in digests and v.get("npz_sha256") == digests[n]}
     if args.holdout:
         todo = [(p,) for p in paths
                 if os.path.basename(p)[:-4] not in holdout]
@@ -185,13 +192,16 @@ def main():
                   f"({SELECT_EPISODES} episodes)", flush=True)
             with mp.get_context("spawn").Pool(args.workers) as pool:
                 for name, out in pool.imap_unordered(_holdout_job, todo):
-                    holdout[name] = out
+                    holdout[name] = {**out, "npz_sha256": digests[name]}
                     print(f"  {name}: final {out['final_holdout']:+.3f} "
                           f"peak {out['peak_holdout']:+.3f}", flush=True)
-            json.dump(holdout, open(hold_path, "w"), indent=1)
+    # always rewritten, so entries for removed or superseded runs drop out
+    json.dump(dict(sorted(holdout.items())), open(hold_path, "w"), indent=1)
     for name, out in holdout.items():
         if name in per_run:
-            per_run[name].update(out)
+            per_run[name].update(
+                {k: v for k, v in out.items() if k != "npz_sha256"})
+    unscored = sorted(set(per_run) - set(holdout))
 
     json.dump(per_run, open(os.path.join(args.outdir, "per_run.json"), "w"),
               indent=1)
@@ -261,6 +271,16 @@ def main():
 
     json.dump({"conditions": conds, "vs_control": comparisons},
               open(os.path.join(args.outdir, "conditions.json"), "w"), indent=1)
+
+    # Provenance only once every run has its held-out score: tables built
+    # from a partial analysis must not pass make_tables.py --check.
+    if unscored:
+        print(f"\nWARNING: {len(unscored)} runs have no held-out score "
+              f"({', '.join(unscored[:4])}{', ...' if len(unscored) > 4 else ''}); "
+              f"rerun with --holdout. Provenance not recorded.")
+    else:
+        for out in ("holdout.json", "per_run.json", "conditions.json"):
+            pv.record(os.path.join(args.outdir, out), "matrix")
 
     # ---- console summary -------------------------------------------------
     hdr = f"{'condition':<12}{'n':>3}{'lrn':>5}  {'final':>16}  {'late_mean':>16}  " \

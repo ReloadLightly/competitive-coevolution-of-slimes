@@ -23,6 +23,7 @@ import os
 import numpy as np
 
 import fastvolley as fv
+import provenance as pv
 from run_experiments import SELECT_EPISODES, SELECT_SEED, SWEEP_EPISODES, SWEEP_SEED
 
 
@@ -100,6 +101,8 @@ def main():
                "t_internal": t_internal, "t_parity": t_parity,
                "train_len": train_len,
                "holdout": hold}, open(args.out, "w"))
+    pv.record(args.out, "reference",
+              params={"episodes": args.episodes, "seed": args.seed})
     print(f"internal transition (train rally > 1500 steps): {t_internal}")
     print(f"first checkpoint above parity: {t_parity}")
 

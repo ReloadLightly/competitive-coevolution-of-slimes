@@ -27,7 +27,6 @@ frozen opponent. Three questions about coevolution are invisible to it:
 """
 
 import argparse
-import glob
 import json
 import multiprocessing as mp
 import os
@@ -36,6 +35,7 @@ import numpy as np
 
 import fastvolley as fv
 import fastvolley_kernels as fk
+import provenance as pv
 import stats_utils as su
 
 RR_SEED = 4242          # tournament seed, disjoint from training and evaluation
@@ -203,7 +203,7 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    paths = sorted(glob.glob(os.path.join(args.matrix, "*_s*.npz")))
+    paths = pv.matrix_runs(args.matrix)     # superseded runs excluded
     # the two-population conditions have their own analysis (ablations section 5)
     # and their champions are not comparable members of the single-population pool
     paths = [p for p in paths if not os.path.basename(p).startswith("asym")]
@@ -223,6 +223,8 @@ def main():
                 print(f"  {name}: rho(elo,time)={res['spearman_elo_vs_time']:+.2f} "
                       f"cyclic {res['cyclic']}/{res['triads_decided']}", flush=True)
         json.dump(out, open(os.path.join(args.outdir, "within_run.json"), "w"))
+        pv.record(os.path.join(args.outdir, "within_run.json"), "single",
+                  params={"every": args.every, "games": args.games})
 
     if args.across:
         names, finals = [], []
@@ -242,13 +244,17 @@ def main():
                "games_per_pair": 2 * args.games,
                "margin": margin.tolist(), **triad_stats(margin)}
         json.dump(res, open(os.path.join(args.outdir, "across_runs.json"), "w"))
+        pv.record(os.path.join(args.outdir, "across_runs.json"), "single",
+                  params={"games": args.games})
         order = np.argsort(-elo)
         print("  Elo (best first):")
         for i in order:
             print(f"    {names[i]:<18} {elo[i]:+8.1f}")
 
     if args.proxy:
-        jobs = [(p, args.proxy_episodes) for p in paths]
+        # only the control keeps population snapshots
+        jobs = [(p, args.proxy_episodes) for p in paths
+                if os.path.basename(p).startswith("control_s")]
         out = {}
         print("champion-selection proxy check", flush=True)
         with mp.get_context("spawn").Pool(args.workers) as pool:
@@ -261,6 +267,8 @@ def main():
                       f"(exported vs best in pool)", flush=True)
         json.dump(out, open(os.path.join(args.outdir, "champion_proxy.json"), "w"),
                   indent=1)
+        pv.record(os.path.join(args.outdir, "champion_proxy.json"), "control",
+                  params={"episodes": args.proxy_episodes})
 
     print(f"-> {args.outdir}")
 

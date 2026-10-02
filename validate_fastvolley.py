@@ -28,6 +28,7 @@ import time
 import numpy as np
 
 import fastvolley as fv
+import provenance as pv
 
 
 class ServeStub:
@@ -211,6 +212,9 @@ def main():
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w") as f:
         json.dump(summary, f, indent=1)
+    # the champions it replays are drawn from the reference run's checkpoints
+    pv.record(args.out, "reference",
+              params={"games": args.games, "seed": args.seed})
     print(f"\n{'PASS' if ok else 'FAIL'} -> {args.out}")
     return 0 if ok else 1
 
