@@ -524,6 +524,80 @@ def table_10(d):
     return "\n".join(out)
 
 
+def table_c(d):
+    """The design: every condition analysed, what it changes, how many runs.
+
+    Parameters come from protocol.json (single population) and from the run
+    files themselves (two populations), so the table describes what ran.
+    """
+    per_run = d["per_run"]
+    if not per_run:
+        return None
+    proto = json.load(open("results/matrix/protocol.json"))
+    pc = proto["conditions"]
+    ctrl = pc["control"]
+    runs = {}
+    for v in per_run.values():
+        c = v["condition"]
+        base = c.rsplit("-", 1)[0] if c.startswith("asym") else c
+        runs.setdefault(base, set()).add(v["seed"])
+
+    def single(c):
+        a = pc[c]
+        algo = a.get("algo", "ga")
+        if algo == "ga2015":
+            return (f"generational GA: population {a['pop']}, {a['n_opponents']} "
+                    f"games per individual per generation, top {a['n_elite']} "
+                    f"kept, uniform crossover, σ = {a['sigma']}")
+        if algo == "es":
+            return (f"self-play OpenAI-ES: {a['pop']} mirrored perturbations, "
+                    f"{a['n_opponents']} games each, learning rate {a['alpha']}, "
+                    f"σ = {a['sigma']}; reports the mean")
+        if algo == "hof_eval":
+            return (f"archive as test: with p = {a['hof_prob']} the opponent is "
+                    f"an archived champion (capacity {a['cap']}); genes come "
+                    f"only from the living pool")
+        if a["hof_prob"] > 0:
+            return (f"archive as parent: with p = {a['hof_prob']} the opponent "
+                    f"is an archived champion (capacity {a['cap']}) whose "
+                    f"mutant replaces a member it beats")
+        diff = []
+        if a["sigma"] != ctrl["sigma"]:
+            diff.append(f"mutation scale σ = {a['sigma']}")
+        if a["pop"] != ctrl["pop"]:
+            diff.append(f"population {a['pop']}")
+        return ", ".join(diff) or (
+            f"Ha's 2020 GA: population {a['pop']}, σ = {a['sigma']}, "
+            f"champion = longest winning streak")
+
+    out = ["| condition | what it changes relative to the control | runs |",
+           "|---|---|---|"]
+    for k in ORDER:
+        if k in runs and k in pc:
+            out.append(f"| `{k}` | {single(k)} | {len(runs[k])} |")
+    for base in ("asym1x", "asym2x", "asym2x-norm"):
+        if base not in runs:
+            continue
+        sides = {}
+        for f in sorted(glob.glob("results/matrix/asym*_s*.npz")):
+            cond, side = os.path.basename(f)[:-4].rsplit("_s", 1)[0].rsplit("-", 1)
+            if cond == base and side not in sides:
+                z = np.load(f)
+                sides[side] = (int(z["param_count"][0]), float(z["sigma"][0]),
+                               float(z["cross_prob"][0]))
+        if len(sides) != 2:
+            continue
+        # larger side first; the symmetric control's sides are equal
+        (pa, sa, cp), (pb, sb, _) = sorted(sides.values(), reverse=True)
+        out.append(f"| `{base}` | two populations of {pc['control']['pop']}, "
+                   f"{pa} v {pb} parameters, σ = {sa:.3f} v {sb:.3f}; a share "
+                   f"{cp} of games crosses populations | {len(runs[base])} |")
+    out.append("")
+    out.append("Every run plays 500,000 games. Two-population runs count once "
+               "per seed.")
+    return "\n".join(out)
+
+
 # The analysis files each table is built from. Table 10 reads the raw
 # two-population runs directly; per_run.json's provenance covers those files.
 FILES = {
@@ -538,6 +612,7 @@ FILES = {
     "validation": "results/validation.json",
 }
 DEPS = {
+    "c": ["per_run"],
     "1": ["conditions"], "2": ["conditions"], "3": ["reference"],
     "4": ["within"], "5": ["proxy"], "6": ["across"], "7": ["per_run"],
     "8": ["per_run", "reference"], "9": ["reexport"], "10": ["per_run"],
@@ -546,11 +621,52 @@ DEPS = {
 }
 
 TABLES = {
+    "c": table_c,
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
     "r": table_r,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
+
+
+# Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
+PAPER_TABLES = ["c", "r", "4", "5", "9", "10", "1", "2", "6", "8", "a1", "a3"]
+TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
+           ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
+           ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),
+           ("#", r"\#")]
+
+
+def md_cell_to_tex(cell):
+    cell = cell.strip()
+    code = re.findall(r"`([^`]*)`", cell)
+    cell = re.sub(r"`([^`]*)`", "\x00", cell)
+    cell = cell.replace("_", r"\_")
+    for a, b in TEX_MAP:
+        cell = cell.replace(a, b)
+    cell = re.sub(r"(?<![\w.$])-(\d)", r"$-$\1", cell)
+    cell = re.sub(r"\*([^*]+)\*", r"\\emph{\1}", cell)
+    for c in code:
+        cell = cell.replace("\x00", r"\texttt{" + c.replace("_", r"\_") + "}", 1)
+    return cell
+
+
+# column types where the default (left, then right-aligned) does not fit
+TEX_SPEC = {"c": r"l>{\raggedright\arraybackslash}p{0.66\linewidth}r"}
+
+
+def md_table_to_tex(md, spec=None):
+    """The table part of a generated markdown table as a booktabs tabular."""
+    rows = [l for l in md.split("\n") if l.startswith("|")]
+    head = [c for c in rows[0].strip("|").split("|")]
+    body = [[c for c in r.strip("|").split("|")] for r in rows[2:]]
+    spec = spec or "l" + "r" * (len(head) - 1)
+    out = ["% generated by make_tables.py from the markdown table -- do not edit",
+           f"\\begin{{tabular}}{{{spec}}}", "\\toprule",
+           " & ".join(md_cell_to_tex(c) for c in head) + r" \\", "\\midrule"]
+    out += [" & ".join(md_cell_to_tex(c) for c in r) + r" \\" for r in body]
+    out += ["\\bottomrule", "\\end{tabular}"]
+    return "\n".join(out) + "\n"
 
 
 def targets():
@@ -636,6 +752,19 @@ def main():
         if not args.check:
             os.makedirs(PAPER, exist_ok=True)
             open(tm, "w").write(combined)
+    if os.path.isdir("paper"):
+        os.makedirs("paper/tables", exist_ok=True)
+        for key in PAPER_TABLES:
+            path = f"paper/tables/{key}.tex"
+            if key not in built:
+                errors.append(f"table {key}: needed by the paper but cannot be "
+                              f"built")
+                continue
+            tex = md_table_to_tex(built[key], TEX_SPEC.get(key))
+            if not os.path.exists(path) or open(path).read() != tex:
+                stale.append(path)
+                if not args.check:
+                    open(path, "w").write(tex)
     if os.path.isdir(os.path.dirname(NUMBERS_TEX)):
         tex = pn.write_tex(values)
         if not os.path.exists(NUMBERS_TEX) or open(NUMBERS_TEX).read() != tex:

@@ -20,6 +20,7 @@ import numpy as np
 import provenance as pv
 
 FIGDIR = "results/figures"
+PAPER_FIGDIR = "paper/figures"
 ANDIR = "results/analysis"
 MATRIX = "results/matrix"
 
@@ -73,6 +74,14 @@ def style():
         "savefig.facecolor": "white",
         "savefig.bbox": "tight",
     })
+
+
+def save(fig, name):
+    """PNG for the README and write-up, vector PDF for the LaTeX paper."""
+    fig.savefig(f"{FIGDIR}/{name}.png")
+    if os.path.isdir(PAPER_FIGDIR):
+        # no creation date, so an unchanged figure is an unchanged file
+        fig.savefig(f"{PAPER_FIGDIR}/{name}.pdf", metadata={"CreationDate": None})
 
 
 def load_matrix():
@@ -167,7 +176,7 @@ def fig1_reference():
     ax.set_ylabel("score vs 2015 baseline\n(points per episode)")
     ax.set_xlabel("self-play games (thousands)")
     ax.legend(loc="lower right")
-    fig.savefig(f"{FIGDIR}/fig1_reference_trajectory.png")
+    save(fig, "fig1_reference_trajectory")
     plt.close(fig)
     return "fig1_reference_trajectory.png"
 
@@ -198,7 +207,7 @@ def fig2_control(runs):
     ax.set_title(f"The same algorithm, {n_seeds} seeds: the phase change is "
                  f"real, its timing is not reproducible", loc="left")
     ax.legend(loc="lower right")
-    fig.savefig(f"{FIGDIR}/fig2_control_seeds.png")
+    save(fig, "fig2_control_seeds")
     plt.close(fig)
     return "fig2_control_seeds.png"
 
@@ -245,7 +254,7 @@ def fig3_hof(runs, per_run):
                 ("volatility", "|Δ| between checkpoints", "volatility"),
                 ("drawdown", "best-so-far − current", "drawdown")]):
             _strip(fig.add_subplot(gs[1, j]), per_run, conds, key, lab, ttl)
-    fig.savefig(f"{FIGDIR}/fig3_hall_of_fame.png")
+    save(fig, "fig3_hall_of_fame")
     plt.close(fig)
     return "fig3_hall_of_fame.png"
 
@@ -268,7 +277,7 @@ def fig4_ablations(runs, per_run):
         ax.set_ylabel("score vs 2015 baseline")
         ax.set_title(title, loc="left")
         ax.legend(loc="lower right")
-    fig.savefig(f"{FIGDIR}/fig4_ablations.png")
+    save(fig, "fig4_ablations")
     plt.close(fig)
     return "fig4_ablations.png"
 
@@ -322,7 +331,7 @@ def fig5_coevolution(within, per_run):
     ax.set_xticklabels([LABELS.get(c, c) for c in conds], rotation=25, ha="right")
     ax.set_ylabel("cyclic triads (fraction)")
     ax.set_title("Intransitivity", loc="left")
-    fig.savefig(f"{FIGDIR}/fig5_coevolution.png")
+    save(fig, "fig5_coevolution")
     plt.close(fig)
     return "fig5_coevolution.png"
 
@@ -356,7 +365,7 @@ def fig6_proxy(proxy):
     ax.set_ylabel(r"Spearman $\rho$(streak, score)")
     ax.set_title("Does the streak counter track quality?", loc="left")
     ax.set_ylim(-1, 1)
-    fig.savefig(f"{FIGDIR}/fig6_champion_proxy.png")
+    save(fig, "fig6_champion_proxy")
     plt.close(fig)
     return "fig6_champion_proxy.png"
 
@@ -382,7 +391,7 @@ def fig7_cross_run(across):
     ax.set_xlabel("Elo in the all-runs tournament of final champions")
     ax.set_title("Which condition's champions actually beat the others?",
                  loc="left")
-    fig.savefig(f"{FIGDIR}/fig7_cross_run_elo.png")
+    save(fig, "fig7_cross_run_elo")
     plt.close(fig)
     return "fig7_cross_run_elo.png"
 
@@ -410,7 +419,7 @@ def fig8_families(runs, per_run):
                 ("volatility", "|Δ| between checkpoints", "volatility"),
                 ("above_parity", "fraction of checkpoints", "above parity")]):
             _strip(fig.add_subplot(gs[1, j]), per_run, conds, key, lab, ttl)
-    fig.savefig(f"{FIGDIR}/fig8_algorithm_families.png")
+    save(fig, "fig8_algorithm_families")
     plt.close(fig)
     return "fig8_algorithm_families.png"
 
@@ -469,7 +478,7 @@ def fig9_reexport(reexp):
     ax.set_title("Does the rule know?", loc="left", fontsize=8.5)
     ax.legend(loc="center right", fontsize=6.2, handlelength=1.5,
               borderpad=0.2, labelspacing=0.3)
-    fig.savefig(f"{FIGDIR}/fig9_reexport.png")
+    save(fig, "fig9_reexport")
     plt.close(fig)
     return "fig9_reexport.png"
 
@@ -508,7 +517,7 @@ def fig10_archive_decay(runs, per_run):
     ax.set_ylabel("% of games with no selection event")
     ax.set_title("What the archive costs", loc="left")
     ax.set_ylim(0, 55)
-    fig.savefig(f"{FIGDIR}/fig10_archive_decay.png")
+    save(fig, "fig10_archive_decay")
     plt.close(fig)
     return "fig10_archive_decay.png"
 
@@ -566,7 +575,7 @@ def fig11_asymmetric(runs):
             ax.plot([], [], color="#3B6EA8", lw=1.6, label="smaller side")
             ax.legend(loc="upper left", fontsize=6.6, handlelength=1.4)
     fig.subplots_adjust(hspace=0.5, wspace=0.32)
-    fig.savefig(f"{FIGDIR}/fig11_asymmetric.png")
+    save(fig, "fig11_asymmetric")
     plt.close(fig)
     return "fig11_asymmetric.png"
 
