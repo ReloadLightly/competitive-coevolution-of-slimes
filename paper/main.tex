@@ -52,9 +52,9 @@ points per episode better. The population itself is not cycling: skill is
 almost perfectly transitive across checkpoints. Internal improvement precedes
 any external transfer by tens of thousands of games, and the timing of the
 phase change varies \nCtrlTInternalRatio-fold across seeds. An archive of past
-champions used as a parent abolishes learning; used as a test, it
-\PENDING{C5b from hof-eval-v2}. Algorithm families differ in reliability, not
-ceiling. A two-population variant with unequal capacity is reported as
+champions used as a parent abolishes learning; used as a test, it neither
+harms nor helps detectably, because past champions soon stop being able to win.
+Algorithm families differ in reliability, not ceiling. A two-population variant with unequal capacity is reported as
 exploratory. Any evolutionary loop that promotes one artefact out of a
 population, including LLM-driven program evolution, has the same exposure; we
 state this as a hypothesis and give the diagnostic.
@@ -104,8 +104,9 @@ it fluctuates because of which individual we chose to measure.
 \item Internal improvement precedes external transfer by tens of thousands of
   games, and the phase change is robust in occurrence but not in timing
   (\S\ref{sec:lag}, \S\ref{sec:timing}).
-\item An archive used as a parent abolishes learning; used as a test it
-  \PENDING{C5b} (\S\ref{sec:archive}).
+\item An archive used as a parent abolishes learning; used as a test it is
+  indistinguishable from no archive, and the archive's own win rate shows why
+  (\S\ref{sec:archive}).
 \item Four algorithm families reach a similar ceiling and differ in how
   reliably they reach it (\S\ref{sec:families}).
 \item An exploratory two-population block with unequal capacity
@@ -120,8 +121,8 @@ Measuring progress in coevolution is an old problem: \citet{cliff1995tracking}
 introduced tests of current individuals against ancestral opponents,
 \citet{miconi2009why} separated local, historical and global progress, and
 recent work compares archive-based methods for global progress
-\citep{simione2020longterm,nolfi2025global} and examines how a hall of fame can
-make progress look larger than it is \citep{seals2026tripping}. Memory
+\citep{simione2020longterm,nolfi2025global} and measures deceptive progress
+in algorithms that use a hall of fame \citep{seals2026tripping}. Memory
 mechanisms range from the hall of fame \citep{rosin1997new} to Pareto and
 Nash-based archives \citep{ficici2001pareto,ficici2003memory}; disengagement
 between unequal populations is studied by \citet{cartlidge2004combating}. In
@@ -140,7 +141,7 @@ of the step that all of these take as given: which individual is reported.
 \paragraph{Task.}
 Slime Volleyball is a two-player, zero-sum, symmetric game
 \citep{ha2015slime}, used here through \texttt{slimevolleygym}
-\citep{ha2020slimevolleygym}. Each agent observes an \nObsSize-dimensional state in its
+\citep{ha2020slimevolleygym}. Each agent observes a \nObsSize-dimensional state in its
 own frame and presses \nNAct{} binary buttons. An episode ends when a side loses
 \nLives{} lives or after \nTLimit{} steps; its score is points won minus points
 lost, in $[-\nLives,\nLives]$. Every evolved agent is the same fixed
@@ -287,8 +288,13 @@ exported individual ranks on average \nProxyRankMean{} of \nProxyPop{} in its
 own pool. The rank correlation between the streak counter and actual skill is
 \nProxyRho, and the best member of the same pool is \nProxyGap{} points per
 episode better. At the last snapshot the exported champion averages
-\nProxyEndExported{} while \nProxyEndAbove{} of its peers are above parity. The
-counter cannot do better: it is inherited on every replacement, so it records
+\nProxyEndExported{} while \nProxyEndAbove{} of its peers are above parity.
+The reported curve also loses competence that the population does not: summed
+over all control runs, the exported champion's score fell by \nDeclineExported{}
+points between consecutive snapshots, the best member of the same pools by
+\nDeclineBest{} and the median member by \nDeclineMedian. The population
+almost never gets worse; the individual we report does. The counter cannot do
+better: it is inherited on every replacement, so it records
 how long a lineage has survived, not how good its current member is. In a
 separate re-scoring of the same snapshots, the streak rule (\nReexportStreakLevel)
 does no better than picking the population's median member
@@ -331,15 +337,32 @@ are opponents, never parents. In \cond{hof-eval-v2} an archive game that the
 population member loses costs it its slot, but the replacement comes from the
 living pool; the archive holds a champion from every \nHofEvery{} games of the
 run (capacity \nHofCapFull).
-\PENDING{C5b paragraph from hof-eval-v2: reached \nHoftestReached, parity
-\nHoftestParity, peak \nHoftestPeakMean, final \nHoftestFinalMean, above
-\nHoftestAbovePct\%, archive win rate early \nHoftestWinEarlyMin--\nHoftestWinEarlyMax{}
-late \nHoftestWinLateMin--\nHoftestWinLateMax, games without selection late
-\nHoftestSkipLateMin--\nHoftestSkipLateMax\%, vs control above $p=\nHoftestVsCtrlAboveP$,
-$\delta=\nHoftestVsCtrlAboveDelta$.}
-An earlier version of this condition carried a streak-accounting bug that
-changed which champions entered the archive; its runs are superseded and
-excluded, and the change in the claim is recorded in the decision log.
+Done this way the archive is neither destructive nor helpful
+(Figure~\ref{fig:archive}). \nHoftestReached{} runs learned to rally and
+\nHoftestParity{} produced an above-parity champion, against \nCtrlReached{}
+and \nCtrlParity{} for the control, and at \nSeedsMain{} runs a side no outcome
+is distinguishable from the control: checkpoints above parity
+\nHoftestAbovePct\% against \nCtrlAbovePct\% ($\delta=\nHoftestVsCtrlAboveDelta$,
+$p=\nHoftestVsCtrlAboveP$), mean level over the last \nLateWindow{} games
+$\delta=\nHoftestVsCtrlLateDelta$ ($p=\nHoftestVsCtrlLateP$), best held-out
+champion $\delta=\nHoftestVsCtrlPeakDelta$ ($p=\nHoftestVsCtrlPeakP$). The
+archive's own win rate shows why it has little to do. Early in a run, archived
+champions win \nHoftestWinEarlyMin--\nHoftestWinEarlyMax{} of their games; in
+every run whose population learned they end at
+\nHoftestWinLateLearnedMin--\nHoftestWinLateLearnedMax, so
+\nHoftestSkipLateLearnedMin--\nHoftestSkipLateLearnedMax\% of late games produce
+no selection event (an archive game the member wins overwrites nothing). Skill
+is transitive (\S\ref{sec:transitive}), so a past champion is simply a weaker
+player. In the run that never learned, the archive's win rate stayed at
+\nHoftestWinLateFailed. Logging that win rate is a cheap check on whether an
+archive still has anything to teach; here it tracked progress, but it is a
+description of \nSeedsMain{} runs, not a validated predictor.
+An earlier version of this condition credited a win to the living peer that
+supplied the replacement genes, although that peer had not played; since the
+longest streak decides what enters the archive, the bug changed the whole
+trajectory. Those runs are superseded and excluded. With the bug the archive
+looked measurably worse than the control and learned later; the corrected runs
+do not, and the decision log shipped with the data gives both side by side.
 
 \begin{figure}[t]
 \centering
@@ -358,11 +381,20 @@ generational GA in the style of Ha's 2015 experiment, which ranks by an
 explicitly computed fitness and uses crossover, and a self-play evolution
 strategy \citep{salimans2017evolution,ha2017estool}, which reports its
 distribution mean and so has no export rule at all (Figure~\ref{fig:families}).
-\PENDING{C6 recheck with hof-eval-v2 as the fourth family: reached
-\nCtrlReached{} / \nGaReached{} / \nEsReached{} / \nHoftestReached; parity
-\nCtrlParity{} / \nGaParity{} / \nEsParity{} / \nHoftestParity; s.d.\ ratio of
-endpoints \nGaSdRatio, \nEsSdRatio, \nHoftestSdRatio; best endpoint
-\nBestEndpoint{} (\nBestEndpointCondition) vs best control \nCtrlBestEndpoint.}
+With the archive-as-test condition as a fourth family, all four reach a
+similar ceiling: the single highest end-of-run champion of the study,
+\nBestEndpoint, is a \nBestEndpointLabel{} seed, above every control seed
+(best \nCtrlBestEndpoint). They differ in their floor. Only the control learned
+to rally and produced an above-parity champion in every seed (\nCtrlReached,
+\nCtrlParity); the generational GA managed \nGaReached{} and \nGaParity, the ES
+\nEsReached{} and \nEsParity, the archive as test \nHoftestReached{} and
+\nHoftestParity. Across seeds, the spread of end-of-run champions is
+\nFamilySdRatioMin--\nFamilySdRatioMax{} times the control's for the other three
+families. A study with one seed per family could have crowned the ES on the
+strength of a seed that happened to work. The generational GA ranks by a
+computed fitness, which \S\ref{sec:export} suggests should help, and still does
+not come out ahead; crossover between weight vectors and its coarser,
+generational update are plausible reasons we cannot separate here.
 The self-play ES was tuned only at pilot scale, so its result is a statement
 about the configuration we could afford, not about the method.
 
@@ -371,7 +403,7 @@ about the configuration we could afford, not about the method.
 \includegraphics[width=0.9\linewidth]{figures/fig8_algorithm_families.pdf}
 \caption{Three families at an identical budget. Top: median and inter-quartile
 band. Bottom: per-seed level and volatility of the last \nLateWindow{} games and the
-share of checkpoints above parity.}
+share of checkpoints above parity (ctrl: control; gen.\ GA: generational GA).}
 \label{fig:families}
 \end{figure}
 
@@ -429,10 +461,11 @@ against the 2015 policy.}
 Coevolutionary methodology separates the \emph{ecology}, which selects, from
 the \emph{yardstick}, which measures. This study found a third component with
 its own error term: the \emph{promotion rule} that names one artefact out of
-the population. In the control it contributed more of the measured volatility
-than the coevolutionary dynamics did, and it does so invisibly, because a
-champion curve looks the same whether its swings come from the population or
-from the choice of individual.
+the population. In the control, the reported curve lost about \nDeclineRatio{}
+times as much ground between population snapshots as the population's best
+member did, and it does so invisibly, because a champion curve looks the same
+whether its swings come from the population or from the choice of
+individual.
 
 \paragraph{A hypothesis about other evolutionary loops.}
 Any loop that promotes one artefact out of a population has a promotion rule,
@@ -453,8 +486,8 @@ population's median.
 \paragraph{Diagnose before applying a remedy.}
 The archive is the standard remedy for intransitivity. A within-run round robin
 costs a few thousand games, found skill transitive, and so predicted that an
-archive would have little to do here. \PENDING{one sentence on what
-hof-eval-v2 showed.} Past artefacts belong on the evaluation side of a loop;
+archive would have little to do here, and an archive used as a test indeed
+changed nothing measurable. Past artefacts belong on the evaluation side of a loop;
 once they can contribute material to the current generation, the loop has a
 pull backwards.
 
@@ -576,7 +609,9 @@ Elo scale.}
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.9\linewidth]{figures/fig3_hall_of_fame.pdf}
-\caption{The archive conditions against the control.}
+\caption{The archive conditions against the control. Bottom panels: ctrl,
+control; test, archive as test; par., archive as parent at the dose or span
+given in the legend.}
 \end{figure}
 
 \end{document}

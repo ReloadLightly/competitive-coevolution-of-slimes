@@ -3,6 +3,10 @@
 **What a population of self-playing agents learns, what it forgets, and which
 of the two you actually measure.**
 
+**Paper (draft, not yet submitted):** [*What a self-playing population learns,
+what it forgets, and which of the two you measure*](paper/main.pdf) — LaTeX
+sources in [`paper/`](paper/); every number in it is generated from the run files.
+
 Self-play neuroevolution on [David Ha's Slime Volleyball](https://otoro.net/slimevolley/),
 run as a designed experiment rather than a demo: several dozen independent runs
 of <!-- n:budget -->500,000<!-- /n --> self-play games each, across conditions that isolate *where the
@@ -61,7 +65,11 @@ the exported individual ranks, on average, number <!-- n:proxy_rank_mean -->60<!
 pool, the correlation between its streak counter and its actual skill is
 indistinguishable from zero (ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->), and it scores <!-- n:proxy_gap -->0.90<!-- /n --> points per episode
 worse than the best individual in the same pool. At the last snapshot the
-exported champion averages <!-- n:proxy_end_exported -->-0.08<!-- /n --> while <!-- n:proxy_end_above -->67<!-- /n --> of its peers are above parity.
+exported champion averages <!-- n:proxy_end_exported -->-0.08<!-- /n --> while <!-- n:proxy_end_above -->67<!-- /n --> of its peers are above parity. The losses of
+competence are the export rule's too: summed over the control runs, the exported
+champion's score fell by <!-- n:decline_exported -->8.6<!-- /n --> points between consecutive population
+snapshots, the best member of the same pools by <!-- n:decline_best -->1.1<!-- /n -->. The population almost
+never gets worse; the individual we report does.
 
 ![what the export rule costs](results/figures/fig6_champion_proxy.png)
 

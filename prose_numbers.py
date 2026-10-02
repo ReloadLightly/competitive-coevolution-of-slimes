@@ -218,6 +218,9 @@ def definitions():
 
     def rx(d):
         return d["reexport"]["summary"]
+
+    def rx_json(d):
+        return d["reexport"]
     add("reexport_rec_max", ["reexport"],
         "share of the exported-to-best gap closed by the largest internal "
         "round robin, in %")(lambda d: _pct(rx(d)["recovered_fraction"][
@@ -250,6 +253,27 @@ def definitions():
         lambda d: _pct(1 - rx(d)[maxkey({k: 0 for k in rx(d)
                                          if k.startswith("internal_score_")})][
             "volatility_mean"] / rx(d)["streak_score"]["volatility_mean"]))
+    def declines(d, key):
+        # total fall of a series between consecutive population snapshots,
+        # summed over the control runs: how much competence it 'loses'
+        tot = 0.0
+        for rows in rx_json(d)["per_run"].values():
+            v = np.diff([r[key] for r in rows])
+            tot += float(-v[v < 0].sum())
+        return tot
+    add("decline_exported", ["reexport"],
+        "summed fall between consecutive snapshots, exported (streak) "
+        "individual, all control runs")(
+        lambda d: _f(declines(d, "streak_score"), 1))
+    add("decline_best", ["reexport"],
+        "summed fall between consecutive snapshots, best member of the pool")(
+        lambda d: _f(declines(d, "external_score"), 1))
+    add("decline_median", ["reexport"],
+        "summed fall between consecutive snapshots, median member of the pool")(
+        lambda d: _f(declines(d, "median_score"), 1))
+    add("decline_ratio", ["reexport"],
+        "exported individual's summed fall relative to the best member's")(
+        lambda d: f"{declines(d, 'streak_score') / declines(d, 'external_score'):.0f}")
     add("reexport_rho_max", ["reexport"],
         "rho(internal margin, true skill) at the largest round robin")(
         lambda d: _f(rx(d)["rho_internal_external"][
@@ -616,9 +640,11 @@ def tex_name(key):
 
 
 def tex_value(s):
+    # \ensuremath, so a signed value reads as a minus/plus sign both in text
+    # and inside $...$
     s = s.replace("%", "\\%")
     if s[:1] in "+-" and s[1:2].isdigit():
-        return f"${s[0]}${s[1:]}"
+        return f"\\ensuremath{{{s[0]}}}{s[1:]}"
     return s
 
 
