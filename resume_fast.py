@@ -9,9 +9,10 @@ are compared over the games that follow.
 
 The population is the reference run's snapshot at tournament 324,000, kept
 in results/analysis/resume_base.npz (the live snapshot in results/ga_selfplay
-has since been continued to 500,000). The committed result is
+has since been continued to 500,000). The defaults reproduce the committed
+result:
 
-    python resume_fast.py --tournaments 176000 --seeds 2
+    python resume_fast.py
 """
 
 import argparse
@@ -31,7 +32,7 @@ def main():
     ap.add_argument("--snapshot", default="results/analysis/resume_base.npz")
     ap.add_argument("--tournaments", type=int, default=None,
                     help="default: however many are left to reach 500,000")
-    ap.add_argument("--seeds", type=int, default=3,
+    ap.add_argument("--seeds", type=int, default=2,       # as committed
                     help="independent continuations of the same population")
     ap.add_argument("--sigma", type=float, default=0.1)
     ap.add_argument("--save-every", type=int, default=5000)

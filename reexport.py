@@ -88,7 +88,7 @@ def main():
     ap.add_argument("--out", default="results/analysis/reexport.json")
     ap.add_argument("--opponents", default="4,8,16,32,64",
                     help="comma-separated round-robin sizes to sweep")
-    ap.add_argument("--episodes", type=int, default=100,
+    ap.add_argument("--episodes", type=int, default=60,   # as committed
                     help="episodes per individual against the 2015 baseline")
     ap.add_argument("--workers", type=int, default=3)
     args = ap.parse_args()

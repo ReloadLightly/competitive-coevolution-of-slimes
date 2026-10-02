@@ -114,7 +114,7 @@ def load_champion(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--games", type=int, default=60,
+    ap.add_argument("--games", type=int, default=50,      # as committed
                     help="games per scenario")
     ap.add_argument("--seed", type=int, default=20260818)
     ap.add_argument("--ckpt-dir", default="results/ga_selfplay")

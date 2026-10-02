@@ -304,3 +304,12 @@ control learned to rally and produced an above-parity champion in every
 seed; the s.d. of end-of-run champions across seeds is 3.0×, 3.5× and 3.1×
 the control's for the generational GA, the ES and the corrected archive; the
 highest end-of-run champion of the study is still a self-play ES seed.
+
+## 2026-10-02 — analysis defaults set to the values the committed files used
+
+So that the reproduction commands in the paper's appendix need no arguments,
+three analysis scripts now default to the settings their committed outputs
+were produced with (found when reproducing them earlier today): `reexport.py`
+60 episodes per individual (default was 100), `validate_fastvolley.py` 50
+games per scenario (was 60), `resume_fast.py` 2 continuations (was 3). No
+output changes; the provenance records already carry these parameters.
