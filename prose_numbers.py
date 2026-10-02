@@ -722,6 +722,51 @@ def definitions():
         "reference continuation over the same games: share of checkpoints above "
         "parity, in %")(lambda d: _pct(ref_cont(d)))
 
+    # ---- WP7: stronger yardsticks (slimevolleygym zoo) --------------------
+    def zoo(d, opp):
+        return {n: v[opp]["mean"] for n, v in d["yardsticks"]["per_run"].items()}
+
+    def zoo_base(d):
+        return {n: d["per_run"][n]["final_holdout"] for n in d["yardsticks"]["per_run"]}
+    for key, opp, what in (("ga", "zoo-ga", "zoo GA"), ("cma", "zoo-cma", "zoo CMA-ES")):
+        add(f"zoo_{key}_vs_base", ["yardsticks"],
+            f"{what} against the 2015 baseline, points per episode")(
+            (lambda o: lambda d: _f(d["yardsticks"]["zoo_vs_baseline"][o]["mean"],
+                                    2, True))(opp))
+        add(f"zoo_beat_{key}", ["yardsticks"],
+            f"final champions scoring above 0 against the {what}")(
+            (lambda o: lambda d: str(sum(x > 0 for x in zoo(d, o).values())))(opp))
+        add(f"zoo_rho_base_{key}", ["yardsticks", "per_run"],
+            f"Spearman rho over final champions: score vs 2015 baseline (held "
+            f"out) against score vs the {what}")(
+            (lambda o: lambda d: _f(su.spearman(
+                [zoo_base(d)[n] for n in sorted(zoo(d, o))],
+                [zoo(d, o)[n] for n in sorted(zoo(d, o))]), 2, True))(opp))
+        add(f"zoo_above_beat_{key}", ["yardsticks", "per_run"],
+            f"final champions above parity against the 2015 baseline that also "
+            f"score above 0 against the {what}")(
+            (lambda o: lambda d: str(sum(zoo(d, o)[n] > 0 for n, v in zoo_base(d).items()
+                                         if v > 0)))(opp))
+    add("zoo_ga_vs_cma", ["yardsticks"],
+        "zoo GA against zoo CMA-ES, head to head, points per episode")(
+        lambda d: _f(d["yardsticks"]["zoo_ga_vs_zoo_cma"]["mean"], 2, True))
+    add("zoo_n", ["yardsticks"], "final champions scored against the zoo")(
+        lambda d: str(len(d["yardsticks"]["per_run"])))
+    add("zoo_games", ["yardsticks"], "games per champion and zoo opponent")(
+        lambda d: str(2 * d["yardsticks"]["games_per_side"]))
+    add("zoo_above_base", ["yardsticks", "per_run"],
+        "final champions above parity against the 2015 baseline (held out)")(
+        lambda d: str(sum(v > 0 for v in zoo_base(d).values())))
+    add("zoo_best_vs_ga", ["yardsticks"],
+        "best final champion against the zoo GA, points per episode")(
+        lambda d: _f(max(zoo(d, "zoo-ga").values()), 2, True))
+    add("zoo_valid_steps", ["yardsticks"],
+        "steps compared bit for bit, compiled zoo games vs slimevolleygym")(
+        lambda d: f"{sum(r['steps'] for r in d['yardsticks']['validation']):,}")
+    add("zoo_valid_games", ["yardsticks"],
+        "games compared bit for bit, compiled zoo games vs slimevolleygym")(
+        lambda d: str(sum(r["games"] for r in d["yardsticks"]["validation"])))
+
     # ---- inventory -------------------------------------------------------
     add("n_single_runs", ["per_run"], "single-population runs analysed")(
         lambda d: str(len(single(d))))

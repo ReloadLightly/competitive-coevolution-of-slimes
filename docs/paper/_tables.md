@@ -226,6 +226,24 @@ Two populations of 128 playing only each other for 500,000 games; a quarter of e
 Points per episode against the 2015 champion policy, which is never seen during training. Held-out columns are 1,000 episodes on an evaluation seed disjoint from the one used to pick the checkpoint. 'Learned to rally' counts runs whose population ever held 1,500-step rallies against itself.
 
 
+### Table Z
+
+| condition | runs | vs 2015 baseline | vs zoo GA | vs zoo CMA-ES | beat zoo GA | beat zoo CMA-ES |
+|---|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 6 | -0.15 | -0.98 | -0.10 | 0/6 | 2/6 |
+| archive as test, full span | 6 | -1.01 | -1.72 | -1.25 | 0/6 | 1/6 |
+| archive as parent, p=0.25 | 6 | -4.10 | -4.34 | -3.95 | 0/6 | 1/6 |
+| archive as parent, p=0.50 | 1 | -4.84 | -4.99 | -4.87 | 0/1 | 0/1 |
+| archive as parent, full span | 3 | -4.84 | -4.98 | -4.92 | 0/3 | 0/3 |
+| generational GA (Ha 2015) | 6 | -2.00 | -3.83 | -1.47 | 0/6 | 1/6 |
+| self-play ES | 6 | -2.08 | -3.34 | -2.41 | 0/6 | 1/6 |
+| sigma = 0.05 | 3 | -0.17 | -0.62 | +0.10 | 0/3 | 2/3 |
+| sigma = 0.20 | 3 | -1.66 | -2.79 | -2.08 | 0/3 | 0/3 |
+| population 32 | 1 | -4.86 | -4.99 | -4.88 | 0/1 | 0/1 |
+
+Final (t = 500,000) champion of every single-population run, mean points per episode. Baseline column: held out, 1,000 episodes; zoo columns: 200 games per champion, half on each side. 'Beat' counts runs whose champion scores above 0. For scale, against the 2015 baseline the zoo GA scores +0.35 and the zoo CMA-ES +1.15; head to head the zoo GA scores +0.30 against the zoo CMA-ES.
+
+
 ### Table A1
 
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |

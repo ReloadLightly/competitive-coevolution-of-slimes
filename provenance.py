@@ -68,6 +68,10 @@ SCOPES = {
                           + ["results/ga_selfplay/history.jsonl"]),
     # the committed population snapshot the compiled continuations start from
     "resume": lambda: ["results/analysis/resume_base.npz"],
+    # single-population runs scored against the slimevolleygym zoo policies
+    "yardsticks": lambda: ([p for p in matrix_runs()
+                            if not os.path.basename(p).startswith("asym")]
+                           + sorted(glob.glob("results/zoo/*.json"))),
     # the preregistered confirmatory replication (fresh seeds, own directory)
     "replication": lambda: sorted(glob.glob("results/replication/*_s*.npz")),
     # generated from code and fixed seeds only

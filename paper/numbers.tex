@@ -208,3 +208,18 @@
 \newcommand{\nWindowSdLast}{0.72}  % control: within-run s.d. of checkpoint scores, last window
 \newcommand{\nWindowSdMax}{0.83}  % control: largest window s.d.
 \newcommand{\nWindowSdMin}{0.51}  % control: smallest window s.d.
+\newcommand{\nZooAboveBase}{10}  % final champions above parity against the 2015 baseline (held out)
+\newcommand{\nZooAboveBeatCma}{5}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo CMA-ES
+\newcommand{\nZooAboveBeatGa}{0}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo GA
+\newcommand{\nZooBeatCma}{8}  % final champions scoring above 0 against the zoo CMA-ES
+\newcommand{\nZooBeatGa}{0}  % final champions scoring above 0 against the zoo GA
+\newcommand{\nZooBestVsGa}{\ensuremath{-}0.04}  % best final champion against the zoo GA, points per episode
+\newcommand{\nZooCmaVsBase}{\ensuremath{+}1.15}  % zoo CMA-ES against the 2015 baseline, points per episode
+\newcommand{\nZooGaVsBase}{\ensuremath{+}0.35}  % zoo GA against the 2015 baseline, points per episode
+\newcommand{\nZooGaVsCma}{\ensuremath{+}0.30}  % zoo GA against zoo CMA-ES, head to head, points per episode
+\newcommand{\nZooGames}{200}  % games per champion and zoo opponent
+\newcommand{\nZooN}{41}  % final champions scored against the zoo
+\newcommand{\nZooRhoBaseCma}{\ensuremath{+}0.89}  % Spearman rho over final champions: score vs 2015 baseline (held out) against score vs the zoo CMA-ES
+\newcommand{\nZooRhoBaseGa}{\ensuremath{+}0.87}  % Spearman rho over final champions: score vs 2015 baseline (held out) against score vs the zoo GA
+\newcommand{\nZooValidGames}{40}  % games compared bit for bit, compiled zoo games vs slimevolleygym
+\newcommand{\nZooValidSteps}{120,000}  % steps compared bit for bit, compiled zoo games vs slimevolleygym

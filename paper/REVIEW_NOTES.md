@@ -103,11 +103,11 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    tournament on one or two runs would close this cheaply.
 5. **The 2015 baseline is a single, weak, recurrent opponent** that does not
    see its opponent. "Above parity" against it is a low bar, and a policy can
-   specialise against it. The cross-run tournament (Appendix) is the check;
-   the families section of the main text now quotes it (every control
-   champion rates above zero, each other family has a champion far below),
-   with the full tournament in Appendix A.5. It is still a tournament among
-   these runs' own champions, not an outside opponent.
+   specialise against it. Two checks now exist: the cross-run tournament
+   (quoted in the families section, Appendix A.5) and, since WP7, Ha's two
+   published zoo policies (Appendix A.6). The baseline ranks champions much as
+   the zoo policies do (rho about 0.9), but no final champion beats the zoo GA
+   champion, so "beats the 2015 baseline" must not be read as "competitive".
 6. **Self-play ES was tuned only at pilot scale.** C6 says so; a reviewer will
    still discount the ES row.
 7. **The unequal-power block** is exploratory, was redesigned twice, and its

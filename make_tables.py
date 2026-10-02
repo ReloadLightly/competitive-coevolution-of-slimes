@@ -41,6 +41,7 @@ import numpy as np
 
 import prose_numbers as pn
 import provenance as pv
+from run_experiments import SELECT_EPISODES
 
 ANDIR = "results/analysis"
 PAPER = "docs/paper"
@@ -598,6 +599,37 @@ def table_c(d):
     return "\n".join(out)
 
 
+def table_z(d):
+    """Final champions against the slimevolleygym zoo policies (WP7)."""
+    y, per_run = d["yardsticks"], d["per_run"]
+    if not y or not per_run:
+        return None
+    rows = ["| condition | runs | vs 2015 baseline | vs zoo GA | vs zoo CMA-ES "
+            "| beat zoo GA | beat zoo CMA-ES |", "|---|---|---|---|---|---|---|"]
+    for c in ORDER:
+        names = sorted(n for n in y["per_run"] if per_run[n]["condition"] == c)
+        if not names:
+            continue
+        base = [per_run[n]["final_holdout"] for n in names]
+        ga = [y["per_run"][n]["zoo-ga"]["mean"] for n in names]
+        cma = [y["per_run"][n]["zoo-cma"]["mean"] for n in names]
+        rows.append(f"| {LABELS.get(c, c)} | {len(names)} | {np.mean(base):+.2f} "
+                    f"| {np.mean(ga):+.2f} | {np.mean(cma):+.2f} "
+                    f"| {sum(x > 0 for x in ga)}/{len(names)} "
+                    f"| {sum(x > 0 for x in cma)}/{len(names)} |")
+    zb, zz = y["zoo_vs_baseline"], y["zoo_ga_vs_zoo_cma"]
+    rows += ["", f"Final (t = 500,000) champion of every single-population run, "
+             f"mean points per episode. Baseline column: held out, "
+             f"{SELECT_EPISODES:,} episodes; "
+             f"zoo columns: {2 * y['games_per_side']} games per champion, half "
+             f"on each side. 'Beat' counts runs whose champion scores above 0. "
+             f"For scale, against the 2015 baseline the zoo GA scores "
+             f"{zb['zoo-ga']['mean']:+.2f} and the zoo CMA-ES "
+             f"{zb['zoo-cma']['mean']:+.2f}; head to head the zoo GA scores "
+             f"{zz['mean']:+.2f} against the zoo CMA-ES."]
+    return "\n".join(rows)
+
+
 # The analysis files each table is built from. Table 10 reads the raw
 # two-population runs directly; per_run.json's provenance covers those files.
 FILES = {
@@ -609,6 +641,7 @@ FILES = {
     "reference": f"{ANDIR}/reference_curve.json",
     "reexport": f"{ANDIR}/reexport.json",
     "resume": f"{ANDIR}/resume_fast.json",
+    "yardsticks": f"{ANDIR}/yardsticks.json",
     "validation": "results/validation.json",
 }
 DEPS = {
@@ -618,19 +651,21 @@ DEPS = {
     "8": ["per_run", "reference"], "9": ["reexport"], "10": ["per_run"],
     "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
     "a2": ["per_run"], "a3": ["resume", "reference"],
+    "z": ["yardsticks", "per_run"],
 }
 
 TABLES = {
     "c": table_c,
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
-    "r": table_r,
+    "r": table_r, "z": table_z,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
 
 # Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
-PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3"]
+PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3",
+                "z"]
 TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
            ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
            ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),
@@ -783,11 +818,14 @@ def main():
         src = open(path).read()
         new = src
         for key, md in built.items():
-            pat = re.compile(rf"(<!-- table:{re.escape(key)} -->\n).*?"
-                             rf"(\n<!-- /table:{re.escape(key)} -->)",
+            # the block may be empty (a marker pair just added), which a
+            # pattern requiring a newline on both sides of the content would
+            # silently skip -- and --check would then pass on an empty table
+            pat = re.compile(rf"(<!-- table:{re.escape(key)} -->\n)(?:.*?\n)?"
+                             rf"(<!-- /table:{re.escape(key)} -->)",
                              re.DOTALL)
             if pat.search(new):
-                new = pat.sub(lambda m: m.group(1) + md + m.group(2), new)
+                new = pat.sub(lambda m: m.group(1) + md + "\n" + m.group(2), new)
         new = NUM.sub(lambda m: (m.group(1) + values[m.group(2)][0] + m.group(4))
                       if m.group(2) in values else m.group(0), new)
         if new != src:

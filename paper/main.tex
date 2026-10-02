@@ -700,6 +700,39 @@ champion in one all-play-all tournament; bars mark condition medians.}
 \end{table}
 
 \FloatBarrier
+\subsection{Stronger external opponents}
+\label{app:zoo}
+
+The 2015 baseline never sees its opponent, so ``above parity'' against it is a
+low bar. \citet{ha2020slimevolleygym} also publishes two trained policies: a
+self-play GA champion of the same 273-parameter class, and a 743-parameter
+CMA-ES policy trained against the baseline, which score \nZooGaVsBase{} and
+\nZooCmaVsBase{} against it. Every final champion played \nZooGames{} games
+against each, half on each side, on the compiled environment; for networks of
+both sizes it reproduces the reference environment bit for bit
+(\nZooValidGames{} games, \nZooValidSteps{} steps compared).
+
+The baseline ranks the final champions much as the stronger opponents do
+(Spearman $\rho=\nZooRhoBaseGa$ against the zoo GA and $\nZooRhoBaseCma$ against
+the zoo CMA-ES, over \nZooN{} champions), so the comparisons in the main text do
+not hinge on it. It does flatter them: \nZooBeatGa{} of the \nZooN{} beat the
+published GA champion (the best scores \nZooBestVsGa), and of the
+\nZooAboveBase{} above parity against the baseline, \nZooAboveBeatCma{} also beat
+the CMA-ES policy (Table~\ref{tab:zoo}). The published GA champion is a single
+export its author chose to release, not an unselected endpoint. The CMA-ES
+policy, trained only against the baseline, is the stronger of the two by the
+baseline's measure yet loses head to head to the GA champion (\nZooGaVsCma{} for
+the GA): specialising against the yardstick, in one comparison.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Final champions against the 2015 baseline (held out) and the two
+slimevolleygym zoo policies, points per episode, by condition.}
+\label{tab:zoo}
+\resizebox{\linewidth}{!}{\input{tables/z.tex}}
+\end{table}
+
+\FloatBarrier
 \subsection{Unequal power (exploratory)}
 \label{app:asym}
 

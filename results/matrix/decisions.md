@@ -330,3 +330,21 @@ reported next to the hypotheses in `results/replication/PREREGISTRATION.md`.
 No replication run existed when that file and `replication.py` were committed.
 The replication writes into its own directory, so no existing table, number or
 figure changes when its runs land.
+
+## 2026-10-02 — WP7: stronger yardsticks from the slimevolleygym zoo
+
+A new analysis, no change to any run or existing number. Ha's two published
+feed-forward policies (zoo GA, 273 parameters; zoo CMA-ES, 743 parameters;
+slimevolleygym commit 8ac22434, Apache-2.0, copied verbatim into
+`results/zoo/`) were added as fixed opponents, and every final champion of
+the 41 single-population runs played 200 games against each
+(`yardsticks.py`, seed 20261004). The compiled games were first checked bit
+for bit against the reference environment for both network sizes (40 games,
+120,000 steps, all identical). Result: the 2015 baseline ranks champions much
+as the stronger opponents do, but no final champion beats the zoo GA (README
+"Against stronger opponents", paper Appendix A.6, table z).
+
+Found on the way: `make_tables.py` skipped a table marker pair with nothing
+between it, and `--check` passed on the empty block. The injection pattern now
+accepts an empty block, so a new marker is filled and an unfilled one fails
+the check; no existing table changed.
