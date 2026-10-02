@@ -2,7 +2,7 @@
 # Stops the run queue once the population sweep is complete, so the dropped
 # hof-0.50 seeds never start. The queue process already holds its job list, so
 # editing queue.sh alone would not have taken effect.
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 for i in $(seq 1 400); do
   if [ -f results/matrix/pop-512_s103.npz ] && [ -f results/matrix/pop-32_s103.npz ]; then
     Q=$(pgrep -f 'run_experiments[.]py --workers 3 --only hof-eval' | head -1)

@@ -6,7 +6,7 @@
 # games, so re-running this script always picks up where it left off.
 # Expect roughly 9 hours on one CPU core from the 182k snapshot.
 #
-#   bash resume_to_500k.sh
+#   bash scripts/resume_to_500k.sh
 #
 # When it finishes, regenerate the results:
 #   .venv/bin/python eval_vs_baseline.py results/ga_selfplay/ga_00500000.json --episodes 1000
@@ -15,7 +15,7 @@
 #   .venv/bin/python render_gif.py results/ga_selfplay/ga_00500000.json --out results/figures/final_match.gif
 
 set -e
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 PY=.venv/bin/python
 [ -x "$PY" ] || PY=python3

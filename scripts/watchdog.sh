@@ -9,7 +9,7 @@
 # match the calling shell itself — learned the hard way) plus a freshness
 # check on history.jsonl (catches hangs, not just deaths).
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 PIDFILE=results/train.pid
 LOG=results/train_full.log
 HIST=results/ga_selfplay/history.jsonl
