@@ -79,8 +79,11 @@
    "results/matrix/hof-0.25_s106.npz": "22bfb3ebafd47217dd8f0408547c7f926394682121d115cb7d4b319307362fc3",
    "results/matrix/hof-0.50_s101.npz": "b9b218066511a81810b4b51f2ab0c4e457f4873c614d94e49a324e7980158738",
    "results/matrix/hof-eval-v2_s101.npz": "0f146bbdbe8ed9af52c8fb857f5066b3521c89a4887830aa884bb935b2f66a39",
+   "results/matrix/hof-eval-v2_s102.npz": "17859c0d902b4072e117dad491f02db613d6ba3803968112eef861e254b402d8",
    "results/matrix/hof-eval-v2_s103.npz": "9603f37808232ed53ff27840eafa3676d75cb4536029d40f0e02f695da29a901",
    "results/matrix/hof-eval-v2_s104.npz": "53536a6441bee1296e46db951acad2c546e5813a13eae53b0cf76bf198086f17",
+   "results/matrix/hof-eval-v2_s105.npz": "d3432d7ecad20b5e6b8a5385b35be580bf2d87618fadb3f3fda2a280d8fd70a8",
+   "results/matrix/hof-eval-v2_s106.npz": "98e0d72d2be7c21d971f98dd5823dcd8cac2c0a5ab400458ae7af25188272106",
    "results/matrix/hof-eval_s101.npz": "8d06e30daeca4fde230a6c651f506043a9432d2ca6fc5914d899e5b71735274f",
    "results/matrix/hof-eval_s102.npz": "fa422af780e4362e730f09dc643cd608ed5b3bc726f5106ba94952f12d0f9a4f",
    "results/matrix/hof-eval_s103.npz": "097a0640b317220bd6d5e7878bebce1ec76bb6b8b9448310a3d1c0a49b482d24",
@@ -98,7 +101,7 @@
    "results/matrix/sigma-0.20_s102.npz": "00ec28e944c98a9637b045ca17cf2b5c72373b4f1c7259c360f798e36b4e4488",
    "results/matrix/sigma-0.20_s103.npz": "7ce27678d343a5699a9483676a892840f03007666e9743aa36c50729e0c78669"
   },
-  "output_sha256": "48275207521a609d4b7529deb08c99879f377674275789306f9d0f1fd8407a6f",
+  "output_sha256": "f6da651073d4a1dd2f0acd36d0bcb67f406c6710675c6a5edeea0e97f3f93803",
   "params": {},
   "scope": "matrix",
   "script": "analyze_matrix.py"
@@ -167,8 +170,11 @@
    "results/matrix/hof-0.25_s106.npz": "22bfb3ebafd47217dd8f0408547c7f926394682121d115cb7d4b319307362fc3",
    "results/matrix/hof-0.50_s101.npz": "b9b218066511a81810b4b51f2ab0c4e457f4873c614d94e49a324e7980158738",
    "results/matrix/hof-eval-v2_s101.npz": "0f146bbdbe8ed9af52c8fb857f5066b3521c89a4887830aa884bb935b2f66a39",
+   "results/matrix/hof-eval-v2_s102.npz": "17859c0d902b4072e117dad491f02db613d6ba3803968112eef861e254b402d8",
    "results/matrix/hof-eval-v2_s103.npz": "9603f37808232ed53ff27840eafa3676d75cb4536029d40f0e02f695da29a901",
    "results/matrix/hof-eval-v2_s104.npz": "53536a6441bee1296e46db951acad2c546e5813a13eae53b0cf76bf198086f17",
+   "results/matrix/hof-eval-v2_s105.npz": "d3432d7ecad20b5e6b8a5385b35be580bf2d87618fadb3f3fda2a280d8fd70a8",
+   "results/matrix/hof-eval-v2_s106.npz": "98e0d72d2be7c21d971f98dd5823dcd8cac2c0a5ab400458ae7af25188272106",
    "results/matrix/hof-eval_s101.npz": "8d06e30daeca4fde230a6c651f506043a9432d2ca6fc5914d899e5b71735274f",
    "results/matrix/hof-eval_s102.npz": "fa422af780e4362e730f09dc643cd608ed5b3bc726f5106ba94952f12d0f9a4f",
    "results/matrix/hof-eval_s103.npz": "097a0640b317220bd6d5e7878bebce1ec76bb6b8b9448310a3d1c0a49b482d24",
@@ -186,7 +192,7 @@
    "results/matrix/sigma-0.20_s102.npz": "00ec28e944c98a9637b045ca17cf2b5c72373b4f1c7259c360f798e36b4e4488",
    "results/matrix/sigma-0.20_s103.npz": "7ce27678d343a5699a9483676a892840f03007666e9743aa36c50729e0c78669"
   },
-  "output_sha256": "46e9a66ce0e0f99927f51e903926f103168a39eabc34080323bbf7cdc6f27a39",
+  "output_sha256": "f3cefe169ebc39e32d79ae58da79dee0889d6113f828ed161b5d3dc48f596874",
   "params": {},
   "scope": "matrix",
   "script": "analyze_matrix.py"
@@ -255,8 +261,11 @@
    "results/matrix/hof-0.25_s106.npz": "22bfb3ebafd47217dd8f0408547c7f926394682121d115cb7d4b319307362fc3",
    "results/matrix/hof-0.50_s101.npz": "b9b218066511a81810b4b51f2ab0c4e457f4873c614d94e49a324e7980158738",
    "results/matrix/hof-eval-v2_s101.npz": "0f146bbdbe8ed9af52c8fb857f5066b3521c89a4887830aa884bb935b2f66a39",
+   "results/matrix/hof-eval-v2_s102.npz": "17859c0d902b4072e117dad491f02db613d6ba3803968112eef861e254b402d8",
    "results/matrix/hof-eval-v2_s103.npz": "9603f37808232ed53ff27840eafa3676d75cb4536029d40f0e02f695da29a901",
    "results/matrix/hof-eval-v2_s104.npz": "53536a6441bee1296e46db951acad2c546e5813a13eae53b0cf76bf198086f17",
+   "results/matrix/hof-eval-v2_s105.npz": "d3432d7ecad20b5e6b8a5385b35be580bf2d87618fadb3f3fda2a280d8fd70a8",
+   "results/matrix/hof-eval-v2_s106.npz": "98e0d72d2be7c21d971f98dd5823dcd8cac2c0a5ab400458ae7af25188272106",
    "results/matrix/hof-eval_s101.npz": "8d06e30daeca4fde230a6c651f506043a9432d2ca6fc5914d899e5b71735274f",
    "results/matrix/hof-eval_s102.npz": "fa422af780e4362e730f09dc643cd608ed5b3bc726f5106ba94952f12d0f9a4f",
    "results/matrix/hof-eval_s103.npz": "097a0640b317220bd6d5e7878bebce1ec76bb6b8b9448310a3d1c0a49b482d24",
@@ -274,7 +283,7 @@
    "results/matrix/sigma-0.20_s102.npz": "00ec28e944c98a9637b045ca17cf2b5c72373b4f1c7259c360f798e36b4e4488",
    "results/matrix/sigma-0.20_s103.npz": "7ce27678d343a5699a9483676a892840f03007666e9743aa36c50729e0c78669"
   },
-  "output_sha256": "265ad50b17f3fc283dbfd70fdd87c0722aa0500841b1b4af4997825d144e6aeb",
+  "output_sha256": "738321c706c69d48a45445cd59b2373c2d82089a4f2ad46bcb454bf47270f3c2",
   "params": {},
   "scope": "matrix",
   "script": "analyze_matrix.py"

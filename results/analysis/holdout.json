@@ -929,6 +929,36 @@
   "peak_holdout_len": 3000.0,
   "npz_sha256": "0f146bbdbe8ed9af52c8fb857f5066b3521c89a4887830aa884bb935b2f66a39"
  },
+ "hof-eval-v2_s102": {
+  "final_holdout": 0.273,
+  "final_holdout_sd": 0.8405182924838697,
+  "final_holdout_sem": 0.02657952219284613,
+  "final_holdout_win": 0.317,
+  "final_holdout_tie": 0.557,
+  "final_holdout_len": 2999.154,
+  "peak_holdout": 0.372,
+  "peak_holdout_sd": 0.7909589117014865,
+  "peak_holdout_sem": 0.025012316965847044,
+  "peak_holdout_win": 0.352,
+  "peak_holdout_tie": 0.574,
+  "peak_holdout_len": 3000.0,
+  "npz_sha256": "17859c0d902b4072e117dad491f02db613d6ba3803968112eef861e254b402d8"
+ },
+ "hof-eval-v2_s103": {
+  "final_holdout": 0.349,
+  "final_holdout_sd": 0.8713202625900536,
+  "final_holdout_sem": 0.027553566012405724,
+  "final_holdout_win": 0.349,
+  "final_holdout_tie": 0.549,
+  "final_holdout_len": 2998.802,
+  "peak_holdout": 0.426,
+  "peak_holdout_sd": 0.8114949168047819,
+  "peak_holdout_sem": 0.025661722467519594,
+  "peak_holdout_win": 0.374,
+  "peak_holdout_tie": 0.564,
+  "peak_holdout_len": 3000.0,
+  "npz_sha256": "9603f37808232ed53ff27840eafa3676d75cb4536029d40f0e02f695da29a901"
+ },
  "hof-eval-v2_s104": {
   "final_holdout": -4.832,
   "final_holdout_sd": 0.42635196727586466,
@@ -943,6 +973,36 @@
   "peak_holdout_tie": 0.0,
   "peak_holdout_len": 631.282,
   "npz_sha256": "53536a6441bee1296e46db951acad2c546e5813a13eae53b0cf76bf198086f17"
+ },
+ "hof-eval-v2_s105": {
+  "final_holdout": -0.366,
+  "final_holdout_sd": 1.1721962293063393,
+  "final_holdout_sem": 0.03706809949269048,
+  "final_holdout_win": 0.206,
+  "final_holdout_tie": 0.357,
+  "final_holdout_len": 2999.744,
+  "peak_holdout": 0.43,
+  "peak_holdout_sd": 0.7956758133813042,
+  "peak_holdout_sem": 0.025161478493920027,
+  "peak_holdout_win": 0.354,
+  "peak_holdout_tie": 0.606,
+  "peak_holdout_len": 3000.0,
+  "npz_sha256": "d3432d7ecad20b5e6b8a5385b35be580bf2d87618fadb3f3fda2a280d8fd70a8"
+ },
+ "hof-eval-v2_s106": {
+  "final_holdout": -1.71,
+  "final_holdout_sd": 1.574134682929005,
+  "final_holdout_sem": 0.04977850941922628,
+  "final_holdout_win": 0.064,
+  "final_holdout_tie": 0.163,
+  "final_holdout_len": 2957.692,
+  "peak_holdout": -0.047,
+  "peak_holdout_sd": 0.9299413960029954,
+  "peak_holdout_sem": 0.029407329018460687,
+  "peak_holdout_win": 0.228,
+  "peak_holdout_tie": 0.507,
+  "peak_holdout_len": 3000.0,
+  "npz_sha256": "98e0d72d2be7c21d971f98dd5823dcd8cac2c0a5ab400458ae7af25188272106"
  },
  "hof-full_s101": {
   "final_holdout": -4.838,
