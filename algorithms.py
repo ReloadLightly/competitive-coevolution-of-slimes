@@ -319,8 +319,10 @@ def run_ga_hof_eval(seed, n_tournaments, pop_size, sigma, save_every,
                     mutant[j] = population[n, j] + np.random.normal(0.0, 1.0) * sigma
                 for j in range(PARAM_COUNT):
                     population[m, j] = mutant[j]
+                # m inherits n's lineage; n did not play this game, so its
+                # streak is not incremented (same fix as f362bf0 for the
+                # asymmetric kernel)
                 winning_streak[m] = winning_streak[n]
-                winning_streak[n] += 1
             elif score < 0:
                 winning_streak[m] += 1
             else:

@@ -202,3 +202,40 @@ seed they have rather than deleted.
 `pop-512` never ran. The population sweep was replaced by the unequal-power
 condition; `pop-32` has one run because it had already started when the queue
 was stopped. Both remain defined in `run_experiments.py` and can be run later.
+
+## 2026-10-02 — streak bug in `run_ga_hof_eval`; `hof-eval` superseded by `hof-eval-v2`
+
+`algorithms.run_ga_hof_eval` (the archive-as-test kernel) carried the same
+streak-accounting bug that was fixed for the asymmetric kernel on 2026-08-18
+(commit `f362bf0`). When an archived champion beat population member `m`, `m`
+was overwritten by a mutant of a living peer `n` and inherited `n`'s streak —
+and then `n`'s streak was incremented, although `n` had not played. The fix
+removes that increment; nothing else in the kernel changes.
+
+The streak is not cosmetic in this kernel. `argmax(winning_streak)` picks the
+individual copied into the archive every 1,000 games, so the bug changed the
+archive's contents and therefore the opponents of a quarter of all games: the
+whole trajectory, not only the exported champion. The six `hof-eval` runs can
+therefore not be repaired by re-exporting; they are rerun as a new condition,
+`hof-eval-v2`, with identical parameters (p = 0.25, archive capacity 512,
+seeds 101-106). The `hof-eval` files stay on disk under their names, are
+listed under `superseded` in `protocol.json`, and are excluded from every
+table, figure and claim from now on.
+
+State of knowledge at the time of this decision (before any `hof-eval-v2` run
+started), from the superseded `hof-eval` runs:
+
+| `hof-eval` (superseded), 6 seeds | value |
+|---|---|
+| learned to rally | 6/6 |
+| best champion, held out (mean; median) | -0.44; +0.32 |
+| end-of-run champion, held out (mean) | -1.10 |
+| checkpoints above parity (mean) vs control | 7.7% vs 26% (exact MWU p = 0.028) |
+| archive win rate, first checkpoints -> last 50,000 games | ~0.50 -> 0.03-0.14, every seed |
+| share of games with no selection event, last 50,000 games | 21-24% |
+| largest exported streak counter | 3,645-4,201 |
+
+These are the numbers behind claim C5b ("archive as test is useless; its win
+rate decays from 0.50 to under 0.10"). C5b is withdrawn until `hof-eval-v2`
+is analysed, and will be rewritten from the new runs alone, whatever they show.
+The comparison will be recorded in a follow-up entry.

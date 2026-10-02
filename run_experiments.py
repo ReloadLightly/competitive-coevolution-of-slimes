@@ -25,8 +25,13 @@ Each worker trains one run and immediately evaluates all 100 of its champion
 checkpoints against the 2015 baseline policy, so evaluation pipelines behind
 training instead of waiting for the whole matrix.
 
-    python run_experiments.py --workers 3
-    python run_experiments.py --workers 3 --only control,hof-0.25
+The runner is restartable: a run whose .npz already exists is skipped, and a
+.npz only appears once it is complete (it is written to a temporary name and
+renamed), so an interrupted session is resumed by running the same command
+again. Conditions listed in SUPERSEDED are kept on disk but never run again.
+
+    python run_experiments.py                       # one worker per core
+    python run_experiments.py --only hof-eval-v2
 """
 
 import argparse
@@ -82,10 +87,24 @@ CONDITIONS = {
     # literature means it, with a full-run archive.
     "hof-eval":   dict(algo="hof_eval", sigma=0.10, pop=128, hof_prob=0.25,
                        cap=512, seeds=SEEDS_MAIN, pops=False),
+    # hof-eval with the streak bug in run_ga_hof_eval fixed (2026-10-02): an
+    # archive loss credited a +1 streak to the living peer n that supplied the
+    # replacement genes, although n had not played. argmax(streak) decides
+    # what enters the archive, so the bug changed the whole trajectory and
+    # hof-eval had to be rerun rather than re-exported. Same parameters.
+    "hof-eval-v2": dict(algo="hof_eval", sigma=0.10, pop=128, hof_prob=0.25,
+                        cap=512, seeds=SEEDS_MAIN, pops=False),
     "ga2015":     dict(algo="ga2015", sigma=0.10, pop=100, n_opponents=10,
                        n_elite=20, hof_prob=0.00, seeds=SEEDS_MAIN, pops=False),
     "es":         dict(algo="es", sigma=0.10, pop=50, n_opponents=4,
                        alpha=0.03, hof_prob=0.00, seeds=SEEDS_MAIN, pops=False),
+}
+
+# Conditions whose runs stay on disk under their old names but are excluded
+# from every analysis, table and figure, and are never run again. Why each one
+# was superseded is in results/matrix/decisions.md.
+SUPERSEDED = {
+    "hof-eval": "hof-eval-v2",
 }
 
 HOF_EVERY = 1_000           # a champion is archived this often
@@ -170,23 +189,28 @@ def one_run(job):
         mean_len[i] = ln.mean()
     eval_sec = time.time() - t1
 
-    np.savez_compressed(
-        path,
-        champs=champs.astype(np.float64), streaks=streaks, train_meanlen=meanlen,
-        tie_rate=ties, hof_winrate=hofwins,
-        mean_score=mean_score, std_score=std_score,
-        win_rate=win, tie_rate_eval=tie, loss_rate=loss, eval_meanlen=mean_len,
-        tournaments=np.array([tournaments]), save_every=np.array([SAVE_EVERY]),
-        sigma=np.array([cfg["sigma"]]), pop=np.array([cfg["pop"]]),
-        hof_prob=np.array([cfg["hof_prob"]]), seed=np.array([seed]),
-        hof_capacity=np.array([cfg.get("cap", HOF_CAPACITY)]),
-        hof_every=np.array([HOF_EVERY]),
-        algo=np.array([algo]),
-        sweep_episodes=np.array([SWEEP_EPISODES]),
-        sweep_seed=np.array([SWEEP_SEED]),
-        train_sec=np.array([train_sec]), eval_sec=np.array([eval_sec]),
-        pops=pops, pop_streaks=pop_streaks,
-        pop_every=np.array([POP_EVERY if cfg["pops"] else 0]))
+    # write under a temporary name and rename, so a run interrupted while
+    # saving never leaves a truncated .npz that a restart would skip
+    tmp = path + ".part"
+    with open(tmp, "wb") as fh:
+        np.savez_compressed(
+            fh,
+            champs=champs.astype(np.float64), streaks=streaks, train_meanlen=meanlen,
+            tie_rate=ties, hof_winrate=hofwins,
+            mean_score=mean_score, std_score=std_score,
+            win_rate=win, tie_rate_eval=tie, loss_rate=loss, eval_meanlen=mean_len,
+            tournaments=np.array([tournaments]), save_every=np.array([SAVE_EVERY]),
+            sigma=np.array([cfg["sigma"]]), pop=np.array([cfg["pop"]]),
+            hof_prob=np.array([cfg["hof_prob"]]), seed=np.array([seed]),
+            hof_capacity=np.array([cfg.get("cap", HOF_CAPACITY)]),
+            hof_every=np.array([HOF_EVERY]),
+            algo=np.array([algo]),
+            sweep_episodes=np.array([SWEEP_EPISODES]),
+            sweep_seed=np.array([SWEEP_SEED]),
+            train_sec=np.array([train_sec]), eval_sec=np.array([eval_sec]),
+            pops=pops, pop_streaks=pop_streaks,
+            pop_every=np.array([POP_EVERY if cfg["pops"] else 0]))
+    os.replace(tmp, path)
 
     return (f"{run_id(cond, seed)}: train {train_sec/60:.1f} min, "
             f"eval {eval_sec/60:.1f} min, final {mean_score[-1]:+.2f}, "
@@ -194,9 +218,47 @@ def one_run(job):
             f"above parity {int((mean_score > 0).sum())}/{n}")
 
 
+def write_protocol(path, tournaments):
+    """Record the protocol in protocol.json, additively.
+
+    Results already on disk were produced under the entries already in the
+    file, so an existing entry is never changed: new conditions and new
+    superseded markers are added, and any disagreement is an error.
+    """
+    new = {"tournaments": tournaments, "save_every": SAVE_EVERY,
+           "pop_every": POP_EVERY, "sweep_episodes": SWEEP_EPISODES,
+           "sweep_seed": SWEEP_SEED, "select_seed": SELECT_SEED,
+           "select_episodes": SELECT_EPISODES,
+           "hof_every": HOF_EVERY, "hof_capacity": HOF_CAPACITY,
+           "init_scale": INIT_SCALE,
+           "conditions": CONDITIONS, "superseded": SUPERSEDED}
+    new = json.loads(json.dumps(new))
+    if not os.path.exists(path):
+        merged = new
+    else:
+        merged = json.load(open(path))
+        for k, v in new.items():
+            if isinstance(v, dict):
+                old = merged.setdefault(k, {})
+                for kk, vv in v.items():
+                    if kk in old and old[kk] != vv:
+                        raise SystemExit(f"{path}: {k}.{kk} differs from the "
+                                         f"recorded protocol; refusing to "
+                                         f"overwrite it")
+                    old.setdefault(kk, vv)
+            elif k in merged and merged[k] != v:
+                raise SystemExit(f"{path}: {k} = {merged[k]} is recorded, "
+                                 f"this invocation has {v}; refusing to "
+                                 f"overwrite it")
+            else:
+                merged[k] = v
+    with open(path, "w") as f:
+        json.dump(merged, f, indent=1)
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workers", type=int, default=3)
+    ap.add_argument("--workers", type=int, default=os.cpu_count())
     ap.add_argument("--outdir", default="results/matrix")
     ap.add_argument("--only", default=None,
                     help="comma-separated condition names")
@@ -208,9 +270,13 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    conds = list(CONDITIONS)
+    conds = [c for c in CONDITIONS if c not in SUPERSEDED]
     if args.only:
         conds = [c.strip() for c in args.only.split(",")]
+    for c in conds:
+        if c in SUPERSEDED:
+            raise SystemExit(f"{c} is superseded by {SUPERSEDED[c]} "
+                             f"(see results/matrix/decisions.md)")
     override = ([int(s) for s in args.seeds.split(",")] if args.seeds else None)
 
     jobs = []
@@ -218,15 +284,8 @@ def main():
         for seed in (override or CONDITIONS[cond]["seeds"]):
             jobs.append((cond, seed, args.outdir, args.tournaments))
 
-    with open(os.path.join(args.outdir, "protocol.json"), "w") as f:
-        json.dump({"tournaments": args.tournaments, "save_every": SAVE_EVERY,
-                   "pop_every": POP_EVERY, "sweep_episodes": SWEEP_EPISODES,
-                   "sweep_seed": SWEEP_SEED, "select_seed": SELECT_SEED,
-                   "select_episodes": SELECT_EPISODES,
-                   "hof_every": HOF_EVERY, "hof_capacity": HOF_CAPACITY,
-                   "init_scale": INIT_SCALE,
-                   "conditions": {k: {kk: vv for kk, vv in v.items()}
-                                  for k, v in CONDITIONS.items()}}, f, indent=1)
+    write_protocol(os.path.join(args.outdir, "protocol.json"),
+                   args.tournaments)
 
     print(f"{len(jobs)} runs x {args.tournaments:,} tournaments "
           f"on {args.workers} workers", flush=True)
