@@ -30,6 +30,7 @@
 \newcommand{\nCtrlAbovePct}{26}  % control: mean share of checkpoints above parity, in %
 \newcommand{\nCtrlBestEndpoint}{\ensuremath{+}0.41}  % highest end-of-run champion (held out) among control seeds
 \newcommand{\nCtrlFinalMean}{\ensuremath{-}0.15}  % control: mean end-of-run champion, held out
+\newcommand{\nCtrlFinalSd}{0.66}  % matrix: s.d. of the end-of-run champion's held-out score, control
 \newcommand{\nCtrlLagMax}{100,000}  % control: longest internal-to-external lag across seeds
 \newcommand{\nCtrlLagMin}{25,000}  % control: shortest internal-to-external lag across seeds
 \newcommand{\nCtrlParity}{6/6}  % control: runs with at least one checkpoint above parity
@@ -67,6 +68,8 @@
 \newcommand{\nEsPeakMean}{\ensuremath{-}1.56}  % es: mean best champion, held out
 \newcommand{\nEsReached}{4/6}  % es: runs whose population ever held 1,500-step rallies
 \newcommand{\nEsSdRatio}{3.5}  % es: s.d. across seeds of the end-of-run champion (held out), relative to the control's
+\newcommand{\nFamFinalSdMax}{2.29}  % matrix: largest end-of-run s.d. among the generational GA, ES and archive as test
+\newcommand{\nFamFinalSdMin}{2.00}  % matrix: smallest end-of-run s.d. among the generational GA, ES and archive as test
 \newcommand{\nFamilySdRatioMax}{3.5}  % largest endpoint s.d. ratio (vs control) among the other three families
 \newcommand{\nFamilySdRatioMin}{3.0}  % smallest endpoint s.d. ratio (vs control) among the other three families
 \newcommand{\nFineCyclicDeadbandPct}{1.0}  % 5k spacing, control: cyclic share of decided triads, paper's +/-0.25 rule, pooled, in %
@@ -179,6 +182,31 @@
 \newcommand{\nNxRuns}{4}  % NEAT exploratory: runs per variant
 \newcommand{\nObsSize}{12}  % observation size
 \newcommand{\nParamCount}{273}  % parameters of the evolved policy
+\newcommand{\nPhDeclBest}{2.0}  % summed held-out declines of the best member, original runs
+\newcommand{\nPhDeclExp}{7.8}  % summed held-out declines of the exported member, original runs
+\newcommand{\nPhDeclMed}{1.9}  % summed held-out declines of the median member, original runs
+\newcommand{\nPhDeclRatio}{3.8}  % held-out declines, exported over best member, original runs
+\newcommand{\nPhDeclRuns}{6}  % original runs in which the exported member declined more than the best (held out)
+\newcommand{\nPhEpisodes}{30}  % episodes per member in the export check
+\newcommand{\nPhGap}{0.63}  % held-out export check: best member minus exported, both re-scored held out (best chosen on the proxy episodes), mean over snapshots, original runs
+\newcommand{\nPhGapSelecting}{0.90}  % the same gap on the proxy episodes that chose the best member (inflated)
+\newcommand{\nPhInflation}{0.27}  % mean inflation of the best member's proxy score over its held-out re-score
+\newcommand{\nPhLevelBest}{\ensuremath{-}1.30}  % held-out level of the best member, original runs
+\newcommand{\nPhLevelExp}{\ensuremath{-}1.92}  % held-out level of the exported member, original runs
+\newcommand{\nPhLevelMed}{\ensuremath{-}1.78}  % held-out level of the median member, original runs
+\newcommand{\nPhRepDeclBest}{7.7}  % summed held-out declines of the best member, replication runs
+\newcommand{\nPhRepDeclExp}{19.5}  % summed held-out declines of the exported member, replication runs
+\newcommand{\nPhRepDeclP}{0.073}  % replication runs: one-sided exact sign test, exported declines more than the best member, held out
+\newcommand{\nPhRepDeclRuns}{9}  % replication runs in which the exported member declined more than the best (held out)
+\newcommand{\nPhRepGap}{0.45}  % held-out gap to the best member, replication runs
+\newcommand{\nPhRepLevelExp}{\ensuremath{-}2.20}  % held-out level of the exported member, replication runs
+\newcommand{\nPhRepLevelMed}{\ensuremath{-}2.22}  % held-out level of the median member, replication runs
+\newcommand{\nPhRepRuns}{12}  % held-out export check: replication control runs
+\newcommand{\nPhRetestR}{0.94}  % test-retest correlation of the per-member proxy scores, median over snapshots whose scores spread (s.d. > 0.2), original runs
+\newcommand{\nPhRuns}{6}  % held-out export check: original control runs
+\newcommand{\nPhXDeclRuns}{10}  % export-test runs in which the exported member declined more than the best (held out)
+\newcommand{\nPhXGap}{0.37}  % held-out gap to the best member, export-test runs
+\newcommand{\nPhXRuns}{12}  % held-out export check: export-test control runs
 \newcommand{\nPop}{128}  % population size of the control
 \newcommand{\nPopBig}{512}  % population sweep: larger population (defined, never run)
 \newcommand{\nPopEvery}{50,000}  % games between population snapshots
@@ -186,7 +214,7 @@
 \newcommand{\nPopSmallRuns}{1}  % runs of the smaller population
 \newcommand{\nPopsmallReached}{0/1}  % population 32: runs that learned
 \newcommand{\nProxyEndAbove}{67}  % final snapshot: mean number of pool members above parity
-\newcommand{\nProxyEndExported}{\ensuremath{-}0.08}  % final snapshot: mean score of the exported individual
+\newcommand{\nProxyEndExported}{\ensuremath{-}0.15}  % final snapshot: mean held-out score of the exported individual, original runs
 \newcommand{\nProxyGap}{0.90}  % mean gap, best individual in the pool minus exported, points per episode
 \newcommand{\nProxyPop}{128}  % population size in the proxy check
 \newcommand{\nProxyRankMean}{60}  % mean rank of the exported individual in its own pool (1 = best), all snapshots
@@ -209,6 +237,8 @@
 \newcommand{\nQdTrendP}{0.072}  % niche archive, discmix: one-sided permutation p of the effect trend over lambda (H9b)
 \newcommand{\nReexportBestLevel}{\ensuremath{-}1.14}  % mean score of the best member (oracle) over all snapshots
 \newcommand{\nReexportBudgetPct}{0.8}  % largest ranking budget as a share of one run's games, in %
+\newcommand{\nReexportGainMax}{\ensuremath{+}0.52}  % post hoc: level gain of the largest round robin over the streak rule
+\newcommand{\nReexportGainSixteen}{\ensuremath{+}0.46}  % post hoc: level gain of the 16-peer round robin over the streak rule
 \newcommand{\nReexportGamesMax}{4,096}  % ranking games per snapshot at the largest internal round robin
 \newcommand{\nReexportGamesSixteen}{1,024}  % ranking games per snapshot of the 16-peer round robin
 \newcommand{\nReexportMedianLevel}{\ensuremath{-}1.83}  % mean score of the population's median member over all snapshots
@@ -237,6 +267,7 @@
 \newcommand{\nRepArchLearnedMax}{0.16}  % replication: highest late archive win rate, runs that learned
 \newcommand{\nRepArchLearnedMin}{0.06}  % replication: lowest late archive win rate, archive-as-test runs that learned
 \newcommand{\nRepArchivePmin}{0.44}  % replication: smallest of the four archive-as-test vs control p values
+\newcommand{\nRepCtrlFinalSd}{1.92}  % replication: s.d. of the end-of-run champion's held-out score, control runs
 \newcommand{\nRepCtrlLearned}{10/12}  % replication: control runs that learned to rally
 \newcommand{\nRepCyclicPct}{0.5}  % replication: cyclic share of decided checkpoint triads, control, in %
 \newcommand{\nRepDeclBest}{7.6}  % replication: summed decline of the pool's best member, control runs
@@ -248,6 +279,7 @@
 \newcommand{\nRepRhoStreak}{\ensuremath{+}0.04}  % replication: mean rho(streak counter, skill)
 \newcommand{\nRepRuns}{12}  % replication: runs per condition
 \newcommand{\nRepTestLearned}{10/12}  % replication: archive-as-test runs that learned to rally
+\newcommand{\nRepTestLearnedN}{10/12}  % replication: archive-as-test runs that learned to rally
 \newcommand{\nRepTimingRatio}{5.8}  % replication: latest / earliest internal transition, control
 \newcommand{\nRepTotal}{36}  % replication: runs in total
 \newcommand{\nRepVerdicts}{6 of 6}  % replication: claims replicated, of those tested

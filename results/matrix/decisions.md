@@ -640,3 +640,77 @@ Two wording corrections came with it: the paper's first contribution no
 longer says an internal round robin "recovers most of the loss" (the
 preregistered test recovered 43% of the gap), and undefined claim labels
 (C6, C7) in the paper were replaced by section references.
+
+## 2026-10-03 — WP12: a review of repository and paper
+
+Roland asked for a thorough review ("do everything in our might to address
+issues"). No raw result, preregistered verdict or frozen file changed. What
+the review found, and what changed:
+
+**The export check compared the exported member with an inflated best
+member (C4).** `coevolution_analysis.py --proxy` scores every member of a
+population snapshot on 30 episodes and compares the exported member with
+the member that scored best on those same episodes; `reexport.py` does the
+same on 60 episodes, and so does the declines criterion of the replication.
+The maximum of 128 noisy scores is biased upward (a winner's curse), and a
+maximum fluctuates less than one member's score, so both the gap and the
+declines comparison leaned towards the claim. What was known: every champion
+in the paper is re-scored on held-out episodes; this comparison alone had no
+held-out step. `proxy_heldout.py` (new, provenance scope `proxy_heldout`)
+keeps every choice (exported: largest streak; best and median: by the
+30-episode scores) and re-scores the chosen members on the held-out seed
+(1,000 episodes, `SELECT_SEED`), plus an independent 30-episode retest
+(seed 20261015) for the reliability of the per-member scores. Before → after,
+the six original control runs:
+
+| quantity | before (selecting episodes) | after (held out) |
+|---|---|---|
+| gap, best minus exported | 0.90 | 0.63 (best member's inflation 0.27) |
+| summed declines, exported / best / median | 8.6 / 1.1 / 0.9 (60-episode re-export scores) | 7.8 / 2.0 / 1.9 |
+| ratio, exported over best | about 8 | 3.8; exported fell further in 6 of 6 runs |
+| exported vs median member, level | — | −1.92 vs −1.78 |
+| retest correlation of the 30-episode scores | — | median r = 0.94 (snapshots whose scores vary) |
+| last snapshot, exported member | −0.08 (30 episodes) | −0.15 |
+
+The replication's twelve control runs, held out: the exported member lost
+19.5 points between snapshots, the best member 7.7, more in 9 of 12 runs
+(one-sided sign test p = 0.073; the preregistered measure gave 21.2 vs 7.6,
+10 of 12, p = 0.019). The preregistered verdict stands as preregistered (the
+analysis ran once and is not redone); the README and paper report the
+held-out reading next to it as the more conservative one. Export-test runs:
+held-out gap 0.37, exported fell further in 10 of 12. C4's qualitative
+claims hold; its sizes are now the held-out ones (README finding 4, paper
+§3.4 and Discussion, Table 5's score and gap columns, Figures 6 and 9, the
+caption of Table 9, whose oracle row stays inflated and is labelled so).
+
+**C6 is weakened.** "The families differ in reliability, not ceiling"
+rested on the original control's 6 of 6 runs learning and its end-of-run
+spread (s.d. 0.66, against 2.00–2.29 for the generational GA, ES and archive
+as test). The replication (preregistered for C2, not for C6) ran 12 fresh
+control runs: 10 of 12 learned, as often as the archive as test on the same
+seeds, with s.d. 1.92. This is a re-reading of data that already existed,
+not a test. C6 now reads: the families reach a similar ceiling; six seeds
+could not rank their reliability (README finding 7, paper abstract,
+contributions, §3.7, Limitations).
+
+**C8's comparison with the post hoc analysis.** The text compared shares of
+the gap (43% prospective vs 57% post hoc), whose denominators differ (the
+post hoc oracle is inflated, the prospective one held out). It now compares
+gains for the same 1,024-game budget: +0.17 prospective vs +0.46 post hoc.
+
+**Smaller corrections** (commit ad837c0 and this one): `lab/games.calibrate`
+and `docs/lab.md` said α and β were calibrated at the runs' initial scale
+0.5; they were calibrated at 1.0 (at 0.5 the two parts' spreads are 0.89 and
+0.85, still about equal; no result changes). `yardsticks.py`: the 2015
+baseline has 112 parameters, not 120. "Highest champion of the study" became
+"of the matrix" (the macro is computed from the matrix). README quickstart
+and paper Appendix C list the commands of every follow-up. Related work
+engages with Seals & Tauritz (2026), abstract read on the publisher's page.
+The paper gains Figure 12 (the preregistered export-rule test). Figure
+legends moved off the data.
+
+**Noted, not changed.** H10c's 48 paired differences are not fully
+independent (each run's outsiders are the other runs' populations at the
+same λ); the margin is large (42 of 48, p < 0.001), but the p-value is
+optimistic (`paper/REVIEW_NOTES.md`, item 21). Cliff (1993) and the numba
+paper still could not be verified and stay uncited.

@@ -137,7 +137,8 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    either direction would not be detected. One archive-as-test seed never
    learned (the control: none); that is one run.
 12. **The decline measurement behind C4** uses the population snapshots
-   (every 50,000 games, 60 episodes per individual), not the 5,000-game
+   (every 50,000 games; since the 2026-10-03 review the chosen members are
+   re-scored on 1,000 held-out episodes, item 19), not the 5,000-game
    checkpoint curve where most of the visible swings are. It shows the pool
    does not lose ground between snapshots while the exported champion does; it
    does not decompose the checkpoint-level swings.
@@ -172,10 +173,41 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    preregistration says; a reader who wants "a trend" from it is reading an
    exploratory pattern into a failed test.
 18. **"The better export rule is a small effect."** It is: +0.17 points per
-   episode, 43% of the gap, smaller than the post hoc analysis (57%), and it
-   did not detectably reduce declines. The paper reports the preregistered
+   episode, 43% of the gap, smaller than the post hoc analysis's gain for the
+   same budget (+0.46), and it did not detectably reduce declines. The paper reports the preregistered
    size, cites the post hoc analysis as the origin only, and must not quote
    the 64-peer row (77%) as if it had been tested.
+
+19. **"Your best member is a winner's curse."** It was, and the review of
+   2026-10-03 found it: the export check scored every member on 30 episodes
+   and compared the exported member with the member that scored best on
+   those same episodes. The maximum of 128 noisy scores is inflated, and a
+   maximum fluctuates less than one member's score, so both the gap and the
+   declines comparison leaned towards C4. `proxy_heldout.py` keeps every
+   choice and re-scores the chosen members on held-out episodes: the gap
+   shrinks from 0.90 to 0.63 points per episode (the best member's
+   inflation was 0.27), the exported member's declines are 3.8 times the
+   best member's instead of about 8, still in 6 of 6 runs. C4's qualitative
+   claims hold (the exported member is no better than the median; better
+   members exist; the reported losses are the export rule's). In the
+   replication the preregistered measure gave 10 of 12 runs (p = 0.019);
+   held out it is 9 of 12 (sign test p = 0.073). The verdict stands as
+   preregistered and the text reports the held-out reading next to it; a
+   reviewer can fairly say the replication of the declines part is weaker
+   than "replicated" suggests.
+20. **C6 was weakened in the same review.** "The families differ in
+   reliability" rested on the original control's 6 of 6 runs learning and its
+   narrow end-of-run spread. The replication's fresh control runs learned in
+   10 of 12, as often as the archive as test, and spread as widely as the
+   other families. C6 now says the families reach a similar ceiling and that
+   six seeds could not rank their reliability. This is a re-reading of data
+   that already existed, not a test.
+21. **H10c pools runs that share outsiders.** Each discmix run's outsider
+   strength is measured against the other eleven runs' populations at the
+   same λ, so the 48 paired differences are not fully independent, while the
+   sign-flip test treats them as independent. The margin is large (42 of 48
+   runs, p < 0.001), so the verdict is unlikely to depend on it, but the
+   p-value is optimistic.
 
 ## (d) The paper now covers the whole README
 
@@ -198,14 +230,18 @@ result in the repository appears in it, each number generated
 - **Appendix C**: the command list that regenerates every number, table
   and figure, plus provenance, CI and the decision log.
 
-After WP11 (2026-10-03) the PDF is 25 pages: about 11 of main text, 1 of
-references, the rest appendix. The main text runs as one argument (what the
+After the WP12 review (2026-10-03) the PDF is 27 pages: main text to the
+middle of page 13 (Figure 12, the export-rule test, and the held-out
+re-scoring added about a page and a half since WP11), then references and
+the appendix. The main text runs as one argument (what the
 population learns; what the reported curve measures and a better export
 rule; archives and families; the replication; beyond one game, archive and
 topology), and the lab experiments' tables are in Appendix A.11. Still
-over the 9–10-page target: the candidates for cutting are the mutation-step
-subsection and the unequal-power section, both of which could move to the
-appendix. Not carried over from the README: the quickstart, the documents
+over the 9–10-page target, by about three pages: the candidates for cutting
+are the mutation-step subsection and the unequal-power section (which
+CLAUDE.md's WP4 structure puts in the main text), both of which could move to
+the appendix, and the lab subsection (§3.9), whose tables are already there.
+Which to cut is your call; arXiv has no page limit, a venue would. Not carried over from the README: the quickstart, the documents
 index and the February postmortem, which are repository material rather
 than results.
 

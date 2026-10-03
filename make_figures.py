@@ -352,6 +352,7 @@ def fig6_proxy(proxy, held):
     if not proxy or not held:
         return "fig6: no proxy data yet"
     fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.9))
+    fig.subplots_adjust(wspace=0.38)
     ax = axes[0]
     # both members re-scored on held-out episodes: on the episodes that chose
     # it, the best member's score is inflated (proxy_heldout.py)
@@ -366,7 +367,9 @@ def fig6_proxy(proxy, held):
     ax.set_xlabel("self-play games (thousands)")
     ax.set_ylabel("score vs 2015 baseline")
     ax.set_title("What the champion-export rule costs", loc="left")
-    ax.legend(loc="lower right", handlelength=1.4)
+    fig.legend(*ax.get_legend_handles_labels(), loc="upper center",
+               bbox_to_anchor=(0.5, -0.03), ncol=2, frameon=False,
+               handlelength=1.4)
 
     ax = axes[1]
     allrows = [r for rows in proxy.values() for r in rows]
@@ -468,8 +471,9 @@ def fig9_reexport(reexp, held=None):
     ax.set_xlabel("ranking games")
     ax.set_ylabel("score vs 2015 baseline")
     ax.set_title("Level of the exported individual", loc="left", fontsize=8.5)
-    ax.legend(loc="center right", fontsize=6.2, handlelength=1.5,
-              borderpad=0.2, labelspacing=0.3)
+    fig.legend(*ax.get_legend_handles_labels(), loc="upper center",
+               bbox_to_anchor=(0.5, -0.05), ncol=4, frameon=False,
+               fontsize=7, handlelength=2.2)
 
     ax = axes[1]
     ax.axhline(su_["streak_score"]["volatility_mean"], color="#B0413E", lw=1.4,
@@ -492,18 +496,14 @@ def fig9_reexport(reexp, held=None):
     ax.set_ylim(lo_ - 0.08 * (hi_ - lo_ + 0.1), hi_ + 0.08 * (hi_ - lo_ + 0.1))
 
     ax = axes[2]
-    ax.axhline(su_["rho_streak_external"], color="#B0413E", lw=1.4, ls=(0, (4, 2)),
-               label="streak counter")
-    ax.plot(games, rho, color="#1F7A5A", lw=1.6, marker="o", ms=3.4,
-            label="internal margin")
+    ax.axhline(su_["rho_streak_external"], color="#B0413E", lw=1.4, ls=(0, (4, 2)))
+    ax.plot(games, rho, color="#1F7A5A", lw=1.6, marker="o", ms=3.4)
     ax.axhline(0, color="#CCCCCC", lw=0.8)
     ax.set_xscale("log")
     ax.set_ylim(-0.1, 1.0)
     ax.set_xlabel("ranking games")
     ax.set_ylabel(r"$\rho$ with true skill")
     ax.set_title("Does the rule know?", loc="left", fontsize=8.5)
-    ax.legend(loc="center right", fontsize=6.2, handlelength=1.5,
-              borderpad=0.2, labelspacing=0.3)
     save(fig, "fig9_reexport")
     plt.close(fig)
     return "fig9_reexport.png"

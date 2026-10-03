@@ -23,11 +23,11 @@ Findings currently claimed (README + `docs/paper/`):
 | C1 | Internal improvement precedes external transfer (reference run: rallies pass 1,500 steps at 104,200 games; first champion beating the 2015 baseline at 172,000) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
 | C2 | The phase change is robust but its timing is not (55,000–415,000 games across 6 control seeds) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered), but 10/12 control runs learned, not every seed |
 | C3 | The population is not cycling: ρ(Elo, time) = +0.74 in the control (the earlier +0.72 did not match the data), <1% cyclic checkpoint triples | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
-| C4 | Ha's winning-streak export rule is the main noise source: the exported champion ranks near the median of its own 128; streak and skill are uncorrelated | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
+| C4 | Ha's winning-streak export rule is the main noise source: the exported champion ranks near the median of its own 128; streak and skill are uncorrelated | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); corrected 2026-10-03 (WP12 review, `proxy_heldout.py`): comparisons with the best member are re-scored held out because the best of 128 noisy scores is inflated (winner's curse): gap 0.90 → 0.63, exported-vs-best declines ratio about 8 → 3.8 (6/6 runs); in the replication the held-out declines comparison is weaker (9/12 runs, sign p 0.073), the preregistered verdict stands |
 | C5a | Hall of fame as PARENT destroys learning (1/6 vs 6/6) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
 | C5b | Hall of fame as TEST (`hof-eval-v2`): neither harms nor helps detectably (all p ≥ 0.37 vs control, 5/6 learned); archive win rate 0.5 → 0.11–0.16 in runs that learned, a description rather than a validated diagnostic | rewritten in WP3 from `hof-eval-v2` (decisions.md 2026-10-02); replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); the archive-win-rate description did not hold (0.21 in a run that never learned); an archive organised by behaviour (WP9, preregistered) has no detectable effect either |
-| C6 | The algorithm families differ in reliability, not ceiling | keep; rechecked in WP3 with `hof-eval-v2` as the fourth family, unchanged |
-| C8 | A short internal tournament (16 peers, 1,024 games per export) exports a better champion than the streak rule: −2.16 vs −2.33, 9/12 fresh runs, p = 0.010, 43% of the gap to the best member; it does not detectably reduce declines (p = 0.16); in a cyclic game it helps against outsiders (42/48) but less as skill becomes cyclic (ρ = −0.43) | new 2026-10-03 (WP10, preregistered, fresh seeds); smaller than the post hoc re-export estimate (57%) |
+| C6 | The algorithm families reach a similar ceiling; six seeds could not rank their reliability | weakened 2026-10-03 (WP12 review): "differ in reliability" rested on the control's 6/6 runs learning and its narrow end-of-run spread (s.d. 0.66); the replication's 12 fresh control runs learned 10/12, as often as the archive as test, with s.d. 1.92 (other families 2.00–2.29). Not part of the preregistered replication; never describe as replicated |
+| C8 | A short internal tournament (16 peers, 1,024 games per export) exports a better champion than the streak rule: −2.16 vs −2.33, 9/12 fresh runs, p = 0.010, 43% of the gap to the best member; it does not detectably reduce declines (p = 0.16); in a cyclic game it helps against outsiders (42/48) but less as skill becomes cyclic (ρ = −0.43) | new 2026-10-03 (WP10, preregistered, fresh seeds); smaller than the post hoc re-export analysis suggested (gain +0.17 vs +0.46 for the same 1,024-game budget) |
 | C7 | Unequal power (asym block, 18 runs): mutual improvement 1/18, runaway 13/18; 2:1 capacity not decisive; norm-matched σ flips dominance 2/6 → 5/6 (p≈0.065) | exploratory only; never state as confirmed |
 
 The paper's broader hook (Discussion only, never a Result): any evolutionary
@@ -260,6 +260,17 @@ rule (WP10) → it holds on fresh seeds (WP6), against stronger opponents
 appendix and Limitations). The README stops reading as a log of work
 packages; every number stays generated; no claim changes wording except
 through its own evidence.
+
+### WP12 — Review and repair (decided 2026-10-03)
+
+Status (2026-10-03): done. Roland: "thoroughly review the repo and paper ...
+do everything in our might to address issues". Found and fixed: the export
+check compared the exported member with a best member scored on the episodes
+that chose it (winner's curse; `proxy_heldout.py` re-scores held out, C4's
+sizes corrected, its qualitative claims hold); C6 weakened by the
+replication's fresh control runs; C8 compared with the post hoc analysis by
+gains, not shares; documentation and reproduction fixes. Full before/after
+in decisions.md (2026-10-03, WP12) and `paper/REVIEW_NOTES.md` items 19–21.
 
 Each WP ends with: tests and `make_tables.py --check` green, decisions.md
 updated, README/paper text matching the data, a PR for Roland.

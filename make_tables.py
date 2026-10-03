@@ -193,32 +193,40 @@ def table_4(d):
 
 
 def table_5(d):
-    proxy = d["proxy"]
-    if not proxy:
+    proxy, held = d["proxy"], d["proxy_heldout"]
+    if not proxy or not held:
         return None
+    hruns = {n: r for n, r in held["per_run"].items() if r["group"] == "original"}
     out = ["| games | exported champion | best in the same pool | gap | "
            "exported rank | ρ(streak, score) | above parity in pool | "
            "mean pairwise genotype distance |",
            "|---|---|---|---|---|---|---|---|"]
     by_t = {}
-    for rows in proxy.values():
-        for r in rows:
-            by_t.setdefault(r["tournament"], []).append(r)
+    for name, rows in proxy.items():
+        for k, r in enumerate(rows):
+            by_t.setdefault(r["tournament"], []).append((r, hruns[name]["snapshots"][k]))
     for t in sorted(by_t):
-        rs = by_t[t]
+        rs = [r for r, _ in by_t[t]]
+        hs = [h["heldout"] for _, h in by_t[t]]
         out.append(
-            f"| {t:,} | {np.mean([r['exported_score'] for r in rs]):+.2f} | "
-            f"{np.mean([r['best_score'] for r in rs]):+.2f} | "
-            f"{np.mean([r['gap'] for r in rs]):.2f} | "
+            f"| {t:,} | {np.mean([h['exported'] for h in hs]):+.2f} | "
+            f"{np.mean([h['best'] for h in hs]):+.2f} | "
+            f"{np.mean([h['best'] - h['exported'] for h in hs]):.2f} | "
             f"{np.mean([r['exported_rank'] for r in rs]):.0f} / {rs[0]['pop_size']} | "
             f"{np.mean([r['spearman_streak_vs_score'] for r in rs]):+.2f} | "
             f"{np.mean([r['n_above_parity'] for r in rs]):.0f} | "
             f"{np.mean([r['mean_pairwise_distance'] for r in rs]):.2f} |")
     out.append("")
     out.append(f"Control runs only ({len(proxy)} seeds), averaged across seeds. "
-               "Every member of the snapshotted population is scored against "
-               "the 2015 baseline; 'exported' is the individual Ha's "
-               "longest-winning-lineage rule selects.")
+               f"Every member of the snapshotted population is scored against "
+               f"the 2015 baseline on {held['proxy_episodes']} episodes; 'exported' "
+               f"is the individual Ha's longest-winning-lineage rule selects, "
+               f"'best' the member with the best of those scores. Both are then "
+               f"re-scored on {held['heldout_episodes']:,} held-out episodes, which "
+               f"is what the score and gap columns show: on its own selecting "
+               f"episodes the best member's score is inflated (the maximum of "
+               f"{rs[0]['pop_size']} noisy scores). Rank, ρ and the parity count "
+               f"use the {held['proxy_episodes']}-episode scores.")
     return "\n".join(out)
 
 
@@ -456,15 +464,26 @@ def table_9(d):
                f"*{su_['external_score']['level_mean']:+.2f}* | "
                f"*{su_['external_score']['volatility_mean']:.2f}* | *100%* | "
                f"*+1.00* |")
+    big = max(opps)
+    games = su_["ranking_games_per_snapshot"][f"internal_{big}"]
+    pop = next(iter(r["per_run"].values()))[0]["pop_size"]
+    budget = json.load(open("results/matrix/protocol.json"))["tournaments"]
     out.append("")
     out.append(f"Control runs only ({su_['n_runs']} seeds), across all population "
                f"snapshots. Every population member is scored against the 2015 "
-               f"baseline over {su_['episodes_per_individual']} episodes to "
-               f"establish true skill; the promotion rules then compete to pick "
-               f"the best member using only what they are entitled to see. "
+               f"baseline over {su_['episodes_per_individual']} episodes, which "
+               f"stand in for true skill; the promotion rules then pick a member "
+               f"using only what they are entitled to see, so their scores on "
+               f"those episodes are unbiased. The oracle row is not: it is the "
+               f"best of {pop} scores on the very episodes that "
+               f"chose it, which inflates it (a winner's curse), so the gap to "
+               f"best is overstated and the share closed understated. The "
+               f"held-out re-scoring of the export check and the preregistered "
+               f"export test do not have this bias. "
                f"'Volatility' is the mean absolute change in the exported "
                f"individual's score between consecutive snapshots. For scale, "
-               f"4,096 ranking games is 0.8% of a 500,000-game run.")
+               f"{games:,} ranking games is {100 * games / budget:.1f}% of a "
+               f"{budget:,}-game run.")
     return "\n".join(out)
 
 
@@ -899,6 +918,7 @@ FILES = {
     "within": f"{ANDIR}/within_run.json",
     "across": f"{ANDIR}/across_runs.json",
     "proxy": f"{ANDIR}/champion_proxy.json",
+    "proxy_heldout": f"{ANDIR}/proxy_heldout.json",
     "reference": f"{ANDIR}/reference_curve.json",
     "reexport": f"{ANDIR}/reexport.json",
     "resume": f"{ANDIR}/resume_fast.json",
@@ -915,7 +935,7 @@ FILES = {
 DEPS = {
     "c": ["per_run"],
     "1": ["conditions"], "2": ["conditions"], "3": ["reference"],
-    "4": ["within"], "5": ["proxy"], "6": ["across"], "7": ["per_run"],
+    "4": ["within"], "5": ["proxy", "proxy_heldout"], "6": ["across"], "7": ["per_run"],
     "8": ["per_run", "reference"], "9": ["reexport"], "10": ["per_run"],
     "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
     "a2": ["per_run"], "a3": ["resume", "reference"],
