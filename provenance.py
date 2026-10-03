@@ -72,6 +72,11 @@ SCOPES = {
     "yardsticks": lambda: ([p for p in matrix_runs()
                             if not os.path.basename(p).startswith("asym")]
                            + sorted(glob.glob("results/zoo/*.json"))),
+    # the niche-archive experiment (WP9) and the runs it is compared with
+    "qd": lambda: (sorted(glob.glob("results/qd/*_s*.npz"))
+                   + sorted(glob.glob("results/replication/control_s*.npz"))
+                   + sorted(glob.glob("results/replication/hof-eval-v2_s*.npz"))
+                   + sorted(glob.glob("results/lab/*_s*.npz"))),
     # the discmix experiment of the lab (WP8)
     "lab": lambda: sorted(glob.glob("results/lab/*_s*.npz")),
     # the preregistered confirmatory replication (fresh seeds, own directory)

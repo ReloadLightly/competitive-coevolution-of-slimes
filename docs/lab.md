@@ -11,7 +11,7 @@ structure can be set.
 
 | module | what it holds |
 |---|---|
-| `lab/kernels.py` | `run`: Ha's tournament-selection GA, compiled, with the game chosen by an integer and the archive by a mode (none, as parent, as test), plus population snapshots |
+| `lab/kernels.py` | `run`: Ha's tournament-selection GA, compiled, with the game chosen by an integer and the archive by a mode (none, as parent, as test, as a niche-organised test), plus population snapshots |
 | `lab/games.py` | game definitions as data for `run`: `slime` and `discmix`; exact expected scores for `discmix` |
 
 The paper's science code (`fastvolley.py`, `fastvolley_kernels.py`,
@@ -76,6 +76,21 @@ experiment):
   export rule.
 
 A 500,000-game `discmix` run takes about 3–4 minutes on one core.
+
+## Archive modes
+
+| mode | the archive | used as | in the paper |
+|---|---|---|---|
+| `HOF_NONE` | none | — | `control` |
+| `HOF_PARENT` | the last champions, in time order | parent | `hof-0.25`, `hof-0.50`, `hof-full` |
+| `HOF_TEST` | the last champions, in time order | test | `hof-eval-v2` |
+| `HOF_NICHE` | one champion per cell of an 8 × 8 behaviour grid, the newest to land there | test | WP9 (`run_qd.py`) |
+
+The niche archive's descriptor is the network's mean first two outputs on
+fixed probe inputs (`X3`): real game states for Slime Volleyball
+(`lab.games.slime_probes`), the style probes for discmix, where the
+descriptor is exactly the point on which the cycle is played. The grid's
+bounds are passed in `gp[5:9]`.
 
 ## Adding a game
 

@@ -15,8 +15,8 @@ and the archive by `hof_mode`:
   HOF_NICHE     archive as test, organised by behaviour instead of time: a
                 MAP-Elites-style grid of NICHE_GRID x NICHE_GRID cells over a
                 two-number descriptor (the network's mean first two outputs
-                on the probe inputs X3), one champion per cell, the newest to
-                land there (WP9)
+                on the probe inputs X3, binned within the bounds in gp[5:9]),
+                one champion per cell, the newest to land there (WP9)
 
 For GAME_SLIME every mode draws its random numbers in the same order as the
 paper's kernel it mirrors, so a lab run reproduces the paper's run bit for
@@ -42,6 +42,9 @@ NICHE_GRID = 8
 
 # gp (game parameters) layout for GAME_DISCMIX; see lab/games.py
 GP_LAMBDA, GP_ALPHA, GP_BETA, GP_NOISE, GP_TIE = 0, 1, 2, 3, 4
+# HOF_NICHE reads the descriptor grid's bounds from four more slots, for any
+# game: descriptor 0 is binned over [lo0, hi0], descriptor 1 over [lo1, hi1]
+GP_NLO0, GP_NHI0, GP_NLO1, GP_NHI1 = 5, 6, 7, 8
 
 
 @njit(cache=True)
@@ -98,11 +101,12 @@ def discmix_play(gp, skill_x, skill_y, style_x, p_r, p_l):
 
 
 @njit(cache=True)
-def niche_cell(p, probes, grid):
+def niche_cell(p, probes, grid, lo0, hi0, lo1, hi1):
     """Grid cell of a genome's behaviour descriptor.
 
     The descriptor is the network's mean first two outputs on the probe
-    inputs, a point in [-1, 1]^2; each axis is cut into `grid` equal bins."""
+    inputs; axis 0 is cut into `grid` equal bins over [lo0, hi0], axis 1 over
+    [lo1, hi1], values outside falling into the edge bins."""
     out = np.empty(3)
     d0 = 0.0
     d1 = 0.0
@@ -111,8 +115,8 @@ def niche_cell(p, probes, grid):
         d0 += out[0]
         d1 += out[1]
     n = probes.shape[0]
-    c0 = int((d0 / n + 1.0) * 0.5 * grid)
-    c1 = int((d1 / n + 1.0) * 0.5 * grid)
+    c0 = int(np.floor((d0 / n - lo0) / (hi0 - lo0) * grid))
+    c1 = int(np.floor((d1 / n - lo1) / (hi1 - lo1) * grid))
     c0 = min(max(c0, 0), grid - 1)
     c1 = min(max(c1, 0), grid - 1)
     return c0 * grid + c1
@@ -140,6 +144,8 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
     """
     if hof_mode == HOF_NICHE and hof_capacity < NICHE_GRID * NICHE_GRID:
         raise ValueError("HOF_NICHE needs hof_capacity >= NICHE_GRID ** 2")
+    if hof_mode == HOF_NICHE and gp.shape[0] <= GP_NHI1:
+        raise ValueError("HOF_NICHE needs the grid bounds in gp[5:9]")
     np.random.seed(seed)
     population = np.empty((pop_size, PARAM_COUNT))
     for i in range(pop_size):
@@ -247,7 +253,9 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
             if hof_mode == HOF_NICHE:
                 # one champion per behavioural niche: a new niche takes the
                 # next slot, an occupied one is overwritten by the newcomer
-                cell = niche_cell(population[rh], X3, NICHE_GRID)
+                cell = niche_cell(population[rh], X3, NICHE_GRID,
+                                  gp[GP_NLO0], gp[GP_NHI0], gp[GP_NLO1],
+                                  gp[GP_NHI1])
                 if cell_slot[cell] < 0:
                     cell_slot[cell] = n_arch
                     n_arch += 1

@@ -243,6 +243,41 @@ def main():
               "control, archive as parent, archive as test, snapshots: "
               + ", ".join("same" if s else "DIFFERENT" for s in same))
 
+        # the niche archive (WP9): the compiled descriptor binning agrees
+        # with a plain reimplementation, a short run keeps its archive within
+        # the grid, and the guards refuse a too-small archive or missing bounds
+        rng = np.random.default_rng(5)
+        probes = rng.normal(size=(16, 12))
+        bounds = (-0.35, 0.95, -0.95, 0.35)
+        out = np.empty(3)
+        agree = True
+        for _ in range(50):
+            p = rng.normal(size=273) * 0.5
+            d = np.zeros(2)
+            for x in probes:
+                fv.mlp_forward(p, x, out)
+                d += out[:2]
+            d /= len(probes)
+            c0 = min(max(int(np.floor((d[0] - bounds[0]) / (bounds[1] - bounds[0]) * 8)), 0), 7)
+            c1 = min(max(int(np.floor((d[1] - bounds[2]) / (bounds[3] - bounds[2]) * 8)), 0), 7)
+            agree &= LK.niche_cell(p, probes, 8, *bounds) == c0 * 8 + c1
+        gpn = np.concatenate([gp, np.array(bounds)])
+        res = LK.run(g, gpn, X1, X2, X3, 9, 3000, 16, 0.1, 500, LK.HOF_NICHE,
+                     0.25, 100, 64, w, b, 0.5, 0)
+        arch = res[7]
+        refused = 0
+        for cap, gpx in ((63, gpn), (64, gp)):
+            try:
+                LK.run(g, gpx, X1, X2, X3, 9, 1000, 8, 0.1, 500, LK.HOF_NICHE,
+                       0.25, 100, cap, w, b, 0.5, 0)
+            except ValueError:
+                refused += 1
+        check("niche archive: descriptor cells, archive size and guards",
+              agree and (np.diff(arch) >= 0).all() and 1 <= arch[-1] <= 64
+              and refused == 2,
+              f"cells agree on 50 genomes: {agree}; archive {arch.tolist()} cells; "
+              f"bad settings refused: {refused}/2")
+
         # discmix: the expected margin is antisymmetric, and with lambda = 0
         # (transitive part only) no triad can be cyclic
         pool = LG.features(np.random.default_rng(3).normal(size=(24, 273)) * 0.5)

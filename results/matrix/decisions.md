@@ -431,3 +431,24 @@ best member 0.08). The decline was a descriptive column, not a test.
 As the preregistration requires for a failed H8c, the paper's Limitations
 bullet on cyclic games now reports what was found; H8b's result is added to
 the Discussion's paragraph on other loops.
+
+## 2026-10-03 — WP9, part 1: niche archive; WP8's protocol.json restored
+
+`results/lab/protocol.json` was missing: the WP8 workflow committed only the
+run files, not the protocol record `run_lab.py` writes when it starts. It was
+regenerated from `run_lab.py`'s constants; every one of the 96 WP8 run files
+agrees with it on each parameter it records (λ, mode, seed, budget,
+checkpoint and snapshot spacing, the game's α, β, noise and tie band).
+
+`lab/kernels.py` gained a fourth archive mode, `HOF_NICHE` (an archive used
+as a test, organised by a behaviour grid instead of by time), and `run()`
+now also returns the archive size per checkpoint. The existing modes are
+unchanged: `test_repo.py` still finds the lab bit-identical to the paper's
+three kernels on Slime Volleyball, and WP8's `discmix-0.50-test_s305`,
+rerun with the changed kernel, is identical in all 14 data arrays.
+`run_lab.py` only unpacks the extra return value.
+
+The niche experiment is preregistered in `results/qd/PREREGISTRATION.md`
+(60 runs, three hypotheses). Its grid bounds were set from the descriptor
+spread of champions in runs that already existed (the replication's control
+and archive-as-test runs; all WP8 runs), not from any niche run.
