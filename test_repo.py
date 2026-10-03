@@ -278,6 +278,50 @@ def main():
               f"cells agree on 50 genomes: {agree}; archive {arch.tolist()} cells; "
               f"bad settings refused: {refused}/2")
 
+        # NEAT (WP9): a genome encoding a 12-10-10-3 network is that network
+        # -- same outputs, same score against the 2015 baseline on the same
+        # serves, same game step by step -- so the NEAT path plays the
+        # study's game
+        from lab import neat as NE
+        pa = np.load("results/matrix/control_s101.npz")["champs"][-1].astype(np.float64)
+        pb = np.load("results/matrix/control_s104.npz")["champs"][-1].astype(np.float64)
+        inno = NE.Innovations()
+        PK = NE.pack([NE.compile_genome(NE.from_mlp(pa, inno)),
+                      NE.compile_genome(NE.from_mlp(pb, inno))])
+        s1, l1 = fv.eval_vs_baseline(pa, 50, 20260901, w, b, False)
+        s2, l2 = NE.eval_vs_baseline(PK, 0, 50, 20260901, w, b)
+        vx = rng.uniform(-20, 20, size=64)
+        vy = rng.uniform(10, 25, size=64)
+        tr1, tr2 = np.zeros((fv.T_LIMIT, 7)), np.zeros((fv.T_LIMIT, 7))
+        g1, t1 = fv.play_game_trace(pa, fv.POLICY_MLP, pb, fv.POLICY_MLP, w, b,
+                                    np.zeros(7), np.zeros(7), vx, vy, tr1)
+        g2, t2 = NE.play(PK, 0, NE.KIND_NEAT, 1, NE.KIND_NEAT, w, b, np.zeros(7),
+                         np.zeros(7), vx, vy, True, tr2)
+        check("NEAT: an encoded 12-10-10-3 network plays the study's game exactly",
+              np.array_equal(s1, s2) and np.array_equal(l1, l2)
+              and g1 == g2 and t1 == t2 and np.array_equal(tr1[:t1], tr2[:t2]),
+              f"50 episodes vs baseline and a {t1}-step game identical")
+
+        # NEAT crossover must not join two loops into a feedforward cycle:
+        # parents that closed the same two-node loop in opposite directions
+        # (each with its own back edge marked recurrent) -- the case that
+        # broke a run before the child took the fitter parent's flags
+        inno = NE.Innovations()
+        base = NE.new_genome(np.random.default_rng(1), inno, 0.5)
+        k1, k2 = inno.of(12, 13), inno.of(13, 12)
+        mom, dad = NE.copy_genome(base), NE.copy_genome(base)
+        mom["conns"][k1], mom["conns"][k2] = [12, 13, .1, True, False], [13, 12, .1, True, True]
+        dad["conns"][k1], dad["conns"][k2] = [12, 13, .1, True, True], [13, 12, .1, True, False]
+        crng = np.random.default_rng(2)
+        bad = 0
+        for _ in range(200):
+            try:
+                NE.compile_genome(NE.crossover(mom, dad, crng, NE.PARAMS))
+            except ValueError:
+                bad += 1
+        check("NEAT: crossover never creates a feedforward cycle", bad == 0,
+              f"{bad}/200 children with a cycle")
+
         # discmix: the expected margin is antisymmetric, and with lambda = 0
         # (transitive part only) no triad can be cyclic
         pool = LG.features(np.random.default_rng(3).normal(size=(24, 273)) * 0.5)

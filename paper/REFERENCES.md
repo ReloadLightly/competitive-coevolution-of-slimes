@@ -17,6 +17,8 @@ left out of the entry rather than guessed.
 | `ha2020slimevolleygym` | the repository's own `README.md` citation block (author, title, 2020); first commit 2020-06-09 | git clone |
 | `ha2017estool` | github.com/hardmaru/estool | search, domain-restricted |
 | `risi2026neuroevolution` | mitpress.mit.edu/9780262054768/neuroevolution/ (title, authors, ISBN; print date 27 Oct 2026) | search, domain-restricted |
+| `stanley2002evolving` | direct.mit.edu/evco/article/10/2/99/1123 — EC 10(2):99–127, 2002 (checked 2026-10-03). The DOI 10.1162/106365602320169811 appeared only in secondary listings and is left out | search, domain-restricted |
+| `stanley2004competitive` | arXiv:1107.0037, page 1 header: JAIR 21 (2004) 63–100, title and authors; Appendix A read for NEAT's settings (checked 2026-10-03) | alphaXiv |
 | `rosin1997new` | direct.mit.edu/evco/article-abstract/5/1/1/790 — EC 5(1):1–29, 1997. Some bibliographies give 1996 (the tech report); the journal issue is 1997 | search, domain-restricted |
 | `cliff1995tracking` | link.springer.com/chapter/10.1007/3-540-59496-5_300 — LNCS 929, pp. 200–218 | search, domain-restricted |
 | `ficici2001pareto` | link.springer.com/chapter/10.1007/3-540-44811-x_34 — LNCS 2159, pp. 316–325. (The DOI is `_34`; `_35`, which an earlier draft guessed, is a different chapter) | search, domain-restricted |

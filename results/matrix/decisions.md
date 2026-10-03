@@ -452,3 +452,35 @@ The niche experiment is preregistered in `results/qd/PREREGISTRATION.md`
 (60 runs, three hypotheses). Its grid bounds were set from the descriptor
 spread of champions in runs that already existed (the replication's control
 and archive-as-test runs; all WP8 runs), not from any niche run.
+
+## 2026-10-03 — WP9, part 2: NEAT as a fifth family, preregistered
+
+`lab/neat.py` adds NEAT to the lab as a new module; the paper's frozen files
+are untouched. It plays the study's compiled game through the same physics:
+a NEAT genome encoding a 12-10-10-3 network computes that network's outputs
+bit for bit, scores identically against the 2015 baseline on the same
+serves, and plays identical games step by step (`test_repo.py`). Self-play
+evaluation and export are the generational GA's (`run_ga2015`); the budget
+is the study's 500,000 games.
+
+Two short pilots (seeds 7 and 999, at most 100,000 games, scratch
+directories, never scored against anything) changed the implementation
+before the preregistration was written:
+
+- with weights moved in steps of 0.1, a fixed compatibility threshold of 3.0
+  was never reached and every genome stayed in one species. The threshold
+  now adapts towards 8 species, the mechanism NEAT's coevolution study uses
+  (Stanley & Miikkulainen 2004, Appendix A, target 10);
+- crossover could join two loops into a feedforward cycle (one parent closed
+  a loop 13→14, the other 14→13, and the child took each gene's "recurrent"
+  flag at random). The child now takes the flag from the fitter parent;
+  `test_repo.py` builds that case, and the old rule fails it (58 of 200
+  children cyclic).
+
+Design, the one test (H9d: NEAT vs the generational GA, end-of-run champion
+held out, two-sided) and the descriptive measures are fixed in
+`results/neat/PREREGISTRATION.md`; the analysis is `neat_analysis.py`
+(provenance scope `neat`). Both NEAT references were verified and added to
+`paper/refs.bib` (`stanley2002evolving` via the publisher's page,
+`stanley2004competitive` via arXiv); the 2004 paper leaves
+`UNVERIFIED_REFS.md`.
