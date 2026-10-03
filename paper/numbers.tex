@@ -105,6 +105,7 @@
 \newcommand{\nHofparentReached}{1/6}  % hof-0.25: runs whose population ever held 1,500-step rallies
 \newcommand{\nHofparentRegressPct}{12.0}  % archive as parent: share of all games that copy an archived genome back into the pool (p x archive win rate), in %
 \newcommand{\nHoftestAbovePct}{18}  % hof-eval-v2: mean share of checkpoints above parity, in %
+\newcommand{\nHoftestCapacity}{512}  % time-ordered archive as test (hof-eval-v2): slots, from the matrix protocol
 \newcommand{\nHoftestFinalMean}{\ensuremath{-}1.01}  % hof-eval-v2: mean end-of-run champion, held out
 \newcommand{\nHoftestNFailed}{1}  % archive as test: runs that never learned to rally
 \newcommand{\nHoftestParity}{4/6}  % hof-eval-v2: runs with at least one checkpoint above parity
@@ -220,6 +221,7 @@
 \newcommand{\nProxyRankMean}{60}  % mean rank of the exported individual in its own pool (1 = best), all snapshots
 \newcommand{\nProxyRho}{\ensuremath{+}0.06}  % mean Spearman rho(streak counter, score vs baseline) over snapshots
 \newcommand{\nProxyRuns}{6}  % control runs with population snapshots
+\newcommand{\nQdCapacity}{64}  % niche archive: slots (one per grid cell), from its protocol
 \newcommand{\nQdCellsMax}{53}  % niche archive, Slime Volleyball: most occupied cells (of 64) at the end of a run
 \newcommand{\nQdCellsMin}{37}  % niche archive, Slime Volleyball: fewest occupied cells (of 64) at the end of a run
 \newcommand{\nQdCtrlLearned}{10}  % niche experiment: control runs (same seeds) that learned to rally
@@ -340,12 +342,19 @@
 \newcommand{\nXRuns}{12}  % export rules: fresh Slime Volleyball control runs
 \newcommand{\nXStreakLevel}{\ensuremath{-}2.33}  % export rules: level of the streak rule's exported members (held out)
 \newcommand{\nXTourneyLevel}{\ensuremath{-}2.16}  % export rules: level of the 16-peer tournament's exported members (held out)
+\newcommand{\nXZooStreak}{\ensuremath{-}1.26}  % export rules: final exported member (streak rule) against the zoo GA, mean
+\newcommand{\nXZooTourney}{\ensuremath{-}1.25}  % export rules: final exported member (tournament-16) against the zoo GA, mean
+\newcommand{\nXZooTourneyLower}{7}  % export rules: runs whose final tournament-16 member scored lower against the zoo GA than the streak rule's
 \newcommand{\nXmAdvHigh}{\ensuremath{+}0.03}  % discmix: tournament-16 advantage in outsider strength at the largest lambda
 \newcommand{\nXmAdvLow}{\ensuremath{+}0.11}  % discmix: tournament-16 advantage in outsider strength at the smallest lambda
 \newcommand{\nXmImproved}{42}  % H10c: discmix runs in which tournament-16 did better
 \newcommand{\nXmN}{48}  % H10c: discmix runs
 \newcommand{\nXmRho}{\ensuremath{-}0.43}  % H10d: Spearman rho(lambda, advantage)
 \newcommand{\nXmTrendP}{0.001}  % H10d: one-sided permutation p
+\newcommand{\nXrCImproved}{12}  % H10c by seed: seeds whose mean advantage over their four lambda runs is positive
+\newcommand{\nXrCP}{0.00024}  % H10c by seed: one-sided exact sign-flip p
+\newcommand{\nXrCSeeds}{12}  % H10c by seed: seeds
+\newcommand{\nXrDP}{0.0015}  % H10d with lambda permuted only within seeds: one-sided p
 \newcommand{\nZooAboveBase}{10}  % final champions above parity against the 2015 baseline (held out)
 \newcommand{\nZooAboveBeatCma}{5}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo CMA-ES
 \newcommand{\nZooAboveBeatGa}{0}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo GA

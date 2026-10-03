@@ -52,7 +52,7 @@ reference implementation bit for bit, every agent scored against a frozen
 opponent never seen in training. Ha's rule promotes the longest winning
 lineage; that individual ranks on average \nProxyRankMean{} of \nProxyPop{} in
 its population, its lineage counter is uncorrelated with skill
-($\rho=\nProxyRho$), and the population is not cycling. Exporting instead the
+($\rho=\nProxyRho$), and the champions it exports are not cycling. Exporting instead the
 winner of a short internal tournament did better in a preregistered test on
 fresh runs, though by less than a post hoc analysis had suggested. Internal
 improvement precedes external transfer by tens of thousands of games, and the
@@ -100,7 +100,8 @@ not the merit of an individual. Scored against the whole population, the
 exported champion is a middling member of it, and the population contains
 individuals \nPhGap{} points per episode better on held-out episodes. Meanwhile a round robin of every
 checkpoint against every other shows skill to be almost perfectly transitive:
-later champions beat earlier ones, and the population is not going in circles.
+later champions beat earlier ones, so the population, as its champions sample it,
+is not going in circles.
 In \citeauthor{miconi2009why}'s \citeyearpar{miconi2009why} terms, historical
 progress is steady; what fluctuates is our estimate of global progress, and
 it fluctuates because of which individual we chose to measure.
@@ -293,7 +294,7 @@ the reference run on the same checkpoint grid (dashed).}
 \label{fig:seeds}
 \end{figure}
 
-\subsection{The population is not cycling}
+\subsection{The champions are not cycling}
 \label{sec:transitive}
 
 If the swings were forgetting, later champions should not reliably beat
@@ -305,7 +306,12 @@ runs all learned exceeds \nCyclicLearningMaxPct\%. Only the archive-as-parent
 runs, which never learned, show substantial intransitivity: their champions are
 equally bad policies whose pairwise results are noise. The game, at the scale
 of skill explored here, is dominated by its transitive component
-\citep{balduzzi2019openended,czarnecki2020spinning}.
+\citep{balduzzi2019openended,czarnecki2020spinning}. What was measured is the
+sequence of exported champions. Because the exported champion is close to a
+random member of its population (\S\ref{sec:export}), that sequence samples
+the population as it moves, which makes it evidence that the population is not
+cycling either; whether members of one population, at one moment, beat each
+other in cycles was not measured.
 
 The checkpoints are 50,000 games apart, so a faster cycle would be invisible.
 Played at 5,000-game spacing (all 100 champions of each control run,
@@ -373,8 +379,12 @@ longest streak raised the exported member's held-out score from
 runs, one-sided $p=\nXP$; Figure~\ref{fig:exporttest}), a gain of \nXGain{}
 against \nReexportGainSixteen{} for the same budget post hoc, and closed
 \nXRecoveredPct\% of the gap to the best member re-scored on held-out
-episodes. It did not detectably reduce the curve's losses of competence
-(summed declines \nXDeclTourney{} against \nXDeclStreak, $p=\nXDeclP$).
+episodes. That gain is against the 2015 baseline, the yardstick the test was
+preregistered on; against the stronger zoo GA (described, not tested) the two
+rules' final champions scored alike (\nXZooTourney{} against \nXZooStreak,
+the tournament's lower in \nXZooTourneyLower{} of \nXRuns{} runs). It did not
+detectably reduce the curve's losses of competence (summed declines
+\nXDeclTourney{} against \nXDeclStreak, $p=\nXDeclP$).
 
 \begin{figure}[!htbp]
 \centering
@@ -567,7 +577,7 @@ that encodes the study's network, plays bit-identical games; the tables are in
 Appendix~\ref{app:lab}.
 
 \paragraph{Cyclic skill.} Slime Volleyball turned out almost purely
-transitive, which could make ``the population is not cycling'' a property of
+transitive, which could make ``the champions are not cycling'' a property of
 the game and the export-rule failure an artefact of transitivity. In a
 synthetic game whose mix of transitive and cyclic skill is set by one
 parameter $\lambda$, with exact expected scores (\nLabRuns{} runs), cycling rose
@@ -578,7 +588,11 @@ its streak barely related to its true strength ($\rho=\nLabRhoStreakMin$ to
 $\nLabRhoStreakMax$). The internal tournament of \S\ref{sec:export} helped
 there too, judged against other runs' populations (better in \nXmImproved{} of
 \nXmN{} runs), but its advantage shrank as skill became more cyclic, from
-\nXmAdvLow{} to \nXmAdvHigh{} ($\rho=\nXmRho$, $p=\nXmTrendP$). An archive used
+\nXmAdvLow{} to \nXmAdvHigh{} ($\rho=\nXmRho$, $p=\nXmTrendP$). Both tests treat
+the runs as independent, though the four runs that share a seed start from the
+same population; with the seed as the unit (not preregistered) the advantage
+is positive for \nXrCImproved{} of \nXrCSeeds{} seeds ($p=\nXrCP$) and the
+trend holds with $\lambda$ permuted within seeds ($p=\nXrDP$). An archive used
 as a test did not help more as skill became cyclic (trend $p=\nLabTrendP$).
 
 \paragraph{Another archive.} The archives of \S\ref{sec:archive} hold past
@@ -586,9 +600,13 @@ champions in time order. One organised by behaviour instead, one champion per
 cell of a MAP-Elites-style grid over a behaviour descriptor and used as a test
 (\nQdRuns{} runs), had no detectable effect in Slime Volleyball (all
 $p\geq\nQdSlimePmin$ against the control) although it filled
-\nQdCellsMin--\nQdCellsMax{} of 64 cells; it did not help more as skill became
-cyclic ($p=\nQdTrendP$), and where skill was most cyclic it did not beat the
-time-ordered archive ($p=\nQdTopP$). Neither archive design helped.
+\nQdCellsMin--\nQdCellsMax{} of \nQdCapacity{} cells; it did not help more as
+skill became cyclic ($p=\nQdTrendP$), and where skill was most cyclic it did
+not beat the time-ordered archive ($p=\nQdTopP$). Neither archive design helped
+detectably. This one differs from MAP-Elites in that the latest champion to
+enter a cell replaces the one there, where MAP-Elites keeps the better of the
+two, and it has \nQdCapacity{} slots where the time-ordered archive has
+\nHoftestCapacity.
 
 \paragraph{Another topology.} NEAT \citep{stanley2002evolving}, evolving
 structure under the generational GA's evaluation and the same budget, never
@@ -599,9 +617,15 @@ $\delta=\nNeatDelta$, $p=\nNeatP$), while growing
 preregistered) located the failure in its reproduction machinery as
 configured: started from the study's network it still failed
 (\nNxMlpLearned{} of \nNxRuns{} learned), while its loop with speciation and
-structural mutation removed learned in \nNxAsgaLearned{} of \nNxRuns. This is
-one configuration with mostly published settings
-\citep{stanley2004competitive}, untuned for this game.
+structural mutation removed learned in \nNxAsgaLearned{} of \nNxRuns. That
+variant removed several mechanisms at once, so which of them matters was not
+isolated; one suspect specific to coevolution is that a species is retired
+when its best self-play fitness stops rising, although against changing
+opponents an old maximum need not be beatable again (untested). This is one
+configuration with mostly published settings \citep{stanley2004competitive},
+untuned for this game; that study coevolved two populations and played each
+network against the best species' champions and a hall of fame, where ours
+used the generational GA's evaluation in one population.
 
 % =========================================================================
 \section{Unequal power (exploratory)}
@@ -698,7 +722,8 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
   control-only, because only the control stores population snapshots, and
   the ES was tuned only at pilot scale. The archive as a parent has one
   design, as a test two (\S\ref{sec:archive}, \S\ref{sec:robust}); a curated
-  archive, or one that picks opponents by what they teach, is untested. Of
+  archive, one that keeps the best occupant of each niche, or one that picks
+  opponents by what they teach, is untested. Of
   export rules only the streak rule and a 16-peer tournament were tested.
 \item \textbf{Topology.} Every result outside \S\ref{sec:robust} comes from
   families that evolve one fixed network. One topology-evolving algorithm was run, in one configuration

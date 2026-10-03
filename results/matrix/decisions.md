@@ -714,3 +714,73 @@ independent (each run's outsiders are the other runs' populations at the
 same λ); the margin is large (42 of 48, p < 0.001), but the p-value is
 optimistic (`paper/REVIEW_NOTES.md`, item 21). Cliff (1993) and the numba
 paper still could not be verified and stay uncited.
+
+## 2026-10-03 — an external review, checked against the code; next step WP13
+
+Roland shared a review of main at `d71514a` (written outside this
+repository) and asked which step strengthens the scientific core next. Each
+factual point was checked against the code and the run files before
+anything changed:
+
+- **Correct: the export test's gain is against one yardstick.** Against the
+  zoo GA the final champions of the streak rule and the 16-peer tournament
+  scored alike (−1.26 and −1.25; the tournament's lower in 7 of 12 runs).
+  The README's table carried the column, the prose did not say it. C8 now
+  says its gain is against the 2015 baseline and was not seen against the
+  zoo GA (a description: one snapshot, 200 games each).
+- **Correct: the discmix export tests treat dependent runs as
+  independent.** `lab.kernels` draws the initial population from the seed
+  alone, so the four runs that share a seed (one per λ) start from the same
+  population, and runs at one λ are scored against each other's
+  populations. `export_robustness.py` (not preregistered) repeats H10c with
+  the seed as the unit (positive for 12 of 12 seeds, exact p = 0.00024) and
+  H10d with λ permuted only within seeds (p = 0.0015). The preregistered
+  verdicts stand; the shared outsider panels remain a dependence no test
+  here removes.
+- **Correct: C3 was worded beyond its measurement.** Transitivity was
+  measured on the sequence of exported champions, not on the population.
+  The text now says "the champions are not cycling" and states the
+  inference: the exported champion is close to a random member of its
+  population (C4), so the sequence samples the population as it moves.
+  Cycles among members of one population at one moment were not measured.
+- **Correct: the niche archive is not MAP-Elites proper.** The latest
+  streak-chosen champion to enter a cell replaces the occupant (no
+  competition within a cell), the archive serves only as opponents, and it
+  has 64 slots where the time-ordered archive it was compared with has 512.
+  The Slime Volleyball niche runs stored no population snapshots. README
+  and paper now say so, and the Limitations list the archive that keeps each
+  niche's best occupant as untested.
+- **Correct: the NEAT explanation named a bundle.** The exploratory `as-ga`
+  variant removed structural mutation, speciation, species retirement and
+  the crossover settings together, so it cannot say which mattered. The
+  retirement rule judges a species by its best self-play fitness ever, a
+  score against opponents that keep changing; that is a plausible mismatch
+  with coevolution, untested. The review's description of NEAT's own
+  coevolution study was verified on arXiv 1107.0037: two populations, each
+  network against the four best species' champions and eight hall-of-fame
+  opponents, 24 games; that study also handled stagnation differently (the
+  lowest-performing species older than 30 generations may not reproduce).
+  README and paper now say which mechanisms were removed together and how
+  this setup differs from the published one.
+
+**Where the review's order was not followed, and why.** The review put a
+population-export experiment (exporting a mixture of members instead of
+one) first. In Slime Volleyball skill was transitive at every resolution
+measured, and against one opponent distribution a mixture's mean score
+cannot exceed its best member's, so that experiment's Slime arm would mostly
+re-measure transitivity; it is planned after WP13 (WP14), starting with the
+measurement C3 lacks (payoffs among members of one population). First
+instead: the review's fourth item, the counter's causal ingredients. The
+paper's headline (C4) rests on a mechanism the paper states but never
+tested ("inherited on every replacement"). Two facts from the stored runs,
+noted while checking the review, make the test pressing: at all 180 stored
+snapshots (6 original and 12 export-test control runs), all 128 members'
+inherited counters lie within 10% of the maximum (s101 at the first
+snapshot: maximum 422, median 412), so the count is almost all shared
+ancestry and the argmax is decided by the last few wins; and late in
+training 29–53% of games end in a tie (sigma-0.05 runs, last 20
+checkpoints), on which one player is mutated in place and keeps its count.
+Because the counter never feeds back into reproduction in the control, a
+replay of the same history can carry alternative counters. WP13 in
+CLAUDE.md sets out the design: exploratory replays of seeds 101–106, then a
+preregistration, then 12 fresh runs.

@@ -20,6 +20,7 @@ verify their provenance before trusting the number.
 """
 
 import glob
+import json
 import os
 import warnings
 
@@ -54,6 +55,13 @@ def _games(x):
 
 def _frac(a, b):
     return f"{a}/{b}"
+
+
+def _sig(x, nd=2):
+    """A small number (a p-value) to nd significant digits, never in
+    exponent notation."""
+    return np.format_float_positional(x, precision=nd, unique=False, fractional=False,
+                                      trim="-")
 
 
 def _pct(x, nd=0):
@@ -894,6 +902,12 @@ def definitions():
 
     def qd_lam(d):
         return qd(d)["discmix"]["by_lambda"].values()
+    add("qd_capacity", ["qd"], "niche archive: slots (one per grid cell), from its protocol")(
+        lambda d: str(json.load(open("results/qd/protocol.json"))["capacity"]))
+    add("hoftest_capacity", ["qd"],
+        "time-ordered archive as test (hof-eval-v2): slots, from the matrix protocol")(
+        lambda d: str(json.load(open("results/matrix/protocol.json"))
+                      ["conditions"]["hof-eval-v2"]["cap"]))
     add("qd_runs", ["qd"], "niche-archive experiment: runs in total")(
         lambda d: str(len(qd(d)["per_run"]["slime"]) // 3 + len(qd(d)["per_run"]["discmix"]) // 3))
     add("qd_slime_pmin", ["qd"],
@@ -1172,6 +1186,30 @@ def definitions():
         lambda d: _f(xmx(d)["H10d"]["rho"], 2, True))
     add("xm_trend_p", ["export"], "H10d: one-sided permutation p")(
         lambda d: _f(xmx(d)["H10d"]["p_one_sided"], 3))
+    add("x_zoo_streak", ["export"],
+        "export rules: final exported member (streak rule) against the zoo GA, mean")(
+        lambda d: _f(xs(d)["zoo_final"]["streak"], 2, True))
+    add("x_zoo_tourney", ["export"],
+        "export rules: final exported member (tournament-16) against the zoo GA, mean")(
+        lambda d: _f(xs(d)["zoo_final"]["tournament-16"], 2, True))
+    add("x_zoo_tourney_lower", ["export"],
+        "export rules: runs whose final tournament-16 member scored lower against the "
+        "zoo GA than the streak rule's")(
+        lambda d: str(sum(r["zoo_final"]["tournament-16"] < r["zoo_final"]["streak"]
+                          for r in d["export"]["per_run"]["slime"].values())))
+
+    def xr(d):
+        return d["export_robustness"]
+    add("xr_c_seeds", ["export_robustness"], "H10c by seed: seeds")(
+        lambda d: str(xr(d)["H10c_by_seed"]["n_seeds"]))
+    add("xr_c_improved", ["export_robustness"],
+        "H10c by seed: seeds whose mean advantage over their four lambda runs is positive")(
+        lambda d: str(xr(d)["H10c_by_seed"]["seeds_improved"]))
+    add("xr_c_p", ["export_robustness"], "H10c by seed: one-sided exact sign-flip p")(
+        lambda d: _sig(xr(d)["H10c_by_seed"]["p_one_sided"]))
+    add("xr_d_p", ["export_robustness"],
+        "H10d with lambda permuted only within seeds: one-sided p")(
+        lambda d: _sig(xr(d)["H10d_within_seed"]["p_one_sided"]))
 
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):

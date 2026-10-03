@@ -207,7 +207,32 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    same λ, so the 48 paired differences are not fully independent, while the
    sign-flip test treats them as independent. The margin is large (42 of 48
    runs, p < 0.001), so the verdict is unlikely to depend on it, but the
-   p-value is optimistic.
+   p-value is optimistic. The four runs that share a seed also share their
+   initial population. With the seed as the unit (`export_robustness.py`,
+   not preregistered) H10c is positive for 12 of 12 seeds (p = 0.00024) and
+   H10d holds with λ permuted within seeds (p = 0.0015).
+22. **"Better against which opponent?"** C8's gain is against the 2015
+   baseline, the preregistered yardstick. Against the zoo GA the final
+   champions of the two rules scored alike (−1.25 vs −1.26, the tournament's
+   lower in 7 of 12). The text says so; a reviewer may still ask for the
+   tournament's effect against several yardsticks over the whole run.
+23. **"You measured champions, not the population."** C3's transitivity is
+   measured on the sequence of exported champions. The text now says "the
+   champions are not cycling" and gives the inference to the population
+   (the exported member is close to a random member). Cycles among members
+   of one population at one moment are unmeasured; WP14 in CLAUDE.md plans
+   that measurement.
+24. **"That is not MAP-Elites."** It is not: the niche archive's newest
+   champion replaces a cell's occupant, it serves only as opponents, and it
+   has 64 slots against the time-ordered archive's 512. The text describes it
+   as an archive organised by behaviour and lists the elitist version as
+   untested.
+25. **"NEAT was not run as NEAT's authors ran it in coevolution."** Correct:
+   their robot-duel study coevolved two populations and played each network
+   against the best species' champions and a hall of fame (arXiv 1107.0037),
+   while ours used the generational GA's evaluation in one population, and
+   its species retirement judges a species by its best fitness ever against
+   opponents that keep changing. The text says both.
 
 ## (d) The paper now covers the whole README
 
