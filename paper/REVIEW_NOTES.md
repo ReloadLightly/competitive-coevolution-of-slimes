@@ -195,9 +195,16 @@ result in the repository appears in it, each number generated
 - **Appendix C**: the command list that regenerates every number, table
   and figure, plus provenance, CI and the decision log.
 
-The PDF is 20 pages: about 10 of main text, 2 of references, 8 of appendix.
-Not carried over from the README: the quickstart, the documents index and
-the February postmortem, which are repository material rather than results.
+After WP11 (2026-10-03) the PDF is 25 pages: about 11 of main text, 1 of
+references, the rest appendix. The main text runs as one argument (what the
+population learns; what the reported curve measures and a better export
+rule; archives and families; the replication; beyond one game, archive and
+topology), and the lab experiments' tables are in Appendix A.11. Still
+over the 9–10-page target: the candidates for cutting are the mutation-step
+subsection and the unequal-power section, both of which could move to the
+appendix. Not carried over from the README: the quickstart, the documents
+index and the February postmortem, which are repository material rather
+than results.
 
 ## Decisions left to you
 

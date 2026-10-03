@@ -626,3 +626,17 @@ hoc analysis is now the origin, not the evidence); the text says the remedy
 did not detectably reduce declines; and the Discussion's hypothesis about
 other loops gains the caveat that the remedy weakens as skill becomes cyclic.
 New claim C8 in CLAUDE.md.
+
+## 2026-10-03 — WP11: one narrative for README and paper
+
+No data, analysis or claim changed. The README was reorganised from one
+section per work package into one argument (findings renumbered 1–8, the
+export-rule test becoming finding 5) by a script that moved blocks and
+checked that every generated number and table survived; the paper gained a
+results roadmap, a subsection that collects the lab experiments (cyclic
+skill, the behaviour-organised archive, NEAT) and an appendix with their
+tables, while the Limitations now state limits rather than repeat results.
+Two wording corrections came with it: the paper's first contribution no
+longer says an internal round robin "recovers most of the loss" (the
+preregistered test recovered 43% of the gap), and undefined claim labels
+(C6, C7) in the paper were replaced by section references.

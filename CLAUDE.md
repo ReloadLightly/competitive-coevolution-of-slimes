@@ -249,6 +249,8 @@ prospectively.
 
 ### WP11 — One project, one narrative (decided 2026-10-03)
 
+Status (2026-10-03): done. README restructured as one argument (findings renumbered 1–8, the export-rule test is finding 5); paper: abstract and contributions updated, new §3.9 "Beyond one game, one archive and one topology", Limitations shortened, lab tables in Appendix A.11.
+
 Roland asked whether the work so far is one project or two. It is one: the
 export-rule test is the remedy the paper's diagnosis (C4) calls for, and
 WP6–WP9 are its robustness checks. After WP10, restructure README and paper
