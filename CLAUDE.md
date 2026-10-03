@@ -22,12 +22,12 @@ Findings currently claimed (README + `docs/paper/`):
 |---|---|---|
 | C1 | Internal improvement precedes external transfer (reference run: rallies pass 1,500 steps at 104,200 games; first champion beating the 2015 baseline at 172,000) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
 | C2 | The phase change is robust but its timing is not (55,000–415,000 games across 6 control seeds) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered), but 10/12 control runs learned, not every seed |
-| C3 | The population is not cycling: ρ(Elo, time) = +0.74 in the control (the earlier +0.72 did not match the data), <1% cyclic checkpoint triples | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
-| C4 | Ha's winning-streak export rule is the main noise source: the exported champion ranks near the median of its own 128; streak and skill are uncorrelated | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
+| C3 | The champions are not cycling: ρ(Elo, time) = +0.74 in the control (the earlier +0.72 did not match the data), <1% cyclic checkpoint triples. Measured on the sequence of exported champions; because the exported champion is close to a random member, that is evidence the population is not cycling either. Cycles among members of one population at one moment were not measured | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); wording narrowed 2026-10-03 after an external review ("the population is not cycling" → "the champions are not cycling", with the inference stated) |
+| C4 | Ha's winning-streak export rule is the main noise source: the exported champion ranks near the median of its own 128; streak and skill are uncorrelated | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); corrected 2026-10-03 (WP12 review, `proxy_heldout.py`): comparisons with the best member are re-scored held out because the best of 128 noisy scores is inflated (winner's curse): gap 0.90 → 0.63, exported-vs-best declines ratio about 8 → 3.8 (6/6 runs); in the replication the held-out declines comparison is weaker (9/12 runs, sign p 0.073), the preregistered verdict stands |
 | C5a | Hall of fame as PARENT destroys learning (1/6 vs 6/6) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
 | C5b | Hall of fame as TEST (`hof-eval-v2`): neither harms nor helps detectably (all p ≥ 0.37 vs control, 5/6 learned); archive win rate 0.5 → 0.11–0.16 in runs that learned, a description rather than a validated diagnostic | rewritten in WP3 from `hof-eval-v2` (decisions.md 2026-10-02); replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); the archive-win-rate description did not hold (0.21 in a run that never learned); an archive organised by behaviour (WP9, preregistered) has no detectable effect either |
-| C6 | The algorithm families differ in reliability, not ceiling | keep; rechecked in WP3 with `hof-eval-v2` as the fourth family, unchanged |
-| C8 | A short internal tournament (16 peers, 1,024 games per export) exports a better champion than the streak rule: −2.16 vs −2.33, 9/12 fresh runs, p = 0.010, 43% of the gap to the best member; it does not detectably reduce declines (p = 0.16); in a cyclic game it helps against outsiders (42/48) but less as skill becomes cyclic (ρ = −0.43) | new 2026-10-03 (WP10, preregistered, fresh seeds); smaller than the post hoc re-export estimate (57%) |
+| C6 | The algorithm families reach a similar ceiling; six seeds could not rank their reliability | weakened 2026-10-03 (WP12 review): "differ in reliability" rested on the control's 6/6 runs learning and its narrow end-of-run spread (s.d. 0.66); the replication's 12 fresh control runs learned 10/12, as often as the archive as test, with s.d. 1.92 (other families 2.00–2.29). Not part of the preregistered replication; never describe as replicated |
+| C8 | A short internal tournament (16 peers, 1,024 games per export) exports a better champion than the streak rule: −2.16 vs −2.33, 9/12 fresh runs, p = 0.010, 43% of the gap to the best member; it does not detectably reduce declines (p = 0.16); in a cyclic game it helps against outsiders (42/48) but less as skill becomes cyclic (ρ = −0.43) | new 2026-10-03 (WP10, preregistered, fresh seeds); smaller than the post hoc re-export analysis suggested (gain +0.17 vs +0.46 for the same 1,024-game budget); the gain is against the 2015 baseline: against the zoo GA the two rules' final champions scored alike (−1.25 vs −1.26, tournament lower in 7/12; described, not tested); H10c/H10d also hold with the seed as the unit (12/12 seeds, p 0.00024; λ permuted within seeds, p 0.0015; `export_robustness.py`, not preregistered) |
 | C7 | Unequal power (asym block, 18 runs): mutual improvement 1/18, runaway 13/18; 2:1 capacity not decisive; norm-matched σ flips dominance 2/6 → 5/6 (p≈0.065) | exploratory only; never state as confirmed |
 
 The paper's broader hook (Discussion only, never a Result): any evolutionary
@@ -260,6 +260,86 @@ rule (WP10) → it holds on fresh seeds (WP6), against stronger opponents
 appendix and Limitations). The README stops reading as a log of work
 packages; every number stays generated; no claim changes wording except
 through its own evidence.
+
+### WP12 — Review and repair (decided 2026-10-03)
+
+Status (2026-10-03): done. Roland: "thoroughly review the repo and paper ...
+do everything in our might to address issues". Found and fixed: the export
+check compared the exported member with a best member scored on the episodes
+that chose it (winner's curse; `proxy_heldout.py` re-scores held out, C4's
+sizes corrected, its qualitative claims hold); C6 weakened by the
+replication's fresh control runs; C8 compared with the post hoc analysis by
+gains, not shares; documentation and reproduction fixes. Full before/after
+in decisions.md (2026-10-03, WP12) and `paper/REVIEW_NOTES.md` items 19–21.
+
+### WP12b — An external review, checked against the code (2026-10-03)
+
+Status (2026-10-03): done. Roland shared an external review of main
+(`d71514a`) and asked which step strengthens the scientific core next. Every
+factual point checked was correct (decisions.md, 2026-10-03, "an external
+review"); the text changed where it overstated: C3 now says "the champions
+are not cycling" with the inference to the population stated; C8 says its
+gain is against the 2015 baseline and was not seen against the zoo GA; the
+niche archive is described as what it is (the latest champion replaces a
+cell's occupant; 64 slots against the time-ordered archive's 512); the NEAT
+explanation says which mechanisms were removed together; the discmix export
+tests were repeated with the seed as the unit (`export_robustness.py`).
+
+### WP13 — Why the streak counter fails (decided 2026-10-03)
+
+Status (2026-10-03): exploratory replays done (all six identical to their
+stored runs); preregistered (`results/counter/PREREGISTRATION.md`, H13a–d);
+the 12 fresh runs (seeds 601–612) run on GitHub Actions
+(`.github/workflows/counter.yml`); analysis once they land.
+
+The paper explains C4 with a mechanism it never tested: the counter "is
+inherited on every replacement, so it records how long a lineage has
+survived, not how good its current member is". Two facts from the stored
+runs make the test pressing: at 299 of 300 stored population snapshots
+every member's counter lies within 10% of the maximum, the median member a
+median 10 wins (0.5%) behind (the count is almost all shared ancestry, and
+the argmax is decided by the last few wins), and late in
+training 29–53% of games are ties, on which one player is mutated in place
+and keeps its count. In the control the counter never feeds back into
+reproduction, so alternative counters can be computed on the identical
+evolutionary history.
+
+1. `shadow.py` (new module; frozen files untouched): a replay of the control
+   GA, a copy of `fastvolley.run_ga_with_pops`'s control branch, that keeps
+   beside Ha's counter the 2 × 2 of {inherited at birth, or not} × {reset
+   when a tie mutates the genotype, or not}, and records each counter's pick
+   at every checkpoint and every counter at every population snapshot.
+   Validation: bit-identical champions and populations to the frozen kernel
+   (`test_repo.py`) and to the stored run files.
+2. Exploratory (labelled so): replay the six original control runs (seeds
+   101–106), validated against their stored files; describe each counter
+   (held-out quality of its pick, ρ with skill, the curve at 5,000-game
+   resolution).
+3. Preregister (`results/counter/PREREGISTRATION.md`, `counter_analysis.py`)
+   before any fresh run: 12 fresh control runs, seeds 601–612; the primary
+   hypothesis is chosen from step 2 and written down before step 4.
+4. Run, analyse once, write up. If the paper's mechanism does not hold, its
+   text changes (rule 5); if a free counter matches the 1,024-game
+   tournament, that is a new claim only through its own preregistered test.
+
+### After WP13 (candidates, not started)
+
+- **WP14, what the population holds.** Pairwise payoffs among members of the
+  stored populations (WP10's and WP13's snapshots): are members of one
+  population, at one moment, cyclic (C3 measured cross-sectionally)? Then the
+  external review's question: does exporting a mixture of members (uniform,
+  or the empirical game's equilibrium) beat exporting one, judged by
+  restricted exploitability against withheld opponents? In a transitive game
+  the answer is predictable (the best member); the test is whether the
+  game's measured structure predicts when a mixture helps (discmix λ).
+- **WP15, strategic diversity at matched budgets.** Equal-capacity archives
+  (time-ordered, behaviour grid that keeps each cell's best, a
+  tournament-informed one after Anne et al., GECCO 2026, to be verified
+  before citing), same admission and update, first in discmix with cyclicity
+  separated from payoff scale, then Slime Volleyball.
+- **NEAT, side branch.** Stagnation retirement on vs off with everything else
+  unchanged; check `lab/neat.py` against an established NEAT on a known task
+  first.
 
 Each WP ends with: tests and `make_tables.py --check` green, decisions.md
 updated, README/paper text matching the data, a PR for Roland.

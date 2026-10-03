@@ -20,6 +20,7 @@ verify their provenance before trusting the number.
 """
 
 import glob
+import json
 import os
 import warnings
 
@@ -54,6 +55,13 @@ def _games(x):
 
 def _frac(a, b):
     return f"{a}/{b}"
+
+
+def _sig(x, nd=2):
+    """A small number (a p-value) to nd significant digits, never in
+    exponent notation."""
+    return np.format_float_positional(x, precision=nd, unique=False, fractional=False,
+                                      trim="-")
 
 
 def _pct(x, nd=0):
@@ -209,9 +217,11 @@ def definitions():
     def last_snap(d):
         t = max(r["tournament"] for r in proxy_rows(d))
         return [r for r in proxy_rows(d) if r["tournament"] == t]
-    add("proxy_end_exported", ["proxy"],
-        "final snapshot: mean score of the exported individual")(
-        lambda d: _f(np.mean([r["exported_score"] for r in last_snap(d)]), 2, True))
+    add("proxy_end_exported", ["proxy_heldout"],
+        "final snapshot: mean held-out score of the exported individual, original runs")(
+        lambda d: _f(np.mean([r["snapshots"][-1]["heldout"]["exported"]
+                              for r in d["proxy_heldout"]["per_run"].values()
+                              if r["group"] == "original"]), 2, True))
     add("proxy_end_above", ["proxy"],
         "final snapshot: mean number of pool members above parity")(
         lambda d: f"{np.mean([r['n_above_parity'] for r in last_snap(d)]):.0f}")
@@ -892,6 +902,12 @@ def definitions():
 
     def qd_lam(d):
         return qd(d)["discmix"]["by_lambda"].values()
+    add("qd_capacity", ["qd"], "niche archive: slots (one per grid cell), from its protocol")(
+        lambda d: str(json.load(open("results/qd/protocol.json"))["capacity"]))
+    add("hoftest_capacity", ["qd"],
+        "time-ordered archive as test (hof-eval-v2): slots, from the matrix protocol")(
+        lambda d: str(json.load(open("results/matrix/protocol.json"))
+                      ["conditions"]["hof-eval-v2"]["cap"]))
     add("qd_runs", ["qd"], "niche-archive experiment: runs in total")(
         lambda d: str(len(qd(d)["per_run"]["slime"]) // 3 + len(qd(d)["per_run"]["discmix"]) // 3))
     add("qd_slime_pmin", ["qd"],
@@ -1007,6 +1023,107 @@ def definitions():
         "NEAT exploratory, mlp-start and no-reset: longest final training rally (steps)")(
         lambda d: f"{max(nx(d, v)['max_train_meanlen'] for v in ('mlp-start', 'no-reset')):,.0f}")
 
+    # ---- the export check re-scored on held-out episodes (proxy_heldout) --
+    def ph(d, group="original"):
+        return d["proxy_heldout"]["summary"][group]
+    add("ph_episodes", ["proxy_heldout"], "episodes per member in the export check")(
+        lambda d: str(d["proxy_heldout"]["proxy_episodes"]))
+    add("ph_runs", ["proxy_heldout"], "held-out export check: original control runs")(
+        lambda d: str(ph(d)["runs"]))
+    add("ph_gap", ["proxy_heldout"],
+        "held-out export check: best member minus exported, both re-scored held out "
+        "(best chosen on the proxy episodes), mean over snapshots, original runs")(
+        lambda d: _f(ph(d)["gap_heldout"], 2))
+    add("ph_gap_selecting", ["proxy_heldout"],
+        "the same gap on the proxy episodes that chose the best member (inflated)")(
+        lambda d: _f(ph(d)["gap_selecting"], 2))
+    add("ph_inflation", ["proxy_heldout"],
+        "mean inflation of the best member's proxy score over its held-out re-score")(
+        lambda d: _f(ph(d)["best_inflation"], 2))
+    add("ph_retest_r", ["proxy_heldout"],
+        "test-retest correlation of the per-member proxy scores, median over snapshots "
+        "whose scores spread (s.d. > 0.2), original runs")(
+        lambda d: _f(ph(d)["retest_r_learned_median"], 2))
+    add("ph_level_exp", ["proxy_heldout"], "held-out level of the exported member, original runs")(
+        lambda d: _f(ph(d)["level_heldout_exported"], 2, True))
+    add("ph_level_best", ["proxy_heldout"], "held-out level of the best member, original runs")(
+        lambda d: _f(ph(d)["level_heldout_best"], 2, True))
+    add("ph_level_med", ["proxy_heldout"], "held-out level of the median member, original runs")(
+        lambda d: _f(ph(d)["level_heldout_median"], 2, True))
+    add("ph_decl_exp", ["proxy_heldout"],
+        "summed held-out declines of the exported member, original runs")(
+        lambda d: _f(ph(d)["declines_heldout_exported"], 1))
+    add("ph_decl_best", ["proxy_heldout"],
+        "summed held-out declines of the best member, original runs")(
+        lambda d: _f(ph(d)["declines_heldout_best"], 1))
+    add("ph_decl_med", ["proxy_heldout"],
+        "summed held-out declines of the median member, original runs")(
+        lambda d: _f(ph(d)["declines_heldout_median"], 1))
+    add("ph_decl_ratio", ["proxy_heldout"],
+        "held-out declines, exported over best member, original runs")(
+        lambda d: _f(ph(d)["decline_ratio_heldout"], 1))
+    add("ph_decl_runs", ["proxy_heldout"],
+        "original runs in which the exported member declined more than the best (held out)")(
+        lambda d: str(ph(d)["runs_exported_declines_more_heldout"]))
+    add("ph_rep_runs", ["proxy_heldout"], "held-out export check: replication control runs")(
+        lambda d: str(ph(d, "replication")["runs"]))
+    add("ph_rep_decl_exp", ["proxy_heldout"],
+        "summed held-out declines of the exported member, replication runs")(
+        lambda d: _f(ph(d, "replication")["declines_heldout_exported"], 1))
+    add("ph_rep_decl_best", ["proxy_heldout"],
+        "summed held-out declines of the best member, replication runs")(
+        lambda d: _f(ph(d, "replication")["declines_heldout_best"], 1))
+    add("ph_rep_decl_runs", ["proxy_heldout"],
+        "replication runs in which the exported member declined more than the best (held out)")(
+        lambda d: str(ph(d, "replication")["runs_exported_declines_more_heldout"]))
+    add("ph_rep_gap", ["proxy_heldout"], "held-out gap to the best member, replication runs")(
+        lambda d: _f(ph(d, "replication")["gap_heldout"], 2))
+    def ph_sign_p(d, group):
+        rs = [r for r in d["proxy_heldout"]["per_run"].values() if r["group"] == group]
+        return su.sign_test_greater([r["declines_heldout_exported"] - r["declines_heldout_best"]
+                                     for r in rs])[2]
+    add("ph_rep_decl_p", ["proxy_heldout"],
+        "replication runs: one-sided exact sign test, exported declines more than the "
+        "best member, held out")(lambda d: _f(ph_sign_p(d, "replication"), 3))
+    add("ph_rep_level_exp", ["proxy_heldout"], "held-out level of the exported member, replication runs")(
+        lambda d: _f(ph(d, "replication")["level_heldout_exported"], 2, True))
+    add("ph_rep_level_med", ["proxy_heldout"], "held-out level of the median member, replication runs")(
+        lambda d: _f(ph(d, "replication")["level_heldout_median"], 2, True))
+    add("ph_x_gap", ["proxy_heldout"], "held-out gap to the best member, export-test runs")(
+        lambda d: _f(ph(d, "export")["gap_heldout"], 2))
+    add("ph_x_decl_runs", ["proxy_heldout"],
+        "export-test runs in which the exported member declined more than the best (held out)")(
+        lambda d: str(ph(d, "export")["runs_exported_declines_more_heldout"]))
+    add("ph_x_runs", ["proxy_heldout"], "held-out export check: export-test control runs")(
+        lambda d: str(ph(d, "export")["runs"]))
+    # ---- C6 against the fresh control runs of the replication ------------
+    def rep_rows(d, cond):
+        return [r for n, r in d["replication"]["per_run"].items() if n.rsplit("_s", 1)[0] == cond]
+    add("rep_ctrl_final_sd", ["replication"],
+        "replication: s.d. of the end-of-run champion's held-out score, control runs")(
+        lambda d: _f(float(np.std([r["final_holdout"] for r in rep_rows(d, "control")], ddof=1)), 2))
+    add("rep_test_learned_n", ["replication"],
+        "replication: archive-as-test runs that learned to rally")(
+        lambda d: f"{sum(r['reached'] for r in rep_rows(d, 'hof-eval-v2'))}/{len(rep_rows(d, 'hof-eval-v2'))}")
+    add("ctrl_final_sd", ["per_run"], "matrix: s.d. of the end-of-run champion's held-out score, control")(
+        lambda d: _f(float(np.std([r["final_holdout"] for r in _rows(d["per_run"], "control")], ddof=1)), 2))
+    add("fam_final_sd_min", ["per_run"],
+        "matrix: smallest end-of-run s.d. among the generational GA, ES and archive as test")(
+        lambda d: _f(min(float(np.std([r["final_holdout"] for r in _rows(d["per_run"], c)], ddof=1))
+                         for c in ("ga2015", "es", "hof-eval-v2")), 2))
+    add("fam_final_sd_max", ["per_run"],
+        "matrix: largest end-of-run s.d. among the generational GA, ES and archive as test")(
+        lambda d: _f(max(float(np.std([r["final_holdout"] for r in _rows(d["per_run"], c)], ddof=1))
+                         for c in ("ga2015", "es", "hof-eval-v2")), 2))
+    add("reexport_gain_sixteen", ["reexport"],
+        "post hoc: level gain of the 16-peer round robin over the streak rule")(
+        lambda d: _f(rx(d)["internal_score_16"]["level_mean"]
+                     - rx(d)["streak_score"]["level_mean"], 2, True))
+    add("reexport_gain_max", ["reexport"],
+        "post hoc: level gain of the largest round robin over the streak rule")(
+        lambda d: _f(rx(d)[maxkey({k: 0 for k in rx(d) if k.startswith("internal_score_")})]
+                     ["level_mean"] - rx(d)["streak_score"]["level_mean"], 2, True))
+
     # ---- WP10: alternative export rules (preregistered) -----------------
     def xs(d):
         return d["export"]["slime"]
@@ -1069,6 +1186,98 @@ def definitions():
         lambda d: _f(xmx(d)["H10d"]["rho"], 2, True))
     add("xm_trend_p", ["export"], "H10d: one-sided permutation p")(
         lambda d: _f(xmx(d)["H10d"]["p_one_sided"], 3))
+    add("x_zoo_streak", ["export"],
+        "export rules: final exported member (streak rule) against the zoo GA, mean")(
+        lambda d: _f(xs(d)["zoo_final"]["streak"], 2, True))
+    add("x_zoo_tourney", ["export"],
+        "export rules: final exported member (tournament-16) against the zoo GA, mean")(
+        lambda d: _f(xs(d)["zoo_final"]["tournament-16"], 2, True))
+    add("x_zoo_tourney_lower", ["export"],
+        "export rules: runs whose final tournament-16 member scored lower against the "
+        "zoo GA than the streak rule's")(
+        lambda d: str(sum(r["zoo_final"]["tournament-16"] < r["zoo_final"]["streak"]
+                          for r in d["export"]["per_run"]["slime"].values())))
+
+    def xr(d):
+        return d["export_robustness"]
+    add("xr_c_seeds", ["export_robustness"], "H10c by seed: seeds")(
+        lambda d: str(xr(d)["H10c_by_seed"]["n_seeds"]))
+    add("xr_c_improved", ["export_robustness"],
+        "H10c by seed: seeds whose mean advantage over their four lambda runs is positive")(
+        lambda d: str(xr(d)["H10c_by_seed"]["seeds_improved"]))
+    add("xr_c_p", ["export_robustness"], "H10c by seed: one-sided exact sign-flip p")(
+        lambda d: _sig(xr(d)["H10c_by_seed"]["p_one_sided"]))
+    add("xr_d_p", ["export_robustness"],
+        "H10d with lambda permuted only within seeds: one-sided p")(
+        lambda d: _sig(xr(d)["H10d_within_seed"]["p_one_sided"]))
+
+    # ---- WP13: why the streak counter fails (shadow counters) -----------
+    def cs(d):
+        return d["counter"]["summary"]
+
+    def ct(d):
+        return d["counter"]["tests"]
+
+    def _pv(x):
+        return _sig(x) if x < 0.001 else _f(x, 3)
+    add("ctr_runs", ["counter"], "shadow counters: fresh control runs")(
+        lambda d: str(cs(d)["n_runs"]))
+    for key, rule, what in (("inh", "inherited", "Ha's counter"),
+                            ("reset", "inherited-reset", "inherited, restarted at a tie"),
+                            ("own", "own", "wins since birth"),
+                            ("cur", "current", "the current genotype's wins"),
+                            ("t16", "tournament-16", "the 16-peer tournament"),
+                            ("med", "median", "the median member"),
+                            ("best", "best", "the best member (oracle)")):
+        add(f"ctr_level_{key}", ["counter"],
+            f"shadow counters: held-out level of the members exported by {what}")(
+            (lambda r: lambda d: _f(cs(d)["rules"][r]["level"], 2, True))(rule))
+        add(f"ctr_rank_{key}", ["counter"],
+            f"shadow counters: mean rank (of 128) of the member exported by {what}")(
+            (lambda r: lambda d: f"{cs(d)['rules'][r]['rank']:.0f}")(rule))
+    for key, rule in (("inh", "inherited"), ("reset", "inherited-reset"),
+                      ("own", "own"), ("cur", "current")):
+        add(f"ctr_rho_{key}", ["counter"],
+            f"shadow counters: mean Spearman rho between the {rule} counter and skill")(
+            (lambda r: lambda d: _f(cs(d)["rho"][r], 2, True))(rule))
+        add(f"ctr_vol_{key}", ["counter"],
+            f"shadow counters: volatility of the {rule} counter's reported curve "
+            "(mean absolute change between checkpoints)")(
+            (lambda r: lambda d: _f(cs(d)["curve"][r]["volatility"], 2))(rule))
+        add(f"ctr_curve_decl_{key}", ["counter"],
+            f"shadow counters: summed declines of the {rule} counter's reported curve, "
+            "mean per run")(
+            (lambda r: lambda d: _f(cs(d)["curve"][r]["declines"], 1))(rule))
+    for h in ("H13a", "H13b", "H13c", "H13d"):
+        k = h.lower()
+        add(f"ctr_{k}_mean", ["counter"], f"{h}: mean per-run difference")(
+            (lambda h: lambda d: _f(ct(d)[h]["mean"], 2, True))(h))
+        add(f"ctr_{k}_runs", ["counter"], f"{h}: runs whose difference favours it")(
+            (lambda h: lambda d: str(ct(d)[h]["runs_positive"]))(h))
+        add(f"ctr_{k}_p", ["counter"], f"{h}: one-sided exact sign-flip p")(
+            (lambda h: lambda d: _pv(ct(d)[h]["p_one_sided"]))(h))
+    add("ctr_vs_t16", ["counter"],
+        "shadow counters: current genotype's wins minus the 16-peer tournament, level")(
+        lambda d: _f(ct(d)["current_vs_tournament"]["mean"], 2, True))
+    add("ctr_vs_t16_runs", ["counter"],
+        "shadow counters: runs in which the current genotype's wins beat the tournament")(
+        lambda d: str(ct(d)["current_vs_tournament"]["runs_higher"]))
+    add("ctr_vs_t16_p", ["counter"],
+        "shadow counters: current genotype's wins vs the tournament, two-sided p")(
+        lambda d: _pv(ct(d)["current_vs_tournament"]["p_two_sided"]))
+    add("ctr_ties_late_pct", ["counter"],
+        "shadow counters: share of tied games over the last 100,000 games, in %")(
+        lambda d: _pct(cs(d)["diagnostics"]["tie_frac_late_mean"]))
+    add("ctr_maxcount_inh", ["counter"],
+        "shadow counters: median of Ha's counter's maximum over snapshots")(
+        lambda d: f"{cs(d)['diagnostics']['max_count_median']['inherited']:,.0f}")
+    add("ctr_maxcount_cur", ["counter"],
+        "shadow counters: median of the current-genotype counter's maximum over snapshots")(
+        lambda d: f"{cs(d)['diagnostics']['max_count_median']['current']:,.0f}")
+    add("ctr_spread_pct", ["counter"],
+        "shadow counters: median gap between the largest and the median member's "
+        "inherited count, as % of the largest")(
+        lambda d: _pct(cs(d)["diagnostics"]["inherited_spread_median"], 1))
 
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):

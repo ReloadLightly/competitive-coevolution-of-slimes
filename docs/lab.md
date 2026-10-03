@@ -65,9 +65,11 @@ sampling noise, which no physical game allows.
 How the constants were fixed (all on 2026-10-03, before any `discmix`
 experiment):
 
-- α = 4.62 and β = 3.32 give both parts unit spread over random pairs of an
-  initial population (`lab.games.calibrate()`), so λ = 0.5 weighs them
-  equally at the start.
+- α = 4.62 and β = 3.32 give both parts unit spread over random pairs of
+  genomes drawn at scale 1.0 (`lab.games.calibrate()`). At the runs' initial
+  scale of 0.5 the spreads are 0.89 and 0.85, so λ = 0.5 still weighs the two
+  parts about equally at the start. (Corrected 2026-10-03: this line used to
+  say the calibration population had the initial scale.)
 - The skill task, the noise and the tie band come from pilot runs at λ = 0
   only (seed 11), and are the first setting tried in which skill keeps
   rising over a 500,000-game run. Two earlier tasks failed: regressing onto a

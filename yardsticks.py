@@ -1,8 +1,9 @@
 """
 yardsticks.py — every final champion against stronger, independent opponents.
 
-The study's only external yardstick is the 2015 baseline: a 120-parameter
-recurrent policy that never sees its opponent. "Above parity" against it is a
+The study's only external yardstick is the 2015 baseline: a 112-parameter
+recurrent policy (7 x 15 weights and 7 biases; slimevolleygym's docstring says
+120) that never sees its opponent. "Above parity" against it is a
 low bar, and a population can specialise against it without being good. This
 script adds the two trained feed-forward policies Ha published with
 slimevolleygym (WP7):

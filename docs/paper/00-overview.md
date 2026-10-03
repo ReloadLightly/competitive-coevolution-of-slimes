@@ -1,5 +1,18 @@
 # The champion you export is not the champion you evolved
 
+> **Note (2026-10-03).** This notebook records the study as it stood before
+> the follow-up experiments (the preregistered replication, the stronger
+> yardsticks, the lab, the export-rule test) and before the review of
+> 2026-10-03. Where it disagrees with the [README](../../README.md) or the
+> [paper](../../paper/main.pdf), those are current: their numbers are
+> generated from the data, and
+> [`results/matrix/decisions.md`](../../results/matrix/decisions.md) lists
+> every change. Two readings here are superseded: comparisons with the
+> population's "best member" score that member on the episodes that chose it,
+> which inflates it (re-scored on held-out episodes the gap to the exported
+> champion is smaller; README, finding 4), and "every control run learns" did
+> not survive the replication (10 of 12 fresh control runs learned).
+
 **Competitive coevolution in Slime Volleyball, measured across 59 runs —
 and the first of three experiments behind the ACTIR / ShinkaEvolve submission.**
 

@@ -1,0 +1,31 @@
+{
+ "tournaments": 500000,
+ "save_every": 5000,
+ "pop_every": 50000,
+ "sigma": 0.1,
+ "pop": 128,
+ "init_scale": 0.5,
+ "sweep_episodes": 200,
+ "sweep_seed": 20260901,
+ "rules": [
+  "inherited",
+  "inherited-reset",
+  "own",
+  "current"
+ ],
+ "seeds": [
+  601,
+  602,
+  603,
+  604,
+  605,
+  606,
+  607,
+  608,
+  609,
+  610,
+  611,
+  612
+ ],
+ "kernel": "shadow.run_ga_shadow"
+}

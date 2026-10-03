@@ -65,12 +65,15 @@ Not cited in `main.tex`; details and the reason in `UNVERIFIED_REFS.md`.
 Verified but only partially:
 
 - **Seals & Tauritz (2026)**, *Tripping Over the Past* (EvoApplications 2026):
-  title, authors, venue and DOI verified; **the content was not read** (no
-  access through this session's network). It is cited only for its topic. It
-  is the closest prior work to C5b and should be read before submission: if it
-  already reports that a hall of fame inflates or deflates measured progress
-  in a transitive setting, the related-work paragraph and C5b's framing need
-  to engage with it.
+  title, authors, venue and DOI verified; **only the abstract was read**
+  (2026-10-03, from the publisher's page): in fully enumerated number games
+  with tunable intransitivity, fitness approximations rank solutions
+  deceptively enough to break elitism, more so with a hall of fame, more
+  intransitivity and stronger survival selection. The related-work paragraph
+  now says that, and positions the export rule as such an approximation at
+  the point of reporting. Read the full text before submission: it may
+  quantify effects that C4, C5b or the cyclic-game results should be
+  compared with directly.
 - **Novikov et al. (2025)**, AlphaEvolve: first author and arXiv ID verified;
   the full author list is abbreviated as "and others".
 
@@ -134,7 +137,8 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    either direction would not be detected. One archive-as-test seed never
    learned (the control: none); that is one run.
 12. **The decline measurement behind C4** uses the population snapshots
-   (every 50,000 games, 60 episodes per individual), not the 5,000-game
+   (every 50,000 games; since the 2026-10-03 review the chosen members are
+   re-scored on 1,000 held-out episodes, item 19), not the 5,000-game
    checkpoint curve where most of the visible swings are. It shows the pool
    does not lose ground between snapshots while the exported champion does; it
    does not decompose the checkpoint-level swings.
@@ -169,10 +173,66 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    preregistration says; a reader who wants "a trend" from it is reading an
    exploratory pattern into a failed test.
 18. **"The better export rule is a small effect."** It is: +0.17 points per
-   episode, 43% of the gap, smaller than the post hoc analysis (57%), and it
-   did not detectably reduce declines. The paper reports the preregistered
+   episode, 43% of the gap, smaller than the post hoc analysis's gain for the
+   same budget (+0.46), and it did not detectably reduce declines. The paper reports the preregistered
    size, cites the post hoc analysis as the origin only, and must not quote
    the 64-peer row (77%) as if it had been tested.
+
+19. **"Your best member is a winner's curse."** It was, and the review of
+   2026-10-03 found it: the export check scored every member on 30 episodes
+   and compared the exported member with the member that scored best on
+   those same episodes. The maximum of 128 noisy scores is inflated, and a
+   maximum fluctuates less than one member's score, so both the gap and the
+   declines comparison leaned towards C4. `proxy_heldout.py` keeps every
+   choice and re-scores the chosen members on held-out episodes: the gap
+   shrinks from 0.90 to 0.63 points per episode (the best member's
+   inflation was 0.27), the exported member's declines are 3.8 times the
+   best member's instead of about 8, still in 6 of 6 runs. C4's qualitative
+   claims hold (the exported member is no better than the median; better
+   members exist; the reported losses are the export rule's). In the
+   replication the preregistered measure gave 10 of 12 runs (p = 0.019);
+   held out it is 9 of 12 (sign test p = 0.073). The verdict stands as
+   preregistered and the text reports the held-out reading next to it; a
+   reviewer can fairly say the replication of the declines part is weaker
+   than "replicated" suggests.
+20. **C6 was weakened in the same review.** "The families differ in
+   reliability" rested on the original control's 6 of 6 runs learning and its
+   narrow end-of-run spread. The replication's fresh control runs learned in
+   10 of 12, as often as the archive as test, and spread as widely as the
+   other families. C6 now says the families reach a similar ceiling and that
+   six seeds could not rank their reliability. This is a re-reading of data
+   that already existed, not a test.
+21. **H10c pools runs that share outsiders.** Each discmix run's outsider
+   strength is measured against the other eleven runs' populations at the
+   same λ, so the 48 paired differences are not fully independent, while the
+   sign-flip test treats them as independent. The margin is large (42 of 48
+   runs, p < 0.001), so the verdict is unlikely to depend on it, but the
+   p-value is optimistic. The four runs that share a seed also share their
+   initial population. With the seed as the unit (`export_robustness.py`,
+   not preregistered) H10c is positive for 12 of 12 seeds (p = 0.00024) and
+   H10d holds with λ permuted within seeds (p = 0.0015).
+22. **"Better against which opponent?"** C8's gain is against the 2015
+   baseline, the preregistered yardstick. Against the zoo GA the final
+   champions of the two rules scored alike (−1.25 vs −1.26, the tournament's
+   lower in 7 of 12). The text says so; a reviewer may still ask for the
+   tournament's effect against several yardsticks over the whole run.
+23. **"You measured champions, not the population."** C3's transitivity is
+   measured on the sequence of exported champions. The text now says "the
+   champions are not cycling" and gives the inference to the population
+   (the exported member is close to a random member). Cycles among members
+   of one population at one moment are unmeasured; WP14 in CLAUDE.md plans
+   that measurement.
+24. **"That is not MAP-Elites."** It is not: the niche archive's newest
+   champion replaces a cell's occupant, it serves only as opponents, and it
+   has 64 slots against the time-ordered archive's 512. The text describes it
+   as an archive organised by behaviour and lists the elitist version as
+   untested.
+25. **"NEAT was not run as NEAT's authors ran it in coevolution."** Correct:
+   their robot-duel study coevolved two populations and played each network
+   against the best species' champions and a hall of fame (arXiv 1107.0037),
+   while ours used the generational GA's evaluation in one population, and
+   its species retirement judges a species by its best fitness ever against
+   opponents that keep changing. The text says both.
 
 ## (d) The paper now covers the whole README
 
@@ -195,14 +255,18 @@ result in the repository appears in it, each number generated
 - **Appendix C**: the command list that regenerates every number, table
   and figure, plus provenance, CI and the decision log.
 
-After WP11 (2026-10-03) the PDF is 25 pages: about 11 of main text, 1 of
-references, the rest appendix. The main text runs as one argument (what the
+After the WP12 review (2026-10-03) the PDF is 27 pages: main text to the
+middle of page 13 (Figure 12, the export-rule test, and the held-out
+re-scoring added about a page and a half since WP11), then references and
+the appendix. The main text runs as one argument (what the
 population learns; what the reported curve measures and a better export
 rule; archives and families; the replication; beyond one game, archive and
 topology), and the lab experiments' tables are in Appendix A.11. Still
-over the 9–10-page target: the candidates for cutting are the mutation-step
-subsection and the unequal-power section, both of which could move to the
-appendix. Not carried over from the README: the quickstart, the documents
+over the 9–10-page target, by about three pages: the candidates for cutting
+are the mutation-step subsection and the unequal-power section (which
+CLAUDE.md's WP4 structure puts in the main text), both of which could move to
+the appendix, and the lab subsection (§3.9), whose tables are already there.
+Which to cut is your call; arXiv has no page limit, a venue would. Not carried over from the README: the quickstart, the documents
 index and the February postmortem, which are repository material rather
 than results.
 

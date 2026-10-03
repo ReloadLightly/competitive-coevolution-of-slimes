@@ -640,3 +640,181 @@ Two wording corrections came with it: the paper's first contribution no
 longer says an internal round robin "recovers most of the loss" (the
 preregistered test recovered 43% of the gap), and undefined claim labels
 (C6, C7) in the paper were replaced by section references.
+
+## 2026-10-03 — WP12: a review of repository and paper
+
+Roland asked for a thorough review ("do everything in our might to address
+issues"). No raw result, preregistered verdict or frozen file changed. What
+the review found, and what changed:
+
+**The export check compared the exported member with an inflated best
+member (C4).** `coevolution_analysis.py --proxy` scores every member of a
+population snapshot on 30 episodes and compares the exported member with
+the member that scored best on those same episodes; `reexport.py` does the
+same on 60 episodes, and so does the declines criterion of the replication.
+The maximum of 128 noisy scores is biased upward (a winner's curse), and a
+maximum fluctuates less than one member's score, so both the gap and the
+declines comparison leaned towards the claim. What was known: every champion
+in the paper is re-scored on held-out episodes; this comparison alone had no
+held-out step. `proxy_heldout.py` (new, provenance scope `proxy_heldout`)
+keeps every choice (exported: largest streak; best and median: by the
+30-episode scores) and re-scores the chosen members on the held-out seed
+(1,000 episodes, `SELECT_SEED`), plus an independent 30-episode retest
+(seed 20261015) for the reliability of the per-member scores. Before → after,
+the six original control runs:
+
+| quantity | before (selecting episodes) | after (held out) |
+|---|---|---|
+| gap, best minus exported | 0.90 | 0.63 (best member's inflation 0.27) |
+| summed declines, exported / best / median | 8.6 / 1.1 / 0.9 (60-episode re-export scores) | 7.8 / 2.0 / 1.9 |
+| ratio, exported over best | about 8 | 3.8; exported fell further in 6 of 6 runs |
+| exported vs median member, level | — | −1.92 vs −1.78 |
+| retest correlation of the 30-episode scores | — | median r = 0.94 (snapshots whose scores vary) |
+| last snapshot, exported member | −0.08 (30 episodes) | −0.15 |
+
+The replication's twelve control runs, held out: the exported member lost
+19.5 points between snapshots, the best member 7.7, more in 9 of 12 runs
+(one-sided sign test p = 0.073; the preregistered measure gave 21.2 vs 7.6,
+10 of 12, p = 0.019). The preregistered verdict stands as preregistered (the
+analysis ran once and is not redone); the README and paper report the
+held-out reading next to it as the more conservative one. Export-test runs:
+held-out gap 0.37, exported fell further in 10 of 12. C4's qualitative
+claims hold; its sizes are now the held-out ones (README finding 4, paper
+§3.4 and Discussion, Table 5's score and gap columns, Figures 6 and 9, the
+caption of Table 9, whose oracle row stays inflated and is labelled so).
+
+**C6 is weakened.** "The families differ in reliability, not ceiling"
+rested on the original control's 6 of 6 runs learning and its end-of-run
+spread (s.d. 0.66, against 2.00–2.29 for the generational GA, ES and archive
+as test). The replication (preregistered for C2, not for C6) ran 12 fresh
+control runs: 10 of 12 learned, as often as the archive as test on the same
+seeds, with s.d. 1.92. This is a re-reading of data that already existed,
+not a test. C6 now reads: the families reach a similar ceiling; six seeds
+could not rank their reliability (README finding 7, paper abstract,
+contributions, §3.7, Limitations).
+
+**C8's comparison with the post hoc analysis.** The text compared shares of
+the gap (43% prospective vs 57% post hoc), whose denominators differ (the
+post hoc oracle is inflated, the prospective one held out). It now compares
+gains for the same 1,024-game budget: +0.17 prospective vs +0.46 post hoc.
+
+**Smaller corrections** (commit ad837c0 and this one): `lab/games.calibrate`
+and `docs/lab.md` said α and β were calibrated at the runs' initial scale
+0.5; they were calibrated at 1.0 (at 0.5 the two parts' spreads are 0.89 and
+0.85, still about equal; no result changes). `yardsticks.py`: the 2015
+baseline has 112 parameters, not 120. "Highest champion of the study" became
+"of the matrix" (the macro is computed from the matrix). README quickstart
+and paper Appendix C list the commands of every follow-up. Related work
+engages with Seals & Tauritz (2026), abstract read on the publisher's page.
+The paper gains Figure 12 (the preregistered export-rule test). Figure
+legends moved off the data.
+
+**Noted, not changed.** H10c's 48 paired differences are not fully
+independent (each run's outsiders are the other runs' populations at the
+same λ); the margin is large (42 of 48, p < 0.001), but the p-value is
+optimistic (`paper/REVIEW_NOTES.md`, item 21). Cliff (1993) and the numba
+paper still could not be verified and stay uncited.
+
+## 2026-10-03 — an external review, checked against the code; next step WP13
+
+Roland shared a review of main at `d71514a` (written outside this
+repository) and asked which step strengthens the scientific core next. Each
+factual point was checked against the code and the run files before
+anything changed:
+
+- **Correct: the export test's gain is against one yardstick.** Against the
+  zoo GA the final champions of the streak rule and the 16-peer tournament
+  scored alike (−1.26 and −1.25; the tournament's lower in 7 of 12 runs).
+  The README's table carried the column, the prose did not say it. C8 now
+  says its gain is against the 2015 baseline and was not seen against the
+  zoo GA (a description: one snapshot, 200 games each).
+- **Correct: the discmix export tests treat dependent runs as
+  independent.** `lab.kernels` draws the initial population from the seed
+  alone, so the four runs that share a seed (one per λ) start from the same
+  population, and runs at one λ are scored against each other's
+  populations. `export_robustness.py` (not preregistered) repeats H10c with
+  the seed as the unit (positive for 12 of 12 seeds, exact p = 0.00024) and
+  H10d with λ permuted only within seeds (p = 0.0015). The preregistered
+  verdicts stand; the shared outsider panels remain a dependence no test
+  here removes.
+- **Correct: C3 was worded beyond its measurement.** Transitivity was
+  measured on the sequence of exported champions, not on the population.
+  The text now says "the champions are not cycling" and states the
+  inference: the exported champion is close to a random member of its
+  population (C4), so the sequence samples the population as it moves.
+  Cycles among members of one population at one moment were not measured.
+- **Correct: the niche archive is not MAP-Elites proper.** The latest
+  streak-chosen champion to enter a cell replaces the occupant (no
+  competition within a cell), the archive serves only as opponents, and it
+  has 64 slots where the time-ordered archive it was compared with has 512.
+  The Slime Volleyball niche runs stored no population snapshots. README
+  and paper now say so, and the Limitations list the archive that keeps each
+  niche's best occupant as untested.
+- **Correct: the NEAT explanation named a bundle.** The exploratory `as-ga`
+  variant removed structural mutation, speciation, species retirement and
+  the crossover settings together, so it cannot say which mattered. The
+  retirement rule judges a species by its best self-play fitness ever, a
+  score against opponents that keep changing; that is a plausible mismatch
+  with coevolution, untested. The review's description of NEAT's own
+  coevolution study was verified on arXiv 1107.0037: two populations, each
+  network against the four best species' champions and eight hall-of-fame
+  opponents, 24 games; that study also handled stagnation differently (the
+  lowest-performing species older than 30 generations may not reproduce).
+  README and paper now say which mechanisms were removed together and how
+  this setup differs from the published one.
+
+**Where the review's order was not followed, and why.** The review put a
+population-export experiment (exporting a mixture of members instead of
+one) first. In Slime Volleyball skill was transitive at every resolution
+measured, and against one opponent distribution a mixture's mean score
+cannot exceed its best member's, so that experiment's Slime arm would mostly
+re-measure transitivity; it is planned after WP13 (WP14), starting with the
+measurement C3 lacks (payoffs among members of one population). First
+instead: the review's fourth item, the counter's causal ingredients. The
+paper's headline (C4) rests on a mechanism the paper states but never
+tested ("inherited on every replacement"). Two facts from the stored runs,
+noted while checking the review, make the test pressing: at 299 of the 300
+stored population snapshots (all 30 control runs that store them), every
+member's inherited counter lies within 10% of the maximum (in the other, 126
+of 128), and the median member trails the maximum by a median of 10 wins,
+0.5% of the count (s101 at the first snapshot: maximum 422, median 412). The
+count is almost all shared ancestry, and the argmax is decided by the last
+few wins. [Corrected the same day: a first version of this entry said "at
+all 180 snapshots" of 18 runs, from a median that had been read as a
+minimum.] And late in
+training 29–53% of games end in a tie (sigma-0.05 runs, last 20
+checkpoints), on which one player is mutated in place and keeps its count.
+Because the counter never feeds back into reproduction in the control, a
+replay of the same history can carry alternative counters. WP13 in
+CLAUDE.md sets out the design: exploratory replays of seeds 101–106, then a
+preregistration, then 12 fresh runs.
+
+## 2026-10-03 — WP13: exploratory replays, then the preregistration
+
+`shadow.py` replays the control GA with four counters (the 2 × 2 of
+inheriting the count at birth or not, restarting it when a tie mutates the
+genotype or not); `test_repo.py` checks it bit for bit against the frozen
+kernel. The six original control runs (seeds 101–106) were replayed in the
+session container (`run_counter.py --explore`); all six are identical to
+their stored files in champions, populations, Ha's counter and learning
+curve. `counter_analysis.py --explore` then scored, at every population
+snapshot, each rule's pick held out (exploratory; numbers in
+`results/counter/PREREGISTRATION.md` §1 and
+`results/counter/explore/analysis.json`). In brief: Ha's counter exported a
+member of rank 64 of 128 on average, the median member's rank; counting only
+the current genotype's wins exported rank 44, the rank WP10's 1,024-game
+tournament reached on the same snapshots, at a level 0.03 below it and 0.38
+above Ha's counter (5 of 6 runs), and its reported curve was a third less
+volatile (6 of 6 runs).
+
+Sequence, for the record: the curve-level numbers were seen first (from the
+replay files); the four hypotheses and their tests (`counter_analysis.tests`)
+and the preregistration's text were written while the snapshot-level
+analysis was running, and were not changed after it finished except to fill
+in §1. The preregistered test runs on 12 fresh seeds (601–612) on GitHub's
+runners (`.github/workflows/counter.yml`), pushed only after the
+preregistration.
+
+A note on the wait: the replays finished at 20:25 UTC, but the shell loop
+that waited for them matched its own command line (`pgrep -f`) and ran to
+its time limit. Nothing was lost or rerun.

@@ -585,18 +585,18 @@ entire population every 50,000 games, every member can be scored against the
 <!-- table:5 -->
 | games | exported champion | best in the same pool | gap | exported rank | ρ(streak, score) | above parity in pool | mean pairwise genotype distance |
 |---|---|---|---|---|---|---|---|
-| 50,000 | -4.73 | -4.51 | 0.22 | 50 / 128 | +0.09 | 0 | 12.66 |
-| 100,000 | -3.91 | -2.22 | 1.69 | 71 / 128 | +0.00 | 1 | 10.79 |
-| 150,000 | -2.94 | -2.05 | 0.89 | 58 / 128 | +0.04 | 5 | 10.43 |
-| 200,000 | -2.05 | -1.31 | 0.74 | 54 / 128 | +0.05 | 13 | 10.13 |
-| 250,000 | -1.36 | -0.42 | 0.93 | 50 / 128 | +0.07 | 23 | 9.07 |
-| 300,000 | -1.07 | -0.29 | 0.78 | 44 / 128 | +0.10 | 32 | 10.50 |
-| 350,000 | -1.41 | -0.31 | 1.09 | 73 / 128 | +0.04 | 34 | 10.53 |
-| 400,000 | -1.18 | -0.30 | 0.88 | 56 / 128 | +0.15 | 47 | 12.61 |
-| 450,000 | -0.48 | +0.54 | 1.03 | 76 / 128 | -0.03 | 49 | 12.23 |
-| 500,000 | -0.08 | +0.62 | 0.70 | 61 / 128 | +0.07 | 67 | 11.38 |
+| 50,000 | -4.81 | -4.69 | 0.12 | 50 / 128 | +0.09 | 0 | 12.66 |
+| 100,000 | -3.98 | -2.40 | 1.58 | 71 / 128 | +0.00 | 1 | 10.79 |
+| 150,000 | -2.97 | -2.28 | 0.69 | 58 / 128 | +0.04 | 5 | 10.43 |
+| 200,000 | -1.93 | -1.59 | 0.34 | 54 / 128 | +0.05 | 13 | 10.13 |
+| 250,000 | -1.35 | -0.69 | 0.66 | 50 / 128 | +0.07 | 23 | 9.07 |
+| 300,000 | -1.07 | -0.66 | 0.41 | 44 / 128 | +0.10 | 32 | 10.50 |
+| 350,000 | -1.34 | -0.70 | 0.64 | 73 / 128 | +0.04 | 34 | 10.53 |
+| 400,000 | -1.25 | -0.57 | 0.69 | 56 / 128 | +0.15 | 47 | 12.61 |
+| 450,000 | -0.38 | +0.24 | 0.62 | 76 / 128 | -0.03 | 49 | 12.23 |
+| 500,000 | -0.15 | +0.35 | 0.50 | 61 / 128 | +0.07 | 67 | 11.38 |
 
-Control runs only (6 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
+Control runs only (6 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline on 30 episodes; 'exported' is the individual Ha's longest-winning-lineage rule selects, 'best' the member with the best of those scores. Both are then re-scored on 1,000 held-out episodes, which is what the score and gap columns show: on its own selecting episodes the best member's score is inflated (the maximum of 128 noisy scores). Rank, ρ and the parity count use the 30-episode scores.
 <!-- /table:5 -->
 
 Three things in that table, in increasing order of how much they matter.
@@ -632,7 +632,7 @@ unlike "best against the 2015 baseline" it is a fix rather than an oracle.
 | internal round robin, 64 peers each | 4,096 | -1.43 | 0.68 | 65% | +0.57 |
 | *best in pool (oracle, not deployable)* | *—* | *-1.14* | *0.61* | *100%* | *+1.00* |
 
-Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes to establish true skill; the promotion rules then compete to pick the best member using only what they are entitled to see. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
+Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes, which stand in for true skill; the promotion rules then pick a member using only what they are entitled to see, so their scores on those episodes are unbiased. The oracle row is not: it is the best of 128 scores on the very episodes that chose it, which inflates it (a winner's curse), so the gap to best is overstated and the share closed understated. The held-out re-scoring of the export check and the preregistered export test do not have this bias. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
 <!-- /table:9 -->
 
 ![the re-export experiment](../../results/figures/fig9_reexport.png)
@@ -1507,18 +1507,18 @@ Checkpoints 50,000 games apart play a round robin, 50 games per pair over both c
 <!-- table:5 -->
 | games | exported champion | best in the same pool | gap | exported rank | ρ(streak, score) | above parity in pool | mean pairwise genotype distance |
 |---|---|---|---|---|---|---|---|
-| 50,000 | -4.73 | -4.51 | 0.22 | 50 / 128 | +0.09 | 0 | 12.66 |
-| 100,000 | -3.91 | -2.22 | 1.69 | 71 / 128 | +0.00 | 1 | 10.79 |
-| 150,000 | -2.94 | -2.05 | 0.89 | 58 / 128 | +0.04 | 5 | 10.43 |
-| 200,000 | -2.05 | -1.31 | 0.74 | 54 / 128 | +0.05 | 13 | 10.13 |
-| 250,000 | -1.36 | -0.42 | 0.93 | 50 / 128 | +0.07 | 23 | 9.07 |
-| 300,000 | -1.07 | -0.29 | 0.78 | 44 / 128 | +0.10 | 32 | 10.50 |
-| 350,000 | -1.41 | -0.31 | 1.09 | 73 / 128 | +0.04 | 34 | 10.53 |
-| 400,000 | -1.18 | -0.30 | 0.88 | 56 / 128 | +0.15 | 47 | 12.61 |
-| 450,000 | -0.48 | +0.54 | 1.03 | 76 / 128 | -0.03 | 49 | 12.23 |
-| 500,000 | -0.08 | +0.62 | 0.70 | 61 / 128 | +0.07 | 67 | 11.38 |
+| 50,000 | -4.81 | -4.69 | 0.12 | 50 / 128 | +0.09 | 0 | 12.66 |
+| 100,000 | -3.98 | -2.40 | 1.58 | 71 / 128 | +0.00 | 1 | 10.79 |
+| 150,000 | -2.97 | -2.28 | 0.69 | 58 / 128 | +0.04 | 5 | 10.43 |
+| 200,000 | -1.93 | -1.59 | 0.34 | 54 / 128 | +0.05 | 13 | 10.13 |
+| 250,000 | -1.35 | -0.69 | 0.66 | 50 / 128 | +0.07 | 23 | 9.07 |
+| 300,000 | -1.07 | -0.66 | 0.41 | 44 / 128 | +0.10 | 32 | 10.50 |
+| 350,000 | -1.34 | -0.70 | 0.64 | 73 / 128 | +0.04 | 34 | 10.53 |
+| 400,000 | -1.25 | -0.57 | 0.69 | 56 / 128 | +0.15 | 47 | 12.61 |
+| 450,000 | -0.38 | +0.24 | 0.62 | 76 / 128 | -0.03 | 49 | 12.23 |
+| 500,000 | -0.15 | +0.35 | 0.50 | 61 / 128 | +0.07 | 67 | 11.38 |
 
-Control runs only (6 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline; 'exported' is the individual Ha's longest-winning-lineage rule selects.
+Control runs only (6 seeds), averaged across seeds. Every member of the snapshotted population is scored against the 2015 baseline on 30 episodes; 'exported' is the individual Ha's longest-winning-lineage rule selects, 'best' the member with the best of those scores. Both are then re-scored on 1,000 held-out episodes, which is what the score and gap columns show: on its own selecting episodes the best member's score is inflated (the maximum of 128 noisy scores). Rank, ρ and the parity count use the 30-episode scores.
 <!-- /table:5 -->
 
 ### Table 6 — cross-run tournament of final champions
@@ -1588,7 +1588,7 @@ Control condition, 6 seeds. 'Within-run s.d.' is the spread of checkpoint scores
 | internal round robin, 64 peers each | 4,096 | -1.43 | 0.68 | 65% | +0.57 |
 | *best in pool (oracle, not deployable)* | *—* | *-1.14* | *0.61* | *100%* | *+1.00* |
 
-Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes to establish true skill; the promotion rules then compete to pick the best member using only what they are entitled to see. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
+Control runs only (6 seeds), across all population snapshots. Every population member is scored against the 2015 baseline over 60 episodes, which stand in for true skill; the promotion rules then pick a member using only what they are entitled to see, so their scores on those episodes are unbiased. The oracle row is not: it is the best of 128 scores on the very episodes that chose it, which inflates it (a winner's curse), so the gap to best is overstated and the share closed understated. The held-out re-scoring of the export check and the preregistered export test do not have this bias. 'Volatility' is the mean absolute change in the exported individual's score between consecutive snapshots. For scale, 4,096 ranking games is 0.8% of a 500,000-game run.
 <!-- /table:9 -->
 
 ### Table 10 — unequal power

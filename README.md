@@ -17,7 +17,8 @@ repeatedly, and most of that instability is not coevolution: it is injected at
 the last step, by the rule that decides which individual to call the champion.
 Ha's rule exports an individual that ranks on average <!-- n:proxy_rank_mean -->60<!-- /n --> of <!-- n:proxy_pop -->128<!-- /n --> in its own
 population, its lineage counter is uncorrelated with its skill
-(ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->), and the population itself is not cycling. A better rule is cheap:
+(ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->), and the champions it exports over time are not cycling: later ones beat
+earlier ones. A better rule is cheap:
 exporting the winner of a <!-- n:reexport_games_sixteen -->1,024<!-- /n -->-game tournament inside the population raised the
 exported champion's score in a preregistered test on fresh runs (<!-- n:x_streak_level -->-2.33<!-- /n --> to <!-- n:x_tourney_level -->-2.16<!-- /n -->,
 higher in <!-- n:x_improved -->9<!-- /n --> of <!-- n:x_runs -->12<!-- /n --> runs), though by less than a post hoc analysis had
@@ -76,12 +77,18 @@ single transition time. That was one seed.
 *The same algorithm under six seeds. The phase change appears in all of them and
 at a different time in each, from <!-- n:ctrl_t_internal_min -->55,000<!-- /n --> to <!-- n:ctrl_t_internal_max -->415,000<!-- /n --> games.*
 
-**3. The population is not cycling.** Playing every checkpoint of a run against
+**3. The champions are not cycling.** Playing every checkpoint of a run against
 every other checkpoint, skill is essentially transitive: ρ(Elo, training time) =
 <!-- n:rho_within_ctrl -->+0.74<!-- /n --> in the control, and <!-- n:cyclic_ctrl_pct -->0.2<!-- /n -->% of its decided checkpoint triples are
 cyclic (at most <!-- n:cyclic_learning_max_pct -->0.2<!-- /n -->% in any condition whose runs all learned). The textbook
 explanation for the swings — the population forgets skills no current opponent
-punishes — does not fit this data.
+punishes — does not fit this data. What was measured is the sequence of
+exported champions. Because the exported champion is close to a random member
+of its population (finding 4), that sequence samples the population as it
+moves, which makes it evidence that the population is not cycling either, at
+the resolution measured.
+Whether members of one population, at one moment, beat each other in cycles
+was not measured.
 
 ![within-run tournament and intransitivity](results/figures/fig5_coevolution.png)
 
@@ -98,7 +105,7 @@ at most 50,000 games. But at 20 games per pair that rule lets sampling noise
 decide pairs between near-equal policies, and noise makes cycles: when a pair
 counts as decided only if an exact sign test on its wins and losses says so,
 <!-- n:fine_cyclic_sign -->35<!-- /n --> of <!-- n:fine_triads_sign -->273,376<!-- /n --> decided triads are cyclic (<!-- n:fine_cyclic_sign_pct -->0.01<!-- /n -->%). At the finer resolution the
-population is still not cycling. What does move at that resolution is the
+champions are still not cycling. What does move at that resolution is the
 exported champion: where adjacent champions differ significantly, the later one
 wins only <!-- n:fine_next_wins -->88/144<!-- /n --> times (<!-- n:fine_next_wins_pct -->61<!-- /n -->%), the export-rule noise of finding 4 seen
 from the other side.
@@ -124,29 +131,38 @@ Every one of the 100 champions of each control run (one per 5,000 games) played 
 **4. The champion-export rule is the noise source.** Ha selects the individual
 with the longest winning lineage, "without actually computing who is best to save
 time". That counter is inherited by the loser on every replacement, so it
-measures the age of a lineage, not merit. Measured against the whole population:
-the exported individual ranks, on average, number <!-- n:proxy_rank_mean -->60<!-- /n --> of <!-- n:proxy_pop -->128<!-- /n --> in its own
-pool, the correlation between its streak counter and its actual skill is
-indistinguishable from zero (ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->), and it scores <!-- n:proxy_gap -->0.90<!-- /n --> points per episode
-worse than the best individual in the same pool. At the last snapshot the
-exported champion averages <!-- n:proxy_end_exported -->-0.08<!-- /n --> while <!-- n:proxy_end_above -->67<!-- /n --> of its peers are above parity. The losses of
-competence are the export rule's too: summed over the control runs, the exported
-champion's score fell by <!-- n:decline_exported -->8.6<!-- /n --> points between consecutive population
-snapshots, the best member of the same pools by <!-- n:decline_best -->1.1<!-- /n -->. The population almost
-never gets worse; the individual we report does.
+measures the age of a lineage, not merit. Measured against the whole population
+(every member scored on <!-- n:ph_episodes -->30<!-- /n --> episodes against the 2015 baseline, scores that agree
+with an independent measurement at a median r = <!-- n:ph_retest_r -->0.94<!-- /n --> once skill varies within
+the pool): the exported individual ranks, on
+average, number <!-- n:proxy_rank_mean -->60<!-- /n --> of <!-- n:proxy_pop -->128<!-- /n --> in its own pool, and the correlation between its
+streak counter and its actual skill is indistinguishable from zero
+(ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->). Re-scored on held-out episodes, the member that scored best in the
+same pool is <!-- n:ph_gap -->0.63<!-- /n --> points per episode better than the exported one, and the
+exported one is no better than the pool's median member (<!-- n:ph_level_exp -->-1.92<!-- /n --> against <!-- n:ph_level_med -->-1.78<!-- /n -->).
+(On the <!-- n:ph_episodes -->30<!-- /n --> episodes that picked it, the best member looks <!-- n:ph_gap_selecting -->0.90<!-- /n --> better: the best of
+<!-- n:proxy_pop -->128<!-- /n --> noisy scores is inflated, by <!-- n:ph_inflation -->0.27<!-- /n --> here, a winner's curse that an
+earlier version of this analysis did not correct.) At the last snapshot the
+exported champion averages <!-- n:proxy_end_exported -->-0.15<!-- /n --> while <!-- n:proxy_end_above -->67<!-- /n --> of its peers score above parity. The
+losses of competence are the export rule's too: re-scored on held-out episodes
+and summed over the control runs, the exported champion's score fell by <!-- n:ph_decl_exp -->7.8<!-- /n -->
+points between consecutive population snapshots, the best member of the same
+pools by <!-- n:ph_decl_best -->2.0<!-- /n --> and the median member by <!-- n:ph_decl_med -->1.9<!-- /n -->; the exported champion fell further in
+<!-- n:ph_decl_runs -->6<!-- /n --> of <!-- n:ph_runs -->6<!-- /n --> runs. The population rarely gets worse; the individual we report does.
 
 ![what the export rule costs](results/figures/fig6_champion_proxy.png)
 
-*Left: the exported champion against the best individual in the same population.
-Right: Spearman correlation between the streak counter and actual skill, over
-training.*
+*Left: the exported champion against the best individual in the same population,
+both re-scored on held-out episodes. Right: Spearman correlation between the
+streak counter and actual skill, over training.*
 
 ![the re-export experiment](results/figures/fig9_reexport.png)
 
 *Re-exporting the same runs under a ranking rule that spends games measuring who
-is best. Left to right: level of the exported individual, volatility of the
-resulting curve, and correlation between rule and true skill, as a function of
-the ranking budget.*
+is best (post hoc). Left to right: level of the exported individual, volatility of
+the resulting curve, and correlation between rule and true skill, as a function
+of the ranking budget; the oracle lines are the held-out re-scores of the pool's
+best member.*
 
 **5. A better export rule, tested prospectively.** The re-export analysis
 above was post hoc: its budgets were chosen after seeing six runs. A
@@ -160,8 +176,13 @@ both rules choose from the same populations.
 - **It exports better champions** (H10a holds): <!-- n:x_tourney_level -->-2.16<!-- /n --> against <!-- n:x_streak_level -->-2.33<!-- /n --> for the
   streak rule, higher in <!-- n:x_improved -->9<!-- /n --> of <!-- n:x_runs -->12<!-- /n --> runs (p = <!-- n:x_p -->0.010<!-- /n -->); the exported member's average
   rank in its population rises from <!-- n:x_rank_streak -->56<!-- /n --> to <!-- n:x_rank_tourney -->46<!-- /n --> of <!-- n:proxy_pop -->128<!-- /n -->. It closes <!-- n:x_recovered_pct -->43<!-- /n -->% of the gap to
-  the population's best member (<!-- n:x_best_level -->-1.93<!-- /n -->), less than the <!-- n:reexport_rec_sixteen -->57<!-- /n -->% the post hoc
-  analysis suggested for the same budget.
+  the population's best member (<!-- n:x_best_level -->-1.93<!-- /n -->, re-scored held out). The gain, <!-- n:x_gain -->+0.17<!-- /n -->, is
+  smaller than the <!-- n:reexport_gain_sixteen -->+0.46<!-- /n --> the post hoc analysis found for the same budget.
+  It is a gain against the 2015 baseline, the yardstick the test was
+  preregistered on. Against the stronger zoo GA (described, not tested), the
+  final champions of the two rules scored alike (<!-- n:x_zoo_tourney -->-1.25<!-- /n --> against <!-- n:x_zoo_streak -->-1.26<!-- /n -->; the
+  tournament's was lower in <!-- n:x_zoo_tourney_lower -->7<!-- /n --> of <!-- n:x_runs -->12<!-- /n --> runs), so a better champion by one
+  yardstick was not shown to be better by another.
 - **It did not detectably reduce the losses of competence** (H10b does not
   hold): summed declines <!-- n:x_decl_tourney -->1.37<!-- /n --> against <!-- n:x_decl_streak -->1.98<!-- /n -->, fewer in <!-- n:x_decl_improved -->8<!-- /n --> of <!-- n:x_runs -->12<!-- /n --> runs (p = <!-- n:x_decl_p -->0.16<!-- /n -->).
   A larger budget went further (64 peers: <!-- n:x_recovered_big_pct -->77<!-- /n -->% of the gap, declines <!-- n:x_decl_big -->0.72<!-- /n -->), but only
@@ -173,7 +194,11 @@ both rules choose from the same populations.
   from <!-- n:xm_adv_low -->+0.11<!-- /n --> at λ = 0 to <!-- n:xm_adv_high -->+0.03<!-- /n --> at the most cyclic setting (ρ = <!-- n:xm_rho -->-0.43<!-- /n -->, p = <!-- n:xm_trend_p -->0.001<!-- /n -->). A
   tournament inside a population measures strength against that population;
   the more cyclic the game, the weaker a guide that is to strength against
-  anyone else.
+  anyone else. Both tests treat the 48 runs as independent, though the four
+  runs that share a seed start from the same population; with the seed as the
+  unit, the advantage is positive for <!-- n:xr_c_improved -->12<!-- /n --> of <!-- n:xr_c_seeds -->12<!-- /n --> seeds (p = <!-- n:xr_c_p -->0.00024<!-- /n -->) and the
+  trend holds with λ permuted only within seeds (p = <!-- n:xr_d_p -->0.0015<!-- /n -->)
+  ([`export_robustness.py`](export_robustness.py), not preregistered).
 
 <!-- table:x -->
 | rule | games per export | level | declines | rank in population | final vs zoo GA |
@@ -219,7 +244,9 @@ weaker player, and <!-- n:hoftest_skip_late_learned_min -->21<!-- /n -->–<!-- 
 event at all. In the run that never learned, the archive's win rate stayed at
 <!-- n:hoftest_win_late_failed -->0.50<!-- /n -->. Logging an archive's win rate is a cheap way to see
 whether it still has anything to teach; here it tracked progress, but that is a
-description of <!-- n:seeds_main -->6<!-- /n --> runs, not a validated predictor. An earlier version of this
+description of <!-- n:seeds_main -->6<!-- /n --> runs, not a validated predictor, and in the
+[preregistered replication](#a-preregistered-replication) it did not hold: one
+run that never learned also ended at <!-- n:rep_arch_failed_min -->0.21<!-- /n -->. An earlier version of this
 condition carried a streak-accounting bug that made it look measurably worse
 than the control; the corrected rerun and the before/after comparison are in
 `results/matrix/decisions.md`.
@@ -246,7 +273,9 @@ archive's role (a test, never a parent, drawn in a quarter of the games as
 in the archive-as-test condition) and changed only what it holds: one
 champion per cell of an 8 × 8 grid over a behaviour descriptor (the
 network's mean first two outputs on fixed probe inputs), in the manner of
-MAP-Elites. <!-- n:qd_runs -->60<!-- /n --> runs in Slime Volleyball and the lab's discmix game
+MAP-Elites but with two differences: the latest champion to enter a cell
+replaces the one there, where MAP-Elites keeps the better of the two, and the
+archive has <!-- n:qd_capacity -->64<!-- /n --> slots where the time-ordered one has <!-- n:hoftest_capacity -->512<!-- /n -->. <!-- n:qd_runs -->60<!-- /n --> runs in Slime Volleyball and the lab's discmix game
 ([below](#when-skill-is-cyclic-the-lab)):
 
 - **In Slime Volleyball it neither harmed nor helped detectably** (H9a
@@ -291,24 +320,31 @@ design, used as a test, helped in this study.
 Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of the final champions' cross-run strength (mean expected score against the final champions of the other 35 runs at the same λ), niche archive minus the comparison, with the two-sided exact Mann–Whitney p; no decision rests on these per-λ values. H9b, the effect vs control grows with λ: one-sided permutation p = 0.072, **does not hold**. H9c, at λ = 0.75 the niche archive beats the time-ordered one: one-sided exact Mann–Whitney p = 0.335, **does not hold**. Both under Holm.
 <!-- /table:qdm -->
 
-**7. Reliability is where the methods differ — not ceiling.** Four families were
-run at <!-- n:budget -->500,000<!-- /n --> games each: the 2020 GA, a generational GA in the style of Ha's
-2015 experiment, a self-play evolution strategy, and the corrected archive. They
-reach a *similar* ceiling — the single highest endpoint in the study,
-<!-- n:best_endpoint -->+0.50<!-- /n -->, is a <!-- n:best_endpoint_label -->self-play ES<!-- /n --> seed, above every control seed (best <!-- n:ctrl_best_endpoint -->+0.41<!-- /n -->).
-They differ enormously in their floor. Only the plain 2020 GA learned to rally
-in every seed and beat the 2015 expert in every seed (<!-- n:ctrl_reached -->6/6<!-- /n --> and <!-- n:ctrl_parity -->6/6<!-- /n -->; generational
-GA <!-- n:ga_reached -->5/6<!-- /n --> and <!-- n:ga_parity -->5/6<!-- /n -->, self-play ES <!-- n:es_reached -->4/6<!-- /n --> and <!-- n:es_parity -->2/6<!-- /n -->, archive as test <!-- n:hoftest_reached -->5/6<!-- /n --> and <!-- n:hoftest_parity -->4/6<!-- /n -->);
-the spread of end-of-run scores across seeds is <!-- n:family_sd_ratio_min -->3.0<!-- /n -->–<!-- n:family_sd_ratio_max -->3.5<!-- /n --> times the control's for
-the other three. A study running one seed per family could easily have crowned
-the ES. This is the clearest thing in the repository about why a design beats a
-run.
+**7. The families reach a similar ceiling; six seeds could not rank their
+reliability.** Four families were run at <!-- n:budget -->500,000<!-- /n --> games each: the 2020 GA, a
+generational GA in the style of Ha's 2015 experiment, a self-play evolution
+strategy, and the corrected archive. They reach a *similar* ceiling — the single
+highest endpoint in the matrix, <!-- n:best_endpoint -->+0.50<!-- /n -->, is a <!-- n:best_endpoint_label -->self-play ES<!-- /n --> seed, above every
+control seed (best <!-- n:ctrl_best_endpoint -->+0.41<!-- /n -->). In their six seeds they seemed to differ in their
+floor: only the plain 2020 GA learned to rally and beat the 2015 expert in every
+seed (<!-- n:ctrl_reached -->6/6<!-- /n --> and <!-- n:ctrl_parity -->6/6<!-- /n -->; generational GA <!-- n:ga_reached -->5/6<!-- /n --> and <!-- n:ga_parity -->5/6<!-- /n -->, self-play ES <!-- n:es_reached -->4/6<!-- /n --> and <!-- n:es_parity -->2/6<!-- /n -->,
+archive as test <!-- n:hoftest_reached -->5/6<!-- /n --> and <!-- n:hoftest_parity -->4/6<!-- /n -->), and the spread of end-of-run scores across seeds
+was <!-- n:family_sd_ratio_min -->3.0<!-- /n -->–<!-- n:family_sd_ratio_max -->3.5<!-- /n --> times the control's for the other three. That difference did not
+survive fresh seeds: in the [replication](#a-preregistered-replication), twelve
+new control runs learned in <!-- n:rep_ctrl_learned -->10/12<!-- /n -->, exactly as often as the archive as test on the
+same seeds (<!-- n:rep_test_learned_n -->10/12<!-- /n -->), and their end-of-run spread was <!-- n:rep_ctrl_final_sd -->1.92<!-- /n -->, as wide as the
+other families' in the matrix (<!-- n:fam_final_sd_min -->2.00<!-- /n -->–<!-- n:fam_final_sd_max -->2.29<!-- /n -->; the control's own six seeds: <!-- n:ctrl_final_sd -->0.66<!-- /n -->). The
+generational GA and the ES were not rerun, so their reliability is unknown
+beyond six seeds. What survives is the methodological point, made twice over: a study running one seed
+per family could easily have crowned the ES, and six seeds per family produced a
+reliability ranking that twelve more control runs did not support.
 
 ![algorithm families](results/figures/fig8_algorithm_families.png)
 
 *Three of the four families at an identical budget of <!-- n:budget -->500,000<!-- /n --> games (the
 archive variant is in the hall-of-fame figure above). The ceilings are close
-together. The floors are not.*
+together; the floors differ in these six seeds, a difference fresh control runs
+did not reproduce.*
 
 <!-- table:r -->
 | condition | runs | learned to rally | best champion (held out) | end-of-run champion | checkpoints above parity |
@@ -372,10 +408,18 @@ game, on both sides of the net), and three variants ran on <!-- n:nx_runs -->4<!
 
 The game and the loop can learn. What kept NEAT from learning here is its
 reproduction machinery (speciation, offspring shared out by species, one
-elite per species, structural mutation), not its minimal start and not its
-weight resets alone. This is one configuration, with settings from NEAT's
-papers where they give values and nothing tuned for this game. It says
-nothing about a NEAT tuned for self-play.
+elite per species, species retired when their best fitness stalls, structural
+mutation), not its minimal start and not its weight resets alone. Which part
+of that bundle matters was not isolated: the last variant removed all of it
+at once. One suspect is specific to coevolution and untested: a species is
+retired when its best self-play fitness stops rising, but that fitness is a
+score against opponents that keep changing, so an old maximum need not be
+beatable again. This is one configuration, with settings from NEAT's papers
+where they give values and nothing tuned for this game; NEAT's own
+coevolution study (Stanley & Miikkulainen 2004) used two populations and
+played each network against the best species' champions and a hall of fame,
+where this one used the generational GA's evaluation in one population. It
+says nothing about a NEAT tuned for self-play.
 
 <!-- table:neat -->
 | family | runs | learned to rally | reached parity | final (held out) | spread vs 2020 GA | best final | checkpoints above parity | median cross-run Elo |
@@ -412,11 +456,16 @@ and it lost <!-- n:rep_decl_exp -->21.2<!-- /n --> points between snapshots wher
 archive as parent learned in <!-- n:rep_parent_learned -->1/12<!-- /n --> runs; the archive as test was again
 indistinguishable from the control (every p ≥ <!-- n:rep_archive_pmin -->0.44<!-- /n -->).
 
-Two things came out weaker than six seeds suggested. Not every control run
+Three things came out weaker than six seeds suggested. Not every control run
 learns to rally: <!-- n:rep_ctrl_learned -->10/12<!-- /n --> did, which meets the preregistered threshold but ends
-"in every seed". And a falling archive win rate is not by itself a sign of
+"in every seed". A falling archive win rate is not by itself a sign of
 learning: it fell to <!-- n:rep_arch_learned_min -->0.06<!-- /n -->–<!-- n:rep_arch_learned_max -->0.16<!-- /n --> in the archive-as-test runs that learned, but
-also to <!-- n:rep_arch_failed_min -->0.21<!-- /n --> in one that never did. Findings 7 and 8 (algorithm families,
+also to <!-- n:rep_arch_failed_min -->0.21<!-- /n --> in one that never did. And the declines comparison, as preregistered,
+scored the pool's best member on the episodes that chose it (finding 4); re-scored
+on held-out episodes the exported champion still lost more, <!-- n:ph_rep_decl_exp -->19.5<!-- /n --> points against <!-- n:ph_rep_decl_best -->7.7<!-- /n -->,
+but in <!-- n:ph_rep_decl_runs -->9<!-- /n --> of <!-- n:ph_rep_runs -->12<!-- /n --> runs (one-sided sign test p = <!-- n:ph_rep_decl_p -->0.073<!-- /n -->), short of the threshold that
+the preregistered measure met. The verdict stands as preregistered; the
+held-out version is the more conservative reading. Findings 7 and 8 (algorithm families,
 unequal power) were not part of the replication; finding 5 was preregistered
 on fresh runs of its own.
 
@@ -621,8 +670,10 @@ enumeration, Cliff's δ, and percentile bootstrap intervals — written out in
 - **<!-- n:runs_min -->1<!-- /n -->–<!-- n:runs_max -->6<!-- /n --> runs per condition.** <!-- n:seeds_main -->6<!-- /n --> for every condition that carries a claim:
   enough to separate a large effect from seed noise, not a small one. Findings
   1–4 and 6 held in a [preregistered replication](#a-preregistered-replication) on
-  <!-- n:rep_runs -->12<!-- /n --> fresh runs per condition, and finding 5 was preregistered on fresh runs;
-  findings 7 and 8 were not replicated.
+  <!-- n:rep_runs -->12<!-- /n --> fresh runs per condition, and finding 5 was preregistered on fresh runs.
+  Findings 7 and 8 were not replicated, and six seeds were too few for one
+  part of finding 7: the reliability ranking of the families that they
+  suggested did not survive the replication's fresh control runs.
 - **Topology.** Findings 1–8 come from families that evolve one fixed network.
   NEAT, which evolves structure, never learned to rally here (<!-- n:neat_learned -->0<!-- /n --> of <!-- n:neat_runs -->12<!-- /n --> runs,
   [preregistered](results/neat/PREREGISTRATION.md)); that is one configuration
@@ -630,8 +681,9 @@ enumeration, Cliff's δ, and percentile bootstrap intervals — written out in
 - **Archive designs.** The archive was tested as a parent in one design and
   as a test in two: time-ordered, and organised by behaviour
   ([preregistered](results/qd/PREREGISTRATION.md), no detectable effect
-  either). A curated archive, or one that selects opponents by what they
-  teach, is untested.
+  either). An archive that keeps the best occupant of each niche
+  (MAP-Elites proper), a curated archive, or one that selects opponents by
+  what they teach, is untested.
 
 ---
 
@@ -658,6 +710,16 @@ python3 -m venv .venv          # Python 3.11
 # metrics, held-out re-scoring, and the three coevolution-specific measurements
 .venv/bin/python analyze_matrix.py --holdout
 .venv/bin/python coevolution_analysis.py --within --across --proxy
+.venv/bin/python reexport.py && .venv/bin/python proxy_heldout.py  # export rule, post hoc and held out
+.venv/bin/python yardsticks.py && .venv/bin/python transitivity_fine.py
+
+# the preregistered follow-ups: each runner skips runs that exist, each
+# analysis is the one fixed in that experiment's PREREGISTRATION.md
+.venv/bin/python replication.py                                    # runs: scripts/replicate.sh
+.venv/bin/python run_lab.py && .venv/bin/python lab_analysis.py    # cyclic skill
+.venv/bin/python run_export.py && .venv/bin/python export_analysis.py
+.venv/bin/python run_qd.py && .venv/bin/python qd_analysis.py      # archive by behaviour
+.venv/bin/python run_neat.py && .venv/bin/python neat_analysis.py  # NEAT
 
 # tables, figures, the single-page HTML write-up and the paper
 .venv/bin/python make_tables.py && .venv/bin/python make_figures.py
