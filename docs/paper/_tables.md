@@ -356,6 +356,21 @@ Slime Volleyball, 12 fresh control runs, every rule applied to the same 10 popul
 Discmix game, 12 fresh control runs per λ. Outsider strength: the exported member's exact mean expected score against every member of the other 11 runs' populations at the same λ and snapshot, averaged over the 10 snapshots; rank among its own population by the same measure. Preregistered tests: H10c, tournament-16 above streak over all 48 runs (42 higher), one-sided sign-flip p < 0.001, **holds**; H10d, the advantage shrinks with λ, ρ = -0.43, one-sided p = 0.001, **holds** (Holm).
 
 
+### Table CTR
+
+| rule | games per export | level | declines | rank in population | ρ(counter, score) | curve volatility |
+|---|---|---|---|---|---|---|
+| inherited at birth, kept at a tie (Ha's rule) | 0 | -1.73 | 2.04 | 59 | +0.06 | 0.55 |
+| inherited at birth, restarted at a tie | 0 | -1.75 | 1.65 | 60 | +0.09 | 0.51 |
+| from 0 at birth, kept at a tie | 0 | -1.50 | 1.08 | 51 | +0.17 | 0.46 |
+| **from 0 at birth, restarted at a tie (the current genotype's wins)** | 0 | -1.44 | 0.80 | 48 | +0.18 | 0.34 |
+| tournament, 16 peers (WP10) | 1,024 | -1.40 | 0.89 | 40 | — | — |
+| median member | — | -1.74 | 0.25 | 65 | — | — |
+| best member (oracle) | — | -1.17 | 0.22 | 1 | — | — |
+
+Slime Volleyball, 12 fresh control runs replayed with four counters on the identical history (the counter never feeds back into reproduction), every rule applied to the same 10 population snapshots per run. Level: mean held-out score of the exported member against the 2015 baseline over the snapshots; declines: summed falls between consecutive snapshots; rank: by a 60-episode score among the population (1 = best); ρ: Spearman between the counter and that score; curve volatility: mean absolute change of the counter's reported champion curve between consecutive checkpoints (every 5,000 games). Preregistered tests (one-sided exact sign-flip, Holm): H13a, the current genotype's wins above Ha's counter in level, 11/12 runs, p < 0.001, **holds**; H13b, its curve swings less, 11/12, p < 0.001, **holds**; H13c, not inheriting helps (main effect +0.27), p < 0.001, **holds**; H13d, restarting at a tie helps (main effect +0.02), p = 0.297, **does not hold**. Described: the current genotype's wins against the tournament, -0.04, higher in 3/12 runs, two-sided p = 0.167.
+
+
 ### Table A1
 
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |

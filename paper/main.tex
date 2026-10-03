@@ -54,7 +54,11 @@ lineage; that individual ranks on average \nProxyRankMean{} of \nProxyPop{} in
 its population, its lineage counter is uncorrelated with skill
 ($\rho=\nProxyRho$), and the champions it exports are not cycling. Exporting instead the
 winner of a short internal tournament did better in a preregistered test on
-fresh runs, though by less than a post hoc analysis had suggested. Internal
+fresh runs, though by less than a post hoc analysis had suggested. A second
+preregistered test confirmed why the counter fails: a new network inherits its
+parent's count. Counting only the current network's own wins costs nothing,
+exported better champions and reported a curve that swings \nCtrVolDropPct\%
+less. Internal
 improvement precedes external transfer by tens of thousands of games, and the
 timing of the phase change varies \nCtrlTInternalRatio-fold across seeds. An
 archive of past champions used as a parent abolishes learning; used as a test,
@@ -111,8 +115,9 @@ it fluctuates because of which individual we chose to measure.
 \item The export rule, not coevolution, is the dominant noise source in the
   reported curve; a cheap internal tournament exports measurably better
   champions in a preregistered test on fresh runs, recovering
-  \nXRecoveredPct\% of the gap to the population's best member
-  (\S\ref{sec:export}).
+  \nXRecoveredPct\% of the gap to the population's best member; a second
+  preregistered test confirms why the streak counter fails (it is inherited at
+  birth) and gives a remedy that costs no games (\S\ref{sec:export}).
 \item Internal improvement precedes external transfer by tens of thousands of
   games, and the phase change is robust in occurrence but not in timing
   (\S\ref{sec:lag}, \S\ref{sec:timing}).
@@ -358,7 +363,7 @@ by \nPhDeclExp{} points between consecutive snapshots, the best member's by
 champion fell further in \nPhDeclRuns{} of \nPhRuns{} runs. The population
 rarely gets worse; the individual we report does. The counter cannot do
 better: it is inherited on every replacement, so it records how long a lineage
-has survived, not how good its current member is.
+has survived, not how good its current member is (tested below).
 
 The rule can be replaced without external information. In a post hoc
 re-scoring of the same snapshots, ranking the pool by an internal round robin
@@ -385,6 +390,39 @@ rules' final champions scored alike (\nXZooTourney{} against \nXZooStreak,
 the tournament's lower in \nXZooTourneyLower{} of \nXRuns{} runs). It did not
 detectably reduce the curve's losses of competence (summed declines
 \nXDeclTourney{} against \nXDeclStreak, $p=\nXDeclP$).
+
+\paragraph{Why the counter fails, tested.} Ha's GA uses the counter for nothing
+but the export, so the same evolutionary history can carry other counters. A
+replay of the control GA, bit-identical to it, kept four on \nCtrRuns{} fresh
+runs (preregistered; Appendix~\ref{app:counter}): the count inherited at birth
+or started from zero, crossed with the count kept or restarted when a tie
+mutates a network in place. Starting from zero is what matters: it raised the
+exported member's held-out score by \nCtrNoinhMean{} (higher in
+\nCtrNoinhRuns{} of \nCtrRuns{} runs, $p=\nCtrNoinhP$), while restarting at
+ties added nothing detectable (\nCtrTieMean, $p=\nCtrTieP$), although tied
+games made up \nCtrTiesLatePct\% of late training. Counting only the current
+network's own wins exported members of average rank \nCtrRankCur{} instead of
+\nCtrRankInh{} (the median member's is \nCtrRankMed), scoring
+\nCtrLevelCur{} against \nCtrLevelInh{} (higher in \nCtrFixRuns{} of
+\nCtrRuns{} runs, $p=\nCtrFixP$), and its reported curve swung
+\nCtrVolDropPct\% less between checkpoints (\nCtrVolInh{} against
+\nCtrVolCur, lower in \nCtrVolhRuns{} of \nCtrRuns; Figure~\ref{fig:counter}).
+The fix costs no games. Against the 1,024-game tournament it was
+\nCtrVsTour{} behind (the tournament's member better in \nCtrTourHigher{} of
+\nCtrRuns{} runs, two-sided $p=\nCtrVsTourP$), a difference this design did not
+detect, not an equivalence.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig13_counter.pdf}
+\caption{The same evolutionary history, two counters. Left: one run's reported
+champion curve under Ha's counter, which a new network inherits from its
+parent, and under the current network's own wins (the run with the median
+difference in volatility). Right: every fresh run's exported member at the
+population snapshots, re-scored held out, paired; the 16-peer tournament for
+comparison; bars are means.}
+\label{fig:counter}
+\end{figure}
 
 \begin{figure}[!htbp]
 \centering
@@ -671,7 +709,9 @@ tournament's advantage shrank as skill became more cyclic
 (\S\ref{sec:robust}). Measuring candidates against their own population is a
 weaker guide to quality when quality is relative.
 Any loop that promotes one artefact out of a population has a promotion rule,
-and that rule is usually cheaper than a measurement of quality. LLM-driven
+and that rule is usually cheaper than a measurement of quality. The mechanism
+confirmed here is not specific to Ha's code: a score that an offspring inherits
+from its parent measures the lineage, not the offspring. LLM-driven
 program evolution \citep{novikov2025alphaevolve,lange2025shinkaevolve} promotes
 one program per generation or per run on the strength of an evaluator that may
 be noisy, small or proxy-based. \citet{gideoni2026simple} report the closely
@@ -724,7 +764,8 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
   design, as a test two (\S\ref{sec:archive}, \S\ref{sec:robust}); a curated
   archive, one that keeps the best occupant of each niche, or one that picks
   opponents by what they teach, is untested. Of
-  export rules only the streak rule and a 16-peer tournament were tested.
+  export rules only the streak rule, a 16-peer tournament and four
+  bookkeepings of the streak counter were tested.
 \item \textbf{Topology.} Every result outside \S\ref{sec:robust} comes from
   families that evolve one fixed network. One topology-evolving algorithm was run, in one configuration
   (\S\ref{sec:robust}); a NEAT tuned for self-play is untested.
@@ -1052,6 +1093,27 @@ snapshot).}
 \resizebox{\linewidth}{!}{\input{tables/xm.tex}}
 \end{table}
 
+\subsection{Why the counter fails: shadow counters}
+\label{app:counter}
+
+Preregistered (\texttt{results/counter/PREREGISTRATION.md}) after exploratory
+replays of the six original control runs, and run on \nCtrRuns{} fresh seeds.
+\texttt{shadow.py} replays the control GA, drawing the same random numbers in
+the same order, and checks bit for bit against the frozen kernel; beside Ha's
+counter it keeps three others, so every counter reads the identical history.
+Table~\ref{tab:counter} gives every rule's pick at the population snapshots.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Four bookkeepings of the streak counter on the same histories, with
+the 16-peer tournament, the median and the best member for comparison.
+Level and declines: held-out score of the exported member against the 2015
+baseline; curve volatility: mean absolute change of the counter's reported
+curve between checkpoints.}
+\label{tab:counter}
+\resizebox{\linewidth}{!}{\input{tables/ctr.tex}}
+\end{table}
+
 \subsection{The lab: cyclic skill, another archive, another topology}
 \label{app:lab}
 
@@ -1217,6 +1279,9 @@ python run_qd.py && python qd_analysis.py            # results/qd
 python run_neat.py && python neat_analysis.py        # results/neat
 python neat_explore.py && python neat_explore.py --summary   # exploratory
 python run_export.py && python export_analysis.py    # results/export
+python run_counter.py --explore                      # replays, 101-106
+python counter_analysis.py --explore                 # exploratory
+python run_counter.py && python counter_analysis.py  # results/counter
 \end{verbatim}
 \end{small}
 

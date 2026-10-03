@@ -1226,7 +1226,7 @@ def definitions():
                             ("reset", "inherited-reset", "inherited, restarted at a tie"),
                             ("own", "own", "wins since birth"),
                             ("cur", "current", "the current genotype's wins"),
-                            ("t16", "tournament-16", "the 16-peer tournament"),
+                            ("tour", "tournament-16", "the 16-peer tournament"),
                             ("med", "median", "the median member"),
                             ("best", "best", "the best member (oracle)")):
         add(f"ctr_level_{key}", ["counter"],
@@ -1248,21 +1248,20 @@ def definitions():
             f"shadow counters: summed declines of the {rule} counter's reported curve, "
             "mean per run")(
             (lambda r: lambda d: _f(cs(d)["curve"][r]["declines"], 1))(rule))
-    for h in ("H13a", "H13b", "H13c", "H13d"):
-        k = h.lower()
+    for h, k in (("H13a", "fix"), ("H13b", "volh"), ("H13c", "noinh"), ("H13d", "tie")):
         add(f"ctr_{k}_mean", ["counter"], f"{h}: mean per-run difference")(
             (lambda h: lambda d: _f(ct(d)[h]["mean"], 2, True))(h))
         add(f"ctr_{k}_runs", ["counter"], f"{h}: runs whose difference favours it")(
             (lambda h: lambda d: str(ct(d)[h]["runs_positive"]))(h))
         add(f"ctr_{k}_p", ["counter"], f"{h}: one-sided exact sign-flip p")(
             (lambda h: lambda d: _pv(ct(d)[h]["p_one_sided"]))(h))
-    add("ctr_vs_t16", ["counter"],
+    add("ctr_vs_tour", ["counter"],
         "shadow counters: current genotype's wins minus the 16-peer tournament, level")(
         lambda d: _f(ct(d)["current_vs_tournament"]["mean"], 2, True))
-    add("ctr_vs_t16_runs", ["counter"],
+    add("ctr_vs_tour_runs", ["counter"],
         "shadow counters: runs in which the current genotype's wins beat the tournament")(
         lambda d: str(ct(d)["current_vs_tournament"]["runs_higher"]))
-    add("ctr_vs_t16_p", ["counter"],
+    add("ctr_vs_tour_p", ["counter"],
         "shadow counters: current genotype's wins vs the tournament, two-sided p")(
         lambda d: _pv(ct(d)["current_vs_tournament"]["p_two_sided"]))
     add("ctr_ties_late_pct", ["counter"],
@@ -1274,6 +1273,16 @@ def definitions():
     add("ctr_maxcount_cur", ["counter"],
         "shadow counters: median of the current-genotype counter's maximum over snapshots")(
         lambda d: f"{cs(d)['diagnostics']['max_count_median']['current']:,.0f}")
+    add("ctr_vol_drop_pct", ["counter"],
+        "shadow counters: relative fall in curve volatility, current genotype's wins "
+        "against Ha's counter, in %")(
+        lambda d: _pct(1 - cs(d)["curve"]["current"]["volatility"]
+                       / cs(d)["curve"]["inherited"]["volatility"]))
+    add("ctr_tour_higher", ["counter"],
+        "shadow counters: runs in which the 16-peer tournament exported a better member "
+        "than the current genotype's wins")(
+        lambda d: str(ct(d)["current_vs_tournament"]["n"]
+                      - ct(d)["current_vs_tournament"]["runs_higher"]))
     add("ctr_spread_pct", ["counter"],
         "shadow counters: median gap between the largest and the median member's "
         "inherited count, as % of the largest")(

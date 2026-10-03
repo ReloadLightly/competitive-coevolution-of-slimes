@@ -22,7 +22,11 @@ earlier ones. A better rule is cheap:
 exporting the winner of a <!-- n:reexport_games_sixteen -->1,024<!-- /n -->-game tournament inside the population raised the
 exported champion's score in a preregistered test on fresh runs (<!-- n:x_streak_level -->-2.33<!-- /n --> to <!-- n:x_tourney_level -->-2.16<!-- /n -->,
 higher in <!-- n:x_improved -->9<!-- /n --> of <!-- n:x_runs -->12<!-- /n --> runs), though by less than a post hoc analysis had
-suggested. Internal improvement precedes any external transfer by tens of
+suggested. The counter itself can be fixed at no cost: a second preregistered
+test confirmed that it fails because each new network inherits its parent's
+count, and counting only the current network's own wins exported better
+champions (<!-- n:ctr_level_inh -->-1.73<!-- /n --> to <!-- n:ctr_level_cur -->-1.44<!-- /n -->, higher in <!-- n:ctr_fix_runs -->11<!-- /n --> of <!-- n:ctr_runs -->12<!-- /n --> runs) and a curve that swings
+<!-- n:ctr_vol_drop_pct -->38<!-- /n -->% less. Internal improvement precedes any external transfer by tens of
 thousands of games; the phase change is robust but its timing varies <!-- n:ctrl_t_internal_ratio -->7.5<!-- /n -->-fold
 across seeds; an archive of past champions abolishes learning when used as a
 parent and does nothing detectable when used as a test. Those claims held in a
@@ -131,7 +135,8 @@ Every one of the 100 champions of each control run (one per 5,000 games) played 
 **4. The champion-export rule is the noise source.** Ha selects the individual
 with the longest winning lineage, "without actually computing who is best to save
 time". That counter is inherited by the loser on every replacement, so it
-measures the age of a lineage, not merit. Measured against the whole population
+measures the age of a lineage, not merit (a preregistered test after finding
+5 confirms this). Measured against the whole population
 (every member scored on <!-- n:ph_episodes -->30<!-- /n --> episodes against the 2015 baseline, scores that agree
 with an independent measurement at a median r = <!-- n:ph_retest_r -->0.94<!-- /n --> once skill varies within
 the pool): the exported individual ranks, on
@@ -223,6 +228,53 @@ Slime Volleyball, 12 fresh control runs, every rule applied to the same 10 popul
 
 Discmix game, 12 fresh control runs per λ. Outsider strength: the exported member's exact mean expected score against every member of the other 11 runs' populations at the same λ and snapshot, averaged over the 10 snapshots; rank among its own population by the same measure. Preregistered tests: H10c, tournament-16 above streak over all 48 runs (42 higher), one-sided sign-flip p < 0.001, **holds**; H10d, the advantage shrinks with λ, ρ = -0.43, one-sided p = 0.001, **holds** (Holm).
 <!-- /table:xm -->
+
+**Why the counter fails, tested.** Finding 4 explains the failure by
+bookkeeping: the loser of every game takes over the winner's count, so the
+count measures a lineage, not the network that holds it. A
+[preregistered experiment](results/counter/PREREGISTRATION.md) tested that on
+<!-- n:ctr_runs -->12<!-- /n --> fresh control runs. Ha's GA uses the counter for nothing but the export, so
+the same evolutionary history can carry other counters:
+[`shadow.py`](shadow.py) replays the frozen GA bit for bit and keeps four,
+inheriting the count at birth or not, and restarting it when a tie mutates a
+network in place or not.
+
+- **The paper's explanation holds** (H13c): not inheriting the count raised
+  the exported member's held-out score by <!-- n:ctr_noinh_mean -->+0.27<!-- /n --> (higher in <!-- n:ctr_noinh_runs -->11<!-- /n --> of <!-- n:ctr_runs -->12<!-- /n --> runs,
+  p = <!-- n:ctr_noinh_p -->0.00098<!-- /n -->). Restarting it at ties, which looked promising in six exploratory
+  replays, did nothing detectable (<!-- n:ctr_tie_mean -->+0.02<!-- /n -->, p = <!-- n:ctr_tie_p -->0.297<!-- /n -->; H13d does not hold).
+- **A fix that costs no games** (H13a, H13b): counting only the current
+  network's own wins exported members ranked <!-- n:ctr_rank_cur -->48<!-- /n --> of 128 on average instead of
+  <!-- n:ctr_rank_inh -->59<!-- /n --> (the median member is <!-- n:ctr_rank_med -->65<!-- /n -->), scoring <!-- n:ctr_level_cur -->-1.44<!-- /n --> against <!-- n:ctr_level_inh -->-1.73<!-- /n --> (higher in
+  <!-- n:ctr_fix_runs -->11<!-- /n --> of <!-- n:ctr_runs -->12<!-- /n --> runs, p = <!-- n:ctr_fix_p -->0.00049<!-- /n -->), and its reported curve swung <!-- n:ctr_vol_drop_pct -->38<!-- /n -->% less
+  between checkpoints (<!-- n:ctr_vol_inh -->0.55<!-- /n --> against <!-- n:ctr_vol_cur -->0.34<!-- /n -->, lower in <!-- n:ctr_volh_runs -->11<!-- /n --> of <!-- n:ctr_runs -->12<!-- /n -->). In Ha's
+  code the part that matters is one assignment, `winning_streak[m] =
+  winning_streak[n]` (and its mirror for `n`): the new network should start
+  from zero.
+- **Against the 1,024-game tournament** (described, not tested) it was
+  <!-- n:ctr_vs_tour -->-0.04<!-- /n --> behind, the tournament's member better in <!-- n:ctr_tour_higher -->9<!-- /n --> of <!-- n:ctr_runs -->12<!-- /n --> runs (two-sided
+  p = <!-- n:ctr_vs_tour_p -->0.167<!-- /n -->): a difference this design did not detect, not an equivalence.
+
+![one history, two counters](results/figures/fig13_counter.png)
+
+*Left: one run's reported champion curve under Ha's counter and under the
+current network's own wins (the run with the median difference in volatility,
+so not chosen for looks). Right: every run's exported member at the population
+snapshots, paired, with the tournament for comparison.*
+
+<!-- table:ctr -->
+| rule | games per export | level | declines | rank in population | ρ(counter, score) | curve volatility |
+|---|---|---|---|---|---|---|
+| inherited at birth, kept at a tie (Ha's rule) | 0 | -1.73 | 2.04 | 59 | +0.06 | 0.55 |
+| inherited at birth, restarted at a tie | 0 | -1.75 | 1.65 | 60 | +0.09 | 0.51 |
+| from 0 at birth, kept at a tie | 0 | -1.50 | 1.08 | 51 | +0.17 | 0.46 |
+| **from 0 at birth, restarted at a tie (the current genotype's wins)** | 0 | -1.44 | 0.80 | 48 | +0.18 | 0.34 |
+| tournament, 16 peers (WP10) | 1,024 | -1.40 | 0.89 | 40 | — | — |
+| median member | — | -1.74 | 0.25 | 65 | — | — |
+| best member (oracle) | — | -1.17 | 0.22 | 1 | — | — |
+
+Slime Volleyball, 12 fresh control runs replayed with four counters on the identical history (the counter never feeds back into reproduction), every rule applied to the same 10 population snapshots per run. Level: mean held-out score of the exported member against the 2015 baseline over the snapshots; declines: summed falls between consecutive snapshots; rank: by a 60-episode score among the population (1 = best); ρ: Spearman between the counter and that score; curve volatility: mean absolute change of the counter's reported champion curve between consecutive checkpoints (every 5,000 games). Preregistered tests (one-sided exact sign-flip, Holm): H13a, the current genotype's wins above Ha's counter in level, 11/12 runs, p < 0.001, **holds**; H13b, its curve swings less, 11/12, p < 0.001, **holds**; H13c, not inheriting helps (main effect +0.27), p < 0.001, **holds**; H13d, restarting at a tie helps (main effect +0.02), p = 0.297, **does not hold**. Described: the current genotype's wins against the tournament, -0.04, higher in 3/12 runs, two-sided p = 0.167.
+<!-- /table:ctr -->
 
 ---
 
@@ -718,6 +770,8 @@ python3 -m venv .venv          # Python 3.11
 .venv/bin/python replication.py                                    # runs: scripts/replicate.sh
 .venv/bin/python run_lab.py && .venv/bin/python lab_analysis.py    # cyclic skill
 .venv/bin/python run_export.py && .venv/bin/python export_analysis.py
+.venv/bin/python export_robustness.py                              # discmix tests by seed
+.venv/bin/python run_counter.py && .venv/bin/python counter_analysis.py  # why the counter fails
 .venv/bin/python run_qd.py && .venv/bin/python qd_analysis.py      # archive by behaviour
 .venv/bin/python run_neat.py && .venv/bin/python neat_analysis.py  # NEAT
 
@@ -752,9 +806,10 @@ population snapshot with
 | `yardsticks.py` / `transitivity_fine.py` | stronger opponents (the slimevolleygym zoo) and transitivity at 5,000-game spacing |
 | `run_lab.py` / `lab_analysis.py` | the cyclic-skill experiment |
 | `run_export.py` / `export_analysis.py` | the export-rule experiment |
+| `shadow.py` / `run_counter.py` / `counter_analysis.py` | why the counter fails: the control GA replayed bit for bit with four counters |
 | `run_qd.py` / `qd_analysis.py` | the archive organised by behaviour |
 | `run_neat.py` / `neat_analysis.py` / `neat_explore.py` | NEAT, and its exploratory follow-up |
-| `results/replication/`, `results/export/`, `results/lab/`, `results/qd/`, `results/neat/` | the preregistered experiments, each with its preregistration, protocol record, run files and analysis |
+| `results/replication/`, `results/export/`, `results/counter/`, `results/lab/`, `results/qd/`, `results/neat/` | the preregistered experiments, each with its preregistration, protocol record, run files and analysis |
 | `results/zoo/` | the slimevolleygym zoo policies, with their license and source commit |
 | `paper/` | the LaTeX paper, its generated numbers and tables, and the review notes |
 | `archive/february/` | the earlier failed attempt, unmodified, as evidence |

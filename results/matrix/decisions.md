@@ -818,3 +818,50 @@ preregistration.
 A note on the wait: the replays finished at 20:25 UTC, but the shell loop
 that waited for them matched its own command line (`pgrep -f`) and ran to
 its time limit. Nothing was lost or rerun.
+
+## 2026-10-03 — WP13: shadow counters, analysed
+
+**Execution.** All 12 jobs of `.github/workflows/counter.yml` (workflow run
+37156407844) succeeded on GitHub's runners, 21:50–22:52 UTC, each committing
+its run file to the branch. Roland merged PR #11 at 22:25, while the jobs for
+seeds 601 and 612 were still running; their commits landed on the branch
+after the merge. The branch was then brought onto the new main by merging
+main into it (no commit rewritten; a rebase-and-force-push was started and
+abandoned, nothing was pushed by it). Every run file was checked against
+`results/counter/protocol.json` (budget, spacing, σ, population, snapshot
+shapes, Ha's counter equal to the stored streaks): no mismatch. `python
+counter_analysis.py` was then run once (`results/counter/analysis.json`,
+provenance scope `counter`). No run was excluded or repeated.
+
+**Verdicts by the preregistered rules** (one-sided exact sign-flip over 12
+runs, Holm at 0.05):
+
+- **H13a holds**: counting only the current genotype's wins exported better
+  members than Ha's counter: held-out level −1.44 against −1.73, higher in
+  11 of 12 runs, p = 0.00049.
+- **H13b holds**: its reported curve swung less between checkpoints, mean
+  absolute change 0.34 against 0.55 (38% less), lower in 11 of 12, p =
+  0.00049.
+- **H13c holds**: not inheriting the count at birth helps, main effect +0.27,
+  11 of 12, p = 0.00098. The paper's mechanism is confirmed.
+- **H13d does not hold**: restarting the count when a tie mutates the
+  genotype, main effect +0.02, 8 of 12, p = 0.30. In the six exploratory
+  replays it had looked like +0.14; the preregistered runs did not confirm
+  it, although 42% of late games were ties.
+
+Described, no decision: against WP10's 16-peer tournament on the same
+snapshots the current genotype's wins were 0.04 lower (−1.44 against −1.40),
+the tournament's pick better in 9 of 12 runs, two-sided p = 0.17: not
+detected, and not an equivalence. Mean rank of the exported member: Ha's
+counter 59, current genotype 48, tournament 40, median member 65.
+ρ(counter, skill): 0.06 for Ha's counter, 0.18 for the current genotype's.
+One run (s606) never learned to rally; there all rules tie.
+
+**As the preregistration requires**: C4's mechanism sentence now points to
+its test; C4 gains a remedy that costs no games (new claim C9 in
+CLAUDE.md); README (after finding 5) and paper (§3.4, Figure 13, Appendix
+"Why the counter fails: shadow counters", abstract, contributions,
+Limitations) say so, with the tournament comparison described as not
+detected. The Discussion gains one sentence: an inherited score measures a
+lineage, which is the mechanism any loop that copies parent scores to
+offspring would share (a hypothesis there, not a result).

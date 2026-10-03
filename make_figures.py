@@ -685,8 +685,9 @@ def fig13_counter(a, rundir):
     ax.set_ylabel("score vs 2015 baseline")
     ax.set_title(f"One history, two reported curves (seed {name.split('_s')[-1]})",
                  loc="left", fontsize=8.5)
-    ax.legend(loc="center left", bbox_to_anchor=(0.01, 0.55), fontsize=6.6,
-              handlelength=1.6)
+    fig.legend(*ax.get_legend_handles_labels(), loc="upper center",
+               bbox_to_anchor=(0.5, -0.03), ncol=2, frameon=False, fontsize=7,
+               handlelength=1.8)
 
     # right: every run's level at the population snapshots, paired
     ax = axes[1]

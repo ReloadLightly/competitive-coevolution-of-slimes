@@ -234,6 +234,23 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    its species retirement judges a species by its best fitness ever against
    opponents that keep changing. The text says both.
 
+26. **"The free counter is only tested where it cannot matter."** True in a
+   sense: in the control the counter never feeds back into reproduction, which
+   is what made the shadow-counter test possible, and the fix is shown only for
+   what gets exported. In variants where the counter decides something (the
+   archive conditions copy the counter's argmax into the archive), changing it
+   would change the trajectory, untested. The paper says the result is on the
+   control's histories.
+27. **"Then use the tournament."** The tournament still exported better
+   members on average (rank 40 against 48 of 128; better in 9 of 12 runs, not
+   detected, p = 0.17), at 1,024 games per export. The text reports the
+   difference as not detected and never as equivalence; the free counter's
+   correlation with skill is only 0.18.
+28. **"The tie mechanism you proposed failed."** It did: restarting the count
+   at tie-mutations looked like +0.14 in six exploratory replays and was +0.02
+   (p = 0.30) on the twelve preregistered runs. The text says so; it is the
+   reason the exploration was not used as evidence.
+
 ## (d) The paper now covers the whole README
 
 After WP4 the paper was extended so that every README section and every
@@ -255,14 +272,13 @@ result in the repository appears in it, each number generated
 - **Appendix C**: the command list that regenerates every number, table
   and figure, plus provenance, CI and the decision log.
 
-After the WP12 review (2026-10-03) the PDF is 27 pages: main text to the
-middle of page 13 (Figure 12, the export-rule test, and the held-out
-re-scoring added about a page and a half since WP11), then references and
-the appendix. The main text runs as one argument (what the
+After WP13 (2026-10-03) the PDF is 29 pages: the main text ends on page 14,
+about a page longer than after the WP12 review (the shadow-counter paragraph
+and Figure 13), then references and the appendix. The main text runs as one argument (what the
 population learns; what the reported curve measures and a better export
 rule; archives and families; the replication; beyond one game, archive and
 topology), and the lab experiments' tables are in Appendix A.11. Still
-over the 9–10-page target, by about three pages: the candidates for cutting
+over the 9–10-page target, by about four pages: the candidates for cutting
 are the mutation-step subsection and the unequal-power section (which
 CLAUDE.md's WP4 structure puts in the main text), both of which could move to
 the appendix, and the lab subsection (§3.9), whose tables are already there.
