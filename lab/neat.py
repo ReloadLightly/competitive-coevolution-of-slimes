@@ -494,16 +494,19 @@ def genome_from_arrays(nodes, conns):
                       for r in conns}}
 
 
-def run(seed, n_games, save_every, w, b, P=PARAMS, log=None):
+def run(seed, n_games, save_every, w, b, P=PARAMS, log=None, init=None):
     """NEAT under the generational GA's self-play evaluation.
 
+    `init(rng, inno)` replaces the minimal starting genome (used only by the
+    exploratory neat_explore.py; the preregistered runs use the default).
     Returns a dict: the exported champion of every checkpoint (genomes),
     its fitness, the mean training game length, and the number of species,
     hidden nodes and enabled connections of the champion."""
     rng = np.random.default_rng(seed)
     seed_games(seed)
     inno = Innovations()
-    pop = [new_genome(rng, inno, P["init_scale"]) for _ in range(P["pop"])]
+    pop = [init(rng, inno) if init else new_genome(rng, inno, P["init_scale"])
+           for _ in range(P["pop"])]
     n = P["pop"]
     games_per_gen = n * P["n_opponents"] // 2
     n_gen = n_games // games_per_gen

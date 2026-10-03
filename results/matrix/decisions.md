@@ -511,3 +511,46 @@ paper's C5b paragraph is unchanged; its Limitations bullet on cyclic games
 now says that neither archive design helped, and the scope bullet that the
 archive as a test was tried in two designs. README: new section "An archive
 organised by behaviour" (tables qd, qdm).
+
+## 2026-10-03 — WP9, part 2: NEAT failed; exploratory follow-up (not preregistered)
+
+`python neat_analysis.py` was run once after all 12 preregistered NEAT runs
+existed (each checked against `results/neat/protocol.json`). **H9d finds a
+detectable difference, against NEAT**: NEAT learned to rally in 0 of 12 runs;
+its final champions score −4.84 ± 0.01 against the 2015 baseline, against
+−2.00 for the generational GA (Cliff's δ −0.92, two-sided exact
+p = 0.0008), and rank last in the cross-run tournament (median Elo −406;
+the lowest other family +143). The champions grew 23–39 hidden nodes and
+144–170 enabled connections. The verdict stands as preregistered.
+
+A result this extreme could be an implementation defect, so the following
+checks were made afterwards, knowing the result:
+
+- the game path, again: a minimal NEAT genome computes tanh(Wx + b) exactly;
+  a pack of 30 grown genomes computes each one as a pack of one does; and
+  NEAT-vs-NEAT games of four encoded MLPs equal the paper's MLP-vs-MLP games
+  game for game, on both sides of the net. The fitness sign (the right-hand
+  player's score credited to it, the left-hand player's debited) matches
+  `algorithms.run_ga2015`.
+- three exploratory variants, first run in a scratch directory (seeds
+  901–903, 901–904 for `as-ga`), all at the full budget:
+  - `mlp-start` (NEAT as preregistered, but starting from the study's
+    network): 0/3 learned;
+  - `no-reset` (no weight replacement): 0/3 learned;
+  - `as-ga` (NEAT's loop reduced towards the generational GA: the study's
+    network, no structural mutation, one species, no stagnation removal,
+    always crossover; one elite instead of twenty): 1/4 learned and reached
+    parity (seed 902: rallies above 1,500 steps at 245,000 games, final
+    +0.05); seed 901 ended with rallies of 1,494 steps.
+
+So the game, the evaluation and the loop can learn; what stops it is NEAT's
+own reproduction machinery in this setting (speciation, offspring shared
+out by species, one elite per species, structural mutation), not the
+minimal start and not the weight resets alone. To make these numbers
+citable they are rerun from committed code: `neat_explore.py`, all three
+variants on seeds 901–904 (12 runs, `.github/workflows/neat-explore.yml`),
+into `results/neat/explore/`, summarised by `neat_explore.py --summary`
+(provenance scope `neat_explore`). They are exploratory throughout and are
+labelled so. `lab.neat.run` gained an optional `init` argument for the
+variants that start from the study's network; the default path is
+unchanged (the first champion of `neat_s101` reproduces exactly).
