@@ -225,6 +225,12 @@ def definitions():
         "share of the exported-to-best gap closed by the largest internal "
         "round robin, in %")(lambda d: _pct(rx(d)["recovered_fraction"][
             max(rx(d)["recovered_fraction"], key=lambda k: int(k.split("_")[1]))]))
+    add("reexport_rec_sixteen", ["reexport"],
+        "share of the gap closed by the 16-peer round robin, post hoc, in %")(
+        lambda d: _pct(rx(d)["recovered_fraction"]["internal_16"]))
+    add("reexport_games_sixteen", ["reexport"],
+        "ranking games per snapshot of the 16-peer round robin")(
+        lambda d: _games(rx(d)["ranking_games_per_snapshot"]["internal_16"]))
     add("reexport_peers_max", ["reexport"],
         "largest internal round robin: peers per individual")(
         lambda d: str(max(int(k.split("_")[1])
@@ -1000,6 +1006,69 @@ def definitions():
     add("nx_neat_meanlen_max", ["neat_explore"],
         "NEAT exploratory, mlp-start and no-reset: longest final training rally (steps)")(
         lambda d: f"{max(nx(d, v)['max_train_meanlen'] for v in ('mlp-start', 'no-reset')):,.0f}")
+
+    # ---- WP10: alternative export rules (preregistered) -----------------
+    def xs(d):
+        return d["export"]["slime"]
+
+    def xmx(d):
+        return d["export"]["discmix"]
+
+    def xlam(d):
+        return sorted(xmx(d)["by_lambda"], key=float)
+    add("x_runs", ["export"], "export rules: fresh Slime Volleyball control runs")(
+        lambda d: str(xs(d)["H10a"]["n"]))
+    add("x_streak_level", ["export"],
+        "export rules: level of the streak rule's exported members (held out)")(
+        lambda d: _f(xs(d)["rules"]["streak"]["level"], 2, True))
+    add("x_tourney_level", ["export"],
+        "export rules: level of the 16-peer tournament's exported members (held out)")(
+        lambda d: _f(xs(d)["rules"]["tournament-16"]["level"], 2, True))
+    add("x_best_level", ["export"],
+        "export rules: level of the best member (oracle)")(
+        lambda d: _f(xs(d)["rules"]["best"]["level"], 2, True))
+    add("x_gain", ["export"], "H10a: mean per-run gain, tournament-16 minus streak")(
+        lambda d: _f(xs(d)["H10a"]["mean_gain"], 2, True))
+    add("x_improved", ["export"], "H10a: runs in which tournament-16 exported better")(
+        lambda d: str(xs(d)["H10a"]["runs_improved"]))
+    add("x_p", ["export"], "H10a: one-sided exact sign-flip p")(
+        lambda d: _f(xs(d)["H10a"]["p_one_sided"], 3))
+    add("x_recovered_pct", ["export"],
+        "export rules: share of the streak-to-best gap closed by tournament-16, in %")(
+        lambda d: _pct(xs(d)["recovered_fraction"]["tournament-16"]))
+    add("x_recovered_big_pct", ["export"],
+        "export rules: share of the gap closed by the 64-peer tournament (descriptive), in %")(
+        lambda d: _pct(xs(d)["recovered_fraction"]["tournament-64"]))
+    add("x_decl_streak", ["export"], "export rules: mean summed declines, streak rule")(
+        lambda d: _f(xs(d)["rules"]["streak"]["declines"], 2))
+    add("x_decl_tourney", ["export"], "export rules: mean summed declines, tournament-16")(
+        lambda d: _f(xs(d)["rules"]["tournament-16"]["declines"], 2))
+    add("x_decl_big", ["export"],
+        "export rules: mean summed declines, 64-peer tournament (descriptive)")(
+        lambda d: _f(xs(d)["rules"]["tournament-64"]["declines"], 2))
+    add("x_decl_improved", ["export"], "H10b: runs with fewer declines under tournament-16")(
+        lambda d: str(xs(d)["H10b"]["runs_improved"]))
+    add("x_decl_p", ["export"], "H10b: one-sided exact sign-flip p")(
+        lambda d: _f(xs(d)["H10b"]["p_one_sided"], 2))
+    add("x_rank_streak", ["export"],
+        "export rules: mean rank of the streak rule's member in its population")(
+        lambda d: f"{xs(d)['rules']['streak']['mean_rank']:.0f}")
+    add("x_rank_tourney", ["export"],
+        "export rules: mean rank of the tournament-16 member in its population")(
+        lambda d: f"{xs(d)['rules']['tournament-16']['mean_rank']:.0f}")
+    add("xm_improved", ["export"], "H10c: discmix runs in which tournament-16 did better")(
+        lambda d: str(xmx(d)["H10c"]["runs_improved"]))
+    add("xm_n", ["export"], "H10c: discmix runs")(lambda d: str(xmx(d)["H10c"]["n"]))
+    add("xm_adv_low", ["export"],
+        "discmix: tournament-16 advantage in outsider strength at the smallest lambda")(
+        lambda d: _f(xmx(d)["by_lambda"][xlam(d)[0]]["advantage"], 2, True))
+    add("xm_adv_high", ["export"],
+        "discmix: tournament-16 advantage in outsider strength at the largest lambda")(
+        lambda d: _f(xmx(d)["by_lambda"][xlam(d)[-1]]["advantage"], 2, True))
+    add("xm_rho", ["export"], "H10d: Spearman rho(lambda, advantage)")(
+        lambda d: _f(xmx(d)["H10d"]["rho"], 2, True))
+    add("xm_trend_p", ["export"], "H10d: one-sided permutation p")(
+        lambda d: _f(xmx(d)["H10d"]["p_one_sided"], 3))
 
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):

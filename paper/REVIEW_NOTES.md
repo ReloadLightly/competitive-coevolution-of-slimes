@@ -168,6 +168,11 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    threshold 0.025). It is reported as not holding, which is what the
    preregistration says; a reader who wants "a trend" from it is reading an
    exploratory pattern into a failed test.
+18. **"The better export rule is a small effect."** It is: +0.17 points per
+   episode, 43% of the gap, smaller than the post hoc analysis (57%), and it
+   did not detectably reduce declines. The paper reports the preregistered
+   size, cites the post hoc analysis as the origin only, and must not quote
+   the 64-peer row (77%) as if it had been tested.
 
 ## (d) The paper now covers the whole README
 

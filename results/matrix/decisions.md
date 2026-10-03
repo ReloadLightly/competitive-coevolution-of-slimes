@@ -594,3 +594,35 @@ paired sign-flip test, checked against brute force) and the discmix
 tournament, which draws each game as `lab.kernels.discmix_play` does
 (`test_repo.py` checks both). The analysis was exercised on synthetic
 stand-in files only.
+
+## 2026-10-03 — WP10: alternative export rules, analysed
+
+All 60 run files of `results/export/PREREGISTRATION.md` arrived from
+`.github/workflows/export.yml`; each was checked against
+`results/export/protocol.json` (seed, condition, λ, snapshot spacing,
+budget, archive probability 0), with no mismatch. `python
+export_analysis.py` was then run once (`results/export/analysis.json`,
+provenance scope `export`). Verdicts by the preregistered rules:
+
+- **H10a holds**: in Slime Volleyball the 16-peer internal tournament
+  exports better members than the streak rule (level −2.16 against −2.33,
+  9 of 12 runs higher, exact one-sided p = 0.010; Holm needed 0.025). The
+  gain (+0.17) is smaller than the post hoc estimate for the same budget
+  (+0.46): it closes 43% of the gap to the best member, not 57%.
+- **H10b does not hold**: summed declines 1.37 against 1.98, fewer in 8 of
+  12 runs, p = 0.16.
+- **H10c holds**: in discmix the tournament's members are stronger against
+  other runs' populations, 42 of 48 runs, p < 0.001.
+- **H10d holds**: that advantage shrinks as skill becomes cyclic, +0.11 at
+  λ = 0 to +0.03 at λ = 0.75 (ρ = −0.43, p = 0.001).
+
+Noted when reading the results, not tested: 10 of the 12 Slime Volleyball
+runs learned to rally (as in the replication); in the two that did not,
+every member is equally weak and the rules tie.
+
+As the preregistration requires: C4 gains a prospective, deployable remedy
+(the README's new finding 4b; the paper's export-rule section, where the post
+hoc analysis is now the origin, not the evidence); the text says the remedy
+did not detectably reduce declines; and the Discussion's hypothesis about
+other loops gains the caveat that the remedy weakens as skill becomes cyclic.
+New claim C8 in CLAUDE.md.

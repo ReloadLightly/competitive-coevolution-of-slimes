@@ -210,9 +210,11 @@
 \newcommand{\nReexportBestLevel}{\ensuremath{-}1.14}  % mean score of the best member (oracle) over all snapshots
 \newcommand{\nReexportBudgetPct}{0.8}  % largest ranking budget as a share of one run's games, in %
 \newcommand{\nReexportGamesMax}{4,096}  % ranking games per snapshot at the largest internal round robin
+\newcommand{\nReexportGamesSixteen}{1,024}  % ranking games per snapshot of the 16-peer round robin
 \newcommand{\nReexportMedianLevel}{\ensuremath{-}1.83}  % mean score of the population's median member over all snapshots
 \newcommand{\nReexportPeersMax}{64}  % largest internal round robin: peers per individual
 \newcommand{\nReexportRecMax}{65}  % share of the exported-to-best gap closed by the largest internal round robin, in %
+\newcommand{\nReexportRecSixteen}{57}  % share of the gap closed by the 16-peer round robin, post hoc, in %
 \newcommand{\nReexportRhoMax}{\ensuremath{+}0.57}  % rho(internal margin, true skill) at the largest round robin
 \newcommand{\nReexportRhoStreak}{\ensuremath{+}0.04}  % rho(streak counter, true skill) in the re-export analysis
 \newcommand{\nReexportStreakLevel}{\ensuremath{-}1.95}  % mean score of the streak-exported individual over all snapshots
@@ -290,6 +292,28 @@
 \newcommand{\nWindowSdLast}{0.72}  % control: within-run s.d. of checkpoint scores, last window
 \newcommand{\nWindowSdMax}{0.83}  % control: largest window s.d.
 \newcommand{\nWindowSdMin}{0.51}  % control: smallest window s.d.
+\newcommand{\nXBestLevel}{\ensuremath{-}1.93}  % export rules: level of the best member (oracle)
+\newcommand{\nXDeclBig}{0.72}  % export rules: mean summed declines, 64-peer tournament (descriptive)
+\newcommand{\nXDeclImproved}{8}  % H10b: runs with fewer declines under tournament-16
+\newcommand{\nXDeclP}{0.16}  % H10b: one-sided exact sign-flip p
+\newcommand{\nXDeclStreak}{1.98}  % export rules: mean summed declines, streak rule
+\newcommand{\nXDeclTourney}{1.37}  % export rules: mean summed declines, tournament-16
+\newcommand{\nXGain}{\ensuremath{+}0.17}  % H10a: mean per-run gain, tournament-16 minus streak
+\newcommand{\nXImproved}{9}  % H10a: runs in which tournament-16 exported better
+\newcommand{\nXP}{0.010}  % H10a: one-sided exact sign-flip p
+\newcommand{\nXRankStreak}{56}  % export rules: mean rank of the streak rule's member in its population
+\newcommand{\nXRankTourney}{46}  % export rules: mean rank of the tournament-16 member in its population
+\newcommand{\nXRecoveredBigPct}{77}  % export rules: share of the gap closed by the 64-peer tournament (descriptive), in %
+\newcommand{\nXRecoveredPct}{43}  % export rules: share of the streak-to-best gap closed by tournament-16, in %
+\newcommand{\nXRuns}{12}  % export rules: fresh Slime Volleyball control runs
+\newcommand{\nXStreakLevel}{\ensuremath{-}2.33}  % export rules: level of the streak rule's exported members (held out)
+\newcommand{\nXTourneyLevel}{\ensuremath{-}2.16}  % export rules: level of the 16-peer tournament's exported members (held out)
+\newcommand{\nXmAdvHigh}{\ensuremath{+}0.03}  % discmix: tournament-16 advantage in outsider strength at the largest lambda
+\newcommand{\nXmAdvLow}{\ensuremath{+}0.11}  % discmix: tournament-16 advantage in outsider strength at the smallest lambda
+\newcommand{\nXmImproved}{42}  % H10c: discmix runs in which tournament-16 did better
+\newcommand{\nXmN}{48}  % H10c: discmix runs
+\newcommand{\nXmRho}{\ensuremath{-}0.43}  % H10d: Spearman rho(lambda, advantage)
+\newcommand{\nXmTrendP}{0.001}  % H10d: one-sided permutation p
 \newcommand{\nZooAboveBase}{10}  % final champions above parity against the 2015 baseline (held out)
 \newcommand{\nZooAboveBeatCma}{5}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo CMA-ES
 \newcommand{\nZooAboveBeatGa}{0}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo GA

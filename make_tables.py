@@ -937,9 +937,9 @@ TABLES = {
 
 # Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
 PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3",
-                "z", "t", "rep"]
+                "z", "t", "rep", "x", "xm"]
 TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
-           ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
+           ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("λ", r"$\lambda$"), ("×", r"$\times$"),
            ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),
            ("#", r"\#")]
 

@@ -128,6 +128,56 @@ is best. Left to right: level of the exported individual, volatility of the
 resulting curve, and correlation between rule and true skill, as a function of
 the ranking budget.*
 
+**4b. A better export rule, tested prospectively.** The re-export analysis
+above was post hoc: its budgets were chosen after seeing six runs. A
+[preregistered experiment](results/export/PREREGISTRATION.md) tested its rule on
+<!-- n:x_runs -->12<!-- /n --> fresh control runs: at each population snapshot, export the winner of
+a tournament inside the population (each member against 16 random peers,
+1,024 games, about a fifth of the games between checkpoints) instead of the
+longest streak. The exported champion never feeds back into training, so
+both rules choose from the same populations.
+
+- **It exports better champions** (H10a holds): <!-- n:x_tourney_level -->-2.16<!-- /n --> against <!-- n:x_streak_level -->-2.33<!-- /n --> for the
+  streak rule, higher in <!-- n:x_improved -->9<!-- /n --> of <!-- n:x_runs -->12<!-- /n --> runs (p = <!-- n:x_p -->0.010<!-- /n -->); the exported member's average
+  rank in its population rises from <!-- n:x_rank_streak -->56<!-- /n --> to <!-- n:x_rank_tourney -->46<!-- /n --> of <!-- n:proxy_pop -->128<!-- /n -->. It closes <!-- n:x_recovered_pct -->43<!-- /n -->% of the gap to
+  the population's best member (<!-- n:x_best_level -->-1.93<!-- /n -->), less than the <!-- n:reexport_rec_sixteen -->57<!-- /n -->% the post hoc
+  analysis suggested for the same budget.
+- **It did not detectably reduce the losses of competence** (H10b does not
+  hold): summed declines <!-- n:x_decl_tourney -->1.37<!-- /n --> against <!-- n:x_decl_streak -->1.98<!-- /n -->, fewer in <!-- n:x_decl_improved -->8<!-- /n --> of <!-- n:x_runs -->12<!-- /n --> runs (p = <!-- n:x_decl_p -->0.16<!-- /n -->).
+  A larger budget went further (64 peers: <!-- n:x_recovered_big_pct -->77<!-- /n -->% of the gap, declines <!-- n:x_decl_big -->0.72<!-- /n -->), but only
+  the 16-peer rule was tested, so that is a description.
+- **Under cyclic skill it helps, but less** (H10c and H10d hold). In the
+  lab's discmix game, judged against other runs' populations, the
+  tournament's champions are stronger in <!-- n:xm_improved -->42<!-- /n --> of <!-- n:xm_n -->48<!-- /n --> runs, but the advantage falls
+  from <!-- n:xm_adv_low -->+0.11<!-- /n --> at λ = 0 to <!-- n:xm_adv_high -->+0.03<!-- /n --> at the most cyclic setting (ρ = <!-- n:xm_rho -->-0.43<!-- /n -->, p = <!-- n:xm_trend_p -->0.001<!-- /n -->). A
+  tournament inside a population measures strength against that population;
+  the more cyclic the game, the weaker a guide that is to strength against
+  anyone else.
+
+<!-- table:x -->
+| rule | games per export | level | declines | rank in population | final vs zoo GA |
+|---|---|---|---|---|---|
+| streak (Ha's rule) | 0 | -2.33 | 1.98 | 56 | -1.26 |
+| tournament, 4 peers | 256 | -2.31 | 1.97 | 55 | — |
+| **tournament, 16 peers** | 1,024 | -2.16 | 1.37 | 46 | -1.25 |
+| tournament, 64 peers | 4,096 | -2.03 | 0.72 | 37 | — |
+| random member | 0 | -2.50 | 2.12 | 61 | — |
+| best member (oracle) | — | -1.93 | 0.61 | 2 | -1.05 |
+
+Slime Volleyball, 12 fresh control runs, every rule applied to the same 10 population snapshots per run. Level: mean held-out score of the exported member against the 2015 baseline over the snapshots; declines: summed falls between consecutive snapshots; rank: by score among the population (1 = best); zoo GA: the final exported member against the slimevolleygym zoo GA. Preregistered tests, tournament-16 against streak: H10a level, 9/12 runs higher, one-sided exact sign-flip p = 0.010, **holds**; H10b declines, 8/12 runs fewer, p = 0.158, **does not hold** (Holm).
+<!-- /table:x -->
+
+<!-- table:xm -->
+| λ | streak | tournament, 16 peers | best member (oracle) | tournament higher | rank: streak / tournament |
+|---|---|---|---|---|---|
+| 0.00 | +0.082 | +0.189 | +0.364 | 9/12 | 50 / 27 |
+| 0.25 | +0.027 | +0.135 | +0.292 | 12/12 | 58 / 31 |
+| 0.50 | +0.009 | +0.065 | +0.244 | 11/12 | 62 / 44 |
+| 0.75 | +0.002 | +0.029 | +0.159 | 10/12 | 66 / 49 |
+
+Discmix game, 12 fresh control runs per λ. Outsider strength: the exported member's exact mean expected score against every member of the other 11 runs' populations at the same λ and snapshot, averaged over the 10 snapshots; rank among its own population by the same measure. Preregistered tests: H10c, tournament-16 above streak over all 48 runs (42 higher), one-sided sign-flip p < 0.001, **holds**; H10d, the advantage shrinks with λ, ρ = -0.43, one-sided p = 0.001, **holds** (Holm).
+<!-- /table:xm -->
+
 **5. An archive of past champions does not help when skill is transitive — and
 as a parent it destroys learning.** We tested both readings of the archive. Used
 as a *parent* (a winning archived genome becomes the parent of the member it

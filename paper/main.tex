@@ -335,6 +335,17 @@ against the current population, which is not the same as skill against an
 unseen opponent, so held-out evaluation remains necessary for selection as
 well as for reporting.
 
+That analysis chose its budgets after seeing the data. A preregistered test
+on \nXRuns{} fresh control runs (repository; Appendix~\ref{app:exporttest})
+confirmed the direction at a smaller size. Exporting the winner of an internal
+round robin of \nReexportGamesSixteen{} games per snapshot instead of the
+longest streak raised the exported member's held-out score from
+\nXStreakLevel{} to \nXTourneyLevel{} (higher in \nXImproved{} of \nXRuns{}
+runs, one-sided $p=\nXP$), closing \nXRecoveredPct\% of the gap to the best
+member against \nReexportRecSixteen\% post hoc. It did not detectably reduce
+the curve's losses of competence (summed declines \nXDeclTourney{} against
+\nXDeclStreak, $p=\nXDeclP$).
+
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.8\linewidth]{figures/fig6_champion_proxy.pdf}
@@ -533,6 +544,11 @@ same GA and preregistered (repository, \texttt{docs/lab.md}), the streak rule
 exported an individual ranked on average \nLabRankMin--\nLabRankMax{} of 128 in
 its own pool at every mixture, its streak barely related to its true strength
 ($\rho=\nLabRhoStreakMin$ to $\nLabRhoStreakMax$).
+The internal round robin helped there too, judged against other runs'
+populations (better in \nXmImproved{} of \nXmN{} runs), but its advantage
+shrank as skill became more cyclic, from \nXmAdvLow{} to \nXmAdvHigh{}
+($\rho=\nXmRho$, $p=\nXmTrendP$, preregistered): measuring candidates against
+their own population is a weaker guide to quality when quality is relative.
 Any loop that promotes one artefact out of a population has a promotion rule,
 and that rule is usually cheaper than a measurement of quality. LLM-driven
 program evolution \citep{novikov2025alphaevolve,lange2025shinkaevolve} promotes
@@ -874,6 +890,35 @@ against the 2015 policy.}
 
 
 \FloatBarrier
+\subsection{Alternative export rules, tested prospectively}
+\label{app:exporttest}
+
+Preregistered (\texttt{results/export/PREREGISTRATION.md}) and run on fresh
+seeds: \nXRuns{} Slime Volleyball control runs and \nXmN{} discmix control
+runs. Because the exported member never feeds back into training, every rule
+is applied to the same stored populations, so each run is a paired
+comparison. Table~\ref{tab:exporttest} gives the Slime Volleyball result,
+Table~\ref{tab:exporttestlab} the discmix result judged against outsiders.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Export rules on the same population snapshots, \nXRuns{} fresh
+Slime Volleyball control runs. Level and declines: held-out score of the
+exported member against the 2015 baseline. Only the 16-peer tournament was
+tested; the other rows are described.}
+\label{tab:exporttest}
+\resizebox{\linewidth}{!}{\input{tables/x.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Export rules in the discmix game, judged by outsider strength (exact
+expected score against the other runs' populations at the same $\lambda$ and
+snapshot).}
+\label{tab:exporttestlab}
+\resizebox{\linewidth}{!}{\input{tables/xm.tex}}
+\end{table}
+
 \subsection{Every condition}
 \label{app:all}
 

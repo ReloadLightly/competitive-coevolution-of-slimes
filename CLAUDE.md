@@ -27,6 +27,7 @@ Findings currently claimed (README + `docs/paper/`):
 | C5a | Hall of fame as PARENT destroys learning (1/6 vs 6/6) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
 | C5b | Hall of fame as TEST (`hof-eval-v2`): neither harms nor helps detectably (all p ≥ 0.37 vs control, 5/6 learned); archive win rate 0.5 → 0.11–0.16 in runs that learned, a description rather than a validated diagnostic | rewritten in WP3 from `hof-eval-v2` (decisions.md 2026-10-02); replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); the archive-win-rate description did not hold (0.21 in a run that never learned); an archive organised by behaviour (WP9, preregistered) has no detectable effect either |
 | C6 | The algorithm families differ in reliability, not ceiling | keep; rechecked in WP3 with `hof-eval-v2` as the fourth family, unchanged |
+| C8 | A short internal tournament (16 peers, 1,024 games per export) exports a better champion than the streak rule: −2.16 vs −2.33, 9/12 fresh runs, p = 0.010, 43% of the gap to the best member; it does not detectably reduce declines (p = 0.16); in a cyclic game it helps against outsiders (42/48) but less as skill becomes cyclic (ρ = −0.43) | new 2026-10-03 (WP10, preregistered, fresh seeds); smaller than the post hoc re-export estimate (57%) |
 | C7 | Unequal power (asym block, 18 runs): mutual improvement 1/18, runaway 13/18; 2:1 capacity not decisive; norm-matched σ flips dominance 2/6 → 5/6 (p≈0.065) | exploratory only; never state as confirmed |
 
 The paper's broader hook (Discussion only, never a Result): any evolutionary
@@ -232,6 +233,8 @@ Status (2026-10-03): done. Item 2, the quality-diversity (niche) archive: H9a ho
    as a further archive design.
 
 ### WP10 — Alternative export rules (decided 2026-10-03)
+
+Status (2026-10-03): done. H10a, H10c, H10d hold; H10b does not (decisions.md). New claim C8.
 
 Roland: "lets go ahead testing alternative export rules". C4 diagnoses the
 streak rule; the post hoc re-export analysis suggested a fix. Test it
