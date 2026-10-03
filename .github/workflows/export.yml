@@ -1,0 +1,85 @@
+# Runs the preregistered export-rule experiment (WP10, results/export/
+# PREREGISTRATION.md) on GitHub's runners and commits each job's run files,
+# with the protocol record run_export.py writes, to the branch. Runs already
+# on the branch are skipped by the runner.
+name: export-rules
+
+on:
+  push:
+    branches: [claude/cool-shannon-ry3f4x]
+    paths: [.github/workflows/export.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        include:
+          # Slime Volleyball: one 500,000-game control run per job
+          - {cond: control, seeds: "401"}
+          - {cond: control, seeds: "402"}
+          - {cond: control, seeds: "403"}
+          - {cond: control, seeds: "404"}
+          - {cond: control, seeds: "405"}
+          - {cond: control, seeds: "406"}
+          - {cond: control, seeds: "407"}
+          - {cond: control, seeds: "408"}
+          - {cond: control, seeds: "409"}
+          - {cond: control, seeds: "410"}
+          - {cond: control, seeds: "411"}
+          - {cond: control, seeds: "412"}
+          # discmix: a condition's 12 seeds per job, on the runner's cores
+          - {cond: discmix-0.00-control, seeds: ""}
+          - {cond: discmix-0.25-control, seeds: ""}
+          - {cond: discmix-0.50-control, seeds: ""}
+          - {cond: discmix-0.75-control, seeds: ""}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install the locked environment
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libgl1
+          pip install -r requirements-lock.txt
+
+      - name: Run
+        run: |
+          SEEDS="${{ matrix.seeds }}"
+          python -W ignore run_export.py --only "${{ matrix.cond }}" ${SEEDS:+--seeds "$SEEDS"} --workers "$(nproc)"
+          lscpu | grep -E "Model name|^CPU\(s\)" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: export-${{ matrix.cond }}-${{ matrix.seeds || 'all' }}
+          path: results/export/${{ matrix.cond }}_s*.npz
+          if-no-files-found: error
+
+      - name: Commit the run files and the protocol record to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/export/"${{ matrix.cond }}"_s*.npz results/export/protocol.json
+          git diff --cached --quiet && { echo "nothing new"; exit 0; }
+          git commit -q -m "Export rules: ${{ matrix.cond }} ${{ matrix.seeds || '(12 seeds)' }} finished (GitHub Actions)" \
+            -m "Preregistered in results/export/PREREGISTRATION.md. Run by .github/workflows/export.yml, workflow run ${{ github.run_id }}."
+          git reset -q --hard HEAD
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --rebase origin "${{ github.ref_name }}" && \
+              git push -q origin "HEAD:${{ github.ref_name }}" && exit 0
+            sleep $((RANDOM % 20 + 5))
+          done
+          echo "could not push; the files are in the run's artifacts" && exit 1
