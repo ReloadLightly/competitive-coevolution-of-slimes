@@ -21,6 +21,7 @@ restarted.
 
     python run_counter.py --explore
     python run_counter.py --seeds 601,602
+    python run_counter.py --protocol     # the protocol record only
 """
 
 import argparse
@@ -110,6 +111,8 @@ def main():
     ap.add_argument("--seeds", default=None, help="comma-separated subset")
     ap.add_argument("--tournaments", type=int, default=RE.TOURNAMENTS)
     ap.add_argument("--workers", type=int, default=os.cpu_count())
+    ap.add_argument("--protocol", action="store_true",
+                    help="write the protocol record and exit (no run)")
     args = ap.parse_args()
     outdir = EXPLORE if args.explore else OUT
     seeds = EXPLORE_SEEDS if args.explore else FRESH_SEEDS
@@ -125,6 +128,9 @@ def main():
                    "seeds": EXPLORE_SEEDS if args.explore else FRESH_SEEDS,
                    "kernel": "shadow.run_ga_shadow"},
                   open(proto, "w"), indent=1)
+    if args.protocol:
+        print(f"-> {proto}")
+        return
     jobs = [(s, outdir, args.tournaments) for s in seeds]
     with mp.get_context("spawn").Pool(min(args.workers, len(jobs))) as pool:
         for msg in pool.imap_unordered(one_run, jobs):

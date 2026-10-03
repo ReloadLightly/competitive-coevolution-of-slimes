@@ -788,3 +788,33 @@ Because the counter never feeds back into reproduction in the control, a
 replay of the same history can carry alternative counters. WP13 in
 CLAUDE.md sets out the design: exploratory replays of seeds 101–106, then a
 preregistration, then 12 fresh runs.
+
+## 2026-10-03 — WP13: exploratory replays, then the preregistration
+
+`shadow.py` replays the control GA with four counters (the 2 × 2 of
+inheriting the count at birth or not, restarting it when a tie mutates the
+genotype or not); `test_repo.py` checks it bit for bit against the frozen
+kernel. The six original control runs (seeds 101–106) were replayed in the
+session container (`run_counter.py --explore`); all six are identical to
+their stored files in champions, populations, Ha's counter and learning
+curve. `counter_analysis.py --explore` then scored, at every population
+snapshot, each rule's pick held out (exploratory; numbers in
+`results/counter/PREREGISTRATION.md` §1 and
+`results/counter/explore/analysis.json`). In brief: Ha's counter exported a
+member of rank 64 of 128 on average, the median member's rank; counting only
+the current genotype's wins exported rank 44, the rank WP10's 1,024-game
+tournament reached on the same snapshots, at a level 0.03 below it and 0.38
+above Ha's counter (5 of 6 runs), and its reported curve was a third less
+volatile (6 of 6 runs).
+
+Sequence, for the record: the curve-level numbers were seen first (from the
+replay files); the four hypotheses and their tests (`counter_analysis.tests`)
+and the preregistration's text were written while the snapshot-level
+analysis was running, and were not changed after it finished except to fill
+in §1. The preregistered test runs on 12 fresh seeds (601–612) on GitHub's
+runners (`.github/workflows/counter.yml`), pushed only after the
+preregistration.
+
+A note on the wait: the replays finished at 20:25 UTC, but the shell loop
+that waited for them matched its own command line (`pgrep -f`) and ran to
+its time limit. Nothing was lost or rerun.

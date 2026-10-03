@@ -287,6 +287,11 @@ tests were repeated with the seed as the unit (`export_robustness.py`).
 
 ### WP13 — Why the streak counter fails (decided 2026-10-03)
 
+Status (2026-10-03): exploratory replays done (all six identical to their
+stored runs); preregistered (`results/counter/PREREGISTRATION.md`, H13a–d);
+the 12 fresh runs (seeds 601–612) run on GitHub Actions
+(`.github/workflows/counter.yml`); analysis once they land.
+
 The paper explains C4 with a mechanism it never tested: the counter "is
 inherited on every replacement, so it records how long a lineage has
 survived, not how good its current member is". Two facts from the stored

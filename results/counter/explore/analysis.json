@@ -1,0 +1,3467 @@
+{
+ "summary": {
+  "n_runs": 6,
+  "matches_stored": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "rules": {
+   "inherited": {
+    "level": -1.9239333333333333,
+    "declines": 1.301666666666667,
+    "rank": 63.833333333333336
+   },
+   "inherited-reset": {
+    "level": -1.689066666666667,
+    "declines": 0.9328333333333335,
+    "rank": 54.083333333333336
+   },
+   "own": {
+    "level": -1.5959999999999999,
+    "declines": 1.6146666666666665,
+    "rank": 43.79999999999999
+   },
+   "current": {
+    "level": -1.5416999999999998,
+    "declines": 0.9541666666666666,
+    "rank": 44.0
+   },
+   "tournament-16": {
+    "level": -1.5088333333333335,
+    "declines": 0.9891666666666666,
+    "rank": 43.800000000000004
+   },
+   "median": {
+    "level": -1.8195500000000002,
+    "declines": 0.25799999999999973,
+    "rank": 65.0
+   },
+   "best": {
+    "level": -1.2666666666666668,
+    "declines": 0.3010000000000001,
+    "rank": 1.0
+   }
+  },
+  "rho": {
+   "inherited": 0.05288556774184572,
+   "inherited-reset": 0.10068496790162158,
+   "own": 0.167184463867891,
+   "current": 0.1739813920778358
+  },
+  "curve": {
+   "inherited": {
+    "volatility": 0.5224747474747474,
+    "declines": 23.515,
+    "mean": -1.9734833333333333
+   },
+   "inherited-reset": {
+    "volatility": 0.39824915824915813,
+    "declines": 17.298333333333332,
+    "mean": -1.9191666666666671
+   },
+   "own": {
+    "volatility": 0.410462962962963,
+    "declines": 17.896666666666665,
+    "mean": -1.7985333333333333
+   },
+   "current": {
+    "volatility": 0.3321801346801347,
+    "declines": 13.999166666666662,
+    "mean": -1.7193499999999997
+   }
+  },
+  "vs_inherited": {
+   "inherited-reset": {
+    "mean": 0.23486666666666664,
+    "runs_higher": 4,
+    "n": 6,
+    "p_one_sided": 0.15625
+   },
+   "own": {
+    "mean": 0.32793333333333335,
+    "runs_higher": 4,
+    "n": 6,
+    "p_one_sided": 0.171875
+   },
+   "current": {
+    "mean": 0.38223333333333326,
+    "runs_higher": 5,
+    "n": 6,
+    "p_one_sided": 0.0625
+   },
+   "tournament-16": {
+    "mean": 0.41509999999999997,
+    "runs_higher": 6,
+    "n": 6,
+    "p_one_sided": 0.015625
+   },
+   "median": {
+    "mean": 0.1043833333333332,
+    "runs_higher": 2,
+    "n": 6,
+    "p_one_sided": 0.28125
+   },
+   "best": {
+    "mean": 0.6572666666666666,
+    "runs_higher": 6,
+    "n": 6,
+    "p_one_sided": 0.015625
+   }
+  },
+  "vs_tournament": {
+   "inherited": {
+    "mean": -0.41509999999999997,
+    "runs_higher": 0,
+    "n": 6,
+    "p_one_sided": 1.0
+   },
+   "inherited-reset": {
+    "mean": -0.18023333333333333,
+    "runs_higher": 1,
+    "n": 6,
+    "p_one_sided": 0.96875
+   },
+   "own": {
+    "mean": -0.08716666666666666,
+    "runs_higher": 3,
+    "n": 6,
+    "p_one_sided": 0.765625
+   },
+   "current": {
+    "mean": -0.03286666666666661,
+    "runs_higher": 3,
+    "n": 6,
+    "p_one_sided": 0.671875
+   }
+  },
+  "factorial_level": {
+   "no_inheritance": 0.23765000000000003,
+   "tie_restart": 0.1445833333333333,
+   "interaction": -0.18056666666666654
+  },
+  "diagnostics": {
+   "inherited_spread_median": 0.004445414252463725,
+   "at_max_mean": {
+    "inherited": 1.5833333333333333,
+    "inherited-reset": 1.4833333333333334,
+    "own": 1.4166666666666667,
+    "current": 1.35
+   },
+   "max_count_median": {
+    "inherited": 2285.0,
+    "inherited-reset": 21.0,
+    "own": 9.0,
+    "current": 6.0
+   },
+   "median_games_since_birth": 1.0,
+   "tie_frac_late_mean": 0.42855
+  }
+ },
+ "tests": {
+  "H13a": {
+   "mean": 0.38223333333333326,
+   "runs_positive": 5,
+   "n": 6,
+   "p_one_sided": 0.0625,
+   "rejected": false
+  },
+  "H13b": {
+   "mean": 0.1902946127946128,
+   "runs_positive": 6,
+   "n": 6,
+   "p_one_sided": 0.015625,
+   "rejected": false
+  },
+  "H13c": {
+   "mean": 0.23765000000000003,
+   "runs_positive": 4,
+   "n": 6,
+   "p_one_sided": 0.109375,
+   "rejected": false
+  },
+  "H13d": {
+   "mean": 0.1445833333333333,
+   "runs_positive": 5,
+   "n": 6,
+   "p_one_sided": 0.03125,
+   "rejected": false
+  },
+  "current_vs_tournament": {
+   "mean": -0.03286666666666661,
+   "runs_higher": 3,
+   "n": 6,
+   "p_two_sided": 0.6875
+  }
+ },
+ "per_run": {
+  "control_s101": {
+   "seed": 101,
+   "snapshots": [
+    {
+     "score": {
+      "inherited": -4.826,
+      "inherited-reset": -4.826,
+      "own": -4.837,
+      "current": -4.837,
+      "tournament-16": -4.823,
+      "median": -4.813,
+      "best": -4.83
+     },
+     "rank": {
+      "inherited": 77,
+      "inherited-reset": 77,
+      "own": 121,
+      "current": 121,
+      "tournament-16": 102,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 32,
+      "inherited-reset": 32,
+      "own": 69,
+      "current": 69,
+      "tournament-16": 126,
+      "median": 92,
+      "best": 119
+     },
+     "rho": {
+      "inherited": -0.0018178002821073254,
+      "inherited-reset": -0.0018178002821073254,
+      "own": 0.09252455626886152,
+      "current": 0.09252455626886152
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 2,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 422,
+      "inherited-reset": 422,
+      "own": 6,
+      "current": 6
+     },
+     "inherited_spread": 0.023696682464454975,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.03138750131366418
+    },
+    {
+     "score": {
+      "inherited": -4.844,
+      "inherited-reset": -4.844,
+      "own": -4.838,
+      "current": -4.838,
+      "tournament-16": -4.833,
+      "median": -4.835,
+      "best": -4.826
+     },
+     "rank": {
+      "inherited": 57,
+      "inherited-reset": 57,
+      "own": 7,
+      "current": 7,
+      "tournament-16": 105,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 61,
+      "inherited-reset": 61,
+      "own": 18,
+      "current": 18,
+      "tournament-16": 109,
+      "median": 100,
+      "best": 108
+     },
+     "rho": {
+      "inherited": 0.24796408449832555,
+      "inherited-reset": 0.24796408449832555,
+      "own": -0.04145722923652655,
+      "current": -0.04145722923652655
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 808,
+      "inherited-reset": 808,
+      "own": 7,
+      "current": 7
+     },
+     "inherited_spread": 0.01485148514851485,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.03679900360969929
+    },
+    {
+     "score": {
+      "inherited": -4.832,
+      "inherited-reset": -4.832,
+      "own": -4.813,
+      "current": -4.813,
+      "tournament-16": -4.832,
+      "median": -4.809,
+      "best": -4.836
+     },
+     "rank": {
+      "inherited": 18,
+      "inherited-reset": 18,
+      "own": 9,
+      "current": 9,
+      "tournament-16": 18,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 44,
+      "inherited-reset": 44,
+      "own": 47,
+      "current": 47,
+      "tournament-16": 44,
+      "median": 27,
+      "best": 60
+     },
+     "rho": {
+      "inherited": 0.1305372002519247,
+      "inherited-reset": 0.1305372002519247,
+      "own": -0.028581431841765242,
+      "current": -0.028581431841765242
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 1234,
+      "inherited-reset": 1234,
+      "own": 6,
+      "current": 6
+     },
+     "inherited_spread": 0.008914100486223663,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.04052952690321298
+    },
+    {
+     "score": {
+      "inherited": -4.845,
+      "inherited-reset": -4.845,
+      "own": -4.794,
+      "current": -4.794,
+      "tournament-16": -4.799,
+      "median": -4.85,
+      "best": -4.758
+     },
+     "rank": {
+      "inherited": 84,
+      "inherited-reset": 84,
+      "own": 125,
+      "current": 125,
+      "tournament-16": 96,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 41,
+      "inherited-reset": 41,
+      "own": 27,
+      "current": 27,
+      "tournament-16": 2,
+      "median": 3,
+      "best": 23
+     },
+     "rho": {
+      "inherited": -0.06250968767478653,
+      "inherited-reset": -0.06250968767478653,
+      "own": 0.010314931576730232,
+      "current": 0.010314931576730232
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 2,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1684,
+      "inherited-reset": 1684,
+      "own": 7,
+      "current": 7
+     },
+     "inherited_spread": 0.0035629453681710215,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.05502361368677118
+    },
+    {
+     "score": {
+      "inherited": -1.495,
+      "inherited-reset": -1.644,
+      "own": -1.644,
+      "current": -1.644,
+      "tournament-16": -1.168,
+      "median": -2.389,
+      "best": -0.202
+     },
+     "rank": {
+      "inherited": 22,
+      "inherited-reset": 28,
+      "own": 28,
+      "current": 28,
+      "tournament-16": 21,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 65,
+      "inherited-reset": 124,
+      "own": 124,
+      "current": 124,
+      "tournament-16": 45,
+      "median": 59,
+      "best": 3
+     },
+     "rho": {
+      "inherited": 0.18695315095333373,
+      "inherited-reset": 0.07649200285163765,
+      "own": 0.2889584987735855,
+      "current": 0.3449052209936274
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2178,
+      "inherited-reset": 31,
+      "own": 19,
+      "current": 19
+     },
+     "inherited_spread": 0.004591368227731864,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.2347223862336922
+    },
+    {
+     "score": {
+      "inherited": -1.185,
+      "inherited-reset": -1.185,
+      "own": -0.4,
+      "current": 0.049,
+      "tournament-16": -0.4,
+      "median": -1.005,
+      "best": -0.195
+     },
+     "rank": {
+      "inherited": 52,
+      "inherited-reset": 52,
+      "own": 34,
+      "current": 2,
+      "tournament-16": 34,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 72,
+      "inherited-reset": 72,
+      "own": 118,
+      "current": 97,
+      "tournament-16": 118,
+      "median": 14,
+      "best": 46
+     },
+     "rho": {
+      "inherited": 0.17255897179398197,
+      "inherited-reset": 0.17346866345465853,
+      "own": 0.3136496761707211,
+      "current": 0.39380270851678467
+     },
+     "at_max": {
+      "inherited": 4,
+      "inherited-reset": 3,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2623,
+      "inherited-reset": 52,
+      "own": 7,
+      "current": 6
+     },
+     "inherited_spread": 0.002668699961875715,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.0137557250296454
+    },
+    {
+     "score": {
+      "inherited": -1.399,
+      "inherited-reset": -0.685,
+      "own": -0.964,
+      "current": -0.007,
+      "tournament-16": -0.007,
+      "median": -0.629,
+      "best": 0.237
+     },
+     "rank": {
+      "inherited": 107,
+      "inherited-reset": 75,
+      "own": 77,
+      "current": 13,
+      "tournament-16": 13,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 21,
+      "inherited-reset": 122,
+      "own": 70,
+      "current": 75,
+      "tournament-16": 75,
+      "median": 85,
+      "best": 20
+     },
+     "rho": {
+      "inherited": 0.12879005257397863,
+      "inherited-reset": 0.20351115261956315,
+      "own": -0.016550319993161308,
+      "current": 0.08126521097035427
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2953,
+      "inherited-reset": 22,
+      "own": 8,
+      "current": 5
+     },
+     "inherited_spread": 0.0033863867253640365,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.9243924456831458
+    },
+    {
+     "score": {
+      "inherited": 0.26,
+      "inherited-reset": 0.067,
+      "own": 0.26,
+      "current": 0.047,
+      "tournament-16": 0.432,
+      "median": 0.054,
+      "best": 0.459
+     },
+     "rank": {
+      "inherited": 5,
+      "inherited-reset": 60,
+      "own": 5,
+      "current": 36,
+      "tournament-16": 3,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 19,
+      "inherited-reset": 18,
+      "own": 19,
+      "current": 37,
+      "tournament-16": 9,
+      "median": 110,
+      "best": 42
+     },
+     "rho": {
+      "inherited": 0.23881925871794263,
+      "inherited-reset": 0.25151586041027124,
+      "own": 0.3205138827899075,
+      "current": 0.35525958254389434
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 2,
+      "own": 1,
+      "current": 5
+     },
+     "max_count": {
+      "inherited": 3236,
+      "inherited-reset": 10,
+      "own": 11,
+      "current": 3
+     },
+     "inherited_spread": 0.001854140914709518,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.7195673827299606
+    },
+    {
+     "score": {
+      "inherited": 0.138,
+      "inherited-reset": -0.256,
+      "own": -0.064,
+      "current": 0.362,
+      "tournament-16": -0.027,
+      "median": -0.186,
+      "best": 0.255
+     },
+     "rank": {
+      "inherited": 26,
+      "inherited-reset": 43,
+      "own": 42,
+      "current": 6,
+      "tournament-16": 84,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 28,
+      "inherited-reset": 15,
+      "own": 3,
+      "current": 87,
+      "tournament-16": 20,
+      "median": 99,
+      "best": 47
+     },
+     "rho": {
+      "inherited": -0.34433654429397204,
+      "inherited-reset": 0.09638355804558994,
+      "own": 0.1485100003337195,
+      "current": 0.1397505741912219
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3486,
+      "inherited-reset": 10,
+      "own": 10,
+      "current": 4
+     },
+     "inherited_spread": 0.004016064257028112,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.5660437507389786
+    },
+    {
+     "score": {
+      "inherited": 0.262,
+      "inherited-reset": -0.848,
+      "own": 0.289,
+      "current": -0.293,
+      "tournament-16": 0.135,
+      "median": -0.011,
+      "best": 0.194
+     },
+     "rank": {
+      "inherited": 39,
+      "inherited-reset": 118,
+      "own": 17,
+      "current": 94,
+      "tournament-16": 67,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 95,
+      "inherited-reset": 93,
+      "own": 124,
+      "current": 73,
+      "tournament-16": 23,
+      "median": 110,
+      "best": 97
+     },
+     "rho": {
+      "inherited": 0.043150954531587106,
+      "inherited-reset": 0.00576050287154271,
+      "own": 0.16388330759325218,
+      "current": 0.049253912492690406
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 2,
+      "own": 1,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 3717,
+      "inherited-reset": 7,
+      "own": 10,
+      "current": 6
+     },
+     "inherited_spread": 0.0018832391713747645,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.5949115870562999
+    }
+   ],
+   "level_inherited": -2.2765999999999997,
+   "declines_inherited": 0.36700000000000055,
+   "rank_inherited": 48.7,
+   "level_inherited-reset": -2.3898,
+   "declines_inherited-reset": 0.9460000000000006,
+   "rank_inherited-reset": 61.2,
+   "level_own": -2.1805,
+   "declines_own": 0.8890000000000002,
+   "rank_own": 46.5,
+   "level_current": -2.0768,
+   "declines_current": 0.7120000000000004,
+   "rank_current": 44.1,
+   "level_tournament-16": -2.0322,
+   "declines_tournament-16": 0.4689999999999998,
+   "rank_tournament-16": 54.3,
+   "level_median": -2.3472999999999997,
+   "declines_median": 0.3029999999999997,
+   "rank_median": 65.0,
+   "level_best": -1.8502000000000003,
+   "declines_best": 0.2750000000000007,
+   "rank_best": 1.0,
+   "rho_inherited": 0.07401096410702084,
+   "rho_inherited-reset": 0.11213055370466193,
+   "rho_own": 0.12517658724353245,
+   "rho_current": 0.1397038036475873,
+   "curve_volatility_inherited": 0.3951010101010101,
+   "curve_declines_inherited": 17.064999999999994,
+   "curve_mean_inherited": -2.5242500000000003,
+   "curve_volatility_inherited-reset": 0.2705555555555555,
+   "curve_declines_inherited-reset": 11.364999999999997,
+   "curve_mean_inherited-reset": -2.5077000000000003,
+   "curve_volatility_own": 0.3225757575757575,
+   "curve_declines_own": 13.429999999999998,
+   "curve_mean_own": -2.4105,
+   "curve_volatility_current": 0.2882323232323232,
+   "curve_declines_current": 11.979999999999997,
+   "curve_mean_current": -2.3661,
+   "tie_frac_late": 0.4672599999999999,
+   "matches_stored": 1
+  },
+  "control_s102": {
+   "seed": 102,
+   "snapshots": [
+    {
+     "score": {
+      "inherited": -4.757,
+      "inherited-reset": -4.595,
+      "own": -4.468,
+      "current": -4.468,
+      "tournament-16": -4.383,
+      "median": -4.816,
+      "best": -4.042
+     },
+     "rank": {
+      "inherited": 43,
+      "inherited-reset": 31,
+      "own": 3,
+      "current": 3,
+      "tournament-16": 4,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 19,
+      "inherited-reset": 67,
+      "own": 62,
+      "current": 62,
+      "tournament-16": 80,
+      "median": 118,
+      "best": 93
+     },
+     "rho": {
+      "inherited": 0.1970387082461851,
+      "inherited-reset": 0.19688075149268547,
+      "own": 0.3543917792510385,
+      "current": 0.3543917792510385
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 443,
+      "inherited-reset": 433,
+      "own": 12,
+      "current": 12
+     },
+     "inherited_spread": 0.03611738148984198,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.12142951601660126
+    },
+    {
+     "score": {
+      "inherited": -3.498,
+      "inherited-reset": -1.344,
+      "own": -0.132,
+      "current": -0.132,
+      "tournament-16": -0.209,
+      "median": -1.65,
+      "best": 0.173
+     },
+     "rank": {
+      "inherited": 99,
+      "inherited-reset": 49,
+      "own": 14,
+      "current": 14,
+      "tournament-16": 15,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 54,
+      "inherited-reset": 25,
+      "own": 73,
+      "current": 73,
+      "tournament-16": 72,
+      "median": 74,
+      "best": 114
+     },
+     "rho": {
+      "inherited": -0.0019506992654933868,
+      "inherited-reset": 0.21427823909350877,
+      "own": 0.3680571821102944,
+      "current": 0.38019624981614814
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 995,
+      "inherited-reset": 23,
+      "own": 11,
+      "current": 11
+     },
+     "inherited_spread": 0.008040201005025126,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.4105133819852786
+    },
+    {
+     "score": {
+      "inherited": -1.217,
+      "inherited-reset": -0.371,
+      "own": -0.059,
+      "current": -0.825,
+      "tournament-16": -0.401,
+      "median": -0.648,
+      "best": 0.199
+     },
+     "rank": {
+      "inherited": 68,
+      "inherited-reset": 16,
+      "own": 14,
+      "current": 46,
+      "tournament-16": 36,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 15,
+      "inherited-reset": 104,
+      "own": 73,
+      "current": 88,
+      "tournament-16": 57,
+      "median": 45,
+      "best": 63
+     },
+     "rho": {
+      "inherited": 0.1608219045794099,
+      "inherited-reset": 0.1938187925946747,
+      "own": 0.27981063671727907,
+      "current": 0.3955549268472264
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1444,
+      "inherited-reset": 32,
+      "own": 15,
+      "current": 9
+     },
+     "inherited_spread": 0.004847645429362881,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.3575690180541031
+    },
+    {
+     "score": {
+      "inherited": -1.385,
+      "inherited-reset": -1.385,
+      "own": -0.372,
+      "current": -0.361,
+      "tournament-16": -0.439,
+      "median": -0.872,
+      "best": 0.058
+     },
+     "rank": {
+      "inherited": 82,
+      "inherited-reset": 82,
+      "own": 54,
+      "current": 20,
+      "tournament-16": 24,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 4,
+      "inherited-reset": 4,
+      "own": 87,
+      "current": 50,
+      "tournament-16": 91,
+      "median": 5,
+      "best": 2
+     },
+     "rho": {
+      "inherited": 0.1251631006714392,
+      "inherited-reset": 0.14483938970249077,
+      "own": 0.30343041130873366,
+      "current": 0.305169989890829
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 2,
+      "own": 1,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 1835,
+      "inherited-reset": 17,
+      "own": 12,
+      "current": 7
+     },
+     "inherited_spread": 0.004904632152588556,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 1.1078423045742885
+    },
+    {
+     "score": {
+      "inherited": 0.027,
+      "inherited-reset": 0.128,
+      "own": 0.027,
+      "current": 0.12,
+      "tournament-16": -1.578,
+      "median": -0.089,
+      "best": 0.356
+     },
+     "rank": {
+      "inherited": 25,
+      "inherited-reset": 36,
+      "own": 25,
+      "current": 29,
+      "tournament-16": 104,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 103,
+      "inherited-reset": 29,
+      "own": 103,
+      "current": 14,
+      "tournament-16": 47,
+      "median": 43,
+      "best": 46
+     },
+     "rho": {
+      "inherited": -0.12019082228059579,
+      "inherited-reset": 0.16984042548136277,
+      "own": 0.19723180239112936,
+      "current": 0.22599863089686062
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 2207,
+      "inherited-reset": 22,
+      "own": 11,
+      "current": 10
+     },
+     "inherited_spread": 0.005437245129134572,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.978611842755023
+    },
+    {
+     "score": {
+      "inherited": 0.091,
+      "inherited-reset": 0.091,
+      "own": 0.091,
+      "current": 0.091,
+      "tournament-16": 0.191,
+      "median": -0.147,
+      "best": 0.245
+     },
+     "rank": {
+      "inherited": 13,
+      "inherited-reset": 13,
+      "own": 13,
+      "current": 13,
+      "tournament-16": 41,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 14,
+      "inherited-reset": 14,
+      "own": 14,
+      "current": 14,
+      "tournament-16": 99,
+      "median": 27,
+      "best": 15
+     },
+     "rho": {
+      "inherited": 0.06378617409916258,
+      "inherited-reset": 0.1327925764544029,
+      "own": 0.2625559438716231,
+      "current": 0.2690977101449852
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2526,
+      "inherited-reset": 25,
+      "own": 8,
+      "current": 8
+     },
+     "inherited_spread": 0.003167062549485352,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.7144819211779289
+    },
+    {
+     "score": {
+      "inherited": 0.097,
+      "inherited-reset": -0.242,
+      "own": 0.289,
+      "current": 0.054,
+      "tournament-16": 0.209,
+      "median": -0.097,
+      "best": 0.194
+     },
+     "rank": {
+      "inherited": 22,
+      "inherited-reset": 74,
+      "own": 2,
+      "current": 42,
+      "tournament-16": 30,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 46,
+      "inherited-reset": 2,
+      "own": 81,
+      "current": 95,
+      "tournament-16": 112,
+      "median": 65,
+      "best": 92
+     },
+     "rho": {
+      "inherited": 0.05041439041733268,
+      "inherited-reset": 0.12086180500233525,
+      "own": 0.14579301583309956,
+      "current": 0.21393357367399912
+     },
+     "at_max": {
+      "inherited": 4,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 2846,
+      "inherited-reset": 16,
+      "own": 7,
+      "current": 4
+     },
+     "inherited_spread": 0.0021082220660576245,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.6707942974982768
+    },
+    {
+     "score": {
+      "inherited": 0.356,
+      "inherited-reset": 0.356,
+      "own": 0.356,
+      "current": 0.356,
+      "tournament-16": 0.294,
+      "median": -0.075,
+      "best": 0.424
+     },
+     "rank": {
+      "inherited": 28,
+      "inherited-reset": 28,
+      "own": 28,
+      "current": 28,
+      "tournament-16": 16,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 111,
+      "inherited-reset": 111,
+      "own": 111,
+      "current": 111,
+      "tournament-16": 42,
+      "median": 125,
+      "best": 68
+     },
+     "rho": {
+      "inherited": 0.1519572746992521,
+      "inherited-reset": 0.2892309627344223,
+      "own": 0.03018327422077346,
+      "current": 0.10837754968200082
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3175,
+      "inherited-reset": 12,
+      "own": 11,
+      "current": 11
+     },
+     "inherited_spread": 0.004566929133858267,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.8240941170085799
+    },
+    {
+     "score": {
+      "inherited": -1.306,
+      "inherited-reset": -0.322,
+      "own": 0.212,
+      "current": -0.079,
+      "tournament-16": -1.181,
+      "median": -0.256,
+      "best": 0.251
+     },
+     "rank": {
+      "inherited": 112,
+      "inherited-reset": 70,
+      "own": 4,
+      "current": 42,
+      "tournament-16": 116,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 29,
+      "inherited-reset": 7,
+      "own": 20,
+      "current": 74,
+      "tournament-16": 112,
+      "median": 101,
+      "best": 78
+     },
+     "rho": {
+      "inherited": 0.06923339427635596,
+      "inherited-reset": 0.041239738282580166,
+      "own": 0.09876269468770509,
+      "current": 0.023030555191182266
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 3,
+      "own": 3,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 3470,
+      "inherited-reset": 15,
+      "own": 5,
+      "current": 5
+     },
+     "inherited_spread": 0.0023054755043227667,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.690092521521244
+    },
+    {
+     "score": {
+      "inherited": -1.346,
+      "inherited-reset": 0.139,
+      "own": 0.331,
+      "current": -0.116,
+      "tournament-16": 0.287,
+      "median": 0.018,
+      "best": 0.31
+     },
+     "rank": {
+      "inherited": 123,
+      "inherited-reset": 32,
+      "own": 7,
+      "current": 60,
+      "tournament-16": 19,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 94,
+      "inherited-reset": 47,
+      "own": 4,
+      "current": 103,
+      "tournament-16": 20,
+      "median": 61,
+      "best": 28
+     },
+     "rho": {
+      "inherited": -0.1299381247246984,
+      "inherited-reset": -0.023869268591739934,
+      "own": 0.06217479301968516,
+      "current": 0.05425979308271969
+     },
+     "at_max": {
+      "inherited": 3,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3756,
+      "inherited-reset": 9,
+      "own": 11,
+      "current": 4
+     },
+     "inherited_spread": 0.004792332268370607,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.5708793677263697
+    }
+   ],
+   "level_inherited": -1.2937999999999998,
+   "declines_inherited": 1.8699999999999999,
+   "rank_inherited": 61.5,
+   "level_inherited-reset": -0.7545,
+   "declines_inherited-reset": 2.062,
+   "rank_inherited-reset": 43.1,
+   "level_own": -0.3725,
+   "declines_own": 0.45699999999999996,
+   "rank_own": 16.4,
+   "level_current": -0.5359999999999998,
+   "declines_current": 1.2309999999999999,
+   "rank_current": 29.7,
+   "level_tournament-16": -0.721,
+   "declines_tournament-16": 2.8440000000000003,
+   "rank_tournament-16": 40.5,
+   "level_median": -0.8631999999999997,
+   "declines_median": 0.46299999999999997,
+   "rank_median": 65.0,
+   "level_best": -0.18319999999999997,
+   "declines_best": 0.476,
+   "rank_best": 1.0,
+   "rho_inherited": 0.056633530071835005,
+   "rho_inherited-reset": 0.14799134122467233,
+   "rho_own": 0.21023915334113616,
+   "rho_current": 0.23300107584769894,
+   "curve_volatility_inherited": 0.7475757575757574,
+   "curve_declines_inherited": 35.205,
+   "curve_mean_inherited": -1.1568500000000002,
+   "curve_volatility_inherited-reset": 0.5094949494949494,
+   "curve_declines_inherited-reset": 22.740000000000002,
+   "curve_mean_inherited-reset": -1.01955,
+   "curve_volatility_own": 0.4356060606060606,
+   "curve_declines_own": 18.979999999999997,
+   "curve_mean_own": -0.7783999999999999,
+   "curve_volatility_current": 0.4172222222222222,
+   "curve_declines_current": 18.224999999999998,
+   "curve_mean_current": -0.7071500000000001,
+   "tie_frac_late": 0.38451,
+   "matches_stored": 1
+  },
+  "control_s103": {
+   "seed": 103,
+   "snapshots": [
+    {
+     "score": {
+      "inherited": -4.856,
+      "inherited-reset": -4.856,
+      "own": -4.828,
+      "current": -4.828,
+      "tournament-16": -4.836,
+      "median": -4.848,
+      "best": -4.828
+     },
+     "rank": {
+      "inherited": 58,
+      "inherited-reset": 58,
+      "own": 10,
+      "current": 10,
+      "tournament-16": 13,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 7,
+      "inherited-reset": 7,
+      "own": 83,
+      "current": 83,
+      "tournament-16": 23,
+      "median": 108,
+      "best": 74
+     },
+     "rho": {
+      "inherited": -0.12287173216015387,
+      "inherited-reset": -0.12287173216015387,
+      "own": -0.01101081521906663,
+      "current": -0.01101081521906663
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 421,
+      "inherited-reset": 421,
+      "own": 7,
+      "current": 7
+     },
+     "inherited_spread": 0.021377672209026127,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.016385568975770193
+    },
+    {
+     "score": {
+      "inherited": -4.844,
+      "inherited-reset": -4.844,
+      "own": -4.828,
+      "current": -4.828,
+      "tournament-16": -4.83,
+      "median": -4.823,
+      "best": -4.81
+     },
+     "rank": {
+      "inherited": 122,
+      "inherited-reset": 122,
+      "own": 27,
+      "current": 27,
+      "tournament-16": 124,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 47,
+      "inherited-reset": 47,
+      "own": 51,
+      "current": 51,
+      "tournament-16": 95,
+      "median": 101,
+      "best": 52
+     },
+     "rho": {
+      "inherited": -0.13096572812127966,
+      "inherited-reset": -0.13096572812127966,
+      "own": 0.10398061426670563,
+      "current": 0.10398061426670563
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 832,
+      "inherited-reset": 832,
+      "own": 6,
+      "current": 6
+     },
+     "inherited_spread": 0.018028846153846152,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.028749811291651113
+    },
+    {
+     "score": {
+      "inherited": -4.832,
+      "inherited-reset": -4.832,
+      "own": -4.845,
+      "current": -4.845,
+      "tournament-16": -4.84,
+      "median": -4.856,
+      "best": -4.84
+     },
+     "rank": {
+      "inherited": 102,
+      "inherited-reset": 102,
+      "own": 62,
+      "current": 62,
+      "tournament-16": 113,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 122,
+      "inherited-reset": 122,
+      "own": 102,
+      "current": 102,
+      "tournament-16": 53,
+      "median": 35,
+      "best": 116
+     },
+     "rho": {
+      "inherited": 0.15355272695962835,
+      "inherited-reset": 0.15355272695962835,
+      "own": -0.009925623618092643,
+      "current": -0.009925623618092643
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1226,
+      "inherited-reset": 1226,
+      "own": 9,
+      "current": 9
+     },
+     "inherited_spread": 0.009787928221859706,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.03218964899784032
+    },
+    {
+     "score": {
+      "inherited": -4.84,
+      "inherited-reset": -4.84,
+      "own": -4.858,
+      "current": -4.858,
+      "tournament-16": -4.832,
+      "median": -4.844,
+      "best": -4.84
+     },
+     "rank": {
+      "inherited": 67,
+      "inherited-reset": 67,
+      "own": 40,
+      "current": 40,
+      "tournament-16": 25,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 21,
+      "inherited-reset": 21,
+      "own": 7,
+      "current": 7,
+      "tournament-16": 44,
+      "median": 17,
+      "best": 89
+     },
+     "rho": {
+      "inherited": -0.018349157604721,
+      "inherited-reset": -0.018349157604721,
+      "own": -0.07434744423932572,
+      "current": -0.07434744423932572
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1614,
+      "inherited-reset": 1614,
+      "own": 5,
+      "current": 5
+     },
+     "inherited_spread": 0.007125154894671623,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.02453865776334129
+    },
+    {
+     "score": {
+      "inherited": -4.852,
+      "inherited-reset": -4.852,
+      "own": -4.84,
+      "current": -4.84,
+      "tournament-16": -4.862,
+      "median": -4.844,
+      "best": -4.861
+     },
+     "rank": {
+      "inherited": 71,
+      "inherited-reset": 71,
+      "own": 43,
+      "current": 43,
+      "tournament-16": 120,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 26,
+      "inherited-reset": 26,
+      "own": 109,
+      "current": 109,
+      "tournament-16": 103,
+      "median": 56,
+      "best": 106
+     },
+     "rho": {
+      "inherited": -0.034246950484595556,
+      "inherited-reset": -0.034246950484595556,
+      "own": 0.14436985528079246,
+      "current": 0.14436985528079246
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1996,
+      "inherited-reset": 1996,
+      "own": 7,
+      "current": 7
+     },
+     "inherited_spread": 0.004008016032064128,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.03513116388927771
+    },
+    {
+     "score": {
+      "inherited": -4.856,
+      "inherited-reset": -4.856,
+      "own": -4.856,
+      "current": -4.856,
+      "tournament-16": -4.856,
+      "median": -4.853,
+      "best": -4.832
+     },
+     "rank": {
+      "inherited": 55,
+      "inherited-reset": 55,
+      "own": 70,
+      "current": 70,
+      "tournament-16": 55,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 57,
+      "inherited-reset": 57,
+      "own": 51,
+      "current": 51,
+      "tournament-16": 57,
+      "median": 49,
+      "best": 20
+     },
+     "rho": {
+      "inherited": -0.08307731518402238,
+      "inherited-reset": -0.08307731518402238,
+      "own": 0.07913531167000884,
+      "current": 0.07913531167000884
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2388,
+      "inherited-reset": 2388,
+      "own": 5,
+      "current": 5
+     },
+     "inherited_spread": 0.0041876046901172526,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.0378901775460409
+    },
+    {
+     "score": {
+      "inherited": -4.778,
+      "inherited-reset": -4.778,
+      "own": -4.81,
+      "current": -4.81,
+      "tournament-16": -4.769,
+      "median": -4.804,
+      "best": -4.759
+     },
+     "rank": {
+      "inherited": 123,
+      "inherited-reset": 123,
+      "own": 121,
+      "current": 121,
+      "tournament-16": 20,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 83,
+      "inherited-reset": 83,
+      "own": 70,
+      "current": 70,
+      "tournament-16": 56,
+      "median": 22,
+      "best": 124
+     },
+     "rho": {
+      "inherited": -0.08513549568686223,
+      "inherited-reset": -0.08513549568686223,
+      "own": -0.07126955940983344,
+      "current": -0.07126955940983344
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 3,
+      "current": 3
+     },
+     "max_count": {
+      "inherited": 2798,
+      "inherited-reset": 2798,
+      "own": 6,
+      "current": 6
+     },
+     "inherited_spread": 0.0025017869907076485,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.05598352680420811
+    },
+    {
+     "score": {
+      "inherited": -4.809,
+      "inherited-reset": -4.809,
+      "own": -4.791,
+      "current": -4.791,
+      "tournament-16": -4.818,
+      "median": -4.819,
+      "best": -4.812
+     },
+     "rank": {
+      "inherited": 58,
+      "inherited-reset": 58,
+      "own": 59,
+      "current": 59,
+      "tournament-16": 114,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 32,
+      "inherited-reset": 32,
+      "own": 33,
+      "current": 33,
+      "tournament-16": 70,
+      "median": 65,
+      "best": 7
+     },
+     "rho": {
+      "inherited": 0.24417957016325767,
+      "inherited-reset": 0.24417957016325767,
+      "own": -0.049495210168523214,
+      "current": -0.049495210168523214
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 2,
+      "own": 2,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 3262,
+      "inherited-reset": 3262,
+      "own": 6,
+      "current": 6
+     },
+     "inherited_spread": 0.002145922746781116,
+     "median_games_since_birth": 0.5,
+     "ext_sd": 0.05098583255697383
+    },
+    {
+     "score": {
+      "inherited": -0.556,
+      "inherited-reset": -0.541,
+      "own": -0.192,
+      "current": -0.556,
+      "tournament-16": -0.223,
+      "median": -0.709,
+      "best": 0.148
+     },
+     "rank": {
+      "inherited": 76,
+      "inherited-reset": 62,
+      "own": 34,
+      "current": 76,
+      "tournament-16": 60,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 62,
+      "inherited-reset": 10,
+      "own": 6,
+      "current": 62,
+      "tournament-16": 39,
+      "median": 73,
+      "best": 117
+     },
+     "rho": {
+      "inherited": -0.013630886738973447,
+      "inherited-reset": 0.23814122467322565,
+      "own": 0.20421184792206445,
+      "current": 0.2545877115440436
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 7,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3649,
+      "inherited-reset": 14,
+      "own": 9,
+      "current": 6
+     },
+     "inherited_spread": 0.003288572211564812,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.8589193473219666
+    },
+    {
+     "score": {
+      "inherited": -0.309,
+      "inherited-reset": 0.185,
+      "own": 0.021,
+      "current": 0.095,
+      "tournament-16": -0.598,
+      "median": -0.328,
+      "best": 0.196
+     },
+     "rank": {
+      "inherited": 90,
+      "inherited-reset": 7,
+      "own": 47,
+      "current": 45,
+      "tournament-16": 98,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 68,
+      "inherited-reset": 33,
+      "own": 101,
+      "current": 92,
+      "tournament-16": 0,
+      "median": 4,
+      "best": 7
+     },
+     "rho": {
+      "inherited": 0.24873021896928532,
+      "inherited-reset": 0.12973433960186784,
+      "own": 0.16950108099797134,
+      "current": 0.18876434992464577
+     },
+     "at_max": {
+      "inherited": 4,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3946,
+      "inherited-reset": 7,
+      "own": 10,
+      "current": 5
+     },
+     "inherited_spread": 0.0017739483020780538,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.5567637077615439
+    }
+   ],
+   "level_inherited": -3.9532,
+   "declines_inherited": 0.055000000000000604,
+   "rank_inherited": 82.2,
+   "level_inherited-reset": -3.9022999999999994,
+   "declines_inherited-reset": 0.055000000000000604,
+   "rank_inherited-reset": 72.5,
+   "level_own": -3.8827,
+   "declines_own": 0.045999999999999375,
+   "rank_own": 51.3,
+   "level_current": -3.9116999999999997,
+   "declines_current": 0.045999999999999375,
+   "rank_current": 55.3,
+   "level_tournament-16": -3.9463999999999997,
+   "declines_tournament-16": 0.4639999999999995,
+   "rank_tournament-16": 74.2,
+   "level_median": -3.9728000000000008,
+   "declines_median": 0.05699999999999861,
+   "rank_median": 65.0,
+   "level_best": -3.8238,
+   "declines_best": 0.10400000000000009,
+   "rank_best": 1.0,
+   "rho_inherited": 0.015818525011156326,
+   "rho_inherited-reset": 0.029096148215634488,
+   "rho_own": 0.048515005748270106,
+   "rho_current": 0.055478919003135466,
+   "curve_volatility_inherited": 0.2585858585858585,
+   "curve_declines_inherited": 10.519999999999998,
+   "curve_mean_inherited": -4.1467,
+   "curve_volatility_inherited-reset": 0.18459595959595954,
+   "curve_declines_inherited-reset": 6.574999999999996,
+   "curve_mean_inherited-reset": -4.1119,
+   "curve_volatility_own": 0.10388888888888885,
+   "curve_declines_own": 2.759999999999997,
+   "curve_mean_own": -4.058349999999999,
+   "curve_volatility_current": 0.13353535353535348,
+   "curve_declines_current": 4.134999999999997,
+   "curve_mean_current": -4.0733,
+   "tie_frac_late": 0.2698,
+   "matches_stored": 1
+  },
+  "control_s104": {
+   "seed": 104,
+   "snapshots": [
+    {
+     "score": {
+      "inherited": -4.757,
+      "inherited-reset": -4.757,
+      "own": -4.77,
+      "current": -4.77,
+      "tournament-16": -4.544,
+      "median": -4.819,
+      "best": -4.714
+     },
+     "rank": {
+      "inherited": 81,
+      "inherited-reset": 81,
+      "own": 40,
+      "current": 40,
+      "tournament-16": 12,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 76,
+      "inherited-reset": 76,
+      "own": 58,
+      "current": 58,
+      "tournament-16": 111,
+      "median": 74,
+      "best": 106
+     },
+     "rho": {
+      "inherited": -0.08362139282940742,
+      "inherited-reset": -0.08362139282940742,
+      "own": 0.32625223885581833,
+      "current": 0.32625223885581833
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 426,
+      "inherited-reset": 426,
+      "own": 9,
+      "current": 9
+     },
+     "inherited_spread": 0.01643192488262911,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.0726295267088846
+    },
+    {
+     "score": {
+      "inherited": -4.183,
+      "inherited-reset": -4.183,
+      "own": -0.251,
+      "current": -0.251,
+      "tournament-16": -0.979,
+      "median": -3.396,
+      "best": 0.06
+     },
+     "rank": {
+      "inherited": 91,
+      "inherited-reset": 91,
+      "own": 3,
+      "current": 3,
+      "tournament-16": 15,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 78,
+      "inherited-reset": 78,
+      "own": 45,
+      "current": 45,
+      "tournament-16": 54,
+      "median": 51,
+      "best": 27
+     },
+     "rho": {
+      "inherited": 0.08362967501833148,
+      "inherited-reset": 0.003724407435501909,
+      "own": 0.29751837768385625,
+      "current": 0.27364262547249224
+     },
+     "at_max": {
+      "inherited": 3,
+      "inherited-reset": 3,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 984,
+      "inherited-reset": 68,
+      "own": 16,
+      "current": 16
+     },
+     "inherited_spread": 0.007113821138211382,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.4486136053122172
+    },
+    {
+     "score": {
+      "inherited": -1.407,
+      "inherited-reset": -0.869,
+      "own": -1.222,
+      "current": -0.768,
+      "tournament-16": -1.153,
+      "median": -0.901,
+      "best": 0.001
+     },
+     "rank": {
+      "inherited": 67,
+      "inherited-reset": 60,
+      "own": 83,
+      "current": 54,
+      "tournament-16": 77,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 11,
+      "inherited-reset": 77,
+      "own": 36,
+      "current": 80,
+      "tournament-16": 24,
+      "median": 28,
+      "best": 39
+     },
+     "rho": {
+      "inherited": 0.06077637112767672,
+      "inherited-reset": 0.22821701685474355,
+      "own": 0.12224339655340688,
+      "current": 0.23128056559001256
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1469,
+      "inherited-reset": 22,
+      "own": 13,
+      "current": 8
+     },
+     "inherited_spread": 0.0040844111640571815,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.2272002444571382
+    },
+    {
+     "score": {
+      "inherited": -0.273,
+      "inherited-reset": 0.001,
+      "own": 0.23,
+      "current": 0.23,
+      "tournament-16": 0.124,
+      "median": -0.461,
+      "best": 0.163
+     },
+     "rank": {
+      "inherited": 57,
+      "inherited-reset": 28,
+      "own": 2,
+      "current": 2,
+      "tournament-16": 11,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 57,
+      "inherited-reset": 89,
+      "own": 11,
+      "current": 11,
+      "tournament-16": 95,
+      "median": 30,
+      "best": 119
+     },
+     "rho": {
+      "inherited": -0.06378832006745264,
+      "inherited-reset": 0.06679277907373553,
+      "own": 0.3247551215396785,
+      "current": 0.2813993053894936
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1856,
+      "inherited-reset": 13,
+      "own": 12,
+      "current": 6
+     },
+     "inherited_spread": 0.00646551724137931,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.029524512633728
+    },
+    {
+     "score": {
+      "inherited": -1.328,
+      "inherited-reset": -0.233,
+      "own": 0.122,
+      "current": 0.122,
+      "tournament-16": 0.056,
+      "median": -0.561,
+      "best": 0.321
+     },
+     "rank": {
+      "inherited": 112,
+      "inherited-reset": 47,
+      "own": 10,
+      "current": 10,
+      "tournament-16": 15,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 51,
+      "inherited-reset": 98,
+      "own": 69,
+      "current": 69,
+      "tournament-16": 28,
+      "median": 30,
+      "best": 116
+     },
+     "rho": {
+      "inherited": 0.03871294897106186,
+      "inherited-reset": 0.19924657923279177,
+      "own": 0.2566722719735198,
+      "current": 0.21800764267889608
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2221,
+      "inherited-reset": 20,
+      "own": 11,
+      "current": 9
+     },
+     "inherited_spread": 0.00405222872579919,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.7646230245573041
+    },
+    {
+     "score": {
+      "inherited": -1.387,
+      "inherited-reset": 0.266,
+      "own": -0.251,
+      "current": -0.247,
+      "tournament-16": 0.236,
+      "median": -0.073,
+      "best": 0.3
+     },
+     "rank": {
+      "inherited": 118,
+      "inherited-reset": 14,
+      "own": 75,
+      "current": 79,
+      "tournament-16": 29,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 118,
+      "inherited-reset": 0,
+      "own": 7,
+      "current": 74,
+      "tournament-16": 21,
+      "median": 48,
+      "best": 75
+     },
+     "rho": {
+      "inherited": 0.0015989779477351338,
+      "inherited-reset": 0.03092330933600827,
+      "own": 0.2175546306815768,
+      "current": 0.06313422844834733
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 5,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2514,
+      "inherited-reset": 16,
+      "own": 5,
+      "current": 5
+     },
+     "inherited_spread": 0.003579952267303103,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.7540127816751322
+    },
+    {
+     "score": {
+      "inherited": -2.04,
+      "inherited-reset": -0.009,
+      "own": 0.027,
+      "current": 0.204,
+      "tournament-16": -0.239,
+      "median": -0.359,
+      "best": 0.399
+     },
+     "rank": {
+      "inherited": 122,
+      "inherited-reset": 44,
+      "own": 52,
+      "current": 32,
+      "tournament-16": 51,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 9,
+      "inherited-reset": 36,
+      "own": 18,
+      "current": 103,
+      "tournament-16": 4,
+      "median": 95,
+      "best": 83
+     },
+     "rho": {
+      "inherited": -0.036186655726019284,
+      "inherited-reset": 0.2910923081072341,
+      "own": 0.22229905687157048,
+      "current": 0.35106906082557404
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 3,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2821,
+      "inherited-reset": 7,
+      "own": 9,
+      "current": 7
+     },
+     "inherited_spread": 0.002835873803615739,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.8256402302589481
+    },
+    {
+     "score": {
+      "inherited": -3.007,
+      "inherited-reset": 0.282,
+      "own": -0.755,
+      "current": 0.282,
+      "tournament-16": 0.21,
+      "median": -0.213,
+      "best": 0.202
+     },
+     "rank": {
+      "inherited": 124,
+      "inherited-reset": 49,
+      "own": 93,
+      "current": 49,
+      "tournament-16": 9,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 46,
+      "inherited-reset": 96,
+      "own": 86,
+      "current": 96,
+      "tournament-16": 113,
+      "median": 38,
+      "best": 33
+     },
+     "rho": {
+      "inherited": 0.22702373752785804,
+      "inherited-reset": 0.06883212915231561,
+      "own": 0.2007962042335908,
+      "current": 0.16941650897437716
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3111,
+      "inherited-reset": 11,
+      "own": 9,
+      "current": 5
+     },
+     "inherited_spread": 0.004178720668595307,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.8739701280491354
+    },
+    {
+     "score": {
+      "inherited": 0.185,
+      "inherited-reset": 0.208,
+      "own": 0.185,
+      "current": 0.263,
+      "tournament-16": -0.065,
+      "median": -0.063,
+      "best": 0.284
+     },
+     "rank": {
+      "inherited": 34,
+      "inherited-reset": 36,
+      "own": 34,
+      "current": 3,
+      "tournament-16": 46,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 4,
+      "inherited-reset": 113,
+      "own": 4,
+      "current": 86,
+      "tournament-16": 82,
+      "median": 50,
+      "best": 97
+     },
+     "rho": {
+      "inherited": 0.2086714663568253,
+      "inherited-reset": 0.2754452414569631,
+      "own": 0.270739169122113,
+      "current": 0.22834078652099404
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3404,
+      "inherited-reset": 6,
+      "own": 10,
+      "current": 5
+     },
+     "inherited_spread": 0.0023501762632197414,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.7133473612989529
+    },
+    {
+     "score": {
+      "inherited": 0.413,
+      "inherited-reset": 0.248,
+      "own": 0.412,
+      "current": 0.412,
+      "tournament-16": -0.432,
+      "median": -0.094,
+      "best": 0.413
+     },
+     "rank": {
+      "inherited": 1,
+      "inherited-reset": 41,
+      "own": 23,
+      "current": 23,
+      "tournament-16": 108,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 0,
+      "inherited-reset": 117,
+      "own": 77,
+      "current": 77,
+      "tournament-16": 33,
+      "median": 60,
+      "best": 0
+     },
+     "rho": {
+      "inherited": 0.3047085585230868,
+      "inherited-reset": 0.027318522503923578,
+      "own": -0.039383774763499454,
+      "current": 0.04433476797248701
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3680,
+      "inherited-reset": 13,
+      "own": 10,
+      "current": 10
+     },
+     "inherited_spread": 0.002717391304347826,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.6109785564271838
+    }
+   ],
+   "level_inherited": -1.7784,
+   "declines_inherited": 2.734,
+   "rank_inherited": 80.7,
+   "level_inherited-reset": -0.9046000000000001,
+   "declines_inherited-reset": 0.583,
+   "rank_inherited-reset": 49.1,
+   "level_own": -0.6273000000000001,
+   "declines_own": 2.234,
+   "rank_own": 41.5,
+   "level_current": -0.45230000000000004,
+   "declines_current": 1.013,
+   "rank_current": 29.5,
+   "level_tournament-16": -0.6786000000000001,
+   "declines_tournament-16": 1.359,
+   "rank_tournament-16": 37.3,
+   "level_median": -1.0939999999999999,
+   "declines_median": 0.41700000000000004,
+   "rank_median": 65.0,
+   "level_best": -0.25710000000000016,
+   "declines_best": 0.277,
+   "rank_best": 1.0,
+   "rho_inherited": 0.0741525366849696,
+   "rho_inherited-reset": 0.110797090032381,
+   "rho_own": 0.21994466927516312,
+   "rho_current": 0.21868777307284923,
+   "curve_volatility_inherited": 0.7558585858585859,
+   "curve_declines_inherited": 34.74,
+   "curve_mean_inherited": -1.1219,
+   "curve_volatility_inherited-reset": 0.6714141414141414,
+   "curve_declines_inherited-reset": 30.765,
+   "curve_mean_inherited-reset": -1.1298500000000002,
+   "curve_volatility_own": 0.5393939393939395,
+   "curve_declines_own": 24.095,
+   "curve_mean_own": -0.8244000000000001,
+   "curve_volatility_current": 0.49656565656565665,
+   "curve_declines_current": 21.974999999999994,
+   "curve_mean_current": -0.7164999999999999,
+   "tie_frac_late": 0.44074,
+   "matches_stored": 1
+  },
+  "control_s105": {
+   "seed": 105,
+   "snapshots": [
+    {
+     "score": {
+      "inherited": -4.837,
+      "inherited-reset": -4.837,
+      "own": -4.839,
+      "current": -4.839,
+      "tournament-16": -4.852,
+      "median": -4.838,
+      "best": -4.842
+     },
+     "rank": {
+      "inherited": 26,
+      "inherited-reset": 26,
+      "own": 39,
+      "current": 39,
+      "tournament-16": 62,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 36,
+      "inherited-reset": 36,
+      "own": 1,
+      "current": 1,
+      "tournament-16": 105,
+      "median": 93,
+      "best": 98
+     },
+     "rho": {
+      "inherited": 0.21693741315520448,
+      "inherited-reset": 0.21693741315520448,
+      "own": 0.02334259479212362,
+      "current": 0.02334259479212362
+     },
+     "at_max": {
+      "inherited": 3,
+      "inherited-reset": 3,
+      "own": 3,
+      "current": 3
+     },
+     "max_count": {
+      "inherited": 439,
+      "inherited-reset": 439,
+      "own": 5,
+      "current": 5
+     },
+     "inherited_spread": 0.04555808656036447,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.03508480394532572
+    },
+    {
+     "score": {
+      "inherited": -4.856,
+      "inherited-reset": -4.856,
+      "own": -4.862,
+      "current": -4.862,
+      "tournament-16": -4.815,
+      "median": -4.815,
+      "best": -4.823
+     },
+     "rank": {
+      "inherited": 117,
+      "inherited-reset": 117,
+      "own": 6,
+      "current": 6,
+      "tournament-16": 65,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 7,
+      "inherited-reset": 7,
+      "own": 96,
+      "current": 96,
+      "tournament-16": 84,
+      "median": 84,
+      "best": 79
+     },
+     "rho": {
+      "inherited": -0.23276941150349242,
+      "inherited-reset": -0.23276941150349242,
+      "own": 0.17782376124110977,
+      "current": 0.17782376124110977
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 863,
+      "inherited-reset": 863,
+      "own": 10,
+      "current": 10
+     },
+     "inherited_spread": 0.016222479721900347,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.0389721176594385
+    },
+    {
+     "score": {
+      "inherited": -4.733,
+      "inherited-reset": -4.733,
+      "own": -4.689,
+      "current": -4.689,
+      "tournament-16": -4.603,
+      "median": -4.768,
+      "best": -4.439
+     },
+     "rank": {
+      "inherited": 56,
+      "inherited-reset": 56,
+      "own": 39,
+      "current": 39,
+      "tournament-16": 11,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 21,
+      "inherited-reset": 21,
+      "own": 108,
+      "current": 108,
+      "tournament-16": 35,
+      "median": 10,
+      "best": 63
+     },
+     "rho": {
+      "inherited": -0.12070239684895556,
+      "inherited-reset": -0.12070239684895556,
+      "own": 0.10863369848284309,
+      "current": 0.10863369848284309
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1289,
+      "inherited-reset": 1289,
+      "own": 11,
+      "current": 11
+     },
+     "inherited_spread": 0.010861132660977503,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.10091129032244074
+    },
+    {
+     "score": {
+      "inherited": -0.664,
+      "inherited-reset": -0.879,
+      "own": -1.549,
+      "current": -1.623,
+      "tournament-16": -0.879,
+      "median": -3.119,
+      "best": -0.468
+     },
+     "rank": {
+      "inherited": 4,
+      "inherited-reset": 8,
+      "own": 45,
+      "current": 28,
+      "tournament-16": 8,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 23,
+      "inherited-reset": 62,
+      "own": 65,
+      "current": 11,
+      "tournament-16": 62,
+      "median": 116,
+      "best": 73
+     },
+     "rho": {
+      "inherited": 0.24549739340944832,
+      "inherited-reset": 0.09311135431414412,
+      "own": 0.2964700768306164,
+      "current": 0.288678883343941
+     },
+     "at_max": {
+      "inherited": 3,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1823,
+      "inherited-reset": 78,
+      "own": 11,
+      "current": 8
+     },
+     "inherited_spread": 0.005485463521667581,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.2507103491056697
+    },
+    {
+     "score": {
+      "inherited": 0.185,
+      "inherited-reset": -0.268,
+      "own": 0.186,
+      "current": 0.13,
+      "tournament-16": 0.268,
+      "median": -0.699,
+      "best": 0.477
+     },
+     "rank": {
+      "inherited": 21,
+      "inherited-reset": 32,
+      "own": 23,
+      "current": 15,
+      "tournament-16": 14,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 4,
+      "inherited-reset": 83,
+      "own": 106,
+      "current": 27,
+      "tournament-16": 41,
+      "median": 103,
+      "best": 56
+     },
+     "rho": {
+      "inherited": 0.2886420272154548,
+      "inherited-reset": 0.3004142797113868,
+      "own": 0.47404805354717927,
+      "current": 0.4310390973028504
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2299,
+      "inherited-reset": 24,
+      "own": 13,
+      "current": 8
+     },
+     "inherited_spread": 0.0039147455415398,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.4095486906303007
+    },
+    {
+     "score": {
+      "inherited": 0.461,
+      "inherited-reset": -0.487,
+      "own": -0.818,
+      "current": 0.036,
+      "tournament-16": 0.086,
+      "median": -0.433,
+      "best": 0.293
+     },
+     "rank": {
+      "inherited": 3,
+      "inherited-reset": 74,
+      "own": 83,
+      "current": 35,
+      "tournament-16": 16,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 98,
+      "inherited-reset": 13,
+      "own": 112,
+      "current": 125,
+      "tournament-16": 50,
+      "median": 51,
+      "best": 26
+     },
+     "rho": {
+      "inherited": 0.25506284517383604,
+      "inherited-reset": 0.39396717335162057,
+      "own": 0.31410813637881785,
+      "current": 0.3536567886527834
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2680,
+      "inherited-reset": 15,
+      "own": 8,
+      "current": 5
+     },
+     "inherited_spread": 0.004850746268656716,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.037053317694049
+    },
+    {
+     "score": {
+      "inherited": -0.04,
+      "inherited-reset": 0.427,
+      "own": 0.043,
+      "current": 0.043,
+      "tournament-16": 0.172,
+      "median": -0.121,
+      "best": 0.279
+     },
+     "rank": {
+      "inherited": 73,
+      "inherited-reset": 19,
+      "own": 53,
+      "current": 53,
+      "tournament-16": 34,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 85,
+      "inherited-reset": 36,
+      "own": 0,
+      "current": 0,
+      "tournament-16": 84,
+      "median": 55,
+      "best": 61
+     },
+     "rho": {
+      "inherited": 0.004123343123537126,
+      "inherited-reset": 0.059819835448258356,
+      "own": 0.13136714666988444,
+      "current": 0.2267008787298449
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 2,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2998,
+      "inherited-reset": 12,
+      "own": 8,
+      "current": 8
+     },
+     "inherited_spread": 0.006170780520346898,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.8440196569482871
+    },
+    {
+     "score": {
+      "inherited": -0.399,
+      "inherited-reset": -0.399,
+      "own": 0.215,
+      "current": 0.048,
+      "tournament-16": 0.358,
+      "median": 0.138,
+      "best": 0.272
+     },
+     "rank": {
+      "inherited": 97,
+      "inherited-reset": 97,
+      "own": 35,
+      "current": 74,
+      "tournament-16": 28,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 50,
+      "inherited-reset": 50,
+      "own": 23,
+      "current": 65,
+      "tournament-16": 9,
+      "median": 38,
+      "best": 89
+     },
+     "rho": {
+      "inherited": 0.02321119682723744,
+      "inherited-reset": 0.17227684138493266,
+      "own": 0.226159039603124,
+      "current": 0.21862057520780576
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 2,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3264,
+      "inherited-reset": 18,
+      "own": 7,
+      "current": 5
+     },
+     "inherited_spread": 0.004595588235294118,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.5263785534293896
+    },
+    {
+     "score": {
+      "inherited": -0.698,
+      "inherited-reset": 0.258,
+      "own": 0.309,
+      "current": -0.698,
+      "tournament-16": 0.414,
+      "median": 0.339,
+      "best": 0.414
+     },
+     "rank": {
+      "inherited": 116,
+      "inherited-reset": 16,
+      "own": 30,
+      "current": 116,
+      "tournament-16": 1,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 96,
+      "inherited-reset": 58,
+      "own": 119,
+      "current": 96,
+      "tournament-16": 90,
+      "median": 126,
+      "best": 90
+     },
+     "rho": {
+      "inherited": -0.07897660502749684,
+      "inherited-reset": 0.06143471884445347,
+      "own": 0.20699014864057383,
+      "current": 0.07508075358572773
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 3,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3554,
+      "inherited-reset": 5,
+      "own": 7,
+      "current": 5
+     },
+     "inherited_spread": 0.0028137310073157004,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.7352395454051721
+    },
+    {
+     "score": {
+      "inherited": -0.23,
+      "inherited-reset": -0.046,
+      "own": -0.716,
+      "current": -0.046,
+      "tournament-16": 0.432,
+      "median": 0.163,
+      "best": 0.451
+     },
+     "rank": {
+      "inherited": 106,
+      "inherited-reset": 107,
+      "own": 119,
+      "current": 107,
+      "tournament-16": 4,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 88,
+      "inherited-reset": 57,
+      "own": 11,
+      "current": 57,
+      "tournament-16": 49,
+      "median": 101,
+      "best": 105
+     },
+     "rho": {
+      "inherited": -0.08962202454695314,
+      "inherited-reset": 0.16753647944136915,
+      "own": 0.09227106646248033,
+      "current": 0.1153040811205236
+     },
+     "at_max": {
+      "inherited": 3,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3763,
+      "inherited-reset": 6,
+      "own": 7,
+      "current": 6
+     },
+     "inherited_spread": 0.0029231995748073346,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.6660975252062851
+    }
+   ],
+   "level_inherited": -1.5811,
+   "declines_inherited": 1.1780000000000002,
+   "rank_inherited": 61.9,
+   "level_inherited-reset": -1.582,
+   "declines_inherited-reset": 1.368,
+   "rank_inherited-reset": 55.2,
+   "level_own": -1.672,
+   "declines_own": 2.0519999999999996,
+   "rank_own": 47.2,
+   "level_current": -1.65,
+   "declines_current": 0.8629999999999997,
+   "rank_current": 51.2,
+   "level_tournament-16": -1.3419,
+   "declines_tournament-16": 0.18200000000000002,
+   "rank_tournament-16": 24.3,
+   "level_median": -1.8153,
+   "declines_median": 0.17600000000000002,
+   "rank_median": 65.0,
+   "level_best": -1.2386,
+   "declines_best": 0.20499999999999996,
+   "rank_best": 1.0,
+   "rho_inherited": 0.051140378097782026,
+   "rho_inherited-reset": 0.11120262872989217,
+   "rho_own": 0.20512137226487526,
+   "rho_current": 0.20188811124595532,
+   "curve_volatility_inherited": 0.3653030303030303,
+   "curve_declines_inherited": 15.825000000000001,
+   "curve_mean_inherited": -1.8796499999999998,
+   "curve_volatility_inherited-reset": 0.3783838383838384,
+   "curve_declines_inherited-reset": 16.395,
+   "curve_mean_inherited-reset": -1.87195,
+   "curve_volatility_own": 0.43585858585858583,
+   "curve_declines_own": 19.474999999999998,
+   "curve_mean_own": -1.8333,
+   "curve_volatility_current": 0.3052525252525252,
+   "curve_declines_current": 12.784999999999998,
+   "curve_mean_current": -1.7312,
+   "tie_frac_late": 0.46359000000000006,
+   "matches_stored": 1
+  },
+  "control_s106": {
+   "seed": 106,
+   "snapshots": [
+    {
+     "score": {
+      "inherited": -4.845,
+      "inherited-reset": -4.845,
+      "own": -4.828,
+      "current": -4.828,
+      "tournament-16": -4.8,
+      "median": -4.85,
+      "best": -4.792
+     },
+     "rank": {
+      "inherited": 26,
+      "inherited-reset": 26,
+      "own": 48,
+      "current": 48,
+      "tournament-16": 108,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 80,
+      "inherited-reset": 80,
+      "own": 41,
+      "current": 41,
+      "tournament-16": 98,
+      "median": 72,
+      "best": 113
+     },
+     "rho": {
+      "inherited": 0.05394816840492385,
+      "inherited-reset": 0.05394816840492385,
+      "own": -0.05639678723998921,
+      "current": -0.05639678723998921
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 2
+     },
+     "max_count": {
+      "inherited": 422,
+      "inherited-reset": 422,
+      "own": 9,
+      "current": 9
+     },
+     "inherited_spread": 0.016587677725118485,
+     "median_games_since_birth": 0.0,
+     "ext_sd": 0.04935497022527217
+    },
+    {
+     "score": {
+      "inherited": -1.651,
+      "inherited-reset": -1.694,
+      "own": -0.427,
+      "current": -0.427,
+      "tournament-16": -0.579,
+      "median": -2.362,
+      "best": -0.141
+     },
+     "rank": {
+      "inherited": 50,
+      "inherited-reset": 55,
+      "own": 20,
+      "current": 20,
+      "tournament-16": 24,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 0,
+      "inherited-reset": 67,
+      "own": 74,
+      "current": 74,
+      "tournament-16": 2,
+      "median": 6,
+      "best": 9
+     },
+     "rho": {
+      "inherited": 0.036513481840114624,
+      "inherited-reset": 0.09636294480183459,
+      "own": 0.4340531439025093,
+      "current": 0.4314962216780216
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 927,
+      "inherited-reset": 62,
+      "own": 17,
+      "current": 17
+     },
+     "inherited_spread": 0.011866235167206042,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.5669657536707955
+    },
+    {
+     "score": {
+      "inherited": -0.807,
+      "inherited-reset": -0.545,
+      "own": 0.046,
+      "current": -1.286,
+      "tournament-16": -0.169,
+      "median": -1.037,
+      "best": 0.14
+     },
+     "rank": {
+      "inherited": 55,
+      "inherited-reset": 49,
+      "own": 18,
+      "current": 86,
+      "tournament-16": 26,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 35,
+      "inherited-reset": 107,
+      "own": 60,
+      "current": 33,
+      "tournament-16": 45,
+      "median": 62,
+      "best": 80
+     },
+     "rho": {
+      "inherited": -0.07436691616330873,
+      "inherited-reset": -0.003559476032175757,
+      "own": 0.32205213590286197,
+      "current": 0.32733793768820996
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 3
+     },
+     "max_count": {
+      "inherited": 1302,
+      "inherited-reset": 20,
+      "own": 11,
+      "current": 7
+     },
+     "inherited_spread": 0.006144393241167435,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 1.0308985091225573
+    },
+    {
+     "score": {
+      "inherited": 0.437,
+      "inherited-reset": -0.012,
+      "own": -3.043,
+      "current": 0.318,
+      "tournament-16": 0.292,
+      "median": -0.306,
+      "best": 0.471
+     },
+     "rank": {
+      "inherited": 19,
+      "inherited-reset": 58,
+      "own": 120,
+      "current": 16,
+      "tournament-16": 25,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 15,
+      "inherited-reset": 59,
+      "own": 17,
+      "current": 85,
+      "tournament-16": 30,
+      "median": 104,
+      "best": 103
+     },
+     "rho": {
+      "inherited": 0.21047633485408881,
+      "inherited-reset": 0.22285100262820773,
+      "own": 0.2966241323602815,
+      "current": 0.3149449903608802
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1657,
+      "inherited-reset": 13,
+      "own": 7,
+      "current": 6
+     },
+     "inherited_spread": 0.007845503922751962,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 1.1272127821052655
+    },
+    {
+     "score": {
+      "inherited": -0.653,
+      "inherited-reset": 0.228,
+      "own": -0.113,
+      "current": 0.025,
+      "tournament-16": 0.025,
+      "median": -0.133,
+      "best": 0.321
+     },
+     "rank": {
+      "inherited": 94,
+      "inherited-reset": 41,
+      "own": 50,
+      "current": 36,
+      "tournament-16": 36,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 39,
+      "inherited-reset": 123,
+      "own": 16,
+      "current": 53,
+      "tournament-16": 53,
+      "median": 79,
+      "best": 40
+     },
+     "rho": {
+      "inherited": -0.009435893116016385,
+      "inherited-reset": 0.16967805595163582,
+      "own": 0.29299444292321264,
+      "current": 0.2683187011932288
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 1983,
+      "inherited-reset": 13,
+      "own": 7,
+      "current": 7
+     },
+     "inherited_spread": 0.0030257186081694403,
+     "median_games_since_birth": 1.0,
+     "ext_sd": 0.9801653591441987
+    },
+    {
+     "score": {
+      "inherited": 0.457,
+      "inherited-reset": 0.452,
+      "own": 0.385,
+      "current": -0.04,
+      "tournament-16": 0.485,
+      "median": 0.014,
+      "best": 0.452
+     },
+     "rank": {
+      "inherited": 12,
+      "inherited-reset": 1,
+      "own": 35,
+      "current": 87,
+      "tournament-16": 23,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 99,
+      "inherited-reset": 108,
+      "own": 112,
+      "current": 40,
+      "tournament-16": 12,
+      "median": 52,
+      "best": 108
+     },
+     "rho": {
+      "inherited": 0.04673490478709301,
+      "inherited-reset": 0.008495377256911725,
+      "own": 0.11548064665925906,
+      "current": 0.12085439122342401
+     },
+     "at_max": {
+      "inherited": 2,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 3
+     },
+     "max_count": {
+      "inherited": 2271,
+      "inherited-reset": 16,
+      "own": 15,
+      "current": 4
+     },
+     "inherited_spread": 0.0024218405988551297,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.6168152776131998
+    },
+    {
+     "score": {
+      "inherited": 0.111,
+      "inherited-reset": 0.024,
+      "own": 0.224,
+      "current": 0.111,
+      "tournament-16": 0.29,
+      "median": -0.04,
+      "best": 0.283
+     },
+     "rank": {
+      "inherited": 54,
+      "inherited-reset": 58,
+      "own": 15,
+      "current": 54,
+      "tournament-16": 13,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 81,
+      "inherited-reset": 27,
+      "own": 59,
+      "current": 81,
+      "tournament-16": 105,
+      "median": 122,
+      "best": 126
+     },
+     "rho": {
+      "inherited": -0.06327584199313513,
+      "inherited-reset": -0.01724747380139545,
+      "own": 0.2168689400855526,
+      "current": 0.09667099493434672
+     },
+     "at_max": {
+      "inherited": 3,
+      "inherited-reset": 4,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2544,
+      "inherited-reset": 6,
+      "own": 13,
+      "current": 5
+     },
+     "inherited_spread": 0.004323899371069182,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.5700628347880203
+    },
+    {
+     "score": {
+      "inherited": 0.087,
+      "inherited-reset": -0.131,
+      "own": -0.532,
+      "current": -0.532,
+      "tournament-16": 0.452,
+      "median": 0.061,
+      "best": 0.281
+     },
+     "rank": {
+      "inherited": 68,
+      "inherited-reset": 93,
+      "own": 113,
+      "current": 113,
+      "tournament-16": 6,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 59,
+      "inherited-reset": 104,
+      "own": 72,
+      "current": 72,
+      "tournament-16": 63,
+      "median": 4,
+      "best": 75
+     },
+     "rho": {
+      "inherited": 0.26450820909876166,
+      "inherited-reset": 0.051073769566906804,
+      "own": 0.0892382138062655,
+      "current": 0.22345696192507425
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 1,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 2825,
+      "inherited-reset": 8,
+      "own": 7,
+      "current": 6
+     },
+     "inherited_spread": 0.002831858407079646,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.812775060278741
+    },
+    {
+     "score": {
+      "inherited": -0.059,
+      "inherited-reset": 0.124,
+      "own": -0.059,
+      "current": 0.124,
+      "tournament-16": 0.378,
+      "median": 0.242,
+      "best": 0.133
+     },
+     "rank": {
+      "inherited": 63,
+      "inherited-reset": 41,
+      "own": 63,
+      "current": 41,
+      "tournament-16": 25,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 12,
+      "inherited-reset": 4,
+      "own": 12,
+      "current": 4,
+      "tournament-16": 110,
+      "median": 121,
+      "best": 77
+     },
+     "rho": {
+      "inherited": -0.07625980752394085,
+      "inherited-reset": 0.1316400165483528,
+      "own": 0.04259605991669356,
+      "current": 0.06032809129189172
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 2,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3050,
+      "inherited-reset": 7,
+      "own": 7,
+      "current": 6
+     },
+     "inherited_spread": 0.0045901639344262295,
+     "median_games_since_birth": 2.0,
+     "ext_sd": 0.3193944329812973
+    },
+    {
+     "score": {
+      "inherited": 0.318,
+      "inherited-reset": 0.387,
+      "own": -0.063,
+      "current": 0.301,
+      "tournament-16": 0.297,
+      "median": 0.164,
+      "best": 0.381
+     },
+     "rank": {
+      "inherited": 39,
+      "inherited-reset": 12,
+      "own": 117,
+      "current": 41,
+      "tournament-16": 36,
+      "median": 65,
+      "best": 1
+     },
+     "index": {
+      "inherited": 90,
+      "inherited-reset": 60,
+      "own": 6,
+      "current": 107,
+      "tournament-16": 100,
+      "median": 127,
+      "best": 97
+     },
+     "rho": {
+      "inherited": 0.06673208459452404,
+      "inherited-reset": 0.2156780696996745,
+      "own": 0.1875890250270414,
+      "current": 0.1642751934427979
+     },
+     "at_max": {
+      "inherited": 1,
+      "inherited-reset": 1,
+      "own": 3,
+      "current": 1
+     },
+     "max_count": {
+      "inherited": 3246,
+      "inherited-reset": 7,
+      "own": 6,
+      "current": 6
+     },
+     "inherited_spread": 0.0015403573629081946,
+     "median_games_since_birth": 3.0,
+     "ext_sd": 0.3097268446808772
+    }
+   ],
+   "level_inherited": -0.6605000000000001,
+   "declines_inherited": 1.606,
+   "rank_inherited": 48.0,
+   "level_inherited-reset": -0.6012000000000001,
+   "declines_inherited-reset": 0.583,
+   "rank_inherited-reset": 43.4,
+   "level_own": -0.841,
+   "declines_own": 4.01,
+   "rank_own": 59.9,
+   "level_current": -0.6234,
+   "declines_current": 1.8599999999999999,
+   "rank_current": 54.2,
+   "level_tournament-16": -0.3328999999999999,
+   "declines_tournament-16": 0.617,
+   "rank_tournament-16": 32.2,
+   "level_median": -0.8247000000000002,
+   "declines_median": 0.13199999999999998,
+   "rank_median": 65.0,
+   "level_best": -0.24710000000000001,
+   "declines_best": 0.469,
+   "rank_best": 1.0,
+   "rho_inherited": 0.04555747247831049,
+   "rho_inherited-reset": 0.09289204550248766,
+   "rho_own": 0.19410999533436885,
+   "rho_current": 0.19512866964978862,
+   "curve_volatility_inherited": 0.6124242424242424,
+   "curve_declines_inherited": 27.734999999999996,
+   "curve_mean_inherited": -1.0115500000000002,
+   "curve_volatility_inherited-reset": 0.375050505050505,
+   "curve_declines_inherited-reset": 15.95,
+   "curve_mean_inherited-reset": -0.8740499999999999,
+   "curve_volatility_own": 0.6254545454545454,
+   "curve_declines_own": 28.639999999999997,
+   "curve_mean_own": -0.88625,
+   "curve_volatility_current": 0.3522727272727272,
+   "curve_declines_current": 14.894999999999998,
+   "curve_mean_current": -0.7218499999999999,
+   "tie_frac_late": 0.5454,
+   "matches_stored": 1
+  }
+ },
+ "exploratory": true
+}

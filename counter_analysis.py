@@ -147,6 +147,42 @@ def summarise(runs):
     return res
 
 
+def tests(runs, alpha=0.05):
+    """The preregistered tests (results/counter/PREREGISTRATION.md): four
+    one-sided exact paired sign-flip tests over the runs, Holm at family-wise
+    alpha. Positive differences favour the hypothesis."""
+    rs = list(runs.values())
+
+    def lv(c):
+        return np.array([x[f"level_{c}"] for x in rs])
+
+    def vol(c):
+        return np.array([x[f"curve_volatility_{c}"] for x in rs])
+    diffs = {
+        # H13a: the current genotype's wins export better members than Ha's counter
+        "H13a": lv("current") - lv("inherited"),
+        # H13b: and report a curve that swings less between checkpoints
+        "H13b": vol("inherited") - vol("current"),
+        # H13c: not inheriting the count at birth helps (main effect, 2 x 2)
+        "H13c": (lv("own") - lv("inherited") + lv("current") - lv("inherited-reset")) / 2,
+        # H13d: restarting the count when a tie mutates the genotype helps
+        "H13d": (lv("inherited-reset") - lv("inherited") + lv("current") - lv("own")) / 2}
+    res = {}
+    for h, d in diffs.items():
+        mean, p = su.signflip_greater(d)
+        res[h] = {"mean": float(mean), "runs_positive": int((d > 0).sum()),
+                  "n": len(d), "p_one_sided": p}
+    rej = su.holm([res[h]["p_one_sided"] for h in diffs], alpha)
+    for h, r in zip(diffs, rej):
+        res[h]["rejected"] = bool(r)
+    # described, no decision: the free counter against WP10's tournament
+    d = lv("current") - lv(f"tournament-{PRIMARY}")
+    two = min(1.0, 2 * min(su.signflip_greater(d)[1], su.signflip_greater(-d)[1]))
+    res["current_vs_tournament"] = {"mean": float(d.mean()), "runs_higher": int((d > 0).sum()),
+                                    "n": len(d), "p_two_sided": two}
+    return res
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--explore", action="store_true")
@@ -157,13 +193,14 @@ def main():
     with mp.get_context("spawn").Pool(min(args.workers, len(paths))) as pool:
         runs = dict(pool.imap_unordered(one_run, paths))
     runs = dict(sorted(runs.items()))
-    res = {"summary": summarise(runs), "per_run": runs,
+    res = {"summary": summarise(runs), "tests": tests(runs), "per_run": runs,
            "exploratory": bool(args.explore)}
     out = os.path.join(d, "analysis.json")
     with open(out, "w") as f:
         json.dump(res, f, indent=1)
     pv.record(out, "counter_explore" if args.explore else "counter")
     print(json.dumps(res["summary"], indent=1))
+    print(json.dumps(res["tests"], indent=1))
     print(f"-> {out}")
 
 

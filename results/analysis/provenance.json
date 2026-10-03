@@ -1113,6 +1113,20 @@
   "scope": "yardsticks",
   "script": "yardsticks.py"
  },
+ "results/counter/explore/analysis.json": {
+  "inputs": {
+   "results/counter/explore/control_s101.npz": "cc716c9a223571c12f945fb3c8ee76e322bfdf0c6ef128f28456deafbbae19b6",
+   "results/counter/explore/control_s102.npz": "70e8d150c9dd0953726df151e5592756af8047095a10c5f1f65ba7db0ee4bfbe",
+   "results/counter/explore/control_s103.npz": "df1cd92d64234e968544e9b3d05d8874d5cf8cb1e2a298ea5221d9c279b662a2",
+   "results/counter/explore/control_s104.npz": "83412cc37d4b238a274b421763ff94d1adcadada9ae00393f6ee3e478632dfc4",
+   "results/counter/explore/control_s105.npz": "c5c0b9c2de357c2e95a6fe2496f03d86a63799873f4a4468ece6e37aca941ae6",
+   "results/counter/explore/control_s106.npz": "dc613b18cd28dc1b10df4f8d3f40a20f61abbf66c4bc478e3468465d9100a6a6"
+  },
+  "output_sha256": "b1ddd3319b9f3d162f97633437c5b8b358811b682116c0d103153eaaf1af0c86",
+  "params": {},
+  "scope": "counter_explore",
+  "script": "counter_analysis.py"
+ },
  "results/export/analysis.json": {
   "inputs": {
    "results/export/control_s401.npz": "764138c30b30e091100bd5f0fbc285b6d2cd45a64531b6a26e23607841253874",
