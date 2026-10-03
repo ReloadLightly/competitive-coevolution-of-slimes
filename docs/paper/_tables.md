@@ -317,6 +317,19 @@ Discmix game, 12 runs per cell, all quantities exact. Exported rank and ρ: cont
 Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of the final champions' cross-run strength (mean expected score against the final champions of the other 35 runs at the same λ), niche archive minus the comparison, with the two-sided exact Mann–Whitney p; no decision rests on these per-λ values. H9b, the effect vs control grows with λ: one-sided permutation p = 0.072, **does not hold**. H9c, at λ = 0.75 the niche archive beats the time-ordered one: one-sided exact Mann–Whitney p = 0.335, **does not hold**. Both under Holm.
 
 
+### Table NEAT
+
+| family | runs | learned to rally | reached parity | final (held out) | spread vs 2020 GA | best final | checkpoints above parity | median cross-run Elo |
+|---|---|---|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 6 | 6/6 | 6/6 | -0.15 ± 0.66 | 1.00× | +0.41 | 0.26 | +371 |
+| generational GA (Ha 2015) | 6 | 5/6 | 5/6 | -2.00 ± 2.00 | 3.05× | -0.09 | 0.03 | +143 |
+| self-play ES | 6 | 4/6 | 2/6 | -2.08 ± 2.29 | 3.49× | +0.50 | 0.07 | +206 |
+| archive as test, full span | 6 | 5/6 | 4/6 | -1.01 ± 2.03 | 3.08× | +0.35 | 0.18 | +449 |
+| NEAT | 12 | 0/12 | 0/12 | -4.84 ± 0.01 | 0.02× | -4.82 | 0.00 | -406 |
+
+Final: end-of-run champion against the 2015 baseline, held-out seed, mean ± SD over runs; spread: that SD relative to the 2020 GA's. Elo: Bradley–Terry ratings of every run's final champion in one all-play-all tournament (NEAT finals and the final champion of every single-population run of the matrix), median per family. H9d, NEAT vs the generational GA on the final champion: Cliff's δ -0.92, two-sided exact Mann–Whitney p < 0.001, **a detectable difference**. NEAT's final champions have 23–39 hidden nodes and 144–170 enabled connections (the other families: a fixed 12-10-10-3 network, 273 weights and biases).
+
+
 ### Table A1
 
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |

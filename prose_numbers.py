@@ -933,6 +933,46 @@ def definitions():
         lambda d: _f(min(min(r["vs_control"]["p_two_sided"], r["vs_test"]["p_two_sided"])
                          for r in qd_lam(d)), 2))
 
+    # ---- WP9: NEAT as a fifth family ------------------------------------
+    def nt(d):
+        return d["neat"]
+
+    def nf(d, f="neat"):
+        return nt(d)["families"][f]
+    add("neat_runs", ["neat"], "NEAT: runs")(lambda d: str(nf(d)["runs"]))
+    add("neat_learned", ["neat"], "NEAT: runs that learned to rally")(
+        lambda d: str(nf(d)["learned"]))
+    add("neat_parity", ["neat"], "NEAT: runs with a champion above parity")(
+        lambda d: str(nf(d)["reached_parity"]))
+    add("neat_final", ["neat"], "NEAT: mean final champion score, held out")(
+        lambda d: _f(nf(d)["final_mean"], 2, True))
+    add("neat_final_sd", ["neat"], "NEAT: s.d. over runs of the final champion score")(
+        lambda d: _f(nf(d)["final_sd"], 2))
+    add("neat_best_final", ["neat"], "NEAT: best final champion score of any run")(
+        lambda d: _f(nf(d)["best_final"], 2, True))
+    add("neat_ga_final", ["neat"],
+        "generational GA: mean final champion score, held out (NEAT comparison)")(
+        lambda d: _f(nf(d, "ga2015")["final_mean"], 2, True))
+    add("neat_delta", ["neat"], "H9d: Cliff's delta, NEAT minus generational GA, final champion")(
+        lambda d: _f(nt(d)["H9d"]["cliffs_delta"], 2, True))
+    add("neat_p", ["neat"], "H9d: two-sided exact Mann-Whitney p")(
+        lambda d: f"{nt(d)['H9d']['p_two_sided']:.4f}")
+    add("neat_elo", ["neat"], "NEAT: median cross-run Elo of the final champions")(
+        lambda d: f"{nf(d)['elo_median']:+.0f}")
+    add("neat_elo_next", ["neat"],
+        "lowest median cross-run Elo among the four other families")(
+        lambda d: f"{min(nf(d, f)['elo_median'] for f in ('control', 'ga2015', 'es', 'hof-eval-v2')):+.0f}")
+    add("neat_hidden_min", ["neat"], "NEAT: fewest hidden nodes of a final champion")(
+        lambda d: str(min(nt(d)["structure"]["final_hidden"])))
+    add("neat_hidden_max", ["neat"], "NEAT: most hidden nodes of a final champion")(
+        lambda d: str(max(nt(d)["structure"]["final_hidden"])))
+    add("neat_conn_min", ["neat"], "NEAT: fewest enabled connections of a final champion")(
+        lambda d: str(min(nt(d)["structure"]["final_connections"])))
+    add("neat_conn_max", ["neat"], "NEAT: most enabled connections of a final champion")(
+        lambda d: str(max(nt(d)["structure"]["final_connections"])))
+    add("neat_species", ["neat"], "NEAT: mean number of species over checkpoints and runs")(
+        lambda d: _f(float(np.mean(nt(d)["structure"]["species_mean"])), 1))
+
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):
         rs = d["within_fine"]["runs"].values()

@@ -397,6 +397,42 @@ section, neither archive design, used as a test, helped in this study.
 Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of the final champions' cross-run strength (mean expected score against the final champions of the other 35 runs at the same λ), niche archive minus the comparison, with the two-sided exact Mann–Whitney p; no decision rests on these per-λ values. H9b, the effect vs control grows with λ: one-sided permutation p = 0.072, **does not hold**. H9c, at λ = 0.75 the niche archive beats the time-ordered one: one-sided exact Mann–Whitney p = 0.335, **does not hold**. Both under Holm.
 <!-- /table:qdm -->
 
+### A fifth family: NEAT
+
+Every family above evolves the weights of one fixed network. NEAT
+(Stanley & Miikkulainen 2002) evolves the structure too: it starts from the
+smallest network (every input wired to every output), adds nodes and
+connections, and protects new structure in species. The [lab's
+NEAT](docs/lab.md#neat) plays the study's compiled game (a NEAT genome that
+encodes the study's network plays bit-identical games) under the generational
+GA's self-play evaluation and the same budget. A [preregistered
+experiment](results/neat/PREREGISTRATION.md) ran <!-- n:neat_runs -->12<!-- /n --> seeds:
+
+- **NEAT never learned to rally**: <!-- n:neat_learned -->0<!-- /n --> of <!-- n:neat_runs -->12<!-- /n --> runs, and <!-- n:neat_parity -->0<!-- /n --> reached a checkpoint above
+  parity. The final champions lose almost every point to the 2015 baseline
+  (<!-- n:neat_final -->-4.84<!-- /n --> ± <!-- n:neat_final_sd -->0.01<!-- /n -->; the best run <!-- n:neat_best_final -->-4.82<!-- /n -->).
+- **H9d finds a detectable difference, and it runs against NEAT.** Against
+  the generational GA, which shares its selection scheme and evolves a fixed
+  topology (<!-- n:neat_ga_final -->-2.00<!-- /n -->), Cliff's δ = <!-- n:neat_delta -->-0.92<!-- /n -->, p = <!-- n:neat_p -->0.0008<!-- /n -->. In the cross-run
+  tournament its final champions rank last (median Elo <!-- n:neat_elo -->-406<!-- /n -->; the lowest
+  other family <!-- n:neat_elo_next -->+143<!-- /n -->).
+- **It grew structure without skill**: <!-- n:neat_hidden_min -->23<!-- /n -->–<!-- n:neat_hidden_max -->39<!-- /n --> hidden nodes and <!-- n:neat_conn_min -->144<!-- /n -->–<!-- n:neat_conn_max -->170<!-- /n --> enabled
+  connections in the final champions, with <!-- n:neat_species -->8.3<!-- /n --> species on average.
+
+<!-- NEAT-DIAGNOSTICS -->
+
+<!-- table:neat -->
+| family | runs | learned to rally | reached parity | final (held out) | spread vs 2020 GA | best final | checkpoints above parity | median cross-run Elo |
+|---|---|---|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 6 | 6/6 | 6/6 | -0.15 ± 0.66 | 1.00× | +0.41 | 0.26 | +371 |
+| generational GA (Ha 2015) | 6 | 5/6 | 5/6 | -2.00 ± 2.00 | 3.05× | -0.09 | 0.03 | +143 |
+| self-play ES | 6 | 4/6 | 2/6 | -2.08 ± 2.29 | 3.49× | +0.50 | 0.07 | +206 |
+| archive as test, full span | 6 | 5/6 | 4/6 | -1.01 ± 2.03 | 3.08× | +0.35 | 0.18 | +449 |
+| NEAT | 12 | 0/12 | 0/12 | -4.84 ± 0.01 | 0.02× | -4.82 | 0.00 | -406 |
+
+Final: end-of-run champion against the 2015 baseline, held-out seed, mean ± SD over runs; spread: that SD relative to the 2020 GA's. Elo: Bradley–Terry ratings of every run's final champion in one all-play-all tournament (NEAT finals and the final champion of every single-population run of the matrix), median per family. H9d, NEAT vs the generational GA on the final champion: Cliff's δ -0.92, two-sided exact Mann–Whitney p < 0.001, **a detectable difference**. NEAT's final champions have 23–39 hidden nodes and 144–170 enabled connections (the other families: a fixed 12-10-10-3 network, 273 weights and biases).
+<!-- /table:neat -->
+
 ---
 
 ## Why the numbers can be trusted
@@ -480,9 +516,9 @@ parameters — and the identical environment. Only the machinery differs.
 population size — only population <!-- n:pop_small -->32<!-- /n --> ran, with <!-- n:pop_small_runs -->1<!-- /n --> seed, before the sweep
 was replaced by the unequal-power block.*
 
-Topology-evolving methods (NEAT) are deliberately out of scope; `docs/paper/04-appendix.md`
-§A.8 specifies exactly what a later NEAT run would need and how it would stay
-comparable to these results.
+A topology-evolving method, NEAT, was added later as a fifth family in a
+separate, preregistered experiment, in the same game under the same budget and
+yardstick: see [A fifth family: NEAT](#a-fifth-family-neat).
 
 ---
 
@@ -550,8 +586,10 @@ population snapshot with
   enough to separate a large effect from seed noise, not a small one. Findings
   1–5 held in a [preregistered replication](#a-preregistered-replication) on
   <!-- n:rep_runs -->12<!-- /n --> fresh runs per condition; findings 6 and 7 were not replicated.
-- **Fixed topology.** Nothing here evolves structure; see §A.8 for what NEAT
-  would need.
+- **Topology.** Findings 1–6 come from families that evolve one fixed network.
+  NEAT, which evolves structure, never learned to rally here (<!-- n:neat_learned -->0<!-- /n --> of <!-- n:neat_runs -->12<!-- /n --> runs,
+  [preregistered](results/neat/PREREGISTRATION.md)); that is one configuration
+  of NEAT with mostly published settings, not tuned for this game.
 - **Archive designs.** The archive was tested as a parent in one design and
   as a test in two: time-ordered, and organised by behaviour
   ([preregistered](results/qd/PREREGISTRATION.md), no detectable effect
