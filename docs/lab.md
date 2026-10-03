@@ -149,3 +149,10 @@ genomes; the forward pass and the games are compiled.
   does not help more as skill becomes cyclic (H9b does not hold) and does
   not beat the time-ordered archive where skill is most cyclic (H9c does not
   hold). Numbers: README, "An archive organised by behaviour".
+- WP9, NEAT ([preregistration](../results/neat/PREREGISTRATION.md), 12 runs,
+  `.github/workflows/neat.yml`): analysed once by `neat_analysis.py`. NEAT
+  never learned to rally and is detectably worse than the generational GA
+  (H9d). An exploratory follow-up (`neat_explore.py`, not preregistered)
+  finds that NEAT's loop learns once speciation and structural mutation are
+  taken out, so the failure lies in NEAT's reproduction machinery as
+  configured, not in the game path. Numbers: README, "A fifth family: NEAT".

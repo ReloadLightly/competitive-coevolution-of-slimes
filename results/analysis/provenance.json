@@ -1172,6 +1172,26 @@
   "scope": "neat",
   "script": "neat_analysis.py"
  },
+ "results/neat/explore/summary.json": {
+  "inputs": {
+   "results/neat/explore/as-ga_s901.npz": "d0548b694e9241d3c76e79cf043cb8fa0f6f8b8957cddb9bd54b519881d3fc95",
+   "results/neat/explore/as-ga_s902.npz": "884a673fd3f629e339acfaacb90aac2760a98a812cba08c88cd3463a166f399d",
+   "results/neat/explore/as-ga_s903.npz": "90fd502d0552dcf47787c17eba31a38fb16298ab91600e9d0a3787e914353c70",
+   "results/neat/explore/as-ga_s904.npz": "44808a3e227b96df350a9e303f83531b698f3315ddda2e0ab14c6e4a976b8299",
+   "results/neat/explore/mlp-start_s901.npz": "61f979e0553ff5c52878ec57835a1d75ebe362ec0f17600308bbe226477ce2ef",
+   "results/neat/explore/mlp-start_s902.npz": "f3c95665e5ad6d3850b20c7b4858d43a0cdab78aca9fa38e7507b73923ebfafc",
+   "results/neat/explore/mlp-start_s903.npz": "f1df36a8f89e31aac52e0586f16d3769e1350b593dd24e0fa5b0cd6ea712fcf8",
+   "results/neat/explore/mlp-start_s904.npz": "d702daa7c5fba5e052386e47468615c2123ad0c19a25783b34b869706f2e83ca",
+   "results/neat/explore/no-reset_s901.npz": "7ba9632e706a06a3597b22b7a3980abe3dc5bed1d1b40cb10a8c9236c8af0b72",
+   "results/neat/explore/no-reset_s902.npz": "52d99020fb47614aeaa10fc5094c57cdf89f9b0367a437cc2d3d02cf061376cb",
+   "results/neat/explore/no-reset_s903.npz": "df0033c8619bceabd45c297760a036f18ca6d833fcedb414d46d1abeb1d2629d",
+   "results/neat/explore/no-reset_s904.npz": "ec5f83176abb0b07d86b73adb83f24736f2cc9750eadd9819e925cd82cfd5a05"
+  },
+  "output_sha256": "7162d5b49c8ce2d1f2efe49b03c34257420b83be0c04e11be4fb235987275b82",
+  "params": {},
+  "scope": "neat_explore",
+  "script": "neat_explore.py"
+ },
  "results/qd/analysis.json": {
   "inputs": {
    "results/lab/discmix-0.00-control_s301.npz": "83c16ae7f9353f76ffee7e6634d661eb71f260cab9f3578af0993840e5ef9515",

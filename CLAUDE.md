@@ -224,7 +224,7 @@ Status (2026-10-03): done. `lab/`, `docs/lab.md`, `run_lab.py`, `lab_analysis.py
 
 ### WP9 — Structure and archives (NEAT, quality diversity)
 
-Status (2026-10-03): item 2, the quality-diversity (niche) archive, done: H9a holds, H9b and H9c do not (decisions.md). Item 1, NEAT: preregistered, runs in progress.
+Status (2026-10-03): done. Item 2, the quality-diversity (niche) archive: H9a holds, H9b and H9c do not. Item 1, NEAT: never learned to rally (0/12), H9d finds it detectably worse than the generational GA; exploratory follow-up (`neat_explore.py`, not preregistered) locates the failure in NEAT's reproduction machinery, not in the game path. See decisions.md.
 
 1. NEAT as specified in `docs/paper/04-appendix.md` §A.8, comparable to the
    existing families.

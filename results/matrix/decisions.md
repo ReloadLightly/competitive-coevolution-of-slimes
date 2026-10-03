@@ -554,3 +554,19 @@ into `results/neat/explore/`, summarised by `neat_explore.py --summary`
 labelled so. `lab.neat.run` gained an optional `init` argument for the
 variants that start from the study's network; the default path is
 unchanged (the first champion of `neat_s101` reproduces exactly).
+
+### 2026-10-03 — the exploratory NEAT runs, from committed code
+
+All 12 runs of `neat_explore.py` arrived (`results/neat/explore/`,
+summary `summary.json`): `mlp-start` 0/4 learned, `no-reset` 0/4, `as-ga`
+1/4 learned and reached parity (seed 902, rallies above 1,500 steps at
+245,000 games, final +0.05). Ten of the eleven runs that also ran in the
+scratch directory are identical there and on GitHub's runners. The
+eleventh, `no-reset` seed 903, differs because the scratch run was wrong:
+the scratch script switched `mlp-start` on by replacing a module function
+inside its worker processes, and a worker reused after an `mlp-start` job
+started this `no-reset` run from the study's network too (it ended with 50
+hidden nodes, 20 of them from the start; the committed run ends with 34).
+The committed runs pass the starting genome as an argument, so they cannot
+be contaminated this way. The conclusion is unchanged; the numbers quoted
+are the committed ones.

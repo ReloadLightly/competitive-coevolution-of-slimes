@@ -419,7 +419,26 @@ experiment](results/neat/PREREGISTRATION.md) ran <!-- n:neat_runs -->12<!-- /n -
 - **It grew structure without skill**: <!-- n:neat_hidden_min -->23<!-- /n -->–<!-- n:neat_hidden_max -->39<!-- /n --> hidden nodes and <!-- n:neat_conn_min -->144<!-- /n -->–<!-- n:neat_conn_max -->170<!-- /n --> enabled
   connections in the final champions, with <!-- n:neat_species -->8.3<!-- /n --> species on average.
 
-<!-- NEAT-DIAGNOSTICS -->
+**Why, as far as follow-up runs can tell (exploratory, not preregistered).**
+A result this one-sided could be a bug. After it was known, the game path was
+checked again (NEAT-vs-NEAT games equal the paper's MLP-vs-MLP games, game for
+game, on both sides of the net), and three variants ran on <!-- n:nx_runs -->4<!-- /n --> seeds each
+([`neat_explore.py`](neat_explore.py), [decision log](results/matrix/decisions.md)):
+
+- every genome starting as the study's own network: <!-- n:nx_mlp_learned -->0<!-- /n --> learned;
+- no mutated weight ever replaced by a fresh random value: <!-- n:nx_noreset_learned -->0<!-- /n --> learned. In
+  neither variant did training rallies exceed <!-- n:nx_neat_meanlen_max -->766<!-- /n --> steps;
+- NEAT's loop with what makes it NEAT taken out (the study's network, no
+  structural mutation, one species, every offspring by crossover and
+  mutation): <!-- n:nx_asga_learned -->1<!-- /n --> of <!-- n:nx_runs -->4<!-- /n --> learned and reached parity (rallies above 1,500 steps at
+  <!-- n:nx_asga_t_internal -->245,000<!-- /n --> games, best final champion <!-- n:nx_asga_best_final -->+0.05<!-- /n -->).
+
+The game and the loop can learn. What kept NEAT from learning here is its
+reproduction machinery (speciation, offspring shared out by species, one
+elite per species, structural mutation), not its minimal start and not its
+weight resets alone. This is one configuration, with settings from NEAT's
+papers where they give values and nothing tuned for this game. It says
+nothing about a NEAT tuned for self-play.
 
 <!-- table:neat -->
 | family | runs | learned to rally | reached parity | final (held out) | spread vs 2020 GA | best final | checkpoints above parity | median cross-run Elo |

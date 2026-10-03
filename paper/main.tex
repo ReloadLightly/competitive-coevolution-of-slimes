@@ -598,7 +598,11 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
   generational GA (Cliff's $\delta=\nNeatDelta$, $p=\nNeatP$), while growing
   \nNeatHiddenMin--\nNeatHiddenMax{} hidden nodes. This is one configuration
   with mostly published settings \citep{stanley2004competitive}, untuned for
-  this game. %NEAT-DIAGNOSTICS
+  this game. In exploratory follow-up runs (repository, not preregistered),
+  starting NEAT from the study's network did not help (\nNxMlpLearned{} of
+  \nNxRuns{} learned), while NEAT's loop with speciation and structural
+  mutation removed learned in \nNxAsgaLearned{} of \nNxRuns{}: the game and
+  the loop can learn; NEAT's reproduction machinery, as configured, did not.
 \item \textbf{The unequal-power block is exploratory} and underpowered for its
   most interesting comparison.
 \end{itemize}
