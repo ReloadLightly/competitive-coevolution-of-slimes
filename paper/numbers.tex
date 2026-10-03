@@ -27,6 +27,54 @@
 \newcommand{\nBestEndpointCondition}{es}  % condition of that run
 \newcommand{\nBestEndpointLabel}{self-play ES}  % readable name of the condition with the highest endpoint
 \newcommand{\nBudget}{500,000}  % self-play games per run
+\newcommand{\nCtrCurveDeclCur}{14.6}  % shadow counters: summed declines of the current counter's reported curve, mean per run
+\newcommand{\nCtrCurveDeclInh}{25.0}  % shadow counters: summed declines of the inherited counter's reported curve, mean per run
+\newcommand{\nCtrCurveDeclOwn}{20.4}  % shadow counters: summed declines of the own counter's reported curve, mean per run
+\newcommand{\nCtrCurveDeclReset}{23.1}  % shadow counters: summed declines of the inherited-reset counter's reported curve, mean per run
+\newcommand{\nCtrFixMean}{\ensuremath{+}0.29}  % H13a: mean per-run difference
+\newcommand{\nCtrFixP}{0.00049}  % H13a: one-sided exact sign-flip p
+\newcommand{\nCtrFixRuns}{11}  % H13a: runs whose difference favours it
+\newcommand{\nCtrLevelBest}{\ensuremath{-}1.17}  % shadow counters: held-out level of the members exported by the best member (oracle)
+\newcommand{\nCtrLevelCur}{\ensuremath{-}1.44}  % shadow counters: held-out level of the members exported by the current genotype's wins
+\newcommand{\nCtrLevelInh}{\ensuremath{-}1.73}  % shadow counters: held-out level of the members exported by Ha's counter
+\newcommand{\nCtrLevelMed}{\ensuremath{-}1.74}  % shadow counters: held-out level of the members exported by the median member
+\newcommand{\nCtrLevelOwn}{\ensuremath{-}1.50}  % shadow counters: held-out level of the members exported by wins since birth
+\newcommand{\nCtrLevelReset}{\ensuremath{-}1.75}  % shadow counters: held-out level of the members exported by inherited, restarted at a tie
+\newcommand{\nCtrLevelTour}{\ensuremath{-}1.40}  % shadow counters: held-out level of the members exported by the 16-peer tournament
+\newcommand{\nCtrMaxcountCur}{7}  % shadow counters: median of the current-genotype counter's maximum over snapshots
+\newcommand{\nCtrMaxcountInh}{2,283}  % shadow counters: median of Ha's counter's maximum over snapshots
+\newcommand{\nCtrNoinhMean}{\ensuremath{+}0.27}  % H13c: mean per-run difference
+\newcommand{\nCtrNoinhP}{0.00098}  % H13c: one-sided exact sign-flip p
+\newcommand{\nCtrNoinhRuns}{11}  % H13c: runs whose difference favours it
+\newcommand{\nCtrRankBest}{1}  % shadow counters: mean rank (of 128) of the member exported by the best member (oracle)
+\newcommand{\nCtrRankCur}{48}  % shadow counters: mean rank (of 128) of the member exported by the current genotype's wins
+\newcommand{\nCtrRankInh}{59}  % shadow counters: mean rank (of 128) of the member exported by Ha's counter
+\newcommand{\nCtrRankMed}{65}  % shadow counters: mean rank (of 128) of the member exported by the median member
+\newcommand{\nCtrRankOwn}{51}  % shadow counters: mean rank (of 128) of the member exported by wins since birth
+\newcommand{\nCtrRankReset}{60}  % shadow counters: mean rank (of 128) of the member exported by inherited, restarted at a tie
+\newcommand{\nCtrRankTour}{40}  % shadow counters: mean rank (of 128) of the member exported by the 16-peer tournament
+\newcommand{\nCtrRhoCur}{\ensuremath{+}0.18}  % shadow counters: mean Spearman rho between the current counter and skill
+\newcommand{\nCtrRhoInh}{\ensuremath{+}0.06}  % shadow counters: mean Spearman rho between the inherited counter and skill
+\newcommand{\nCtrRhoOwn}{\ensuremath{+}0.17}  % shadow counters: mean Spearman rho between the own counter and skill
+\newcommand{\nCtrRhoReset}{\ensuremath{+}0.09}  % shadow counters: mean Spearman rho between the inherited-reset counter and skill
+\newcommand{\nCtrRuns}{12}  % shadow counters: fresh control runs
+\newcommand{\nCtrSpreadPct}{0.5}  % shadow counters: median gap between the largest and the median member's inherited count, as % of the largest
+\newcommand{\nCtrTieMean}{\ensuremath{+}0.02}  % H13d: mean per-run difference
+\newcommand{\nCtrTieP}{0.297}  % H13d: one-sided exact sign-flip p
+\newcommand{\nCtrTieRuns}{8}  % H13d: runs whose difference favours it
+\newcommand{\nCtrTiesLatePct}{42}  % shadow counters: share of tied games over the last 100,000 games, in %
+\newcommand{\nCtrTourHigher}{9}  % shadow counters: runs in which the 16-peer tournament exported a better member than the current genotype's wins
+\newcommand{\nCtrVolCur}{0.34}  % shadow counters: volatility of the current counter's reported curve (mean absolute change between checkpoints)
+\newcommand{\nCtrVolDropPct}{38}  % shadow counters: relative fall in curve volatility, current genotype's wins against Ha's counter, in %
+\newcommand{\nCtrVolInh}{0.55}  % shadow counters: volatility of the inherited counter's reported curve (mean absolute change between checkpoints)
+\newcommand{\nCtrVolOwn}{0.46}  % shadow counters: volatility of the own counter's reported curve (mean absolute change between checkpoints)
+\newcommand{\nCtrVolReset}{0.51}  % shadow counters: volatility of the inherited-reset counter's reported curve (mean absolute change between checkpoints)
+\newcommand{\nCtrVolhMean}{\ensuremath{+}0.21}  % H13b: mean per-run difference
+\newcommand{\nCtrVolhP}{0.00049}  % H13b: one-sided exact sign-flip p
+\newcommand{\nCtrVolhRuns}{11}  % H13b: runs whose difference favours it
+\newcommand{\nCtrVsTour}{\ensuremath{-}0.04}  % shadow counters: current genotype's wins minus the 16-peer tournament, level
+\newcommand{\nCtrVsTourP}{0.167}  % shadow counters: current genotype's wins vs the tournament, two-sided p
+\newcommand{\nCtrVsTourRuns}{3}  % shadow counters: runs in which the current genotype's wins beat the tournament
 \newcommand{\nCtrlAbovePct}{26}  % control: mean share of checkpoints above parity, in %
 \newcommand{\nCtrlBestEndpoint}{\ensuremath{+}0.41}  % highest end-of-run champion (held out) among control seeds
 \newcommand{\nCtrlFinalMean}{\ensuremath{-}0.15}  % control: mean end-of-run champion, held out

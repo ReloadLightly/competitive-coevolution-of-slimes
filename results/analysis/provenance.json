@@ -1113,6 +1113,26 @@
   "scope": "yardsticks",
   "script": "yardsticks.py"
  },
+ "results/counter/analysis.json": {
+  "inputs": {
+   "results/counter/control_s601.npz": "083d75118f45bbdc3d6bf8f4ceff8828da40b4d3ccd9df35b13bb91daefcd88d",
+   "results/counter/control_s602.npz": "2776e5b58fdc076ea43cc788663597d794aacc0d2fd441640dcd2dbe3ccaa6ee",
+   "results/counter/control_s603.npz": "bcb7eb58ab5cd33a99431b4bd5dcf4393ba33a1b7202ff77b875019b05a6a40d",
+   "results/counter/control_s604.npz": "cf29d9e5d51eeebb86930e492bd393a20a7195529bb1de7f6f758289414bdb55",
+   "results/counter/control_s605.npz": "cdff4df22b61d0364abfcfdaff572cdd2b5ed531d94f78546ba22361943e68b7",
+   "results/counter/control_s606.npz": "ea04401ee4f1114c0704ce407b21834e5279ad41f475e85a1341656b49d9d436",
+   "results/counter/control_s607.npz": "e444ad9c03dcffec79bed763b85b372dd85c48a008a491f35867bc1de97c3c14",
+   "results/counter/control_s608.npz": "83eefc3caa25328bbcd62a051a838374e5557e6aab4c581059bf6269cff8e75a",
+   "results/counter/control_s609.npz": "fe64037c0f0c4cafdefcac2a7588b2012f64ab74e033f1baada0fc1214ac8971",
+   "results/counter/control_s610.npz": "a303a608d32bcc722b33aec2455f30b90058b9b8d1ab90bc96a017ebf4661ed6",
+   "results/counter/control_s611.npz": "f8be3ac9230419e32cee75c3cfa99fd52e896b944aca2ed6ff9e1646c7a6f929",
+   "results/counter/control_s612.npz": "d6ecfba5dadf92b6050c7d0a96f1d564fb0c86d7fe652187669d68612d6e5f67"
+  },
+  "output_sha256": "aad6fa5a977a3b6dfff7bda7ada7c1144b6bbdbee3919dd9503d58b74c395e67",
+  "params": {},
+  "scope": "counter",
+  "script": "counter_analysis.py"
+ },
  "results/counter/explore/analysis.json": {
   "inputs": {
    "results/counter/explore/control_s101.npz": "cc716c9a223571c12f945fb3c8ee76e322bfdf0c6ef128f28456deafbbae19b6",
