@@ -182,6 +182,8 @@ cheapest and most valuable first. Section 4 below was lifted by Roland on
 
 ### WP6 — Preregistered confirmatory replication (answers "few seeds" and "post hoc design")
 
+Status (2026-10-03): done. 6 of 6 claims replicated; see README "A preregistered replication" and decisions.md.
+
 1. Write `results/replication/PREREGISTRATION.md` and the analysis script
    `replication.py` BEFORE any replication run starts; commit and push them.
    The push timestamp is the proof of preregistration.
@@ -198,6 +200,8 @@ cheapest and most valuable first. Section 4 below was lifted by Roland on
 
 ### WP7 — Analyses on data already on disk (no training)
 
+Status (2026-10-03): done (`yardsticks.py`, `transitivity_fine.py`; tables z and t).
+
 1. Within-run transitivity at 5,000-game spacing (every run already stores
    100 champions), closing "cycles shorter than 50,000 games are invisible".
 2. Stronger external yardsticks: Ha's slimevolleygym zoo (the self-play GA
@@ -207,6 +211,8 @@ cheapest and most valuable first. Section 4 below was lifted by Roland on
    are unless a result contradicts them (then rule 5).
 
 ### WP8 — A second environment and a lab interface
+
+Status (2026-10-03): done. `lab/`, `docs/lab.md`, `run_lab.py`, `lab_analysis.py`; H8a and H8b hold, H8c does not (decisions.md). A physical second game is still open.
 
 1. A small interface for environments and algorithms in a new package (e.g.
    `lab/`), with Slime Volleyball wrapped, not rewritten.

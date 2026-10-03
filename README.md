@@ -305,6 +305,45 @@ Verdicts: C1 replicated, C2 replicated, C3 replicated, C4 replicated, C5a replic
 Archive as test (description, no decision): late archive win rate 0.13, 0.16, 0.06, 0.10, 0.13, 0.12, 0.14, 0.14, 0.09, 0.10 in runs that learned; 0.40, 0.21 in runs that did not (10/12 learned).
 <!-- /table:rep -->
 
+### When skill is cyclic: the lab
+
+Slime Volleyball turned out almost purely transitive, which is the setting in
+which an archive should matter least and in which "the population is not
+cycling" could be a property of the game rather than of the algorithm. The
+[lab](docs/lab.md) runs the study's own GA (it reproduces the paper's kernels
+bit for bit) on a synthetic game whose mix of transitive and cyclic skill is set
+by one number, λ, and in which every expected score is known exactly. A
+[preregistered experiment](results/lab/PREREGISTRATION.md) ran the control and
+the archive as test at four values of λ, <!-- n:lab_runs -->96<!-- /n --> runs in all:
+
+- **Cycling belongs to the game.** The share of cyclic triads among a run's
+  champions rises from 0 at λ = 0 to <!-- n:lab_cyc_mid_pct -->5.7<!-- /n -->% at λ = 0.5 and <!-- n:lab_cyc_hi_pct -->13.5<!-- /n -->% at λ = <!-- n:lab_lambda_max -->0.75<!-- /n -->
+  (ρ = <!-- n:lab_cycle_rho -->+0.97<!-- /n -->).
+- **The export rule fails the same way whatever the skill structure.** The
+  exported individual ranks on average <!-- n:lab_rank_min -->52<!-- /n -->–<!-- n:lab_rank_max -->63<!-- /n --> of 128 in its own pool at every λ,
+  its streak barely related to its true strength (ρ = <!-- n:lab_rho_streak_min -->+0.07<!-- /n --> to <!-- n:lab_rho_streak_max -->+0.13<!-- /n -->). Finding 4
+  is not an artefact of transitivity.
+- **An archive used as a test did not help more as skill became cyclic**
+  (trend p = <!-- n:lab_trend_p -->0.116<!-- /n -->), against the usual reason for having one. If anything it
+  lowered the final champions' strength at λ ≤ 0.5 (Cliff's δ <!-- n:lab_delta_min -->-0.47<!-- /n --> to <!-- n:lab_delta_low_max -->-0.29<!-- /n -->,
+  p = <!-- n:lab_p_low_min -->0.052<!-- /n -->–<!-- n:lab_p_low_max -->0.242<!-- /n -->; no decision was preregistered for single λ values).
+
+One synthetic game, 12 runs per cell. The external panel the declines are
+measured against saturates at λ ≤ 0.5, so the decline column says something
+only at λ = 0.75, where the exported champion lost <!-- n:lab_decl_exp_hi -->1.78<!-- /n --> and the pool's best member
+<!-- n:lab_decl_best_hi -->0.08<!-- /n -->.
+
+<!-- table:lab -->
+| λ | cyclic triads within runs (control / test) | exported rank in pool of 128 | ρ(streak, strength) | decline: exported / best | archive as test vs control, δ (p) |
+|---|---|---|---|---|---|
+| 0.00 | 0.0% / 0.0% | 52 | +0.13 | 0.00 / 0.00 | -0.44 (0.068) |
+| 0.25 | 1.4% / 1.7% | 56 | +0.13 | 0.00 / 0.00 | -0.29 (0.242) |
+| 0.50 | 5.7% / 6.2% | 61 | +0.08 | 0.00 / 0.00 | -0.47 (0.052) |
+| 0.75 | 13.5% / 13.3% | 63 | +0.07 | 1.78 / 0.08 | +0.06 (0.843) |
+
+Discmix game, 12 runs per cell, all quantities exact. Exported rank and ρ: control runs, mean over 10 population snapshots (rank 1 = strongest). Declines: summed falls between snapshots against a fixed external panel, control runs. Archive effect: Cliff's δ of the final champions' cross-run strength, archive as test minus control, with the two-sided exact Mann–Whitney p. Trend tests (one-sided permutation): cycling vs λ ρ = +0.97 (p < 0.001) in control and +0.97 (p < 0.001) with the archive; archive effect vs λ p = 0.116.
+<!-- /table:lab -->
+
 ---
 
 ## Why the numbers can be trusted
@@ -452,6 +491,8 @@ population snapshot with
 
 - **One environment.** Slime Volleyball is symmetric, zero-sum and fully
   observed — the friendliest possible setting for purely relative selection.
+  The lab's synthetic game with tunable cycles is a second setting, not a
+  second physical game.
 - **<!-- n:runs_min -->1<!-- /n -->–<!-- n:runs_max -->6<!-- /n --> runs per condition.** <!-- n:seeds_main -->6<!-- /n --> for every condition that carries a claim:
   enough to separate a large effect from seed noise, not a small one. Findings
   1–5 held in a [preregistered replication](#a-preregistered-replication) on

@@ -527,6 +527,12 @@ whether its swings come from the population or from the choice of
 individual.
 
 \paragraph{A hypothesis about other evolutionary loops.}
+The failure does not depend on skill being transitive. In a synthetic game
+whose mix of transitive and cyclic skill is set by one parameter, run with the
+same GA and preregistered (repository, \texttt{docs/lab.md}), the streak rule
+exported an individual ranked on average \nLabRankMin--\nLabRankMax{} of 128 in
+its own pool at every mixture, its streak barely related to its true strength
+($\rho=\nLabRhoStreakMin$ to $\nLabRhoStreakMax$).
 Any loop that promotes one artefact out of a population has a promotion rule,
 and that rule is usually cheaper than a measurement of quality. LLM-driven
 program evolution \citep{novikov2025alphaevolve,lange2025shinkaevolve} promotes
@@ -554,8 +560,12 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
 \begin{itemize}
 \item \textbf{One environment}, symmetric, zero-sum and fully observed: the most
   favourable setting for purely relative selection, and one whose skill
-  structure is largely transitive. In a genuinely cyclic game the archive and
-  the export rule may behave differently.
+  structure is largely transitive. In a synthetic game with tunable cyclic
+  skill (repository, preregistered, \nLabRuns{} runs), cycling appeared as
+  designed (\nLabCycHiPct\% cyclic champion triads at the most cyclic setting),
+  the export rule failed in the same way, and an archive used as a test did not
+  help more as skill became cyclic (trend $p=\nLabTrendP$). A physical game with
+  cyclic skill remains untested.
 \item \textbf{Few seeds.} \nSeedsMain{} runs per condition separate large
   effects from seed noise, not small ones; several conditions have fewer.
   Secondary comparisons are uncorrected for multiplicity. C1--C5b were

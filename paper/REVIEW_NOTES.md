@@ -146,6 +146,17 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    generated; the notebook prose is not. Converting it, or marking it as
    superseded by the paper, is your call.
 
+14. **The lab result is a synthetic game.** The Discussion now says the
+   export-rule failure survives cyclic skill, citing the discmix experiment
+   (preregistered, 96 runs). A reviewer may call discmix contrived: its skill
+   is a classification task read off fixed probes, not play. It is offered as
+   a controlled second setting, not as a second physical game, and the
+   Limitations say so.
+15. **The replication was run partly on a different machine** (GitHub's
+   runners). A rerun of one seed on both machines gave identical files; the
+   others were not rerun, and floating-point results can in principle differ
+   across machine types.
+
 ## (d) The paper now covers the whole README
 
 After WP4 the paper was extended so that every README section and every

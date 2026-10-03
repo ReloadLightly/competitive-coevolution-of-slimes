@@ -405,3 +405,29 @@ description attached to C5b without a decision fails: the late archive win
 rate fell to 0.06–0.16 in the ten archive-as-test runs that learned, but one
 of the two runs that did not learn also ends at 0.21, so a low archive win
 rate does not by itself indicate learning.
+
+## 2026-10-03 — WP8: the discmix experiment, analysed
+
+`python lab_analysis.py` was run once, after all 96 run files existed
+(`results/lab/analysis.json`, provenance scope `lab`). Verdicts by the rules
+of `results/lab/PREREGISTRATION.md`:
+
+- **H8a holds**: within-run cycling rises with λ (cyclic share of champion
+  triads 0 / 1.4 / 5.7 / 13.5% in control; ρ = +0.97, p < 0.001 in both
+  modes).
+- **H8b holds**: at every λ the exported individual sits outside its pool's
+  top quarter (mean rank 52–63 of 128; Holm-corrected sign tests all
+  rejected); ρ(streak, strength) +0.07 to +0.13.
+- **H8c does not hold**: the archive-as-test effect does not grow with λ
+  (trend p = 0.116). Per λ (no decision preregistered): δ = −0.44, −0.29,
+  −0.47, +0.06 at λ = 0, 0.25, 0.5, 0.75 (p = 0.068, 0.242, 0.052, 0.843).
+
+Found when reading the results, and reported with them: the external panel
+(64 initial-distribution genomes) is beaten almost always by the evolved
+pools at λ ≤ 0.5, so the summed declines there are about zero for every
+member and say nothing; only at λ = 0.75 do they discriminate (exported 1.78,
+best member 0.08). The decline was a descriptive column, not a test.
+
+As the preregistration requires for a failed H8c, the paper's Limitations
+bullet on cyclic games now reports what was found; H8b's result is added to
+the Discussion's paragraph on other loops.

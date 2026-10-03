@@ -90,6 +90,9 @@ A 500,000-game `discmix` run takes about 3–4 minutes on one core.
 ## Status
 
 - Lab kernel, `slime` and `discmix`: done and tested.
-- WP8 experiment (control, archive as test and the export rule across λ):
-  to be preregistered before any run, like the replication in
-  `results/replication/PREREGISTRATION.md`.
+- WP8, the discmix experiment ([preregistration](../results/lab/PREREGISTRATION.md),
+  96 runs on GitHub's runners, `.github/workflows/lab.yml`): analysed once by
+  `lab_analysis.py`. Cycling rises with λ (H8a holds); the export rule picks a
+  middling individual at every λ (H8b holds); an archive used as a test does
+  not help more as skill becomes cyclic (H8c does not hold). Numbers: README,
+  "When skill is cyclic: the lab".

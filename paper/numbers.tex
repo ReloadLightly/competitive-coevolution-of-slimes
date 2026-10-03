@@ -129,6 +129,22 @@
 \newcommand{\nHoftestWinLateMax}{0.50}  % archive as test: highest per-seed archive win rate, last 50,000 games
 \newcommand{\nHoftestWinLateMin}{0.11}  % archive as test: lowest per-seed archive win rate, last 50,000 games
 \newcommand{\nInitScale}{0.5}  % s.d. of the initial weights
+\newcommand{\nLabCycHiPct}{13.5}  % discmix: cyclic share of champion triads at the largest lambda, control, in %
+\newcommand{\nLabCycMidPct}{5.7}  % discmix: cyclic share of champion triads at lambda 0.5, control, in %
+\newcommand{\nLabCycleRho}{\ensuremath{+}0.97}  % discmix: Spearman rho(lambda, cyclic share), control runs
+\newcommand{\nLabDeclBestHi}{0.08}  % discmix: best member's summed decline at the largest lambda
+\newcommand{\nLabDeclExpHi}{1.78}  % discmix: exported individual's summed decline at the largest lambda
+\newcommand{\nLabDeltaLowMax}{\ensuremath{-}0.29}  % discmix: least negative archive effect among lambda <= 0.5
+\newcommand{\nLabDeltaMin}{\ensuremath{-}0.47}  % discmix: most negative per-lambda archive-as-test effect (Cliff's delta)
+\newcommand{\nLabLambdaMax}{0.75}  % discmix experiment: largest lambda
+\newcommand{\nLabPLowMax}{0.242}  % discmix: largest per-lambda two-sided p of the archive effect, lambda <= 0.5
+\newcommand{\nLabPLowMin}{0.052}  % discmix: smallest per-lambda two-sided p of the archive effect, lambda <= 0.5
+\newcommand{\nLabRankMax}{63}  % discmix: highest per-lambda mean rank of the exported individual (of 128)
+\newcommand{\nLabRankMin}{52}  % discmix: lowest per-lambda mean rank of the exported individual (of 128)
+\newcommand{\nLabRhoStreakMax}{\ensuremath{+}0.13}  % discmix: highest per-lambda mean rho(streak, true strength)
+\newcommand{\nLabRhoStreakMin}{\ensuremath{+}0.07}  % discmix: lowest per-lambda mean rho(streak, true strength)
+\newcommand{\nLabRuns}{96}  % discmix experiment: runs in total
+\newcommand{\nLabTrendP}{0.116}  % discmix: one-sided p of the archive-effect trend over lambda
 \newcommand{\nLateWindow}{100,000}  % games in the late window of every metric
 \newcommand{\nLives}{5}  % lives per side
 \newcommand{\nLongRally}{1,500}  % self-play rally length that counts as learned

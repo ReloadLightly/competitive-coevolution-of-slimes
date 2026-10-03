@@ -821,6 +821,62 @@ def definitions():
         "replication: lowest late archive win rate, archive-as-test runs that did not learn")(
         lambda d: _f(min(rp(d)["H6"]["archive_late_failed"]), 2))
 
+    # ---- WP8: the discmix experiment (lab) ------------------------------
+    def lab(d):
+        return d["lab"]
+
+    def lab_lams(d):
+        return sorted(lab(d)["H8b"], key=float)
+    add("lab_runs", ["lab"], "discmix experiment: runs in total")(
+        lambda d: str(len(lab(d)["per_run"])))
+    add("lab_lambda_max", ["lab"], "discmix experiment: largest lambda")(
+        lambda d: _f(float(lab_lams(d)[-1]), 2))
+    add("lab_cyc_hi_pct", ["lab"],
+        "discmix: cyclic share of champion triads at the largest lambda, control, in %")(
+        lambda d: _pct(lab(d)["H8a"]["control"]["share_by_lambda"][lab_lams(d)[-1]], 1))
+    add("lab_cyc_mid_pct", ["lab"],
+        "discmix: cyclic share of champion triads at lambda 0.5, control, in %")(
+        lambda d: _pct(lab(d)["H8a"]["control"]["share_by_lambda"]["0.50"], 1))
+    add("lab_cycle_rho", ["lab"],
+        "discmix: Spearman rho(lambda, cyclic share), control runs")(
+        lambda d: _f(lab(d)["H8a"]["control"]["rho"], 2, True))
+    add("lab_rank_min", ["lab"],
+        "discmix: lowest per-lambda mean rank of the exported individual (of 128)")(
+        lambda d: f"{min(r['mean_rank'] for r in lab(d)['H8b'].values()):.0f}")
+    add("lab_rank_max", ["lab"],
+        "discmix: highest per-lambda mean rank of the exported individual (of 128)")(
+        lambda d: f"{max(r['mean_rank'] for r in lab(d)['H8b'].values()):.0f}")
+    add("lab_rho_streak_min", ["lab"],
+        "discmix: lowest per-lambda mean rho(streak, true strength)")(
+        lambda d: _f(min(r["mean_rho_streak"] for r in lab(d)["H8b"].values()), 2, True))
+    add("lab_rho_streak_max", ["lab"],
+        "discmix: highest per-lambda mean rho(streak, true strength)")(
+        lambda d: _f(max(r["mean_rho_streak"] for r in lab(d)["H8b"].values()), 2, True))
+    add("lab_decl_exp_hi", ["lab"],
+        "discmix: exported individual's summed decline at the largest lambda")(
+        lambda d: _f(lab(d)["H8b"][lab_lams(d)[-1]]["decline_exported"], 2))
+    add("lab_decl_best_hi", ["lab"],
+        "discmix: best member's summed decline at the largest lambda")(
+        lambda d: _f(lab(d)["H8b"][lab_lams(d)[-1]]["decline_best"], 2))
+    add("lab_trend_p", ["lab"],
+        "discmix: one-sided p of the archive-effect trend over lambda")(
+        lambda d: _f(lab(d)["H8c"]["p_one_sided"], 3))
+    add("lab_delta_min", ["lab"],
+        "discmix: most negative per-lambda archive-as-test effect (Cliff's delta)")(
+        lambda d: _f(min(r["cliffs_delta"] for r in lab(d)["H8c"]["by_lambda"].values()), 2, True))
+    add("lab_delta_low_max", ["lab"],
+        "discmix: least negative archive effect among lambda <= 0.5")(
+        lambda d: _f(max(r["cliffs_delta"] for l, r in lab(d)["H8c"]["by_lambda"].items()
+                         if float(l) <= 0.5), 2, True))
+    add("lab_p_low_min", ["lab"],
+        "discmix: smallest per-lambda two-sided p of the archive effect, lambda <= 0.5")(
+        lambda d: _f(min(r["p_two_sided"] for l, r in lab(d)["H8c"]["by_lambda"].items()
+                         if float(l) <= 0.5), 3))
+    add("lab_p_low_max", ["lab"],
+        "discmix: largest per-lambda two-sided p of the archive effect, lambda <= 0.5")(
+        lambda d: _f(max(r["p_two_sided"] for l, r in lab(d)["H8c"]["by_lambda"].items()
+                         if float(l) <= 0.5), 3))
+
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):
         rs = d["within_fine"]["runs"].values()

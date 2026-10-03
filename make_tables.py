@@ -612,6 +612,10 @@ def table_rep(d):
     return replication.table(res)
 
 
+def _p(x):
+    return "< 0.001" if x < 0.001 else f"= {x:.3f}"
+
+
 def table_lab(d):
     """The discmix experiment (WP8), one row per lambda."""
     a = d["lab"]
@@ -628,18 +632,18 @@ def table_lab(d):
         rows.append(f"| {float(lam):.2f} | {100 * cc:.1f}% / {100 * ct:.1f}% "
                     f"| {b['mean_rank']:.0f} | {b['mean_rho_streak']:+.2f} "
                     f"| {b['decline_exported']:.2f} / {b['decline_best']:.2f} "
-                    f"| {c['cliffs_delta']:+.2f} ({c['p_two_sided']:.2f}) |")
+                    f"| {c['cliffs_delta']:+.2f} ({c['p_two_sided']:.3f}) |")
     h8a, h8c = a["H8a"], a["H8c"]
     rows += ["", "Discmix game, 12 runs per cell, all quantities exact. Exported rank "
              "and ρ: control runs, mean over 10 population snapshots (rank 1 = "
              "strongest). Declines: summed falls between snapshots against a fixed "
              "external panel, control runs. Archive effect: Cliff's δ of the final "
              "champions' cross-run strength, archive as test minus control, with the "
-             f"two-sided exact Mann–Whitney p. Trend tests: cycling vs λ ρ = "
-             f"{h8a['control']['rho']:+.2f} (p = {h8a['control']['p_one_sided']:.3f}) "
-             f"in control and {h8a['test']['rho']:+.2f} (p = "
-             f"{h8a['test']['p_one_sided']:.3f}) with the archive; archive effect vs λ "
-             f"p = {h8c['p_one_sided']:.3f}."]
+             f"two-sided exact Mann–Whitney p. Trend tests (one-sided permutation): "
+             f"cycling vs λ ρ = {h8a['control']['rho']:+.2f} "
+             f"(p {_p(h8a['control']['p_one_sided'])}) in control and "
+             f"{h8a['test']['rho']:+.2f} (p {_p(h8a['test']['p_one_sided'])}) with the "
+             f"archive; archive effect vs λ p {_p(h8c['p_one_sided'])}."]
     return "\n".join(rows)
 
 
