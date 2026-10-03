@@ -176,6 +176,24 @@
 \newcommand{\nRefPeakWinPct}{42}  % reference run, peak checkpoint held out: share of episodes win, in %
 \newcommand{\nRefTInternal}{104,200}  % reference run: first game count at which self-play rallies exceed 1,500 steps
 \newcommand{\nRefTParity}{172,000}  % reference run: first checkpoint scoring above 0 against the 2015 baseline
+\newcommand{\nRepArchFailedMin}{0.21}  % replication: lowest late archive win rate, archive-as-test runs that did not learn
+\newcommand{\nRepArchLearnedMax}{0.16}  % replication: highest late archive win rate, runs that learned
+\newcommand{\nRepArchLearnedMin}{0.06}  % replication: lowest late archive win rate, archive-as-test runs that learned
+\newcommand{\nRepArchivePmin}{0.44}  % replication: smallest of the four archive-as-test vs control p values
+\newcommand{\nRepCtrlLearned}{10/12}  % replication: control runs that learned to rally
+\newcommand{\nRepCyclicPct}{0.5}  % replication: cyclic share of decided checkpoint triads, control, in %
+\newcommand{\nRepDeclBest}{7.6}  % replication: summed decline of the pool's best member, control runs
+\newcommand{\nRepDeclExp}{21.2}  % replication: summed decline of the exported individual, control runs
+\newcommand{\nRepLagFirst}{10/10}  % replication: control runs with the internal transition first, of the eligible
+\newcommand{\nRepParentLearned}{1/12}  % replication: archive-as-parent runs that learned to rally
+\newcommand{\nRepRank}{56}  % replication: mean rank of the exported individual in its pool of 128
+\newcommand{\nRepRho}{\ensuremath{+}0.79}  % replication: mean rho(Elo, time), control
+\newcommand{\nRepRhoStreak}{\ensuremath{+}0.04}  % replication: mean rho(streak counter, skill)
+\newcommand{\nRepRuns}{12}  % replication: runs per condition
+\newcommand{\nRepTestLearned}{10/12}  % replication: archive-as-test runs that learned to rally
+\newcommand{\nRepTimingRatio}{5.8}  % replication: latest / earliest internal transition, control
+\newcommand{\nRepTotal}{36}  % replication: runs in total
+\newcommand{\nRepVerdicts}{6 of 6}  % replication: claims replicated, of those tested
 \newcommand{\nResumeAboveMax}{60}  % compiled continuations: highest share of checkpoints above parity, in %
 \newcommand{\nResumeAboveMin}{54}  % compiled continuations: lowest share of checkpoints above parity, in %
 \newcommand{\nResumeGames}{176,000}  % games added by each continuation

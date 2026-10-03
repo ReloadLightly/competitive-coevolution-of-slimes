@@ -377,3 +377,31 @@ rerun in the session container with the identical command. The two files are
 identical in all 25 data arrays (every champion, every evaluation score,
 every population snapshot; only the wall-clock times differ: 4.7 minutes on
 the runner, 9.3 here). For this run, the change of machine changed nothing.
+
+## 2026-10-03 — WP6: the preregistered replication, analysed
+
+`python replication.py` was run once, after all 36 run files existed
+(`results/replication/analysis.json`, provenance scope `replication`).
+Verdicts, by the rules of `results/replication/PREREGISTRATION.md`: **C1, C2,
+C3, C4, C5a and C5b all replicated.**
+
+| claim | original six seeds | replication, seeds 201–212 |
+|---|---|---|
+| C1 lag > 0 | 6/6 | 10/10 eligible runs, p = 0.001 |
+| C2 learned to rally | 6/6 | 10/12 (threshold 10/12) |
+| C2 timing spread | 7.5× | 5.8× |
+| C3 ρ(Elo, time) | +0.74 (6/6 > 0) | +0.79 (12/12 > 0) |
+| C3 cyclic triads | 0.2% | 0.5% |
+| C4 exported rank | 64 of 128 | 56 of 128 (12/12 outside top quarter) |
+| C4 ρ(streak, skill) | +0.04 | +0.04 [+0.02, +0.06] |
+| C4 declines exported / best | 8.6 / 1.1 | 21.2 / 7.6 (10/12 runs, p = 0.019) |
+| C5a learned, parent vs control | 1/6 vs 6/6 | 1/12 vs 10/12 |
+| C5b archive as test vs control | all p ≥ 0.37 | all p ≥ 0.44 |
+
+Weaker than the six seeds suggested, and to be said where the claims are:
+two of twelve control runs never learned to rally (C2 holds by its 10/12
+threshold, but "in every seed" was a six-seed statement); and the
+description attached to C5b without a decision fails: the late archive win
+rate fell to 0.06–0.16 in the ten archive-as-test runs that learned, but one
+of the two runs that did not learn also ends at 0.21, so a low archive win
+rate does not by itself indicate learning.

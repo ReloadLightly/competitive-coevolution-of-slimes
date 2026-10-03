@@ -767,6 +767,60 @@ def definitions():
         "games compared bit for bit, compiled zoo games vs slimevolleygym")(
         lambda d: str(sum(r["games"] for r in d["yardsticks"]["validation"])))
 
+    # ---- WP6: the preregistered replication -----------------------------
+    def rp(d):
+        return d["replication"]
+    add("rep_runs", ["replication"], "replication: runs per condition")(
+        lambda d: str(rp(d)["n"]["control"]))
+    add("rep_total", ["replication"], "replication: runs in total")(
+        lambda d: str(sum(rp(d)["n"].values())))
+    add("rep_verdicts", ["replication"],
+        "replication: claims replicated, of those tested")(
+        lambda d: f"{sum(rp(d)['verdict'].values())} of {len(rp(d)['verdict'])}")
+    add("rep_lag_first", ["replication"],
+        "replication: control runs with the internal transition first, of the eligible")(
+        lambda d: f"{rp(d)['H1']['positive']}/{rp(d)['H1']['informative']}")
+    add("rep_ctrl_learned", ["replication"], "replication: control runs that learned to rally")(
+        lambda d: f"{rp(d)['H2']['learned']}/{rp(d)['H2']['of']}")
+    add("rep_timing_ratio", ["replication"],
+        "replication: latest / earliest internal transition, control")(
+        lambda d: _f(rp(d)["H2"]["timing_ratio"], 1))
+    add("rep_rho", ["replication"], "replication: mean rho(Elo, time), control")(
+        lambda d: _f(rp(d)["H3"]["rho_mean"], 2, True))
+    add("rep_cyclic_pct", ["replication"],
+        "replication: cyclic share of decided checkpoint triads, control, in %")(
+        lambda d: _pct(rp(d)["H3"]["cyclic_share"], 1))
+    add("rep_rank", ["replication"],
+        "replication: mean rank of the exported individual in its pool of 128")(
+        lambda d: f"{np.mean(rp(d)['H4']['a']['mean_rank']):.0f}")
+    add("rep_rho_streak", ["replication"],
+        "replication: mean rho(streak counter, skill)")(
+        lambda d: _f(rp(d)["H4"]["b"]["rho_mean"], 2, True))
+    add("rep_decl_exp", ["replication"],
+        "replication: summed decline of the exported individual, control runs")(
+        lambda d: _f(rp(d)["H4"]["c"]["sum_exported"], 1))
+    add("rep_decl_best", ["replication"],
+        "replication: summed decline of the pool's best member, control runs")(
+        lambda d: _f(rp(d)["H4"]["c"]["sum_best"], 1))
+    add("rep_parent_learned", ["replication"],
+        "replication: archive-as-parent runs that learned to rally")(
+        lambda d: f"{rp(d)['H5']['learned_parent']}/{rp(d)['H5']['of_parent']}")
+    add("rep_test_learned", ["replication"],
+        "replication: archive-as-test runs that learned to rally")(
+        lambda d: f"{rp(d)['H6']['learned_test']}/{rp(d)['H6']['of_test']}")
+    add("rep_archive_pmin", ["replication"],
+        "replication: smallest of the four archive-as-test vs control p values")(
+        lambda d: _f(min(c["p_two_sided"] for c in rp(d)["H6"]["comparisons"].values()), 2))
+    add("rep_arch_learned_min", ["replication"],
+        "replication: lowest late archive win rate, archive-as-test runs that learned")(
+        lambda d: _f(min(rp(d)["H6"]["archive_late_learned"]), 2))
+    add("rep_arch_learned_max", ["replication"],
+        "replication: highest late archive win rate, runs that learned")(
+        lambda d: _f(max(rp(d)["H6"]["archive_late_learned"]), 2))
+    add("rep_arch_failed_min", ["replication"],
+        "replication: lowest late archive win rate, archive-as-test runs that did not learn")(
+        lambda d: _f(min(rp(d)["H6"]["archive_late_failed"]), 2))
+
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):
         rs = d["within_fine"]["runs"].values()
@@ -836,7 +890,12 @@ def compute(d):
 
 
 def tex_name(key):
-    return "n" + "".join(p.capitalize() for p in key.split("_"))
+    name = "n" + "".join(p.capitalize() for p in key.split("_"))
+    # a LaTeX command name is letters only: \nRepC1 would define \nRepC
+    if not name.isalpha():
+        raise ValueError(f"number key {key!r} gives the macro name {name!r}, "
+                         f"which LaTeX cannot define (letters only)")
+    return name
 
 
 def tex_value(s):

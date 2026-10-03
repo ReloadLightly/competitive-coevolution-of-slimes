@@ -20,7 +20,8 @@ the champion. Ha's rule exports an individual that ranks on average <!-- n:proxy
 precedes any external transfer by tens of thousands of games; the phase change is
 robust but its timing varies <!-- n:ctrl_t_internal_ratio -->7.5<!-- /n -->-fold across seeds; an archive of past
 champions abolishes learning when used as a parent and does nothing detectable
-when used as a test.
+when used as a test. Those claims held in a preregistered replication on <!-- n:rep_total -->36<!-- /n --> fresh
+runs (<!-- n:rep_verdicts -->6 of 6<!-- /n --> replicated).
 
 <table>
 <tr>
@@ -262,6 +263,48 @@ in one line.
 Final (t = 500,000) champion of every single-population run, mean points per episode. Baseline column: held out, 1,000 episodes; zoo columns: 200 games per champion, half on each side. 'Beat' counts runs whose champion scores above 0. For scale, against the 2015 baseline the zoo GA scores +0.35 and the zoo CMA-ES +1.15; head to head the zoo GA scores +0.30 against the zoo CMA-ES.
 <!-- /table:z -->
 
+### A preregistered replication
+
+The findings above rest on six seeds per condition, and the design changed
+while it ran. So the claims about Ha's GA and the archive (findings 1–5) were
+tested again on fresh seeds, with every test and decision rule committed
+before the first run ([preregistration](results/replication/PREREGISTRATION.md)):
+<!-- n:rep_runs -->12<!-- /n --> new runs each of the control, the archive as parent and the archive as test,
+<!-- n:rep_total -->36<!-- /n --> in all, analysed once by [`replication.py`](replication.py). **<!-- n:rep_verdicts -->6 of 6<!-- /n --> claims
+replicated.** The internal transition came first in <!-- n:rep_lag_first -->10/10<!-- /n --> runs; checkpoint skill
+was transitive (ρ = <!-- n:rep_rho -->+0.79<!-- /n -->, <!-- n:rep_cyclic_pct -->0.5<!-- /n -->% cyclic triads); the exported individual ranked
+on average <!-- n:rep_rank -->56<!-- /n --> of 128 in its pool, its streak was unrelated to its skill (ρ = <!-- n:rep_rho_streak -->+0.04<!-- /n -->),
+and it lost <!-- n:rep_decl_exp -->21.2<!-- /n --> points between snapshots where the pool's best member lost <!-- n:rep_decl_best -->7.6<!-- /n -->; the
+archive as parent learned in <!-- n:rep_parent_learned -->1/12<!-- /n --> runs; the archive as test was again
+indistinguishable from the control (every p ≥ <!-- n:rep_archive_pmin -->0.44<!-- /n -->).
+
+Two things came out weaker than six seeds suggested. Not every control run
+learns to rally: <!-- n:rep_ctrl_learned -->10/12<!-- /n --> did, which meets the preregistered threshold but ends
+"in every seed". And a falling archive win rate is not by itself a sign of
+learning: it fell to <!-- n:rep_arch_learned_min -->0.06<!-- /n -->–<!-- n:rep_arch_learned_max -->0.16<!-- /n --> in the archive-as-test runs that learned, but
+also to <!-- n:rep_arch_failed_min -->0.21<!-- /n --> in one that never did. Findings 6 and 7 (algorithm families,
+unequal power) were not part of the replication.
+
+<!-- table:rep -->
+Runs per condition: control 12, archive as parent 12, archive as test 12. Tests in the Holm family count as holding when rejected at family-wise α = 0.05.
+
+| claim | criterion | result | holds |
+|---|---|---|---|
+| C1 | internal transition before parity (lag > 0) | 10/10 runs, p = 9.8e-04 | yes |
+| C2 | control runs that learn to rally | 10/12 | yes |
+| C2 | latest / earliest internal transition ≥ 3 | 5.8× | yes |
+| C3 | ρ(Elo, time) > 0 within runs | 12/12 runs (mean +0.79), p = 2.4e-04 | yes |
+| C3 | cyclic share of decided triads < 1% | 4/849 (0.5%) | yes |
+| C4 | exported individual outside its pool's top quarter | 12/12 runs (mean rank 56), p = 2.4e-04 | yes |
+| C4 | ρ(streak, skill) inside ±0.2 (90% CI) | +0.04 [+0.02, +0.06] | yes |
+| C4 | exported declines more than the best member | 10/12 runs (21.2 vs 7.6), p = 0.019 | yes |
+| C5a | archive as parent learns less often than control | 1/12 vs 10/12, p = 3.2e-04 | yes |
+| C5b | archive as test vs control: all four p ≥ 0.05 | final δ +0.01 p 0.98, peak δ -0.19 p 0.44, above δ -0.15 p 0.56, late δ -0.08 p 0.76 | yes |
+
+Verdicts: C1 replicated, C2 replicated, C3 replicated, C4 replicated, C5a replicated, C5b replicated.
+Archive as test (description, no decision): late archive win rate 0.13, 0.16, 0.06, 0.10, 0.13, 0.12, 0.14, 0.14, 0.09, 0.10 in runs that learned; 0.40, 0.21 in runs that did not (10/12 learned).
+<!-- /table:rep -->
+
 ---
 
 ## Why the numbers can be trusted
@@ -410,7 +453,9 @@ population snapshot with
 - **One environment.** Slime Volleyball is symmetric, zero-sum and fully
   observed — the friendliest possible setting for purely relative selection.
 - **<!-- n:runs_min -->1<!-- /n -->–<!-- n:runs_max -->6<!-- /n --> runs per condition.** <!-- n:seeds_main -->6<!-- /n --> for every condition that carries a claim:
-  enough to separate a large effect from seed noise, not a small one.
+  enough to separate a large effect from seed noise, not a small one. Findings
+  1–5 held in a [preregistered replication](#a-preregistered-replication) on
+  <!-- n:rep_runs -->12<!-- /n --> fresh runs per condition; findings 6 and 7 were not replicated.
 - **Fixed topology.** Nothing here evolves structure; see §A.8 for what NEAT
   would need.
 - **One archive design per reading.** A quality-diversity or curated archive is a

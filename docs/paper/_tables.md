@@ -259,6 +259,39 @@ Final (t = 500,000) champion of every single-population run, mean points per epi
 Every one of the 100 champions of each control run (one per 5,000 games) played every other, 20 games per pair. A triad counts when all three of its pairs are decided: by the paper's rule (mean margin outside ±0.25) or by an exact sign test on wins against losses (p < 0.05). 'Next beats previous': adjacent champions whose difference the sign test decides, and how often the later one wins.
 
 
+### Table REP
+
+Runs per condition: control 12, archive as parent 12, archive as test 12. Tests in the Holm family count as holding when rejected at family-wise α = 0.05.
+
+| claim | criterion | result | holds |
+|---|---|---|---|
+| C1 | internal transition before parity (lag > 0) | 10/10 runs, p = 9.8e-04 | yes |
+| C2 | control runs that learn to rally | 10/12 | yes |
+| C2 | latest / earliest internal transition ≥ 3 | 5.8× | yes |
+| C3 | ρ(Elo, time) > 0 within runs | 12/12 runs (mean +0.79), p = 2.4e-04 | yes |
+| C3 | cyclic share of decided triads < 1% | 4/849 (0.5%) | yes |
+| C4 | exported individual outside its pool's top quarter | 12/12 runs (mean rank 56), p = 2.4e-04 | yes |
+| C4 | ρ(streak, skill) inside ±0.2 (90% CI) | +0.04 [+0.02, +0.06] | yes |
+| C4 | exported declines more than the best member | 10/12 runs (21.2 vs 7.6), p = 0.019 | yes |
+| C5a | archive as parent learns less often than control | 1/12 vs 10/12, p = 3.2e-04 | yes |
+| C5b | archive as test vs control: all four p ≥ 0.05 | final δ +0.01 p 0.98, peak δ -0.19 p 0.44, above δ -0.15 p 0.56, late δ -0.08 p 0.76 | yes |
+
+Verdicts: C1 replicated, C2 replicated, C3 replicated, C4 replicated, C5a replicated, C5b replicated.
+Archive as test (description, no decision): late archive win rate 0.13, 0.16, 0.06, 0.10, 0.13, 0.12, 0.14, 0.14, 0.09, 0.10 in runs that learned; 0.40, 0.21 in runs that did not (10/12 learned).
+
+
+### Table LAB
+
+| λ | cyclic triads within runs (control / test) | exported rank in pool of 128 | ρ(streak, strength) | decline: exported / best | archive as test vs control, δ (p) |
+|---|---|---|---|---|---|
+| 0.00 | 0.0% / 0.0% | 52 | +0.13 | 0.00 / 0.00 | -0.44 (0.07) |
+| 0.25 | 1.4% / 1.7% | 56 | +0.13 | 0.00 / 0.00 | -0.29 (0.24) |
+| 0.50 | 5.7% / 6.2% | 61 | +0.08 | 0.00 / 0.00 | -0.47 (0.05) |
+| 0.75 | 13.5% / 13.3% | 63 | +0.07 | 1.78 / 0.08 | +0.06 (0.84) |
+
+Discmix game, 12 runs per cell, all quantities exact. Exported rank and ρ: control runs, mean over 10 population snapshots (rank 1 = strongest). Declines: summed falls between snapshots against a fixed external panel, control runs. Archive effect: Cliff's δ of the final champions' cross-run strength, archive as test minus control, with the two-sided exact Mann–Whitney p. Trend tests: cycling vs λ ρ = +0.97 (p = 0.000) in control and +0.97 (p = 0.000) with the archive; archive effect vs λ p = 0.116.
+
+
 ### Table A1
 
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |

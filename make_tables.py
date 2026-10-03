@@ -599,6 +599,50 @@ def table_c(d):
     return "\n".join(out)
 
 
+def table_rep(d):
+    """The preregistered replication's verdicts (WP6)."""
+    rep = d["replication"]
+    if not rep:
+        return None
+    import replication
+    # decisions recomputed from the stored per-run values, exactly as
+    # replication.py --table does; they must equal the stored verdicts
+    res = replication.analyse(rep["per_run"], rep["seeds"])
+    assert res["verdict"] == rep["verdict"], "replication verdicts do not recompute"
+    return replication.table(res)
+
+
+def table_lab(d):
+    """The discmix experiment (WP8), one row per lambda."""
+    a = d["lab"]
+    if not a:
+        return None
+    rows = ["| λ | cyclic triads within runs (control / test) | exported rank in pool of 128 "
+            "| ρ(streak, strength) | decline: exported / best | archive as test vs control, δ (p) |",
+            "|---|---|---|---|---|---|"]
+    for lam in sorted(a["H8b"]):
+        b = a["H8b"][lam]
+        c = a["H8c"]["by_lambda"][lam]
+        cc = a["H8a"]["control"]["share_by_lambda"][lam]
+        ct = a["H8a"]["test"]["share_by_lambda"][lam]
+        rows.append(f"| {float(lam):.2f} | {100 * cc:.1f}% / {100 * ct:.1f}% "
+                    f"| {b['mean_rank']:.0f} | {b['mean_rho_streak']:+.2f} "
+                    f"| {b['decline_exported']:.2f} / {b['decline_best']:.2f} "
+                    f"| {c['cliffs_delta']:+.2f} ({c['p_two_sided']:.2f}) |")
+    h8a, h8c = a["H8a"], a["H8c"]
+    rows += ["", "Discmix game, 12 runs per cell, all quantities exact. Exported rank "
+             "and ρ: control runs, mean over 10 population snapshots (rank 1 = "
+             "strongest). Declines: summed falls between snapshots against a fixed "
+             "external panel, control runs. Archive effect: Cliff's δ of the final "
+             "champions' cross-run strength, archive as test minus control, with the "
+             f"two-sided exact Mann–Whitney p. Trend tests: cycling vs λ ρ = "
+             f"{h8a['control']['rho']:+.2f} (p = {h8a['control']['p_one_sided']:.3f}) "
+             f"in control and {h8a['test']['rho']:+.2f} (p = "
+             f"{h8a['test']['p_one_sided']:.3f}) with the archive; archive effect vs λ "
+             f"p = {h8c['p_one_sided']:.3f}."]
+    return "\n".join(rows)
+
+
 def table_t(d):
     """Within-run transitivity at 5,000-game spacing, control runs (WP7)."""
     f = d["within_fine"]
@@ -682,6 +726,8 @@ FILES = {
     "resume": f"{ANDIR}/resume_fast.json",
     "yardsticks": f"{ANDIR}/yardsticks.json",
     "within_fine": f"{ANDIR}/within_fine.json",
+    "replication": "results/replication/analysis.json",
+    "lab": "results/lab/analysis.json",
     "validation": "results/validation.json",
 }
 DEPS = {
@@ -692,20 +738,22 @@ DEPS = {
     "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
     "a2": ["per_run"], "a3": ["resume", "reference"],
     "z": ["yardsticks", "per_run"], "t": ["within_fine"],
+    "rep": ["replication"], "lab": ["lab"],
 }
 
 TABLES = {
     "c": table_c,
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
-    "r": table_r, "z": table_z, "t": table_t,
+    "r": table_r, "z": table_z, "t": table_t, "rep": table_rep,
+    "lab": table_lab,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
 
 # Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
 PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3",
-                "z", "t"]
+                "z", "t", "rep"]
 TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
            ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
            ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),
@@ -720,6 +768,7 @@ def md_cell_to_tex(cell):
     for a, b in TEX_MAP:
         cell = cell.replace(a, b)
     cell = re.sub(r"(?<![\w.$-])-(\d)", r"$-$\1", cell)   # not the 2nd '-' of '--'
+    cell = re.sub(r"\*\*([^*]+)\*\*", r"\\textbf{\1}", cell)
     cell = re.sub(r"\*([^*]+)\*", r"\\emph{\1}", cell)
     for c in code:
         cell = cell.replace("\x00", r"\texttt{" + c.replace("_", r"\_") + "}", 1)
