@@ -752,6 +752,75 @@ def table_neat(d):
     return "\n".join(rows)
 
 
+EXPORT_LABELS = {"streak": "streak (Ha's rule)", "tournament-4": "tournament, 4 peers",
+                 "tournament-16": "**tournament, 16 peers**",
+                 "tournament-64": "tournament, 64 peers", "random": "random member",
+                 "best": "best member (oracle)"}
+EXPORT_GAMES = {"streak": "0", "tournament-4": "256", "tournament-16": "1,024",
+                "tournament-64": "4,096", "random": "0", "best": "—"}
+
+
+def table_x(d):
+    """Which member to export: the rules on the same populations (WP10)."""
+    a = d["export"]
+    if not a:
+        return None
+    s = a["slime"]
+    n_snap = len(next(iter(a["per_run"]["slime"].values()))["snapshots"])
+    rows = ["| rule | games per export | level | declines | rank in population "
+            "| final vs zoo GA |", "|---|---|---|---|---|---|"]
+    for r, lab in EXPORT_LABELS.items():
+        x = s["rules"][r]
+        zoo = s["zoo_final"].get(r)
+        rows.append(f"| {lab} | {EXPORT_GAMES[r]} | {x['level']:+.2f} | {x['declines']:.2f} "
+                    f"| {x['mean_rank']:.0f} | {'—' if zoo is None else f'{zoo:+.2f}'} |")
+    h, k = s["H10a"], s["H10b"]
+    rows += ["", f"Slime Volleyball, {h['n']} fresh control runs, every rule applied to the "
+             f"same {n_snap} population snapshots per run. Level: mean held-out score of the "
+             "exported member against the 2015 baseline over the snapshots; declines: "
+             "summed falls between consecutive snapshots; rank: by score among the "
+             "population (1 = best); zoo GA: the final exported member against the "
+             "slimevolleygym zoo GA. Preregistered tests, tournament-16 "
+             f"against streak: H10a level, {h['runs_improved']}/{h['n']} runs higher, "
+             f"one-sided exact sign-flip p {_p(h['p_one_sided'])}, "
+             f"**{'holds' if h['rejected'] else 'does not hold'}**; H10b declines, "
+             f"{k['runs_improved']}/{k['n']} runs fewer, p {_p(k['p_one_sided'])}, "
+             f"**{'holds' if k['rejected'] else 'does not hold'}** (Holm)."]
+    return "\n".join(rows)
+
+
+def table_xm(d):
+    """The export rules in discmix, judged by outsiders (WP10)."""
+    a = d["export"]
+    if not a:
+        return None
+    m = a["discmix"]
+    per = a["per_run"]["discmix"]
+    n_lam = len(per) // len(m["by_lambda"])
+    n_snap = len(next(iter(per.values()))["snapshots"])
+    rows = ["| λ | streak | tournament, 16 peers | best member (oracle) "
+            "| tournament higher | rank: streak / tournament |", "|---|---|---|---|---|---|"]
+    for lam in sorted(m["by_lambda"], key=float):
+        b = m["by_lambda"][lam]
+        r = b["rules"]
+        rows.append(f"| {float(lam):.2f} | {r['streak']['level']:+.3f} "
+                    f"| {r['tournament-16']['level']:+.3f} | {r['best']['level']:+.3f} "
+                    f"| {b['runs_improved']}/{n_lam} | {r['streak']['mean_rank']:.0f} / "
+                    f"{r['tournament-16']['mean_rank']:.0f} |")
+    c, e = m["H10c"], m["H10d"]
+    rows += ["", f"Discmix game, {n_lam} fresh control runs per λ. Outsider strength: the "
+             "exported member's exact mean expected score against every member of the "
+             f"other {n_lam - 1} runs' populations at the same λ and snapshot, averaged over "
+             f"the {n_snap} snapshots; rank among its own population by the same measure. "
+             "Preregistered "
+             f"tests: H10c, tournament-16 above streak over all {c['n']} runs "
+             f"({c['runs_improved']} higher), one-sided sign-flip p {_p(c['p_one_sided'])}, "
+             f"**{'holds' if c['rejected'] else 'does not hold'}**; H10d, the advantage "
+             f"shrinks with λ, ρ = {e['rho']:+.2f}, one-sided p {_p(e['p_one_sided'])}, "
+             f"**{'holds' if e['rejected'] else 'does not hold'}** (Holm)."]
+    return "\n".join(rows)
+
+
 def table_t(d):
     """Within-run transitivity at 5,000-game spacing, control runs (WP7)."""
     f = d["within_fine"]
@@ -840,6 +909,7 @@ FILES = {
     "qd": "results/qd/analysis.json",
     "neat": "results/neat/analysis.json",
     "neat_explore": "results/neat/explore/summary.json",
+    "export": "results/export/analysis.json",
     "validation": "results/validation.json",
 }
 DEPS = {
@@ -851,7 +921,7 @@ DEPS = {
     "a2": ["per_run"], "a3": ["resume", "reference"],
     "z": ["yardsticks", "per_run"], "t": ["within_fine"],
     "rep": ["replication"], "lab": ["lab"], "qd": ["qd"], "qdm": ["qd"],
-    "neat": ["neat", "per_run"],
+    "neat": ["neat", "per_run"], "x": ["export"], "xm": ["export"],
 }
 
 TABLES = {
@@ -860,7 +930,7 @@ TABLES = {
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
     "r": table_r, "z": table_z, "t": table_t, "rep": table_rep,
     "lab": table_lab, "qd": table_qd, "qdm": table_qdm,
-    "neat": table_neat,
+    "neat": table_neat, "x": table_x, "xm": table_xm,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
