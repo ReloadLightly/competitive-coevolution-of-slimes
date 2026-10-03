@@ -1,0 +1,73 @@
+# Runs the preregistered discmix experiment (WP8, results/lab/
+# PREREGISTRATION.md) on GitHub's runners: one job per condition, its 12 seeds
+# in parallel on the runner's cores, and the condition's run files committed
+# to the branch when the job finishes. Runs already on the branch are skipped.
+name: lab-discmix
+
+on:
+  push:
+    branches: [claude/cool-shannon-ry3f4x]
+    paths: [.github/workflows/lab.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        lam: ["0.00", "0.25", "0.50", "0.75"]
+        mode: [control, test]
+    env:
+      COND: discmix-${{ matrix.lam }}-${{ matrix.mode }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install the locked environment
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libgl1
+          pip install -r requirements-lock.txt
+
+      - name: Run the condition's 12 seeds
+        run: |
+          python -W ignore run_lab.py --only "$COND" --workers "$(nproc)"
+          python - <<'EOF'
+          import platform, numba, numpy
+          print("machine:", platform.platform(), "| python", platform.python_version(),
+                "| numba", numba.__version__, "| numpy", numpy.__version__)
+          EOF
+          lscpu | grep -E "Model name|^CPU\(s\)" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.COND }}
+          path: results/lab/${{ env.COND }}_s*.npz
+          if-no-files-found: error
+
+      - name: Commit the condition's run files to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/lab/"$COND"_s*.npz
+          git diff --cached --quiet && { echo "nothing new"; exit 0; }
+          git commit -q -m "Lab: $COND, 12 runs finished (GitHub Actions)" \
+            -m "Preregistered in results/lab/PREREGISTRATION.md. Run by .github/workflows/lab.yml, workflow run ${{ github.run_id }}."
+          git reset -q --hard HEAD
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --rebase origin "${{ github.ref_name }}" && \
+              git push -q origin "HEAD:${{ github.ref_name }}" && exit 0
+            sleep $((RANDOM % 20 + 5))
+          done
+          echo "could not push; the files are in the run's artifacts" && exit 1
