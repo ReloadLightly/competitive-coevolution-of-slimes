@@ -431,3 +431,212 @@ best member 0.08). The decline was a descriptive column, not a test.
 As the preregistration requires for a failed H8c, the paper's Limitations
 bullet on cyclic games now reports what was found; H8b's result is added to
 the Discussion's paragraph on other loops.
+
+## 2026-10-03 — WP9, part 1: niche archive; WP8's protocol.json restored
+
+`results/lab/protocol.json` was missing: the WP8 workflow committed only the
+run files, not the protocol record `run_lab.py` writes when it starts. It was
+regenerated from `run_lab.py`'s constants; every one of the 96 WP8 run files
+agrees with it on each parameter it records (λ, mode, seed, budget,
+checkpoint and snapshot spacing, the game's α, β, noise and tie band).
+
+`lab/kernels.py` gained a fourth archive mode, `HOF_NICHE` (an archive used
+as a test, organised by a behaviour grid instead of by time), and `run()`
+now also returns the archive size per checkpoint. The existing modes are
+unchanged: `test_repo.py` still finds the lab bit-identical to the paper's
+three kernels on Slime Volleyball, and WP8's `discmix-0.50-test_s305`,
+rerun with the changed kernel, is identical in all 14 data arrays.
+`run_lab.py` only unpacks the extra return value.
+
+The niche experiment is preregistered in `results/qd/PREREGISTRATION.md`
+(60 runs, three hypotheses). Its grid bounds were set from the descriptor
+spread of champions in runs that already existed (the replication's control
+and archive-as-test runs; all WP8 runs), not from any niche run.
+
+## 2026-10-03 — WP9, part 2: NEAT as a fifth family, preregistered
+
+`lab/neat.py` adds NEAT to the lab as a new module; the paper's frozen files
+are untouched. It plays the study's compiled game through the same physics:
+a NEAT genome encoding a 12-10-10-3 network computes that network's outputs
+bit for bit, scores identically against the 2015 baseline on the same
+serves, and plays identical games step by step (`test_repo.py`). Self-play
+evaluation and export are the generational GA's (`run_ga2015`); the budget
+is the study's 500,000 games.
+
+Two short pilots (seeds 7 and 999, at most 100,000 games, scratch
+directories, never scored against anything) changed the implementation
+before the preregistration was written:
+
+- with weights moved in steps of 0.1, a fixed compatibility threshold of 3.0
+  was never reached and every genome stayed in one species. The threshold
+  now adapts towards 8 species, the mechanism NEAT's coevolution study uses
+  (Stanley & Miikkulainen 2004, Appendix A, target 10);
+- crossover could join two loops into a feedforward cycle (one parent closed
+  a loop 13→14, the other 14→13, and the child took each gene's "recurrent"
+  flag at random). The child now takes the flag from the fitter parent;
+  `test_repo.py` builds that case, and the old rule fails it (58 of 200
+  children cyclic).
+
+Design, the one test (H9d: NEAT vs the generational GA, end-of-run champion
+held out, two-sided) and the descriptive measures are fixed in
+`results/neat/PREREGISTRATION.md`; the analysis is `neat_analysis.py`
+(provenance scope `neat`). Both NEAT references were verified and added to
+`paper/refs.bib` (`stanley2002evolving` via the publisher's page,
+`stanley2004competitive` via arXiv); the 2004 paper leaves
+`UNVERIFIED_REFS.md`.
+
+## 2026-10-03 — WP9, part 1: the niche archive, analysed
+
+All 60 run files of `results/qd/PREREGISTRATION.md` arrived from
+`.github/workflows/qd.yml`; each was checked against `results/qd/protocol.json`
+(seed, condition, λ, grid bounds, archive probability, archive size within
+1–64), with no mismatch. `python qd_analysis.py` was then run once
+(`results/qd/analysis.json`, provenance scope `qd`). Verdicts by the
+preregistered rules:
+
+- **H9a holds**: in Slime Volleyball the behaviour-organised archive, used as
+  a test, has no detectable effect against the replication's control on the
+  same seeds (final δ −0.11 p 0.67, peak δ −0.24 p 0.35, above parity
+  δ −0.23 p 0.35, late mean δ −0.26 p 0.29; 10/12 learned in both arms).
+  Against the time-ordered archive every p ≥ 0.51. The archive was not
+  empty: 37–53 of 64 cells occupied at the end.
+- **H9b does not hold**: the effect against the control does not grow
+  detectably with λ (one-sided permutation p = 0.072; Holm needed p < 0.025).
+- **H9c does not hold**: at λ = 0.75 the niche archive's final champions are
+  not detectably stronger than the time-ordered archive's (one-sided
+  p = 0.34).
+
+As the preregistration requires for H9a holding and H9b, H9c failing: the
+paper's C5b paragraph is unchanged; its Limitations bullet on cyclic games
+now says that neither archive design helped, and the scope bullet that the
+archive as a test was tried in two designs. README: new section "An archive
+organised by behaviour" (tables qd, qdm).
+
+## 2026-10-03 — WP9, part 2: NEAT failed; exploratory follow-up (not preregistered)
+
+`python neat_analysis.py` was run once after all 12 preregistered NEAT runs
+existed (each checked against `results/neat/protocol.json`). **H9d finds a
+detectable difference, against NEAT**: NEAT learned to rally in 0 of 12 runs;
+its final champions score −4.84 ± 0.01 against the 2015 baseline, against
+−2.00 for the generational GA (Cliff's δ −0.92, two-sided exact
+p = 0.0008), and rank last in the cross-run tournament (median Elo −406;
+the lowest other family +143). The champions grew 23–39 hidden nodes and
+144–170 enabled connections. The verdict stands as preregistered.
+
+A result this extreme could be an implementation defect, so the following
+checks were made afterwards, knowing the result:
+
+- the game path, again: a minimal NEAT genome computes tanh(Wx + b) exactly;
+  a pack of 30 grown genomes computes each one as a pack of one does; and
+  NEAT-vs-NEAT games of four encoded MLPs equal the paper's MLP-vs-MLP games
+  game for game, on both sides of the net. The fitness sign (the right-hand
+  player's score credited to it, the left-hand player's debited) matches
+  `algorithms.run_ga2015`.
+- three exploratory variants, first run in a scratch directory (seeds
+  901–903, 901–904 for `as-ga`), all at the full budget:
+  - `mlp-start` (NEAT as preregistered, but starting from the study's
+    network): 0/3 learned;
+  - `no-reset` (no weight replacement): 0/3 learned;
+  - `as-ga` (NEAT's loop reduced towards the generational GA: the study's
+    network, no structural mutation, one species, no stagnation removal,
+    always crossover; one elite instead of twenty): 1/4 learned and reached
+    parity (seed 902: rallies above 1,500 steps at 245,000 games, final
+    +0.05); seed 901 ended with rallies of 1,494 steps.
+
+So the game, the evaluation and the loop can learn; what stops it is NEAT's
+own reproduction machinery in this setting (speciation, offspring shared
+out by species, one elite per species, structural mutation), not the
+minimal start and not the weight resets alone. To make these numbers
+citable they are rerun from committed code: `neat_explore.py`, all three
+variants on seeds 901–904 (12 runs, `.github/workflows/neat-explore.yml`),
+into `results/neat/explore/`, summarised by `neat_explore.py --summary`
+(provenance scope `neat_explore`). They are exploratory throughout and are
+labelled so. `lab.neat.run` gained an optional `init` argument for the
+variants that start from the study's network; the default path is
+unchanged (the first champion of `neat_s101` reproduces exactly).
+
+### 2026-10-03 — the exploratory NEAT runs, from committed code
+
+All 12 runs of `neat_explore.py` arrived (`results/neat/explore/`,
+summary `summary.json`): `mlp-start` 0/4 learned, `no-reset` 0/4, `as-ga`
+1/4 learned and reached parity (seed 902, rallies above 1,500 steps at
+245,000 games, final +0.05). Ten of the eleven runs that also ran in the
+scratch directory are identical there and on GitHub's runners. The
+eleventh, `no-reset` seed 903, differs because the scratch run was wrong:
+the scratch script switched `mlp-start` on by replacing a module function
+inside its worker processes, and a worker reused after an `mlp-start` job
+started this `no-reset` run from the study's network too (it ended with 50
+hidden nodes, 20 of them from the start; the committed run ends with 34).
+The committed runs pass the starting genome as an argument, so they cannot
+be contaminated this way. The conclusion is unchanged; the numbers quoted
+are the committed ones.
+
+## 2026-10-03 — WP10: alternative export rules, preregistered
+
+Roland asked to test alternative export rules. What was known: the paper's
+post hoc re-export analysis (`reexport.py`, the 6 original control runs)
+found that exporting the winner of a short internal round robin (16 peers per
+member, 1,024 games) instead of the longest streak raised the exported
+member's mean score from −1.95 to −1.49 (all 6 runs higher), with budgets
+chosen after seeing the data. No other run had been analysed for this
+question; in particular the replication's and WP8's population snapshots
+were not.
+
+`results/export/PREREGISTRATION.md`, `run_export.py` and `export_analysis.py`
+fix a prospective test before any run: 12 fresh Slime Volleyball control
+runs (seeds 401–412) and 48 fresh discmix control runs (seeds 501–512), the
+streak rule against the 16-peer tournament applied to the same stored
+populations, four hypotheses in two Holm families (H10a level and H10b
+declines in Slime Volleyball; H10c outsider level and H10d its trend over λ
+in discmix). The runners are the existing ones, unchanged (`run_experiments.
+one_run`, `run_lab.one_run`). New: `stats_utils.signflip_greater` (exact
+paired sign-flip test, checked against brute force) and the discmix
+tournament, which draws each game as `lab.kernels.discmix_play` does
+(`test_repo.py` checks both). The analysis was exercised on synthetic
+stand-in files only.
+
+## 2026-10-03 — WP10: alternative export rules, analysed
+
+All 60 run files of `results/export/PREREGISTRATION.md` arrived from
+`.github/workflows/export.yml`; each was checked against
+`results/export/protocol.json` (seed, condition, λ, snapshot spacing,
+budget, archive probability 0), with no mismatch. `python
+export_analysis.py` was then run once (`results/export/analysis.json`,
+provenance scope `export`). Verdicts by the preregistered rules:
+
+- **H10a holds**: in Slime Volleyball the 16-peer internal tournament
+  exports better members than the streak rule (level −2.16 against −2.33,
+  9 of 12 runs higher, exact one-sided p = 0.010; Holm needed 0.025). The
+  gain (+0.17) is smaller than the post hoc estimate for the same budget
+  (+0.46): it closes 43% of the gap to the best member, not 57%.
+- **H10b does not hold**: summed declines 1.37 against 1.98, fewer in 8 of
+  12 runs, p = 0.16.
+- **H10c holds**: in discmix the tournament's members are stronger against
+  other runs' populations, 42 of 48 runs, p < 0.001.
+- **H10d holds**: that advantage shrinks as skill becomes cyclic, +0.11 at
+  λ = 0 to +0.03 at λ = 0.75 (ρ = −0.43, p = 0.001).
+
+Noted when reading the results, not tested: 10 of the 12 Slime Volleyball
+runs learned to rally (as in the replication); in the two that did not,
+every member is equally weak and the rules tie.
+
+As the preregistration requires: C4 gains a prospective, deployable remedy
+(the README's new finding 4b; the paper's export-rule section, where the post
+hoc analysis is now the origin, not the evidence); the text says the remedy
+did not detectably reduce declines; and the Discussion's hypothesis about
+other loops gains the caveat that the remedy weakens as skill becomes cyclic.
+New claim C8 in CLAUDE.md.
+
+## 2026-10-03 — WP11: one narrative for README and paper
+
+No data, analysis or claim changed. The README was reorganised from one
+section per work package into one argument (findings renumbered 1–8, the
+export-rule test becoming finding 5) by a script that moved blocks and
+checked that every generated number and table survived; the paper gained a
+results roadmap, a subsection that collects the lab experiments (cyclic
+skill, the behaviour-organised archive, NEAT) and an appendix with their
+tables, while the Limitations now state limits rather than repeat results.
+Two wording corrections came with it: the paper's first contribution no
+longer says an internal round robin "recovers most of the loss" (the
+preregistered test recovered 43% of the gap), and undefined claim labels
+(C6, C7) in the paper were replaced by section references.

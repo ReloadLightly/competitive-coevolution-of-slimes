@@ -243,6 +243,85 @@ def main():
               "control, archive as parent, archive as test, snapshots: "
               + ", ".join("same" if s else "DIFFERENT" for s in same))
 
+        # the niche archive (WP9): the compiled descriptor binning agrees
+        # with a plain reimplementation, a short run keeps its archive within
+        # the grid, and the guards refuse a too-small archive or missing bounds
+        rng = np.random.default_rng(5)
+        probes = rng.normal(size=(16, 12))
+        bounds = (-0.35, 0.95, -0.95, 0.35)
+        out = np.empty(3)
+        agree = True
+        for _ in range(50):
+            p = rng.normal(size=273) * 0.5
+            d = np.zeros(2)
+            for x in probes:
+                fv.mlp_forward(p, x, out)
+                d += out[:2]
+            d /= len(probes)
+            c0 = min(max(int(np.floor((d[0] - bounds[0]) / (bounds[1] - bounds[0]) * 8)), 0), 7)
+            c1 = min(max(int(np.floor((d[1] - bounds[2]) / (bounds[3] - bounds[2]) * 8)), 0), 7)
+            agree &= LK.niche_cell(p, probes, 8, *bounds) == c0 * 8 + c1
+        gpn = np.concatenate([gp, np.array(bounds)])
+        res = LK.run(g, gpn, X1, X2, X3, 9, 3000, 16, 0.1, 500, LK.HOF_NICHE,
+                     0.25, 100, 64, w, b, 0.5, 0)
+        arch = res[7]
+        refused = 0
+        for cap, gpx in ((63, gpn), (64, gp)):
+            try:
+                LK.run(g, gpx, X1, X2, X3, 9, 1000, 8, 0.1, 500, LK.HOF_NICHE,
+                       0.25, 100, cap, w, b, 0.5, 0)
+            except ValueError:
+                refused += 1
+        check("niche archive: descriptor cells, archive size and guards",
+              agree and (np.diff(arch) >= 0).all() and 1 <= arch[-1] <= 64
+              and refused == 2,
+              f"cells agree on 50 genomes: {agree}; archive {arch.tolist()} cells; "
+              f"bad settings refused: {refused}/2")
+
+        # NEAT (WP9): a genome encoding a 12-10-10-3 network is that network
+        # -- same outputs, same score against the 2015 baseline on the same
+        # serves, same game step by step -- so the NEAT path plays the
+        # study's game
+        from lab import neat as NE
+        pa = np.load("results/matrix/control_s101.npz")["champs"][-1].astype(np.float64)
+        pb = np.load("results/matrix/control_s104.npz")["champs"][-1].astype(np.float64)
+        inno = NE.Innovations()
+        PK = NE.pack([NE.compile_genome(NE.from_mlp(pa, inno)),
+                      NE.compile_genome(NE.from_mlp(pb, inno))])
+        s1, l1 = fv.eval_vs_baseline(pa, 50, 20260901, w, b, False)
+        s2, l2 = NE.eval_vs_baseline(PK, 0, 50, 20260901, w, b)
+        vx = rng.uniform(-20, 20, size=64)
+        vy = rng.uniform(10, 25, size=64)
+        tr1, tr2 = np.zeros((fv.T_LIMIT, 7)), np.zeros((fv.T_LIMIT, 7))
+        g1, t1 = fv.play_game_trace(pa, fv.POLICY_MLP, pb, fv.POLICY_MLP, w, b,
+                                    np.zeros(7), np.zeros(7), vx, vy, tr1)
+        g2, t2 = NE.play(PK, 0, NE.KIND_NEAT, 1, NE.KIND_NEAT, w, b, np.zeros(7),
+                         np.zeros(7), vx, vy, True, tr2)
+        check("NEAT: an encoded 12-10-10-3 network plays the study's game exactly",
+              np.array_equal(s1, s2) and np.array_equal(l1, l2)
+              and g1 == g2 and t1 == t2 and np.array_equal(tr1[:t1], tr2[:t2]),
+              f"50 episodes vs baseline and a {t1}-step game identical")
+
+        # NEAT crossover must not join two loops into a feedforward cycle:
+        # parents that closed the same two-node loop in opposite directions
+        # (each with its own back edge marked recurrent) -- the case that
+        # broke a run before the child took the fitter parent's flags
+        inno = NE.Innovations()
+        base = NE.new_genome(np.random.default_rng(1), inno, 0.5)
+        k1, k2 = inno.of(12, 13), inno.of(13, 12)
+        mom, dad = NE.copy_genome(base), NE.copy_genome(base)
+        mom["conns"][k1], mom["conns"][k2] = [12, 13, .1, True, False], [13, 12, .1, True, True]
+        dad["conns"][k1], dad["conns"][k2] = [12, 13, .1, True, True], [13, 12, .1, True, False]
+        crng = np.random.default_rng(2)
+        bad = 0
+        for _ in range(200):
+            try:
+                NE.compile_genome(NE.crossover(mom, dad, crng, NE.PARAMS))
+            except ValueError:
+                bad += 1
+        check("NEAT: crossover never creates a feedforward cycle", bad == 0,
+              f"{bad}/200 children with a cycle")
+
         # discmix: the expected margin is antisymmetric, and with lambda = 0
         # (transitive part only) no triad can be cyclic
         pool = LG.features(np.random.default_rng(3).normal(size=(24, 273)) * 0.5)
@@ -254,6 +333,32 @@ def main():
               and t0["cyclic"] == 0 and t1["cyclic"] > 0,
               f"cyclic triads {t0['cyclic']}/{t0['triads_decided']} at lambda 0, "
               f"{t1['cyclic']}/{t1['triads_decided']} at lambda 1")
+
+        # export rules (WP10): the discmix tournament draws each game as
+        # lab.kernels.discmix_play does, and outsider strength is the exact
+        # expected score
+        import itertools
+        import export_analysis as EA
+        import stats_utils as su
+        gp = np.array([0.5, LG.ALPHA, LG.BETA, LG.NOISE, LG.TIE])
+        m5 = LG.payoff_matrix(pool, 0.5)
+        i, j = np.unravel_index(np.argmin(np.abs(m5) + np.eye(len(pool))), m5.shape)
+        pair = np.ascontiguousarray(pool[[i, j]])   # the most even pair: the hardest case
+        fit = EA.discmix_tournament(pair, 40_000, gp, 11)     # 40,000 games, all 0 vs 1
+        exact = LG.expected_score(pair[0], pair[1], 0.5)
+        se = 1.0 / np.sqrt(40_000)
+        others = np.ascontiguousarray(pool[2:9])
+        ref = np.array([np.mean([LG.expected_score(a, c, 0.5) for c in others])
+                        for a in pool[:5]])
+        diff = np.abs(EA.outsider_strength(np.ascontiguousarray(pool[:5]), others, gp) - ref).max()
+        check("export rules: discmix tournament samples the game, outsider strength is exact",
+              abs(fit[0] - exact) < 4 * se and diff < 1e-12,
+              f"tournament {fit[0]:+.3f} vs exact {exact:+.3f}; strength error {diff:.1e}")
+        d = np.random.default_rng(5).normal(0.2, 1.0, 10)
+        brute = np.mean([np.mean(np.array(s) * np.abs(d)) >= d.mean() - 1e-12
+                         for s in itertools.product((-1, 1), repeat=10)])
+        check("paired sign-flip test is exact", abs(su.signflip_greater(d)[1] - brute) < 1e-12,
+              f"p {su.signflip_greater(d)[1]:.4f} = brute force {brute:.4f}")
     except ImportError as e:
         check("compiled environment available", False,
               f"{e} — install requirements-fast.txt")

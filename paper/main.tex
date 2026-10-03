@@ -46,25 +46,26 @@ In a self-play genetic algorithm, the individual exported as ``the champion''
 is close to a median member of its own population, and much of what looks like
 coevolutionary instability in its learning curve is noise added by the rule
 that picks it. We show this for David Ha's tournament-selection algorithm on
-Slime Volleyball, run as a designed experiment rather than a single run:
-\nNRunsTotal{} independent runs of \nBudget{} self-play games, in a compiled
-environment that reproduces the reference implementation bit for bit, with
-every agent scored against a frozen opponent never seen in training. Ha's export
-rule promotes the individual with the longest winning lineage; scored against
-its whole population, that individual ranks on average \nProxyRankMean{} of
-\nProxyPop, its lineage counter is uncorrelated with its skill
-($\rho=\nProxyRho$), and the best member of the same pool is \nProxyGap{}
-points per episode better. The population itself is not cycling: skill is
-almost perfectly transitive across checkpoints. Internal improvement precedes
-any external transfer by tens of thousands of games, and the timing of the
-phase change varies \nCtrlTInternalRatio-fold across seeds. An archive of past
-champions used as a parent abolishes learning; used as a test, it neither
-harms nor helps detectably, because past champions soon stop being able to win.
-These claims held in a preregistered replication on \nRepTotal{} fresh runs.
-Algorithm families differ in reliability, not ceiling. A two-population variant with unequal capacity is reported as
-exploratory. Any evolutionary loop that promotes one artefact out of a
-population, including LLM-driven program evolution, has the same exposure; we
-state this as a hypothesis and give the diagnostic.
+Slime Volleyball, run as a designed experiment: \nNRunsTotal{} independent runs
+of \nBudget{} self-play games in a compiled environment that reproduces the
+reference implementation bit for bit, every agent scored against a frozen
+opponent never seen in training. Ha's rule promotes the longest winning
+lineage; that individual ranks on average \nProxyRankMean{} of \nProxyPop{} in
+its population, its lineage counter is uncorrelated with skill
+($\rho=\nProxyRho$), and the population is not cycling. Exporting instead the
+winner of a short internal tournament did better in a preregistered test on
+fresh runs, though by less than a post hoc analysis had suggested. Internal
+improvement precedes external transfer by tens of thousands of games, and the
+timing of the phase change varies \nCtrlTInternalRatio-fold across seeds. An
+archive of past champions used as a parent abolishes learning; used as a test,
+it neither harms nor helps detectably, nor does one organised by behaviour.
+These claims held in a preregistered replication on \nRepTotal{} fresh runs,
+and the export-rule failure persists in a game with tunable cyclic skill, where
+the better rule helps less. Algorithm families differ in reliability, not
+ceiling; NEAT, in one configuration, never learned. A two-population variant
+with unequal capacity is exploratory. Any evolutionary loop that promotes one
+artefact out of a population, including LLM-driven program evolution, has the
+same exposure; we state this as a hypothesis and give the diagnostic.
 \end{abstract}
 
 % =========================================================================
@@ -106,8 +107,10 @@ it fluctuates because of which individual we chose to measure.
 \paragraph{Contributions.}
 \begin{enumerate}
 \item The export rule, not coevolution, is the dominant noise source in the
-  reported curve (\S\ref{sec:export}); an internal round robin recovers most of
-  the loss cheaply.
+  reported curve; a cheap internal tournament exports measurably better
+  champions in a preregistered test on fresh runs, recovering
+  \nXRecoveredPct\% of the gap to the population's best member
+  (\S\ref{sec:export}).
 \item Internal improvement precedes external transfer by tens of thousands of
   games, and the phase change is robust in occurrence but not in timing
   (\S\ref{sec:lag}, \S\ref{sec:timing}).
@@ -116,6 +119,10 @@ it fluctuates because of which individual we chose to measure.
   (\S\ref{sec:archive}).
 \item Four algorithm families reach a similar ceiling and differ in how
   reliably they reach it (\S\ref{sec:families}).
+\item The findings hold in a preregistered replication on fresh seeds
+  (\S\ref{sec:replication}); the export-rule failure persists when skill is
+  made cyclic, and neither a behaviour-organised archive nor a
+  topology-evolving algorithm changes the picture (\S\ref{sec:robust}).
 \item An exploratory two-population block with unequal capacity
   (\S\ref{sec:asym}).
 \item A compiled port of the environment, validated bit for bit, and an
@@ -206,6 +213,14 @@ stability comparison is also reported over the runs that learned.
 % =========================================================================
 \section{Results}
 \label{sec:results}
+
+The results follow one line. What the population learns, and when
+(\S\ref{sec:lag}--\ref{sec:transitive}); what the reported curve measures instead,
+and a better rule for choosing the champion (\S\ref{sec:export}); what does not
+explain the instability, and what archives and other algorithm families change
+(\S\ref{sec:sigma}--\ref{sec:families}); and whether all of it holds, on fresh
+seeds and beyond this game, archive and topology
+(\S\ref{sec:replication}, \S\ref{sec:robust}).
 
 \begin{table}[!htbp]
 \centering\small
@@ -334,6 +349,17 @@ true skill saturates near \nReexportRhoMax: internal fitness measures skill
 against the current population, which is not the same as skill against an
 unseen opponent, so held-out evaluation remains necessary for selection as
 well as for reporting.
+
+That analysis chose its budgets after seeing the data. A preregistered test
+on \nXRuns{} fresh control runs (repository; Appendix~\ref{app:exporttest})
+confirmed the direction at a smaller size. Exporting the winner of an internal
+round robin of \nReexportGamesSixteen{} games per snapshot instead of the
+longest streak raised the exported member's held-out score from
+\nXStreakLevel{} to \nXTourneyLevel{} (higher in \nXImproved{} of \nXRuns{}
+runs, one-sided $p=\nXP$), closing \nXRecoveredPct\% of the gap to the best
+member against \nReexportRecSixteen\% post hoc. It did not detectably reduce
+the curve's losses of competence (summed declines \nXDeclTourney{} against
+\nXDeclStreak, $p=\nXDeclP$).
 
 \begin{figure}[!htbp]
 \centering
@@ -480,7 +506,56 @@ run learns: \nRepCtrlLearned{} did, which meets the preregistered threshold
 but not ``every seed''. And a falling archive win rate does not by itself
 indicate learning: it fell to \nRepArchLearnedMin--\nRepArchLearnedMax{} in
 the archive-as-test runs that learned, but also to \nRepArchFailedMin{} in one
-that never did. C6 and C7 were not part of the replication.
+that never did. The comparison of algorithm families (\S\ref{sec:families})
+and the unequal-power block (\S\ref{sec:asym}) were not part of the
+replication; the export-rule test of \S\ref{sec:export} was preregistered on
+fresh runs of its own.
+
+% =========================================================================
+\subsection{Beyond one game, one archive and one topology}
+\label{sec:robust}
+
+Three questions the main design could not answer were run afterwards as
+preregistered experiments in the repository's lab (\texttt{docs/lab.md}), whose
+GA reproduces the study's kernels bit for bit; their tables are in
+Appendix~\ref{app:lab}.
+
+\paragraph{Cyclic skill.} Slime Volleyball turned out almost purely
+transitive, which could make ``the population is not cycling'' a property of
+the game and the export-rule failure an artefact of transitivity. In a
+synthetic game whose mix of transitive and cyclic skill is set by one
+parameter $\lambda$, with exact expected scores (\nLabRuns{} runs), cycling rose
+as designed (\nLabCycHiPct\% cyclic champion triads at
+$\lambda=\nLabLambdaMax$), yet the streak rule exported an individual ranked on
+average \nLabRankMin--\nLabRankMax{} of 128 in its own pool at every $\lambda$,
+its streak barely related to its true strength ($\rho=\nLabRhoStreakMin$ to
+$\nLabRhoStreakMax$). The internal tournament of \S\ref{sec:export} helped
+there too, judged against other runs' populations (better in \nXmImproved{} of
+\nXmN{} runs), but its advantage shrank as skill became more cyclic, from
+\nXmAdvLow{} to \nXmAdvHigh{} ($\rho=\nXmRho$, $p=\nXmTrendP$). An archive used
+as a test did not help more as skill became cyclic (trend $p=\nLabTrendP$).
+
+\paragraph{Another archive.} The archives of \S\ref{sec:archive} hold past
+champions in time order. One organised by behaviour instead, one champion per
+cell of a MAP-Elites-style grid over a behaviour descriptor and used as a test
+(\nQdRuns{} runs), had no detectable effect in Slime Volleyball (all
+$p\geq\nQdSlimePmin$ against the control) although it filled
+\nQdCellsMin--\nQdCellsMax{} of 64 cells; it did not help more as skill became
+cyclic ($p=\nQdTrendP$), and where skill was most cyclic it did not beat the
+time-ordered archive ($p=\nQdTopP$). Neither archive design helped.
+
+\paragraph{Another topology.} NEAT \citep{stanley2002evolving}, evolving
+structure under the generational GA's evaluation and the same budget, never
+learned to rally (\nNeatLearned{} of \nNeatRuns{} runs; final champions
+\nNeatFinal), detectably worse than the generational GA (Cliff's
+$\delta=\nNeatDelta$, $p=\nNeatP$), while growing
+\nNeatHiddenMin--\nNeatHiddenMax{} hidden nodes. Exploratory runs (not
+preregistered) located the failure in its reproduction machinery as
+configured: started from the study's network it still failed
+(\nNxMlpLearned{} of \nNxRuns{} learned), while its loop with speciation and
+structural mutation removed learned in \nNxAsgaLearned{} of \nNxRuns. This is
+one configuration with mostly published settings
+\citep{stanley2004competitive}, untuned for this game.
 
 % =========================================================================
 \section{Unequal power (exploratory)}
@@ -497,18 +572,11 @@ mutation step norm. A symmetric two-population control has \nParamCount{} a side
 (Appendix, Figure~\ref{fig:asym} and Table~\ref{tab:asym}).
 
 Of \nAsymRuns{} runs, \nAsymMutual{} ended with both pools holding a member
-above parity; \nAsymOneSided{} ended with exactly one, \nAsymNeither{} with
-neither. \nAsymRunaway{} ended in runaway dominance (one side winning more
-than a share \nRunawayCut{} of the cross-population games at the end), \nAsymRunawaySym{} of them in the symmetric
-control, where the sides differ only in their seed. Neither capacity condition
-is distinguishable from that control (common $\sigma$: $\delta=\nAsymCapVsSymDelta$,
-$p=\nAsymCapVsSymP$; matched step: $\delta=\nAsymNormVsSymDelta$,
-$p=\nAsymNormVsSymP$). The larger side led in \nAsymCapLead{} runs at common
-$\sigma$ and in \nAsymNormLead{} with the step norm matched ($\delta=\nAsymNormVsCapDelta$,
-$p=\nAsymNormVsCapP$), which suggests, but at \nSeedsMain{} seeds a side does not
-establish, that extra capacity converts into advantage only when the mutation
-scale is adjusted to it. The pattern of one side collapsing is consistent with
-disengagement \citep{cartlidge2004combating}.
+above parity and \nAsymRunaway{} in runaway dominance, \nAsymRunawaySym{} of them in the
+symmetric control, where the sides differ only in their seed; neither capacity
+condition is distinguishable from that control (Appendix~\ref{app:asym}). The
+pattern of one side collapsing is consistent with disengagement
+\citep{cartlidge2004combating}.
 
 
 
@@ -527,12 +595,11 @@ whether its swings come from the population or from the choice of
 individual.
 
 \paragraph{A hypothesis about other evolutionary loops.}
-The failure does not depend on skill being transitive. In a synthetic game
-whose mix of transitive and cyclic skill is set by one parameter, run with the
-same GA and preregistered (repository, \texttt{docs/lab.md}), the streak rule
-exported an individual ranked on average \nLabRankMin--\nLabRankMax{} of 128 in
-its own pool at every mixture, its streak barely related to its true strength
-($\rho=\nLabRhoStreakMin$ to $\nLabRhoStreakMax$).
+The failure does not depend on skill being transitive: with cyclic skill
+the streak rule still exported a middling individual, and the internal
+tournament's advantage shrank as skill became more cyclic
+(\S\ref{sec:robust}). Measuring candidates against their own population is a
+weaker guide to quality when quality is relative.
 Any loop that promotes one artefact out of a population has a promotion rule,
 and that rule is usually cheaper than a measurement of quality. LLM-driven
 program evolution \citep{novikov2025alphaevolve,lange2025shinkaevolve} promotes
@@ -560,17 +627,16 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
 \begin{itemize}
 \item \textbf{One environment}, symmetric, zero-sum and fully observed: the most
   favourable setting for purely relative selection, and one whose skill
-  structure is largely transitive. In a synthetic game with tunable cyclic
-  skill (repository, preregistered, \nLabRuns{} runs), cycling appeared as
-  designed (\nLabCycHiPct\% cyclic champion triads at the most cyclic setting),
-  the export rule failed in the same way, and an archive used as a test did not
-  help more as skill became cyclic (trend $p=\nLabTrendP$). A physical game with
-  cyclic skill remains untested.
+  structure is largely transitive. The synthetic game of \S\ref{sec:robust}
+  makes skill cyclic but is a second setting, not a second physical game; a
+  physical game with cyclic skill remains untested.
 \item \textbf{Few seeds.} \nSeedsMain{} runs per condition separate large
   effects from seed noise, not small ones; several conditions have fewer.
-  Secondary comparisons are uncorrected for multiplicity. C1--C5b were
-  confirmed on \nRepRuns{} fresh runs per condition
-  (\S\ref{sec:replication}); C6 and C7 were not.
+  Secondary comparisons are uncorrected for multiplicity. The claims about
+  Ha's GA and the archive were confirmed on \nRepRuns{} fresh runs per
+  condition (\S\ref{sec:replication}) and the export-rule remedy was
+  preregistered on fresh runs; the family comparison and the unequal-power
+  block were not replicated.
 \item \textbf{Post hoc design changes.} The design was revised while it ran
   (seed counts, the archive conditions, the replacement of the population sweep
   by the unequal-power block, the rerun of the archive-as-test condition after a
@@ -578,9 +644,14 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
   final design is not the one pre-registered; the replication of
   \S\ref{sec:replication} was.
 \item \textbf{Scope of the measurements.} The export analysis is
-  control-only, because only the control stores population snapshots; the
-  topology is fixed, each archive reading has one design, and the ES was tuned
-  only at pilot scale.
+  control-only, because only the control stores population snapshots, and
+  the ES was tuned only at pilot scale. The archive as a parent has one
+  design, as a test two (\S\ref{sec:archive}, \S\ref{sec:robust}); a curated
+  archive, or one that picks opponents by what they teach, is untested. Of
+  export rules only the streak rule and a 16-peer tournament were tested.
+\item \textbf{Topology.} Every result outside \S\ref{sec:robust} comes from
+  families that evolve one fixed network. One topology-evolving algorithm was run, in one configuration
+  (\S\ref{sec:robust}); a NEAT tuned for self-play is untested.
 \item \textbf{The unequal-power block is exploratory} and underpowered for its
   most interesting comparison.
 \end{itemize}
@@ -832,6 +903,20 @@ slimevolleygym zoo policies, points per episode, by condition.}
 \subsection{Unequal power (exploratory)}
 \label{app:asym}
 
+Of \nAsymRuns{} runs, \nAsymMutual{} ended with both pools holding a member
+above parity; \nAsymOneSided{} ended with exactly one, \nAsymNeither{} with
+neither. \nAsymRunaway{} ended in runaway dominance (one side winning more
+than a share \nRunawayCut{} of the cross-population games at the end), \nAsymRunawaySym{} of them in the symmetric
+control, where the sides differ only in their seed. Neither capacity condition
+is distinguishable from that control (common $\sigma$: $\delta=\nAsymCapVsSymDelta$,
+$p=\nAsymCapVsSymP$; matched step: $\delta=\nAsymNormVsSymDelta$,
+$p=\nAsymNormVsSymP$). The larger side led in \nAsymCapLead{} runs at common
+$\sigma$ and in \nAsymNormLead{} with the step norm matched ($\delta=\nAsymNormVsCapDelta$,
+$p=\nAsymNormVsCapP$), which suggests, but at \nSeedsMain{} seeds a side does not
+establish, that extra capacity converts into advantage only when the mutation
+scale is adjusted to it. The pattern of one side collapsing is consistent with
+disengagement \citep{cartlidge2004combating}.
+
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/fig11_asymmetric.pdf}
@@ -852,6 +937,76 @@ against the 2015 policy.}
 
 
 \FloatBarrier
+\subsection{Alternative export rules, tested prospectively}
+\label{app:exporttest}
+
+Preregistered (\texttt{results/export/PREREGISTRATION.md}) and run on fresh
+seeds: \nXRuns{} Slime Volleyball control runs and \nXmN{} discmix control
+runs. Because the exported member never feeds back into training, every rule
+is applied to the same stored populations, so each run is a paired
+comparison. Table~\ref{tab:exporttest} gives the Slime Volleyball result,
+Table~\ref{tab:exporttestlab} the discmix result judged against outsiders.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Export rules on the same population snapshots, \nXRuns{} fresh
+Slime Volleyball control runs. Level and declines: held-out score of the
+exported member against the 2015 baseline. Only the 16-peer tournament was
+tested; the other rows are described.}
+\label{tab:exporttest}
+\resizebox{\linewidth}{!}{\input{tables/x.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Export rules in the discmix game, judged by outsider strength (exact
+expected score against the other runs' populations at the same $\lambda$ and
+snapshot).}
+\label{tab:exporttestlab}
+\resizebox{\linewidth}{!}{\input{tables/xm.tex}}
+\end{table}
+
+\subsection{The lab: cyclic skill, another archive, another topology}
+\label{app:lab}
+
+The three experiments of \S\ref{sec:robust}, each preregistered in the
+repository before its first run (\texttt{results/lab}, \texttt{results/qd},
+\texttt{results/neat}) and analysed once. The lab's GA reproduces the study's
+three kernels bit for bit, and a NEAT genome that encodes the study's network
+plays bit-identical games, so the numbers are comparable with the main text's.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{The discmix game: cycling, the export rule and the time-ordered
+archive used as a test, by $\lambda$ (12 runs per cell, exact expected
+scores).}
+\label{tab:lab}
+\resizebox{\linewidth}{!}{\input{tables/lab.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{An archive organised by behaviour, used as a test, in Slime
+Volleyball, against the control and the time-ordered archive on the same
+seeds.}
+\label{tab:qd}
+\resizebox{\linewidth}{!}{\input{tables/qd.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{The behaviour-organised archive in the discmix game, by $\lambda$.}
+\label{tab:qdm}
+\resizebox{\linewidth}{!}{\input{tables/qdm.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+\centering\small
+\caption{NEAT as a fifth family next to the four of \S\ref{sec:families}.}
+\label{tab:neat}
+\resizebox{\linewidth}{!}{\input{tables/neat.tex}}
+\end{table}
+
 \subsection{Every condition}
 \label{app:all}
 

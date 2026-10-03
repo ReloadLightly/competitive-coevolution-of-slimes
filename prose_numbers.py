@@ -225,6 +225,12 @@ def definitions():
         "share of the exported-to-best gap closed by the largest internal "
         "round robin, in %")(lambda d: _pct(rx(d)["recovered_fraction"][
             max(rx(d)["recovered_fraction"], key=lambda k: int(k.split("_")[1]))]))
+    add("reexport_rec_sixteen", ["reexport"],
+        "share of the gap closed by the 16-peer round robin, post hoc, in %")(
+        lambda d: _pct(rx(d)["recovered_fraction"]["internal_16"]))
+    add("reexport_games_sixteen", ["reexport"],
+        "ranking games per snapshot of the 16-peer round robin")(
+        lambda d: _games(rx(d)["ranking_games_per_snapshot"]["internal_16"]))
     add("reexport_peers_max", ["reexport"],
         "largest internal round robin: peers per individual")(
         lambda d: str(max(int(k.split("_")[1])
@@ -876,6 +882,193 @@ def definitions():
         "discmix: largest per-lambda two-sided p of the archive effect, lambda <= 0.5")(
         lambda d: _f(max(r["p_two_sided"] for l, r in lab(d)["H8c"]["by_lambda"].items()
                          if float(l) <= 0.5), 3))
+
+    # ---- WP9: an archive organised by behaviour (niche archive) ---------
+    def qd(d):
+        return d["qd"]
+
+    def qd_slime(d, ref="vs_control"):
+        return qd(d)["slime"][ref].values()
+
+    def qd_lam(d):
+        return qd(d)["discmix"]["by_lambda"].values()
+    add("qd_runs", ["qd"], "niche-archive experiment: runs in total")(
+        lambda d: str(len(qd(d)["per_run"]["slime"]) // 3 + len(qd(d)["per_run"]["discmix"]) // 3))
+    add("qd_slime_pmin", ["qd"],
+        "niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs control")(
+        lambda d: _f(min(c["p_two_sided"] for c in qd_slime(d)), 2))
+    add("qd_slime_fifo_pmin", ["qd"],
+        "niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs the "
+        "time-ordered archive")(
+        lambda d: _f(min(c["p_two_sided"] for c in qd_slime(d, "vs_fifo")), 2))
+    add("qd_slime_learned", ["qd"],
+        "niche archive, Slime Volleyball: runs that learned to rally")(
+        lambda d: str(qd(d)["slime"]["learned"]["niche"]))
+    add("qd_ctrl_learned", ["qd"],
+        "niche experiment: control runs (same seeds) that learned to rally")(
+        lambda d: str(qd(d)["slime"]["learned"]["control"]))
+    add("qd_slime_n", ["qd"], "niche archive, Slime Volleyball: runs per arm")(
+        lambda d: str(qd(d)["slime"]["n"]))
+    add("qd_cells_min", ["qd"],
+        "niche archive, Slime Volleyball: fewest occupied cells (of 64) at the end of a run")(
+        lambda d: str(min(qd(d)["slime"]["archive_cells_final"])))
+    add("qd_cells_max", ["qd"],
+        "niche archive, Slime Volleyball: most occupied cells (of 64) at the end of a run")(
+        lambda d: str(max(qd(d)["slime"]["archive_cells_final"])))
+    add("qd_lab_cells_min", ["qd"],
+        "niche archive, discmix: lowest per-lambda mean of occupied cells at the end")(
+        lambda d: f"{min(r['archive_cells_final'] for r in qd_lam(d)):.0f}")
+    add("qd_lab_cells_max", ["qd"],
+        "niche archive, discmix: highest per-lambda mean of occupied cells at the end")(
+        lambda d: f"{max(r['archive_cells_final'] for r in qd_lam(d)):.0f}")
+    add("qd_trend_p", ["qd"],
+        "niche archive, discmix: one-sided permutation p of the effect trend over lambda (H9b)")(
+        lambda d: _f(qd(d)["discmix"]["H9b"]["p_one_sided"], 3))
+    add("qd_top_p", ["qd"],
+        "niche archive, discmix: one-sided p, niche vs time-ordered archive at the largest "
+        "lambda (H9c)")(lambda d: _f(qd(d)["discmix"]["H9c"]["p_one_sided"], 2))
+    add("qd_lab_delta_min", ["qd"],
+        "niche archive, discmix: most negative per-lambda Cliff's delta vs control")(
+        lambda d: _f(min(r["vs_control"]["cliffs_delta"] for r in qd_lam(d)), 2, True))
+    add("qd_lab_delta_max", ["qd"],
+        "niche archive, discmix: largest per-lambda Cliff's delta vs control")(
+        lambda d: _f(max(r["vs_control"]["cliffs_delta"] for r in qd_lam(d)), 2, True))
+    add("qd_lab_pmin", ["qd"],
+        "niche archive, discmix: smallest per-lambda two-sided p, vs control or vs the "
+        "time-ordered archive")(
+        lambda d: _f(min(min(r["vs_control"]["p_two_sided"], r["vs_test"]["p_two_sided"])
+                         for r in qd_lam(d)), 2))
+
+    # ---- WP9: NEAT as a fifth family ------------------------------------
+    def nt(d):
+        return d["neat"]
+
+    def nf(d, f="neat"):
+        return nt(d)["families"][f]
+    add("neat_runs", ["neat"], "NEAT: runs")(lambda d: str(nf(d)["runs"]))
+    add("neat_learned", ["neat"], "NEAT: runs that learned to rally")(
+        lambda d: str(nf(d)["learned"]))
+    add("neat_parity", ["neat"], "NEAT: runs with a champion above parity")(
+        lambda d: str(nf(d)["reached_parity"]))
+    add("neat_final", ["neat"], "NEAT: mean final champion score, held out")(
+        lambda d: _f(nf(d)["final_mean"], 2, True))
+    add("neat_final_sd", ["neat"], "NEAT: s.d. over runs of the final champion score")(
+        lambda d: _f(nf(d)["final_sd"], 2))
+    add("neat_best_final", ["neat"], "NEAT: best final champion score of any run")(
+        lambda d: _f(nf(d)["best_final"], 2, True))
+    add("neat_ga_final", ["neat"],
+        "generational GA: mean final champion score, held out (NEAT comparison)")(
+        lambda d: _f(nf(d, "ga2015")["final_mean"], 2, True))
+    add("neat_delta", ["neat"], "H9d: Cliff's delta, NEAT minus generational GA, final champion")(
+        lambda d: _f(nt(d)["H9d"]["cliffs_delta"], 2, True))
+    add("neat_p", ["neat"], "H9d: two-sided exact Mann-Whitney p")(
+        lambda d: f"{nt(d)['H9d']['p_two_sided']:.4f}")
+    add("neat_elo", ["neat"], "NEAT: median cross-run Elo of the final champions")(
+        lambda d: f"{nf(d)['elo_median']:+.0f}")
+    add("neat_elo_next", ["neat"],
+        "lowest median cross-run Elo among the four other families")(
+        lambda d: f"{min(nf(d, f)['elo_median'] for f in ('control', 'ga2015', 'es', 'hof-eval-v2')):+.0f}")
+    add("neat_hidden_min", ["neat"], "NEAT: fewest hidden nodes of a final champion")(
+        lambda d: str(min(nt(d)["structure"]["final_hidden"])))
+    add("neat_hidden_max", ["neat"], "NEAT: most hidden nodes of a final champion")(
+        lambda d: str(max(nt(d)["structure"]["final_hidden"])))
+    add("neat_conn_min", ["neat"], "NEAT: fewest enabled connections of a final champion")(
+        lambda d: str(min(nt(d)["structure"]["final_connections"])))
+    add("neat_conn_max", ["neat"], "NEAT: most enabled connections of a final champion")(
+        lambda d: str(max(nt(d)["structure"]["final_connections"])))
+    add("neat_species", ["neat"], "NEAT: mean number of species over checkpoints and runs")(
+        lambda d: _f(float(np.mean(nt(d)["structure"]["species_mean"])), 1))
+
+    # ---- WP9: NEAT, exploratory follow-up (not preregistered) -----------
+    def nx(d, v):
+        return d["neat_explore"]["variants"][v]
+    add("nx_runs", ["neat_explore"], "NEAT exploratory: runs per variant")(
+        lambda d: str(nx(d, "as-ga")["runs"]))
+    add("nx_mlp_learned", ["neat_explore"],
+        "NEAT exploratory, started from the study's network: runs that learned")(
+        lambda d: str(nx(d, "mlp-start")["learned"]))
+    add("nx_noreset_learned", ["neat_explore"],
+        "NEAT exploratory, no weight resets: runs that learned")(
+        lambda d: str(nx(d, "no-reset")["learned"]))
+    add("nx_asga_learned", ["neat_explore"],
+        "NEAT exploratory, loop reduced towards the generational GA: runs that learned")(
+        lambda d: str(nx(d, "as-ga")["learned"]))
+    add("nx_asga_parity", ["neat_explore"],
+        "NEAT exploratory, loop reduced towards the generational GA: runs above parity")(
+        lambda d: str(nx(d, "as-ga")["reached_parity"]))
+    add("nx_asga_best_final", ["neat_explore"],
+        "NEAT exploratory, loop reduced towards the generational GA: best final champion")(
+        lambda d: _f(nx(d, "as-ga")["best_final"], 2, True))
+    add("nx_asga_t_internal", ["neat_explore"],
+        "NEAT exploratory, as-ga: earliest game count with rallies above 1,500 steps")(
+        lambda d: _games(min(r["t_internal"] for r in d["neat_explore"]["per_run"].values()
+                             if r["variant"] == "as-ga" and r["t_internal"] is not None)))
+    add("nx_neat_meanlen_max", ["neat_explore"],
+        "NEAT exploratory, mlp-start and no-reset: longest final training rally (steps)")(
+        lambda d: f"{max(nx(d, v)['max_train_meanlen'] for v in ('mlp-start', 'no-reset')):,.0f}")
+
+    # ---- WP10: alternative export rules (preregistered) -----------------
+    def xs(d):
+        return d["export"]["slime"]
+
+    def xmx(d):
+        return d["export"]["discmix"]
+
+    def xlam(d):
+        return sorted(xmx(d)["by_lambda"], key=float)
+    add("x_runs", ["export"], "export rules: fresh Slime Volleyball control runs")(
+        lambda d: str(xs(d)["H10a"]["n"]))
+    add("x_streak_level", ["export"],
+        "export rules: level of the streak rule's exported members (held out)")(
+        lambda d: _f(xs(d)["rules"]["streak"]["level"], 2, True))
+    add("x_tourney_level", ["export"],
+        "export rules: level of the 16-peer tournament's exported members (held out)")(
+        lambda d: _f(xs(d)["rules"]["tournament-16"]["level"], 2, True))
+    add("x_best_level", ["export"],
+        "export rules: level of the best member (oracle)")(
+        lambda d: _f(xs(d)["rules"]["best"]["level"], 2, True))
+    add("x_gain", ["export"], "H10a: mean per-run gain, tournament-16 minus streak")(
+        lambda d: _f(xs(d)["H10a"]["mean_gain"], 2, True))
+    add("x_improved", ["export"], "H10a: runs in which tournament-16 exported better")(
+        lambda d: str(xs(d)["H10a"]["runs_improved"]))
+    add("x_p", ["export"], "H10a: one-sided exact sign-flip p")(
+        lambda d: _f(xs(d)["H10a"]["p_one_sided"], 3))
+    add("x_recovered_pct", ["export"],
+        "export rules: share of the streak-to-best gap closed by tournament-16, in %")(
+        lambda d: _pct(xs(d)["recovered_fraction"]["tournament-16"]))
+    add("x_recovered_big_pct", ["export"],
+        "export rules: share of the gap closed by the 64-peer tournament (descriptive), in %")(
+        lambda d: _pct(xs(d)["recovered_fraction"]["tournament-64"]))
+    add("x_decl_streak", ["export"], "export rules: mean summed declines, streak rule")(
+        lambda d: _f(xs(d)["rules"]["streak"]["declines"], 2))
+    add("x_decl_tourney", ["export"], "export rules: mean summed declines, tournament-16")(
+        lambda d: _f(xs(d)["rules"]["tournament-16"]["declines"], 2))
+    add("x_decl_big", ["export"],
+        "export rules: mean summed declines, 64-peer tournament (descriptive)")(
+        lambda d: _f(xs(d)["rules"]["tournament-64"]["declines"], 2))
+    add("x_decl_improved", ["export"], "H10b: runs with fewer declines under tournament-16")(
+        lambda d: str(xs(d)["H10b"]["runs_improved"]))
+    add("x_decl_p", ["export"], "H10b: one-sided exact sign-flip p")(
+        lambda d: _f(xs(d)["H10b"]["p_one_sided"], 2))
+    add("x_rank_streak", ["export"],
+        "export rules: mean rank of the streak rule's member in its population")(
+        lambda d: f"{xs(d)['rules']['streak']['mean_rank']:.0f}")
+    add("x_rank_tourney", ["export"],
+        "export rules: mean rank of the tournament-16 member in its population")(
+        lambda d: f"{xs(d)['rules']['tournament-16']['mean_rank']:.0f}")
+    add("xm_improved", ["export"], "H10c: discmix runs in which tournament-16 did better")(
+        lambda d: str(xmx(d)["H10c"]["runs_improved"]))
+    add("xm_n", ["export"], "H10c: discmix runs")(lambda d: str(xmx(d)["H10c"]["n"]))
+    add("xm_adv_low", ["export"],
+        "discmix: tournament-16 advantage in outsider strength at the smallest lambda")(
+        lambda d: _f(xmx(d)["by_lambda"][xlam(d)[0]]["advantage"], 2, True))
+    add("xm_adv_high", ["export"],
+        "discmix: tournament-16 advantage in outsider strength at the largest lambda")(
+        lambda d: _f(xmx(d)["by_lambda"][xlam(d)[-1]]["advantage"], 2, True))
+    add("xm_rho", ["export"], "H10d: Spearman rho(lambda, advantage)")(
+        lambda d: _f(xmx(d)["H10d"]["rho"], 2, True))
+    add("xm_trend_p", ["export"], "H10d: one-sided permutation p")(
+        lambda d: _f(xmx(d)["H10d"]["p_one_sided"], 3))
 
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):

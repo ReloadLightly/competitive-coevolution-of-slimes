@@ -1,0 +1,69 @@
+{
+ "tournaments": 500000,
+ "save_every": 5000,
+ "pop_every": 50000,
+ "pop": 128,
+ "sigma": 0.1,
+ "init_scale": 0.5,
+ "hof_prob": 0.25,
+ "hof_every": 1000,
+ "hof_capacity": 512,
+ "seeds": [
+  301,
+  302,
+  303,
+  304,
+  305,
+  306,
+  307,
+  308,
+  309,
+  310,
+  311,
+  312
+ ],
+ "conditions": {
+  "discmix-0.00-control": {
+   "lam": 0.0,
+   "mode": "control"
+  },
+  "discmix-0.00-test": {
+   "lam": 0.0,
+   "mode": "test"
+  },
+  "discmix-0.25-control": {
+   "lam": 0.25,
+   "mode": "control"
+  },
+  "discmix-0.25-test": {
+   "lam": 0.25,
+   "mode": "test"
+  },
+  "discmix-0.50-control": {
+   "lam": 0.5,
+   "mode": "control"
+  },
+  "discmix-0.50-test": {
+   "lam": 0.5,
+   "mode": "test"
+  },
+  "discmix-0.75-control": {
+   "lam": 0.75,
+   "mode": "control"
+  },
+  "discmix-0.75-test": {
+   "lam": 0.75,
+   "mode": "test"
+  }
+ },
+ "game": {
+  "probe_seed": 20261003,
+  "n_skill": 256,
+  "n_style": 16,
+  "teacher_scale": 1.0,
+  "alpha": 4.62,
+  "beta": 3.32,
+  "noise": 0.3,
+  "tie": 0.05
+ }
+}

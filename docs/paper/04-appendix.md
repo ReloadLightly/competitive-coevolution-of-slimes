@@ -587,6 +587,12 @@ and an inverted observation sign convention). All three are now covered by
 `test_repo.py`, so a second attempt would start from a base where those
 failures cannot recur silently.
 
+**Update, October 2026 (WP9).** All four pieces now exist in `lab/neat.py`
+(documented in `docs/lab.md#neat`), checked by `test_repo.py` against the
+compiled game, and NEAT was run as a preregistered fifth family
+(`results/neat/PREREGISTRATION.md`). The result is in the README section
+"A fifth family: NEAT".
+
 ## A.9 Limitations
 
 - **One environment.** Every claim here is about Slime Volleyball. Slime

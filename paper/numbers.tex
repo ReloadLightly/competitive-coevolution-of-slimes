@@ -153,6 +153,30 @@
 \newcommand{\nNCkpt}{100}  % checkpoints per run
 \newcommand{\nNRunsTotal}{59}  % independent runs analysed (a two-population run counts once)
 \newcommand{\nNSingleRuns}{41}  % single-population runs analysed
+\newcommand{\nNeatBestFinal}{\ensuremath{-}4.82}  % NEAT: best final champion score of any run
+\newcommand{\nNeatConnMax}{170}  % NEAT: most enabled connections of a final champion
+\newcommand{\nNeatConnMin}{144}  % NEAT: fewest enabled connections of a final champion
+\newcommand{\nNeatDelta}{\ensuremath{-}0.92}  % H9d: Cliff's delta, NEAT minus generational GA, final champion
+\newcommand{\nNeatElo}{\ensuremath{-}406}  % NEAT: median cross-run Elo of the final champions
+\newcommand{\nNeatEloNext}{\ensuremath{+}143}  % lowest median cross-run Elo among the four other families
+\newcommand{\nNeatFinal}{\ensuremath{-}4.84}  % NEAT: mean final champion score, held out
+\newcommand{\nNeatFinalSd}{0.01}  % NEAT: s.d. over runs of the final champion score
+\newcommand{\nNeatGaFinal}{\ensuremath{-}2.00}  % generational GA: mean final champion score, held out (NEAT comparison)
+\newcommand{\nNeatHiddenMax}{39}  % NEAT: most hidden nodes of a final champion
+\newcommand{\nNeatHiddenMin}{23}  % NEAT: fewest hidden nodes of a final champion
+\newcommand{\nNeatLearned}{0}  % NEAT: runs that learned to rally
+\newcommand{\nNeatP}{0.0008}  % H9d: two-sided exact Mann-Whitney p
+\newcommand{\nNeatParity}{0}  % NEAT: runs with a champion above parity
+\newcommand{\nNeatRuns}{12}  % NEAT: runs
+\newcommand{\nNeatSpecies}{8.3}  % NEAT: mean number of species over checkpoints and runs
+\newcommand{\nNxAsgaBestFinal}{\ensuremath{+}0.05}  % NEAT exploratory, loop reduced towards the generational GA: best final champion
+\newcommand{\nNxAsgaLearned}{1}  % NEAT exploratory, loop reduced towards the generational GA: runs that learned
+\newcommand{\nNxAsgaParity}{1}  % NEAT exploratory, loop reduced towards the generational GA: runs above parity
+\newcommand{\nNxAsgaTInternal}{245,000}  % NEAT exploratory, as-ga: earliest game count with rallies above 1,500 steps
+\newcommand{\nNxMlpLearned}{0}  % NEAT exploratory, started from the study's network: runs that learned
+\newcommand{\nNxNeatMeanlenMax}{766}  % NEAT exploratory, mlp-start and no-reset: longest final training rally (steps)
+\newcommand{\nNxNoresetLearned}{0}  % NEAT exploratory, no weight resets: runs that learned
+\newcommand{\nNxRuns}{4}  % NEAT exploratory: runs per variant
 \newcommand{\nObsSize}{12}  % observation size
 \newcommand{\nParamCount}{273}  % parameters of the evolved policy
 \newcommand{\nPop}{128}  % population size of the control
@@ -168,12 +192,29 @@
 \newcommand{\nProxyRankMean}{60}  % mean rank of the exported individual in its own pool (1 = best), all snapshots
 \newcommand{\nProxyRho}{\ensuremath{+}0.06}  % mean Spearman rho(streak counter, score vs baseline) over snapshots
 \newcommand{\nProxyRuns}{6}  % control runs with population snapshots
+\newcommand{\nQdCellsMax}{53}  % niche archive, Slime Volleyball: most occupied cells (of 64) at the end of a run
+\newcommand{\nQdCellsMin}{37}  % niche archive, Slime Volleyball: fewest occupied cells (of 64) at the end of a run
+\newcommand{\nQdCtrlLearned}{10}  % niche experiment: control runs (same seeds) that learned to rally
+\newcommand{\nQdLabCellsMax}{40}  % niche archive, discmix: highest per-lambda mean of occupied cells at the end
+\newcommand{\nQdLabCellsMin}{34}  % niche archive, discmix: lowest per-lambda mean of occupied cells at the end
+\newcommand{\nQdLabDeltaMax}{\ensuremath{+}0.28}  % niche archive, discmix: largest per-lambda Cliff's delta vs control
+\newcommand{\nQdLabDeltaMin}{\ensuremath{-}0.32}  % niche archive, discmix: most negative per-lambda Cliff's delta vs control
+\newcommand{\nQdLabPmin}{0.11}  % niche archive, discmix: smallest per-lambda two-sided p, vs control or vs the time-ordered archive
+\newcommand{\nQdRuns}{60}  % niche-archive experiment: runs in total
+\newcommand{\nQdSlimeFifoPmin}{0.51}  % niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs the time-ordered archive
+\newcommand{\nQdSlimeLearned}{10}  % niche archive, Slime Volleyball: runs that learned to rally
+\newcommand{\nQdSlimeN}{12}  % niche archive, Slime Volleyball: runs per arm
+\newcommand{\nQdSlimePmin}{0.29}  % niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs control
+\newcommand{\nQdTopP}{0.34}  % niche archive, discmix: one-sided p, niche vs time-ordered archive at the largest lambda (H9c)
+\newcommand{\nQdTrendP}{0.072}  % niche archive, discmix: one-sided permutation p of the effect trend over lambda (H9b)
 \newcommand{\nReexportBestLevel}{\ensuremath{-}1.14}  % mean score of the best member (oracle) over all snapshots
 \newcommand{\nReexportBudgetPct}{0.8}  % largest ranking budget as a share of one run's games, in %
 \newcommand{\nReexportGamesMax}{4,096}  % ranking games per snapshot at the largest internal round robin
+\newcommand{\nReexportGamesSixteen}{1,024}  % ranking games per snapshot of the 16-peer round robin
 \newcommand{\nReexportMedianLevel}{\ensuremath{-}1.83}  % mean score of the population's median member over all snapshots
 \newcommand{\nReexportPeersMax}{64}  % largest internal round robin: peers per individual
 \newcommand{\nReexportRecMax}{65}  % share of the exported-to-best gap closed by the largest internal round robin, in %
+\newcommand{\nReexportRecSixteen}{57}  % share of the gap closed by the 16-peer round robin, post hoc, in %
 \newcommand{\nReexportRhoMax}{\ensuremath{+}0.57}  % rho(internal margin, true skill) at the largest round robin
 \newcommand{\nReexportRhoStreak}{\ensuremath{+}0.04}  % rho(streak counter, true skill) in the re-export analysis
 \newcommand{\nReexportStreakLevel}{\ensuremath{-}1.95}  % mean score of the streak-exported individual over all snapshots
@@ -251,6 +292,28 @@
 \newcommand{\nWindowSdLast}{0.72}  % control: within-run s.d. of checkpoint scores, last window
 \newcommand{\nWindowSdMax}{0.83}  % control: largest window s.d.
 \newcommand{\nWindowSdMin}{0.51}  % control: smallest window s.d.
+\newcommand{\nXBestLevel}{\ensuremath{-}1.93}  % export rules: level of the best member (oracle)
+\newcommand{\nXDeclBig}{0.72}  % export rules: mean summed declines, 64-peer tournament (descriptive)
+\newcommand{\nXDeclImproved}{8}  % H10b: runs with fewer declines under tournament-16
+\newcommand{\nXDeclP}{0.16}  % H10b: one-sided exact sign-flip p
+\newcommand{\nXDeclStreak}{1.98}  % export rules: mean summed declines, streak rule
+\newcommand{\nXDeclTourney}{1.37}  % export rules: mean summed declines, tournament-16
+\newcommand{\nXGain}{\ensuremath{+}0.17}  % H10a: mean per-run gain, tournament-16 minus streak
+\newcommand{\nXImproved}{9}  % H10a: runs in which tournament-16 exported better
+\newcommand{\nXP}{0.010}  % H10a: one-sided exact sign-flip p
+\newcommand{\nXRankStreak}{56}  % export rules: mean rank of the streak rule's member in its population
+\newcommand{\nXRankTourney}{46}  % export rules: mean rank of the tournament-16 member in its population
+\newcommand{\nXRecoveredBigPct}{77}  % export rules: share of the gap closed by the 64-peer tournament (descriptive), in %
+\newcommand{\nXRecoveredPct}{43}  % export rules: share of the streak-to-best gap closed by tournament-16, in %
+\newcommand{\nXRuns}{12}  % export rules: fresh Slime Volleyball control runs
+\newcommand{\nXStreakLevel}{\ensuremath{-}2.33}  % export rules: level of the streak rule's exported members (held out)
+\newcommand{\nXTourneyLevel}{\ensuremath{-}2.16}  % export rules: level of the 16-peer tournament's exported members (held out)
+\newcommand{\nXmAdvHigh}{\ensuremath{+}0.03}  % discmix: tournament-16 advantage in outsider strength at the largest lambda
+\newcommand{\nXmAdvLow}{\ensuremath{+}0.11}  % discmix: tournament-16 advantage in outsider strength at the smallest lambda
+\newcommand{\nXmImproved}{42}  % H10c: discmix runs in which tournament-16 did better
+\newcommand{\nXmN}{48}  % H10c: discmix runs
+\newcommand{\nXmRho}{\ensuremath{-}0.43}  % H10d: Spearman rho(lambda, advantage)
+\newcommand{\nXmTrendP}{0.001}  % H10d: one-sided permutation p
 \newcommand{\nZooAboveBase}{10}  % final champions above parity against the 2015 baseline (held out)
 \newcommand{\nZooAboveBeatCma}{5}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo CMA-ES
 \newcommand{\nZooAboveBeatGa}{0}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo GA

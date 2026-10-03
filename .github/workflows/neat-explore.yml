@@ -1,0 +1,64 @@
+# Runs the exploratory NEAT variants (WP9, not preregistered; see
+# neat_explore.py and results/matrix/decisions.md) on GitHub's runners, one
+# run per job, and commits each run file to the branch.
+name: neat-explore
+
+on:
+  push:
+    branches: [claude/cool-shannon-ry3f4x]
+    paths: [.github/workflows/neat-explore.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        variant: [mlp-start, no-reset, as-ga]
+        seed: [901, 902, 903, 904]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install the locked environment
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libgl1
+          pip install -r requirements-lock.txt
+
+      - name: Run
+        run: python -W ignore neat_explore.py --variant "${{ matrix.variant }}" --seeds "${{ matrix.seed }}" --workers 1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: neat-explore-${{ matrix.variant }}-${{ matrix.seed }}
+          path: results/neat/explore/${{ matrix.variant }}_s${{ matrix.seed }}.npz
+          if-no-files-found: error
+
+      - name: Commit the run file to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/neat/explore/${{ matrix.variant }}_s${{ matrix.seed }}.npz
+          git diff --cached --quiet && { echo "nothing new"; exit 0; }
+          git commit -q -m "NEAT explore: ${{ matrix.variant }} seed ${{ matrix.seed }} finished (GitHub Actions)" \
+            -m "Exploratory, not preregistered (neat_explore.py). Run by .github/workflows/neat-explore.yml, workflow run ${{ github.run_id }}."
+          git reset -q --hard HEAD
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --rebase origin "${{ github.ref_name }}" && \
+              git push -q origin "HEAD:${{ github.ref_name }}" && exit 0
+            sleep $((RANDOM % 20 + 5))
+          done
+          echo "could not push; the file is in the run's artifacts" && exit 1

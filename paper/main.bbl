@@ -1,4 +1,4 @@
-\begin{thebibliography}{24}
+\begin{thebibliography}{26}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -175,5 +175,19 @@ Luca Simione and Stefano Nolfi.
   coevolution.
 \newblock \emph{Artificial Life}, 26\penalty0 (4):\penalty0 409--430, 2020.
 \newblock URL \url{https://direct.mit.edu/artl/article/26/4/409/97302}.
+
+\bibitem[Stanley and Miikkulainen(2002)]{stanley2002evolving}
+Kenneth~O. Stanley and Risto Miikkulainen.
+\newblock Evolving neural networks through augmenting topologies.
+\newblock \emph{Evolutionary Computation}, 10\penalty0 (2):\penalty0 99--127,
+  2002.
+\newblock URL
+  \url{https://direct.mit.edu/evco/article/10/2/99/1123/Evolving-Neural-Networks-through-Augmenting}.
+
+\bibitem[Stanley and Miikkulainen(2004)]{stanley2004competitive}
+Kenneth~O. Stanley and Risto Miikkulainen.
+\newblock Competitive coevolution through evolutionary complexification.
+\newblock \emph{Journal of Artificial Intelligence Research}, 21:\penalty0
+  63--100, 2004.
 
 \end{thebibliography}

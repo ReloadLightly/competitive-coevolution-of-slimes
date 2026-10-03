@@ -292,6 +292,70 @@ Archive as test (description, no decision): late archive win rate 0.13, 0.16, 0.
 Discmix game, 12 runs per cell, all quantities exact. Exported rank and ρ: control runs, mean over 10 population snapshots (rank 1 = strongest). Declines: summed falls between snapshots against a fixed external panel, control runs. Archive effect: Cliff's δ of the final champions' cross-run strength, archive as test minus control, with the two-sided exact Mann–Whitney p. Trend tests (one-sided permutation): cycling vs λ ρ = +0.97 (p < 0.001) in control and +0.97 (p < 0.001) with the archive; archive effect vs λ p = 0.116.
 
 
+### Table QD
+
+| outcome | niche archive | control | δ (p) | time-ordered archive | δ (p) |
+|---|---|---|---|---|---|
+| final champion, held out | -1.21 | -0.79 | -0.11 (0.671) | -0.90 | -0.15 (0.551) |
+| best champion, held out | -0.60 | -0.51 | -0.24 (0.347) | -0.49 | -0.06 (0.843) |
+| checkpoints above parity | 0.14 | 0.18 | -0.23 (0.352) | 0.14 | +0.04 (0.875) |
+| mean score, last 100,000 games | -1.41 | -1.01 | -0.26 (0.291) | -1.03 | -0.17 (0.514) |
+| learned to rally | 10/12 | 10/12 | — | 10/12 | — |
+
+12 runs per arm on the same seeds (the replication's control and archive-as-test runs). Scores: points per episode against the 2015 baseline; δ: Cliff's δ, niche archive minus the comparison, with the two-sided exact Mann–Whitney p. H9a (niche vs control, all four p ≥ 0.05): **holds**. Occupied cells at the end: 37–53 of 64. Late win rate against the archive: niche 0.16, time-ordered 0.15 (means over runs).
+
+
+### Table QDM
+
+| λ | niche vs control, δ (p) | niche vs time-ordered archive, δ (p) | occupied cells (of 64) | cyclic triads: control / time-ordered / niche |
+|---|---|---|---|---|
+| 0.00 | -0.32 (0.198) | +0.07 (0.799) | 40 | 0.0% / 0.0% / 0.0% |
+| 0.25 | +0.15 (0.551) | +0.39 (0.114) | 40 | 1.4% / 1.7% / 1.7% |
+| 0.50 | -0.06 (0.843) | +0.38 (0.128) | 34 | 5.7% / 6.2% / 5.0% |
+| 0.75 | +0.28 (0.266) | +0.11 (0.671) | 34 | 13.5% / 13.3% / 13.0% |
+
+Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of the final champions' cross-run strength (mean expected score against the final champions of the other 35 runs at the same λ), niche archive minus the comparison, with the two-sided exact Mann–Whitney p; no decision rests on these per-λ values. H9b, the effect vs control grows with λ: one-sided permutation p = 0.072, **does not hold**. H9c, at λ = 0.75 the niche archive beats the time-ordered one: one-sided exact Mann–Whitney p = 0.335, **does not hold**. Both under Holm.
+
+
+### Table NEAT
+
+| family | runs | learned to rally | reached parity | final (held out) | spread vs 2020 GA | best final | checkpoints above parity | median cross-run Elo |
+|---|---|---|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 6 | 6/6 | 6/6 | -0.15 ± 0.66 | 1.00× | +0.41 | 0.26 | +371 |
+| generational GA (Ha 2015) | 6 | 5/6 | 5/6 | -2.00 ± 2.00 | 3.05× | -0.09 | 0.03 | +143 |
+| self-play ES | 6 | 4/6 | 2/6 | -2.08 ± 2.29 | 3.49× | +0.50 | 0.07 | +206 |
+| archive as test, full span | 6 | 5/6 | 4/6 | -1.01 ± 2.03 | 3.08× | +0.35 | 0.18 | +449 |
+| NEAT | 12 | 0/12 | 0/12 | -4.84 ± 0.01 | 0.02× | -4.82 | 0.00 | -406 |
+
+Final: end-of-run champion against the 2015 baseline, held-out seed, mean ± SD over runs; spread: that SD relative to the 2020 GA's. Elo: Bradley–Terry ratings of every run's final champion in one all-play-all tournament (NEAT finals and the final champion of every single-population run of the matrix), median per family. H9d, NEAT vs the generational GA on the final champion: Cliff's δ -0.92, two-sided exact Mann–Whitney p < 0.001, **a detectable difference**. NEAT's final champions have 23–39 hidden nodes and 144–170 enabled connections (the other families: a fixed 12-10-10-3 network, 273 weights and biases).
+
+
+### Table X
+
+| rule | games per export | level | declines | rank in population | final vs zoo GA |
+|---|---|---|---|---|---|
+| streak (Ha's rule) | 0 | -2.33 | 1.98 | 56 | -1.26 |
+| tournament, 4 peers | 256 | -2.31 | 1.97 | 55 | — |
+| **tournament, 16 peers** | 1,024 | -2.16 | 1.37 | 46 | -1.25 |
+| tournament, 64 peers | 4,096 | -2.03 | 0.72 | 37 | — |
+| random member | 0 | -2.50 | 2.12 | 61 | — |
+| best member (oracle) | — | -1.93 | 0.61 | 2 | -1.05 |
+
+Slime Volleyball, 12 fresh control runs, every rule applied to the same 10 population snapshots per run. Level: mean held-out score of the exported member against the 2015 baseline over the snapshots; declines: summed falls between consecutive snapshots; rank: by score among the population (1 = best); zoo GA: the final exported member against the slimevolleygym zoo GA. Preregistered tests, tournament-16 against streak: H10a level, 9/12 runs higher, one-sided exact sign-flip p = 0.010, **holds**; H10b declines, 8/12 runs fewer, p = 0.158, **does not hold** (Holm).
+
+
+### Table XM
+
+| λ | streak | tournament, 16 peers | best member (oracle) | tournament higher | rank: streak / tournament |
+|---|---|---|---|---|---|
+| 0.00 | +0.082 | +0.189 | +0.364 | 9/12 | 50 / 27 |
+| 0.25 | +0.027 | +0.135 | +0.292 | 12/12 | 58 / 31 |
+| 0.50 | +0.009 | +0.065 | +0.244 | 11/12 | 62 / 44 |
+| 0.75 | +0.002 | +0.029 | +0.159 | 10/12 | 66 / 49 |
+
+Discmix game, 12 fresh control runs per λ. Outsider strength: the exported member's exact mean expected score against every member of the other 11 runs' populations at the same λ and snapshot, averaged over the 10 snapshots; rank among its own population by the same measure. Preregistered tests: H10c, tournament-16 above streak over all 48 runs (42 higher), one-sided sign-flip p < 0.001, **holds**; H10d, the advantage shrinks with λ, ρ = -0.43, one-sided p = 0.001, **holds** (Holm).
+
+
 ### Table A1
 
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |

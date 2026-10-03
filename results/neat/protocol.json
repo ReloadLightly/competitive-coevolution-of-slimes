@@ -1,0 +1,43 @@
+{
+ "tournaments": 500000,
+ "save_every": 5000,
+ "sweep_episodes": 200,
+ "sweep_seed": 20260901,
+ "seeds": [
+  101,
+  102,
+  103,
+  104,
+  105,
+  106,
+  107,
+  108,
+  109,
+  110,
+  111,
+  112
+ ],
+ "params": {
+  "pop": 100,
+  "n_opponents": 10,
+  "sigma": 0.1,
+  "init_scale": 0.5,
+  "p_weight_mutate": 0.8,
+  "p_weight_perturb": 0.9,
+  "p_add_node": 0.03,
+  "p_add_conn": 0.05,
+  "p_crossover": 0.75,
+  "p_interspecies": 0.001,
+  "p_disabled_inherit": 0.75,
+  "c1": 1.0,
+  "c2": 1.0,
+  "c3": 0.4,
+  "threshold": 3.0,
+  "target_species": 8,
+  "threshold_step": 0.05,
+  "survival": 0.2,
+  "elite_min_species": 5,
+  "stagnation": 15,
+  "keep_species": 2
+ }
+}

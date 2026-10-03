@@ -11,7 +11,7 @@ structure can be set.
 
 | module | what it holds |
 |---|---|
-| `lab/kernels.py` | `run`: Ha's tournament-selection GA, compiled, with the game chosen by an integer and the archive by a mode (none, as parent, as test), plus population snapshots |
+| `lab/kernels.py` | `run`: Ha's tournament-selection GA, compiled, with the game chosen by an integer and the archive by a mode (none, as parent, as test, as a niche-organised test), plus population snapshots |
 | `lab/games.py` | game definitions as data for `run`: `slime` and `discmix`; exact expected scores for `discmix` |
 
 The paper's science code (`fastvolley.py`, `fastvolley_kernels.py`,
@@ -77,6 +77,53 @@ experiment):
 
 A 500,000-game `discmix` run takes about 3–4 minutes on one core.
 
+## Archive modes
+
+| mode | the archive | used as | in the paper |
+|---|---|---|---|
+| `HOF_NONE` | none | — | `control` |
+| `HOF_PARENT` | the last champions, in time order | parent | `hof-0.25`, `hof-0.50`, `hof-full` |
+| `HOF_TEST` | the last champions, in time order | test | `hof-eval-v2` |
+| `HOF_NICHE` | one champion per cell of an 8 × 8 behaviour grid, the newest to land there | test | WP9 (`run_qd.py`) |
+
+The niche archive's descriptor is the network's mean first two outputs on
+fixed probe inputs (`X3`): real game states for Slime Volleyball
+(`lab.games.slime_probes`), the style probes for discmix, where the
+descriptor is exactly the point on which the cycle is played. The grid's
+bounds are passed in `gp[5:9]`.
+
+## NEAT
+
+`lab/neat.py` is NEAT (Stanley & Miikkulainen 2002) in the study's
+self-play setting. Genomes start minimal (every input wired to every
+output) and grow hidden nodes and connections; crossover aligns genes by
+innovation number; speciation with fitness sharing protects new structure;
+recurrent connections are allowed. Reproduction is plain Python on dict
+genomes; the forward pass and the games are compiled.
+
+- **The same game.** A NEAT genome encoding a 12-10-10-3 network
+  (`neat.from_mlp`) computes that network's outputs bit for bit, scores
+  identically against the 2015 baseline on the same serves, and plays
+  identical games step by step (`test_repo.py`). So NEAT champions and the
+  paper's champions can play each other in one tournament.
+- **The same evaluation.** Self-play fitness is the generational GA's (500
+  games per generation between random pairs of 100 genomes, mean point
+  margin), the budget is 500,000 games, and the generation's fittest genome
+  is exported every 5,000 games.
+- **Settings.** `neat.PARAMS`. The mechanisms and most rates follow the
+  parameter appendix of NEAT's coevolution study (Stanley & Miikkulainen
+  2004, arXiv:1107.0037), including its compatibility threshold that adapts
+  towards a target number of species (here 8): with weights moved in steps
+  of 0.1 a fixed threshold of 3.0 was never reached and every genome stayed
+  in one species. Population, weight scale and units are the study's (100
+  genomes, σ 0.1, initial scale 0.5, tanh); the preregistration lists which
+  of the remaining values were chosen here.
+- **A bug found in a pilot.** Taking a matching gene's "recurrent" flag from
+  either parent can join two loops into a feedforward cycle (one parent
+  closed a loop 13→14, the other 14→13). The child now takes the flag from
+  the fitter parent, whose structure it inherits; `test_repo.py` builds that
+  case and checks every child compiles.
+
 ## Adding a game
 
 1. Give it an integer id in `lab/kernels.py` and a branch in `play`, which
@@ -96,3 +143,16 @@ A 500,000-game `discmix` run takes about 3–4 minutes on one core.
   middling individual at every λ (H8b holds); an archive used as a test does
   not help more as skill becomes cyclic (H8c does not hold). Numbers: README,
   "When skill is cyclic: the lab".
+- WP9, the niche archive ([preregistration](../results/qd/PREREGISTRATION.md),
+  60 runs, `.github/workflows/qd.yml`): analysed once by `qd_analysis.py`.
+  In Slime Volleyball it has no detectable effect (H9a holds); in discmix it
+  does not help more as skill becomes cyclic (H9b does not hold) and does
+  not beat the time-ordered archive where skill is most cyclic (H9c does not
+  hold). Numbers: README, "An archive organised by behaviour".
+- WP9, NEAT ([preregistration](../results/neat/PREREGISTRATION.md), 12 runs,
+  `.github/workflows/neat.yml`): analysed once by `neat_analysis.py`. NEAT
+  never learned to rally and is detectably worse than the generational GA
+  (H9d). An exploratory follow-up (`neat_explore.py`, not preregistered)
+  finds that NEAT's loop learns once speciation and structural mutation are
+  taken out, so the failure lies in NEAT's reproduction machinery as
+  configured, not in the game path. Numbers: README, "A fifth family: NEAT".

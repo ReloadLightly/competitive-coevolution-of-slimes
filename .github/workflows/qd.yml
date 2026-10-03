@@ -1,0 +1,85 @@
+# Runs the preregistered niche-archive experiment (WP9, results/qd/
+# PREREGISTRATION.md) on GitHub's runners and commits each job's run files,
+# with the protocol record run_qd.py writes, to the branch. Runs already on
+# the branch are skipped by the runner.
+name: qd-niche
+
+on:
+  push:
+    branches: [claude/cool-shannon-ry3f4x]
+    paths: [.github/workflows/qd.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          # Slime Volleyball: one 500,000-game run per job
+          - {cond: slime-niche, seeds: "201"}
+          - {cond: slime-niche, seeds: "202"}
+          - {cond: slime-niche, seeds: "203"}
+          - {cond: slime-niche, seeds: "204"}
+          - {cond: slime-niche, seeds: "205"}
+          - {cond: slime-niche, seeds: "206"}
+          - {cond: slime-niche, seeds: "207"}
+          - {cond: slime-niche, seeds: "208"}
+          - {cond: slime-niche, seeds: "209"}
+          - {cond: slime-niche, seeds: "210"}
+          - {cond: slime-niche, seeds: "211"}
+          - {cond: slime-niche, seeds: "212"}
+          # discmix: a condition's 12 seeds per job, on the runner's cores
+          - {cond: discmix-0.00-niche, seeds: ""}
+          - {cond: discmix-0.25-niche, seeds: ""}
+          - {cond: discmix-0.50-niche, seeds: ""}
+          - {cond: discmix-0.75-niche, seeds: ""}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install the locked environment
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libgl1
+          pip install -r requirements-lock.txt
+
+      - name: Run
+        run: |
+          SEEDS="${{ matrix.seeds }}"
+          python -W ignore run_qd.py --only "${{ matrix.cond }}" ${SEEDS:+--seeds "$SEEDS"} --workers "$(nproc)"
+          lscpu | grep -E "Model name|^CPU\(s\)" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.cond }}-${{ matrix.seeds || 'all' }}
+          path: results/qd/${{ matrix.cond }}_s*.npz
+          if-no-files-found: error
+
+      - name: Commit the run files and the protocol record to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/qd/"${{ matrix.cond }}"_s*.npz results/qd/protocol.json
+          git diff --cached --quiet && { echo "nothing new"; exit 0; }
+          git commit -q -m "QD: ${{ matrix.cond }} ${{ matrix.seeds || '(12 seeds)' }} finished (GitHub Actions)" \
+            -m "Preregistered in results/qd/PREREGISTRATION.md. Run by .github/workflows/qd.yml, workflow run ${{ github.run_id }}."
+          git reset -q --hard HEAD
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --rebase origin "${{ github.ref_name }}" && \
+              git push -q origin "HEAD:${{ github.ref_name }}" && exit 0
+            sleep $((RANDOM % 20 + 5))
+          done
+          echo "could not push; the files are in the run's artifacts" && exit 1

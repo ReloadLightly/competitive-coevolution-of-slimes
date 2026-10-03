@@ -72,6 +72,20 @@ SCOPES = {
     "yardsticks": lambda: ([p for p in matrix_runs()
                             if not os.path.basename(p).startswith("asym")]
                            + sorted(glob.glob("results/zoo/*.json"))),
+    # NEAT as a fifth family (WP9) and the single-population runs it is
+    # compared with (their analysed values come from per_run.json)
+    "neat": lambda: (sorted(glob.glob("results/neat/*_s*.npz"))
+                     + [p for p in matrix_runs()
+                        if not os.path.basename(p).startswith("asym")]),
+    # the export-rule experiment (WP10)
+    "export": lambda: sorted(glob.glob("results/export/*_s*.npz")),
+    # exploratory NEAT variants (WP9, not preregistered)
+    "neat_explore": lambda: sorted(glob.glob("results/neat/explore/*_s*.npz")),
+    # the niche-archive experiment (WP9) and the runs it is compared with
+    "qd": lambda: (sorted(glob.glob("results/qd/*_s*.npz"))
+                   + sorted(glob.glob("results/replication/control_s*.npz"))
+                   + sorted(glob.glob("results/replication/hof-eval-v2_s*.npz"))
+                   + sorted(glob.glob("results/lab/*_s*.npz"))),
     # the discmix experiment of the lab (WP8)
     "lab": lambda: sorted(glob.glob("results/lab/*_s*.npz")),
     # the preregistered confirmatory replication (fresh seeds, own directory)

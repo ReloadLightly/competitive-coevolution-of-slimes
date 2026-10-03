@@ -647,6 +647,180 @@ def table_lab(d):
     return "\n".join(rows)
 
 
+QD_OUTCOMES = (("final_holdout", "final champion, held out", "{:+.2f}"),
+               ("peak_holdout", "best champion, held out", "{:+.2f}"),
+               ("above_parity", "checkpoints above parity", "{:.2f}"),
+               ("late_mean", "mean score, last 100,000 games", "{:+.2f}"))
+
+
+def table_qd(d):
+    """The niche archive in Slime Volleyball (WP9, H9a)."""
+    q = d["qd"]
+    if not q:
+        return None
+    s = q["slime"]
+    rows = ["| outcome | niche archive | control | δ (p) | time-ordered archive | δ (p) |",
+            "|---|---|---|---|---|---|"]
+    for key, label, fmt in QD_OUTCOMES:
+        c, f = s["vs_control"][key], s["vs_fifo"][key]
+        rows.append(f"| {label} | {fmt.format(c['niche_mean'])} | {fmt.format(c['ref_mean'])} "
+                    f"| {c['cliffs_delta']:+.2f} ({c['p_two_sided']:.3f}) "
+                    f"| {fmt.format(f['ref_mean'])} "
+                    f"| {f['cliffs_delta']:+.2f} ({f['p_two_sided']:.3f}) |")
+    L, n = s["learned"], s["n"]
+    cells = s["archive_cells_final"]
+    wn, wf = s["archive_late_winrate"]["niche"], s["archive_late_winrate"]["fifo"]
+    rows.append(f"| learned to rally | {L['niche']}/{n} | {L['control']}/{n} | — "
+                f"| {L['fifo']}/{n} | — |")
+    rows += ["", f"{n} runs per arm on the same seeds (the replication's control and "
+             f"archive-as-test runs). Scores: points per episode against the 2015 "
+             f"baseline; δ: Cliff's δ, niche archive minus the comparison, with the "
+             f"two-sided exact Mann–Whitney p. H9a (niche vs control, all four "
+             f"p ≥ 0.05): **{'holds' if q['verdicts']['H9a'] else 'does not hold'}**. "
+             f"Occupied cells at the end: {min(cells)}–{max(cells)} of 64. Late win "
+             f"rate against the archive: niche {np.mean(wn):.2f}, time-ordered "
+             f"{np.mean(wf):.2f} (means over runs)."]
+    return "\n".join(rows)
+
+
+def table_qdm(d):
+    """The niche archive in discmix, one row per lambda (WP9, H9b and H9c)."""
+    q = d["qd"]
+    if not q:
+        return None
+    m = q["discmix"]
+    rows = ["| λ | niche vs control, δ (p) | niche vs time-ordered archive, δ (p) "
+            "| occupied cells (of 64) | cyclic triads: control / time-ordered / niche |",
+            "|---|---|---|---|---|"]
+    for lam in sorted(m["by_lambda"], key=float):
+        r = m["by_lambda"][lam]
+        c, t, cy = r["vs_control"], r["vs_test"], r["cyclic_share"]
+        rows.append(f"| {float(lam):.2f} | {c['cliffs_delta']:+.2f} ({c['p_two_sided']:.3f}) "
+                    f"| {t['cliffs_delta']:+.2f} ({t['p_two_sided']:.3f}) "
+                    f"| {r['archive_cells_final']:.0f} "
+                    f"| {100 * cy['control']:.1f}% / {100 * cy['test']:.1f}% "
+                    f"/ {100 * cy['niche']:.1f}% |")
+    b, c = m["H9b"], m["H9c"]
+    rows += ["", "Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of "
+             "the final champions' cross-run strength (mean expected score against the "
+             "final champions of the other 35 runs at the same λ), niche archive minus "
+             "the comparison, with the two-sided exact Mann–Whitney p; no decision "
+             f"rests on these per-λ values. H9b, the effect vs control grows with λ: "
+             f"one-sided permutation p {_p(b['p_one_sided'])}, "
+             f"**{'holds' if b['rejected'] else 'does not hold'}**. H9c, at "
+             f"λ = {c['lambda']:.2f} the niche archive beats the time-ordered one: "
+             f"one-sided exact Mann–Whitney p {_p(c['p_one_sided'])}, "
+             f"**{'holds' if c['rejected'] else 'does not hold'}**. Both under Holm."]
+    return "\n".join(rows)
+
+
+NEAT_ORDER = ("control", "ga2015", "es", "hof-eval-v2", "neat")
+
+
+def table_neat(d):
+    """NEAT as a fifth family next to the four of C6 (WP9, H9d)."""
+    a = d["neat"]
+    if not a:
+        return None
+    import fastvolley as fv
+    fam = a["families"]
+    rows = ["| family | runs | learned to rally | reached parity | final (held out) "
+            "| spread vs 2020 GA | best final | checkpoints above parity "
+            "| median cross-run Elo |", "|---|---|---|---|---|---|---|---|---|"]
+    for f in NEAT_ORDER:
+        r = fam[f]
+        rows.append(f"| {'NEAT' if f == 'neat' else LABELS[f]} | {r['runs']} "
+                    f"| {r['learned']}/{r['runs']} | {r['reached_parity']}/{r['runs']} "
+                    f"| {r['final_mean']:+.2f} ± {r['final_sd']:.2f} "
+                    f"| {r['sd_ratio_vs_control']:.2f}× | {r['best_final']:+.2f} "
+                    f"| {r['above_parity']:.2f} | {r['elo_median']:+.0f} |")
+    h, st = a["H9d"], a["structure"]
+    rows += ["", "Final: end-of-run champion against the 2015 baseline, held-out seed, "
+             "mean ± SD over runs; spread: that SD relative to the 2020 GA's. Elo: "
+             "Bradley–Terry ratings of every run's final champion in one all-play-all "
+             "tournament (NEAT finals and the final champion of every "
+             "single-population run of the matrix), median per family. H9d, NEAT vs "
+             f"the generational GA on the final champion: Cliff's δ "
+             f"{h['cliffs_delta']:+.2f}, two-sided exact Mann–Whitney p "
+             f"{_p(h['p_two_sided'])}, "
+             f"**{'a detectable difference' if h['detectable_difference'] else 'no detectable difference'}**. "
+             f"NEAT's final champions have {min(st['final_hidden'])}–"
+             f"{max(st['final_hidden'])} hidden nodes and "
+             f"{min(st['final_connections'])}–{max(st['final_connections'])} "
+             f"enabled connections (the other families: a fixed 12-10-10-3 "
+             f"network, {fv.PARAM_COUNT} weights and biases)."]
+    return "\n".join(rows)
+
+
+EXPORT_LABELS = {"streak": "streak (Ha's rule)", "tournament-4": "tournament, 4 peers",
+                 "tournament-16": "**tournament, 16 peers**",
+                 "tournament-64": "tournament, 64 peers", "random": "random member",
+                 "best": "best member (oracle)"}
+EXPORT_GAMES = {"streak": "0", "tournament-4": "256", "tournament-16": "1,024",
+                "tournament-64": "4,096", "random": "0", "best": "—"}
+
+
+def table_x(d):
+    """Which member to export: the rules on the same populations (WP10)."""
+    a = d["export"]
+    if not a:
+        return None
+    s = a["slime"]
+    n_snap = len(next(iter(a["per_run"]["slime"].values()))["snapshots"])
+    rows = ["| rule | games per export | level | declines | rank in population "
+            "| final vs zoo GA |", "|---|---|---|---|---|---|"]
+    for r, lab in EXPORT_LABELS.items():
+        x = s["rules"][r]
+        zoo = s["zoo_final"].get(r)
+        rows.append(f"| {lab} | {EXPORT_GAMES[r]} | {x['level']:+.2f} | {x['declines']:.2f} "
+                    f"| {x['mean_rank']:.0f} | {'—' if zoo is None else f'{zoo:+.2f}'} |")
+    h, k = s["H10a"], s["H10b"]
+    rows += ["", f"Slime Volleyball, {h['n']} fresh control runs, every rule applied to the "
+             f"same {n_snap} population snapshots per run. Level: mean held-out score of the "
+             "exported member against the 2015 baseline over the snapshots; declines: "
+             "summed falls between consecutive snapshots; rank: by score among the "
+             "population (1 = best); zoo GA: the final exported member against the "
+             "slimevolleygym zoo GA. Preregistered tests, tournament-16 "
+             f"against streak: H10a level, {h['runs_improved']}/{h['n']} runs higher, "
+             f"one-sided exact sign-flip p {_p(h['p_one_sided'])}, "
+             f"**{'holds' if h['rejected'] else 'does not hold'}**; H10b declines, "
+             f"{k['runs_improved']}/{k['n']} runs fewer, p {_p(k['p_one_sided'])}, "
+             f"**{'holds' if k['rejected'] else 'does not hold'}** (Holm)."]
+    return "\n".join(rows)
+
+
+def table_xm(d):
+    """The export rules in discmix, judged by outsiders (WP10)."""
+    a = d["export"]
+    if not a:
+        return None
+    m = a["discmix"]
+    per = a["per_run"]["discmix"]
+    n_lam = len(per) // len(m["by_lambda"])
+    n_snap = len(next(iter(per.values()))["snapshots"])
+    rows = ["| λ | streak | tournament, 16 peers | best member (oracle) "
+            "| tournament higher | rank: streak / tournament |", "|---|---|---|---|---|---|"]
+    for lam in sorted(m["by_lambda"], key=float):
+        b = m["by_lambda"][lam]
+        r = b["rules"]
+        rows.append(f"| {float(lam):.2f} | {r['streak']['level']:+.3f} "
+                    f"| {r['tournament-16']['level']:+.3f} | {r['best']['level']:+.3f} "
+                    f"| {b['runs_improved']}/{n_lam} | {r['streak']['mean_rank']:.0f} / "
+                    f"{r['tournament-16']['mean_rank']:.0f} |")
+    c, e = m["H10c"], m["H10d"]
+    rows += ["", f"Discmix game, {n_lam} fresh control runs per λ. Outsider strength: the "
+             "exported member's exact mean expected score against every member of the "
+             f"other {n_lam - 1} runs' populations at the same λ and snapshot, averaged over "
+             f"the {n_snap} snapshots; rank among its own population by the same measure. "
+             "Preregistered "
+             f"tests: H10c, tournament-16 above streak over all {c['n']} runs "
+             f"({c['runs_improved']} higher), one-sided sign-flip p {_p(c['p_one_sided'])}, "
+             f"**{'holds' if c['rejected'] else 'does not hold'}**; H10d, the advantage "
+             f"shrinks with λ, ρ = {e['rho']:+.2f}, one-sided p {_p(e['p_one_sided'])}, "
+             f"**{'holds' if e['rejected'] else 'does not hold'}** (Holm)."]
+    return "\n".join(rows)
+
+
 def table_t(d):
     """Within-run transitivity at 5,000-game spacing, control runs (WP7)."""
     f = d["within_fine"]
@@ -732,6 +906,10 @@ FILES = {
     "within_fine": f"{ANDIR}/within_fine.json",
     "replication": "results/replication/analysis.json",
     "lab": "results/lab/analysis.json",
+    "qd": "results/qd/analysis.json",
+    "neat": "results/neat/analysis.json",
+    "neat_explore": "results/neat/explore/summary.json",
+    "export": "results/export/analysis.json",
     "validation": "results/validation.json",
 }
 DEPS = {
@@ -742,7 +920,8 @@ DEPS = {
     "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
     "a2": ["per_run"], "a3": ["resume", "reference"],
     "z": ["yardsticks", "per_run"], "t": ["within_fine"],
-    "rep": ["replication"], "lab": ["lab"],
+    "rep": ["replication"], "lab": ["lab"], "qd": ["qd"], "qdm": ["qd"],
+    "neat": ["neat", "per_run"], "x": ["export"], "xm": ["export"],
 }
 
 TABLES = {
@@ -750,16 +929,17 @@ TABLES = {
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
     "r": table_r, "z": table_z, "t": table_t, "rep": table_rep,
-    "lab": table_lab,
+    "lab": table_lab, "qd": table_qd, "qdm": table_qdm,
+    "neat": table_neat, "x": table_x, "xm": table_xm,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
 
 # Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
 PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3",
-                "z", "t", "rep"]
+                "z", "t", "rep", "x", "xm", "lab", "qd", "qdm", "neat"]
 TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
-           ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
+           ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("λ", r"$\lambda$"), ("×", r"$\times$"),
            ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),
            ("#", r"\#")]
 

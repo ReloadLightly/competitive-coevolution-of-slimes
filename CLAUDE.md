@@ -25,8 +25,9 @@ Findings currently claimed (README + `docs/paper/`):
 | C3 | The population is not cycling: ρ(Elo, time) = +0.74 in the control (the earlier +0.72 did not match the data), <1% cyclic checkpoint triples | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
 | C4 | Ha's winning-streak export rule is the main noise source: the exported champion ranks near the median of its own 128; streak and skill are uncorrelated | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
 | C5a | Hall of fame as PARENT destroys learning (1/6 vs 6/6) | keep; replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered) |
-| C5b | Hall of fame as TEST (`hof-eval-v2`): neither harms nor helps detectably (all p ≥ 0.37 vs control, 5/6 learned); archive win rate 0.5 → 0.11–0.16 in runs that learned, a description rather than a validated diagnostic | rewritten in WP3 from `hof-eval-v2` (decisions.md 2026-10-02); replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); the archive-win-rate description did not hold (0.21 in a run that never learned) |
+| C5b | Hall of fame as TEST (`hof-eval-v2`): neither harms nor helps detectably (all p ≥ 0.37 vs control, 5/6 learned); archive win rate 0.5 → 0.11–0.16 in runs that learned, a description rather than a validated diagnostic | rewritten in WP3 from `hof-eval-v2` (decisions.md 2026-10-02); replicated 2026-10-03 (WP6, 12 fresh seeds, preregistered); the archive-win-rate description did not hold (0.21 in a run that never learned); an archive organised by behaviour (WP9, preregistered) has no detectable effect either |
 | C6 | The algorithm families differ in reliability, not ceiling | keep; rechecked in WP3 with `hof-eval-v2` as the fourth family, unchanged |
+| C8 | A short internal tournament (16 peers, 1,024 games per export) exports a better champion than the streak rule: −2.16 vs −2.33, 9/12 fresh runs, p = 0.010, 43% of the gap to the best member; it does not detectably reduce declines (p = 0.16); in a cyclic game it helps against outsiders (42/48) but less as skill becomes cyclic (ρ = −0.43) | new 2026-10-03 (WP10, preregistered, fresh seeds); smaller than the post hoc re-export estimate (57%) |
 | C7 | Unequal power (asym block, 18 runs): mutual improvement 1/18, runaway 13/18; 2:1 capacity not decisive; norm-matched σ flips dominance 2/6 → 5/6 (p≈0.065) | exploratory only; never state as confirmed |
 
 The paper's broader hook (Discussion only, never a Result): any evolutionary
@@ -224,10 +225,41 @@ Status (2026-10-03): done. `lab/`, `docs/lab.md`, `run_lab.py`, `lab_analysis.py
 
 ### WP9 — Structure and archives (NEAT, quality diversity)
 
+Status (2026-10-03): done. Item 2, the quality-diversity (niche) archive: H9a holds, H9b and H9c do not. Item 1, NEAT: never learned to rally (0/12), H9d finds it detectably worse than the generational GA; exploratory follow-up (`neat_explore.py`, not preregistered) locates the failure in NEAT's reproduction machinery, not in the game path. See decisions.md.
+
 1. NEAT as specified in `docs/paper/04-appendix.md` §A.8, comparable to the
    existing families.
 2. A quality-diversity archive (e.g. MAP-Elites over behaviour descriptors)
    as a further archive design.
+
+### WP10 — Alternative export rules (decided 2026-10-03)
+
+Status (2026-10-03): done. H10a, H10c, H10d hold; H10b does not (decisions.md). New claim C8.
+
+Roland: "lets go ahead testing alternative export rules". C4 diagnoses the
+streak rule; the post hoc re-export analysis suggested a fix. Test it
+prospectively.
+
+1. Preregister (`results/export/PREREGISTRATION.md`, `export_analysis.py`)
+   before any run: fresh control runs (Slime Volleyball seeds 401–412,
+   discmix 501–512 at the four WP8 λ values); the streak rule against a
+   1,024-game internal tournament, applied to the same stored populations.
+2. Run on GitHub Actions (`.github/workflows/export.yml`); analyse once.
+3. Write up as the preregistration says; a new claim only if H10a holds.
+
+### WP11 — One project, one narrative (decided 2026-10-03)
+
+Status (2026-10-03): done. README restructured as one argument (findings renumbered 1–8, the export-rule test is finding 5); paper: abstract and contributions updated, new §3.9 "Beyond one game, one archive and one topology", Limitations shortened, lab tables in Appendix A.11.
+
+Roland asked whether the work so far is one project or two. It is one: the
+export-rule test is the remedy the paper's diagnosis (C4) calls for, and
+WP6–WP9 are its robustness checks. After WP10, restructure README and paper
+around one arc: what is measured → the export rule is the noise → a better
+rule (WP10) → it holds on fresh seeds (WP6), against stronger opponents
+(WP7), under cyclic skill (WP8) and other archives and topologies (WP9,
+appendix and Limitations). The README stops reading as a log of work
+packages; every number stays generated; no claim changes wording except
+through its own evidence.
 
 Each WP ends with: tests and `make_tables.py --check` green, decisions.md
 updated, README/paper text matching the data, a PR for Roland.

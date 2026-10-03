@@ -113,8 +113,11 @@ def spearman(x, y):
 # C(24, 12) = 2.7 million assignments in Python is too slow, so the same exact
 # null distribution is counted by dynamic programming instead.
 # --------------------------------------------------------------------------
-def mannwhitney_dp(a, b):
-    """Exact two-sided Mann-Whitney U test, same definition as mannwhitney_u.
+def mannwhitney_dp(a, b, alternative="two-sided"):
+    """Exact Mann-Whitney U test, same definition as mannwhitney_u.
+
+    alternative="two-sided" (the default, as mannwhitney_u) or "greater"
+    (a tends to exceed b: P(U >= U_observed) under the null).
 
     Under the null every n-subset of the pooled mid-ranks is equally likely to
     be sample a. U = (rank sum of a) - n(n+1)/2 with ties at half, so counting
@@ -138,8 +141,11 @@ def mannwhitney_dp(a, b):
                     nxt[s + r] += row[s]
     obs2 = int(r2[:n].sum())
     centre2 = n * (n + m + 1)            # doubled expected rank sum of a
-    extreme = sum(c for s, c in enumerate(ways[n])
-                  if c and abs(s - centre2) >= abs(obs2 - centre2))
+    if alternative == "greater":
+        extreme = sum(c for s, c in enumerate(ways[n]) if c and s >= obs2)
+    else:
+        extreme = sum(c for s, c in enumerate(ways[n])
+                      if c and abs(s - centre2) >= abs(obs2 - centre2))
     u = obs2 / 2.0 - n * (n + 1) / 2.0
     return u, extreme / math.comb(n + m, n)
 
@@ -166,6 +172,27 @@ def fisher_less(k1, n1, k2, n2):
     p = sum(math.comb(K, x) * math.comb(N - K, n1 - x)
             for x in range(max(0, n1 - (N - K)), k1 + 1)) / total
     return float(p)
+
+
+def signflip_greater(d, n_mc=100_000, seed=0):
+    """One-sided paired sign-flip permutation test that mean(d) > 0.
+
+    Under the null each difference is equally likely to have either sign.
+    Exact (all 2^n sign patterns) for n <= 20; otherwise Monte Carlo with a
+    fixed seed, p = (hits + 1) / (n_mc + 1). Returns (mean, p)."""
+    d = np.asarray(d, dtype=float)
+    n = len(d)
+    obs = float(d.mean())
+    if n <= 20:
+        signs = ((np.arange(2 ** n)[:, None] >> np.arange(n)) & 1) * 2 - 1
+        means = (signs * np.abs(d)).mean(axis=1)
+        return obs, float((means >= obs - 1e-12).mean())
+    rng = np.random.default_rng(seed)
+    hits = 0
+    for _ in range(n_mc // 10_000):
+        signs = rng.choice((-1.0, 1.0), size=(10_000, n))
+        hits += int(((signs * np.abs(d)).mean(axis=1) >= obs - 1e-12).sum())
+    return obs, (hits + 1) / (n_mc + 1)
 
 
 def holm(pvals, alpha=0.05):

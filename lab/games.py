@@ -75,11 +75,43 @@ def probes():
     return skill_x, skill_y, style_x, teacher
 
 
+SLIME_PROBE_SEED, SLIME_PROBES, SLIME_PROBE_EVERY = 20261007, 256, 25
+
+
+def slime_probes():
+    """256 observations of real Slime Volleyball states.
+
+    The 2015 baseline plays itself in the reference environment (seeded);
+    the right player's observation is kept every 25 steps. Only the niche
+    archive (lab.kernels.HOF_NICHE) uses them, as the inputs on which a
+    network's behaviour descriptor is read."""
+    from slimevolleygym import SlimeVolleyEnv
+    try:
+        from slimevolleygym import BaselinePolicy
+    except ImportError:
+        from slimevolleygym.slimevolley import BaselinePolicy
+    env = SlimeVolleyEnv()
+    env.seed(SLIME_PROBE_SEED)
+    policy = BaselinePolicy()
+    obs, t, out = env.reset(), 0, []
+    while len(out) < SLIME_PROBES:
+        obs, _, done, _ = env.step(policy.predict(obs))
+        t += 1
+        if t % SLIME_PROBE_EVERY == 0:
+            out.append(np.array(obs, dtype=np.float64))
+        if done:
+            obs = env.reset()
+    return np.array(out)
+
+
 def make(name, lam=0.0):
-    """(game id, gp, X1, X2, X3) for lab.kernels.run."""
+    """(game id, gp, X1, X2, X3) for lab.kernels.run.
+
+    For slime, X3 holds the niche archive's probe states (unused by the
+    game itself, so every other mode is unaffected)."""
     if name == "slime":
         z = np.zeros((1, 1))
-        return K.GAME_SLIME, np.zeros(5), z, z, z
+        return K.GAME_SLIME, np.zeros(5), z, z, slime_probes()
     if name == "discmix":
         skill_x, skill_y, style_x, _ = probes()
         gp = np.array([lam, ALPHA, BETA, NOISE, TIE], dtype=np.float64)

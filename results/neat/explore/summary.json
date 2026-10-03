@@ -1,0 +1,160 @@
+{
+ "exploratory": true,
+ "variants": {
+  "mlp-start": {
+   "runs": 4,
+   "learned": 0,
+   "reached_parity": 0,
+   "best_final": -4.85,
+   "max_train_meanlen": 641.08
+  },
+  "no-reset": {
+   "runs": 4,
+   "learned": 0,
+   "reached_parity": 0,
+   "best_final": -4.8,
+   "max_train_meanlen": 766.0578
+  },
+  "as-ga": {
+   "runs": 4,
+   "learned": 1,
+   "reached_parity": 1,
+   "best_final": 0.05,
+   "max_train_meanlen": 2341.8486
+  }
+ },
+ "per_run": {
+  "mlp-start_s901": {
+   "variant": "mlp-start",
+   "seed": 901,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.85,
+   "peak": -4.79,
+   "train_meanlen_final": 637.4256,
+   "hidden_final": 48
+  },
+  "mlp-start_s902": {
+   "variant": "mlp-start",
+   "seed": 902,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.85,
+   "peak": -4.785,
+   "train_meanlen_final": 634.754,
+   "hidden_final": 54
+  },
+  "mlp-start_s903": {
+   "variant": "mlp-start",
+   "seed": 903,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.86,
+   "peak": -4.795,
+   "train_meanlen_final": 636.7314,
+   "hidden_final": 53
+  },
+  "mlp-start_s904": {
+   "variant": "mlp-start",
+   "seed": 904,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.85,
+   "peak": -4.765,
+   "train_meanlen_final": 641.08,
+   "hidden_final": 54
+  },
+  "no-reset_s901": {
+   "variant": "no-reset",
+   "seed": 901,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.8,
+   "peak": -4.735,
+   "train_meanlen_final": 766.0578,
+   "hidden_final": 42
+  },
+  "no-reset_s902": {
+   "variant": "no-reset",
+   "seed": 902,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.835,
+   "peak": -4.79,
+   "train_meanlen_final": 635.8452,
+   "hidden_final": 45
+  },
+  "no-reset_s903": {
+   "variant": "no-reset",
+   "seed": 903,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.85,
+   "peak": -4.79,
+   "train_meanlen_final": 633.7898,
+   "hidden_final": 34
+  },
+  "no-reset_s904": {
+   "variant": "no-reset",
+   "seed": 904,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.82,
+   "peak": -4.755,
+   "train_meanlen_final": 697.392,
+   "hidden_final": 38
+  },
+  "as-ga_s901": {
+   "variant": "as-ga",
+   "seed": 901,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -3.965,
+   "peak": -3.965,
+   "train_meanlen_final": 1493.6632,
+   "hidden_final": 20
+  },
+  "as-ga_s902": {
+   "variant": "as-ga",
+   "seed": 902,
+   "reached": true,
+   "t_internal": 245000,
+   "t_parity": 330000,
+   "final": 0.05,
+   "peak": 0.25,
+   "train_meanlen_final": 2341.8486,
+   "hidden_final": 20
+  },
+  "as-ga_s903": {
+   "variant": "as-ga",
+   "seed": 903,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.83,
+   "peak": -4.765,
+   "train_meanlen_final": 627.4836,
+   "hidden_final": 20
+  },
+  "as-ga_s904": {
+   "variant": "as-ga",
+   "seed": 904,
+   "reached": false,
+   "t_internal": null,
+   "t_parity": null,
+   "final": -4.79,
+   "peak": -4.79,
+   "train_meanlen_final": 772.661,
+   "hidden_final": 20
+  }
+ }
+}
