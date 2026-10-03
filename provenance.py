@@ -72,6 +72,8 @@ SCOPES = {
     "yardsticks": lambda: ([p for p in matrix_runs()
                             if not os.path.basename(p).startswith("asym")]
                            + sorted(glob.glob("results/zoo/*.json"))),
+    # the discmix experiment of the lab (WP8)
+    "lab": lambda: sorted(glob.glob("results/lab/*_s*.npz")),
     # the preregistered confirmatory replication (fresh seeds, own directory)
     "replication": lambda: sorted(glob.glob("results/replication/*_s*.npz")),
     # generated from code and fixed seeds only
