@@ -1,0 +1,95 @@
+# Runs the preregistered replication (WP6, results/replication/
+# PREREGISTRATION.md) on GitHub's runners: one 500,000-game run per job, each
+# committed to the branch the moment it finishes.
+#
+# Why here: a run needs 15-60 uninterrupted minutes, and the cloud session
+# container that started the replication was reclaimed twice mid-run (see
+# results/matrix/decisions.md, 2026-10-03). The computation per run is exactly
+# the preregistered one; only the machine differs. A run whose file is already
+# on the branch is skipped, so re-running this workflow only fills gaps.
+name: replication
+
+on:
+  push:
+    branches: [claude/cool-shannon-ry3f4x]
+    paths: [.github/workflows/replication.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        condition: [hof-eval-v2, control, hof-0.25]
+        seed: [201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212]
+    env:
+      RUN: results/replication/${{ matrix.condition }}_s${{ matrix.seed }}.npz
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Skip if this run is already on the branch
+        id: have
+        run: |
+          git fetch -q origin "${{ github.ref_name }}"
+          if git cat-file -e "origin/${{ github.ref_name }}:$RUN" 2>/dev/null; then
+            echo "done=true" >> "$GITHUB_OUTPUT"; echo "$RUN exists, skipping"
+          else
+            echo "done=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.have.outputs.done == 'false'
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install the locked environment
+        if: steps.have.outputs.done == 'false'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libgl1
+          pip install -r requirements-lock.txt
+
+      - name: Train and evaluate one run
+        if: steps.have.outputs.done == 'false'
+        run: |
+          python -W ignore run_experiments.py --outdir results/replication \
+            --only "${{ matrix.condition }}" --seeds "${{ matrix.seed }}" --workers 1
+          python - <<'EOF'
+          import platform, numba, numpy
+          print("machine:", platform.platform(), platform.processor(),
+                "| python", platform.python_version(), "| numba", numba.__version__,
+                "| numpy", numpy.__version__)
+          EOF
+          lscpu | grep -E "Model name|^CPU\(s\)" || true
+
+      - uses: actions/upload-artifact@v4
+        if: steps.have.outputs.done == 'false'
+        with:
+          name: ${{ matrix.condition }}_s${{ matrix.seed }}
+          path: ${{ env.RUN }}
+          if-no-files-found: error
+
+      - name: Commit the run file to the branch
+        if: steps.have.outputs.done == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$RUN"
+          git commit -q -m "Replication: ${{ matrix.condition }}_s${{ matrix.seed }} finished (GitHub Actions)" \
+            -m "Preregistered in results/replication/PREREGISTRATION.md. Run on GitHub's runner by .github/workflows/replication.yml, workflow run ${{ github.run_id }}."
+          git reset -q --hard HEAD     # the runner rewrote protocol.json; only the run file is committed
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --rebase origin "${{ github.ref_name }}" && \
+              git push -q origin "HEAD:${{ github.ref_name }}" && exit 0
+            sleep $((RANDOM % 20 + 5))
+          done
+          echo "could not push $RUN; it is in the run's artifacts" && exit 1

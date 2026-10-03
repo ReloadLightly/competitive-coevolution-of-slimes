@@ -348,3 +348,26 @@ Found on the way: `make_tables.py` skipped a table marker pair with nothing
 between it, and `--check` passed on the empty block. The injection pattern now
 accepts an empty block, so a new marker is filled and an unfilled one fails
 the check; no existing table changed.
+
+## 2026-10-03 — replication runs move to GitHub Actions (execution only)
+
+The replication was launched in the cloud session's container on 2026-10-02
+at 22:55 UTC and relaunched at 23:49 after the container was restarted; the
+container was reclaimed again while the session was paused (Roland's usage
+limit), at some time after 00:07. One run had finished and was committed
+(`hof-eval-v2_s201`, which never learned to rally; 12.6 minutes). Every
+other run in progress was lost; none had produced a file, so nothing was
+discarded or selected.
+
+The remaining 35 runs execute on GitHub's runners
+(`.github/workflows/replication.yml`), one run per job, each committed when
+it finishes. Per run, the computation is the preregistered one: the same code,
+parameters, seeds, output directory and command (`run_experiments.py --outdir
+results/replication --only <condition> --seeds <seed>`), in the environment
+pinned by `requirements-lock.txt`. The machine differs from the one that
+produced `hof-eval-v2_s201`; floating-point results of the compiled kernels
+may then differ in the last bits between machines (e.g. through the C
+library's tanh), so a run is reproducible on the machine type it ran on, not
+necessarily bit for bit across machine types. Each job log records its CPU and
+library versions. This changes where runs execute, not what they compute, and
+no run is repeated or replaced: a run whose file exists is skipped.
