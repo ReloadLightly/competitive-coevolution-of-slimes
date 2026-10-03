@@ -1,0 +1,185 @@
+{
+ "tournaments": 500000,
+ "save_every": 5000,
+ "pop_every": 50000,
+ "sweep_episodes": 200,
+ "sweep_seed": 20260901,
+ "select_seed": 20260902,
+ "select_episodes": 1000,
+ "hof_every": 1000,
+ "hof_capacity": 64,
+ "init_scale": 0.5,
+ "conditions": {
+  "control": {
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.0,
+   "cap": 64,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": true
+  },
+  "hof-0.25": {
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.25,
+   "cap": 64,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
+  },
+  "hof-0.50": {
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.5,
+   "cap": 64,
+   "seeds": [
+    101,
+    102,
+    103
+   ],
+   "pops": false
+  },
+  "hof-full": {
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.25,
+   "cap": 512,
+   "seeds": [
+    101,
+    102,
+    103
+   ],
+   "pops": false
+  },
+  "sigma-0.05": {
+   "sigma": 0.05,
+   "pop": 128,
+   "hof_prob": 0.0,
+   "cap": 64,
+   "seeds": [
+    101,
+    102,
+    103
+   ],
+   "pops": false
+  },
+  "sigma-0.20": {
+   "sigma": 0.2,
+   "pop": 128,
+   "hof_prob": 0.0,
+   "cap": 64,
+   "seeds": [
+    101,
+    102,
+    103
+   ],
+   "pops": false
+  },
+  "pop-32": {
+   "sigma": 0.1,
+   "pop": 32,
+   "hof_prob": 0.0,
+   "cap": 64,
+   "seeds": [
+    101,
+    102,
+    103
+   ],
+   "pops": false
+  },
+  "pop-512": {
+   "sigma": 0.1,
+   "pop": 512,
+   "hof_prob": 0.0,
+   "cap": 64,
+   "seeds": [
+    101,
+    102,
+    103
+   ],
+   "pops": false
+  },
+  "hof-eval": {
+   "algo": "hof_eval",
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.25,
+   "cap": 512,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
+  },
+  "hof-eval-v2": {
+   "algo": "hof_eval",
+   "sigma": 0.1,
+   "pop": 128,
+   "hof_prob": 0.25,
+   "cap": 512,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
+  },
+  "ga2015": {
+   "algo": "ga2015",
+   "sigma": 0.1,
+   "pop": 100,
+   "n_opponents": 10,
+   "n_elite": 20,
+   "hof_prob": 0.0,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
+  },
+  "es": {
+   "algo": "es",
+   "sigma": 0.1,
+   "pop": 50,
+   "n_opponents": 4,
+   "alpha": 0.03,
+   "hof_prob": 0.0,
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106
+   ],
+   "pops": false
+  }
+ },
+ "superseded": {
+  "hof-eval": "hof-eval-v2"
+ }
+}

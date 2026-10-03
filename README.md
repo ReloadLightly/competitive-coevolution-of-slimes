@@ -8,14 +8,30 @@ what it forgets, and which of the two you measure*](paper/main.pdf) — LaTeX
 sources in [`paper/`](paper/); every number in it is generated from the run files.
 
 Self-play neuroevolution on [David Ha's Slime Volleyball](https://otoro.net/slimevolley/),
-run as a designed experiment rather than a demo: several dozen independent runs
-of <!-- n:budget -->500,000<!-- /n --> self-play games each, across conditions that isolate *where the
-selection signal comes from* and *where the noise comes from*.
+run as a designed experiment rather than a demo: <!-- n:n_runs_total -->59<!-- /n --> independent runs of
+<!-- n:budget -->500,000<!-- /n --> self-play games each, in a compiled environment that reproduces the
+original bit for bit, with every agent scored against a frozen opponent it never
+met in training. The headline finding is not the one we expected. Competence is
+reached and lost repeatedly, and most of that instability is not coevolution: it
+is injected at the last step, by the rule that decides which individual to call
+the champion. Ha's rule exports an individual that ranks on average <!-- n:proxy_rank_mean -->60<!-- /n --> of
+<!-- n:proxy_pop -->128<!-- /n --> in its own population, its lineage counter is uncorrelated with its skill
+(ρ = <!-- n:proxy_rho -->+0.06<!-- /n -->), and the population itself is not cycling. Internal improvement
+precedes any external transfer by tens of thousands of games; the phase change is
+robust but its timing varies <!-- n:ctrl_t_internal_ratio -->7.5<!-- /n -->-fold across seeds; an archive of past
+champions abolishes learning when used as a parent and does nothing detectable
+when used as a test. Those claims held in a preregistered replication on <!-- n:rep_total -->36<!-- /n --> fresh
+runs (<!-- n:rep_verdicts -->6 of 6<!-- /n --> replicated).
 
-The headline finding is not the one we expected. Competence in this setting is
-reached repeatedly and lost repeatedly — and most of that instability turns out
-not to be coevolution at all. It is injected at the last step, by the rule that
-decides which individual to call the champion.
+<table>
+<tr>
+<td align="center" width="20%"><a href="results/figures/fig6_champion_proxy.png"><img src="results/figures/fig6_champion_proxy.png" alt="the export rule"></a><br><sub>The exported champion vs its own population</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig1_reference_trajectory.png"><img src="results/figures/fig1_reference_trajectory.png" alt="reference run"></a><br><sub>Internal improvement before external transfer</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig2_control_seeds.png"><img src="results/figures/fig2_control_seeds.png" alt="six seeds"></a><br><sub>One phase change, six timings</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig5_coevolution.png"><img src="results/figures/fig5_coevolution.png" alt="transitivity"></a><br><sub>No cycling: skill is transitive</sub></td>
+<td align="center" width="20%"><a href="results/figures/fig3_hall_of_fame.png"><img src="results/figures/fig3_hall_of_fame.png" alt="archives"></a><br><sub>Archives as parent and as test</sub></td>
+</tr>
+</table>
 
 ---
 
@@ -56,6 +72,34 @@ punishes — does not fit this data.
 *Every checkpoint of a run played against every other. Left: the margin matrix,
 later against earlier. Centre: Elo within the run against training time. Right:
 the fraction of decided checkpoint triples that are cyclic.*
+
+Those checkpoints are 50,000 games apart, so a cycle that opens and closes in
+less time would be invisible. Every run stores all 100 of its champions, so the
+control runs were also played at 5,000-game spacing (<!-- n:fine_games -->20<!-- /n --> games per pair, table
+below). Under the rule above (a pair counts as decided when its mean margin
+leaves ±0.25), <!-- n:fine_cyclic_deadband_pct -->1.0<!-- /n -->% of decided triads are now cyclic, and <!-- n:fine_short_deadband_pct -->4.5<!-- /n -->% of those spanning
+at most 50,000 games. But at 20 games per pair that rule lets sampling noise
+decide pairs between near-equal policies, and noise makes cycles: when a pair
+counts as decided only if an exact sign test on its wins and losses says so,
+<!-- n:fine_cyclic_sign -->35<!-- /n --> of <!-- n:fine_triads_sign -->273,376<!-- /n --> decided triads are cyclic (<!-- n:fine_cyclic_sign_pct -->0.01<!-- /n -->%). At the finer resolution the
+population is still not cycling. What does move at that resolution is the
+exported champion: where adjacent champions differ significantly, the later one
+wins only <!-- n:fine_next_wins -->88/144<!-- /n --> times (<!-- n:fine_next_wins_pct -->61<!-- /n -->%), the export-rule noise of finding 4 seen
+from the other side.
+
+<!-- table:t -->
+| run | ρ(Elo, time) | cyclic, ±0.25 rule | cyclic, sign test | within 50k games, sign test | next beats previous |
+|---|---|---|---|---|---|
+| control_s101 | +0.95 | 0.69% (774/112,190) | 0.00% (0/51,268) | 0.00% (0/272) | 10/14 |
+| control_s102 | +0.76 | 0.55% (541/98,864) | 0.02% (11/51,840) | 0.23% (1/430) | 18/35 |
+| control_s103 | +0.81 | 3.82% (3,675/96,104) | 0.00% (1/21,569) | 0.00% (0/198) | 7/13 |
+| control_s104 | +0.68 | 0.50% (431/86,322) | 0.04% (16/43,215) | 0.23% (1/440) | 21/34 |
+| control_s105 | +0.91 | 0.22% (241/108,654) | 0.00% (1/58,693) | 0.00% (0/454) | 16/24 |
+| control_s106 | +0.85 | 0.30% (253/85,284) | 0.01% (6/46,791) | 0.86% (3/349) | 16/24 |
+| *all control runs* | — | 1.01% (5,915/587,418) | 0.01% (35/273,376) | 0.23% (5/2,143) | 88/144 |
+
+Every one of the 100 champions of each control run (one per 5,000 games) played every other, 20 games per pair. A triad counts when all three of its pairs are decided: by the paper's rule (mean margin outside ±0.25) or by an exact sign test on wins against losses (p < 0.05). 'Next beats previous': adjacent champions whose difference the sign test decides, and how often the later one wins.
+<!-- /table:t -->
 
 **4. The champion-export rule is the noise source.** Ha selects the individual
 with the longest winning lineage, "without actually computing who is best to save
@@ -182,6 +226,124 @@ Points per episode against the 2015 champion policy, which is never seen during 
 *Final champions from every run of every condition, played against each other in
 one tournament and scored by Elo.*
 
+### Against stronger opponents
+
+The 2015 baseline never sees its opponent, so "above parity" against it is a low
+bar. Ha's slimevolleygym also ships two trained policies: a self-play GA champion
+of the same 273-parameter class, and a 743-parameter CMA-ES policy trained
+against the baseline (<!-- n:zoo_ga_vs_base -->+0.35<!-- /n --> and <!-- n:zoo_cma_vs_base -->+1.15<!-- /n --> against it). Every final champion played
+<!-- n:zoo_games -->200<!-- /n --> games against each, on the compiled environment, which reproduces
+slimevolleygym bit for bit for these networks too (<!-- n:zoo_valid_games -->40<!-- /n --> games, <!-- n:zoo_valid_steps -->120,000<!-- /n --> steps compared).
+
+The baseline ranks the champions much as the stronger opponents do (Spearman
+ρ = <!-- n:zoo_rho_base_ga -->+0.87<!-- /n --> against the zoo GA and <!-- n:zoo_rho_base_cma -->+0.89<!-- /n --> against the zoo CMA-ES, over <!-- n:zoo_n -->41<!-- /n --> final
+champions), so the comparisons above do not hinge on it. But it flatters them:
+<!-- n:zoo_beat_ga -->0<!-- /n --> of the <!-- n:zoo_n -->41<!-- /n --> beat Ha's published GA champion (the best manages <!-- n:zoo_best_vs_ga -->-0.04<!-- /n -->, a draw
+in all but name), and of the <!-- n:zoo_above_base -->10<!-- /n --> that beat the baseline, <!-- n:zoo_above_beat_cma -->5<!-- /n --> also beat the CMA-ES
+policy. The zoo GA is one exported champion Ha chose to publish, not an
+unselected endpoint like these. And the CMA-ES policy, trained only against the
+baseline, is the stronger of the two by the baseline's measure yet loses to the
+zoo GA head to head (<!-- n:zoo_ga_vs_cma -->+0.30<!-- /n --> for the GA): specialising against the yardstick,
+in one line.
+
+<!-- table:z -->
+| condition | runs | vs 2015 baseline | vs zoo GA | vs zoo CMA-ES | beat zoo GA | beat zoo CMA-ES |
+|---|---|---|---|---|---|---|
+| control (Ha 2020 GA) | 6 | -0.15 | -0.98 | -0.10 | 0/6 | 2/6 |
+| archive as test, full span | 6 | -1.01 | -1.72 | -1.25 | 0/6 | 1/6 |
+| archive as parent, p=0.25 | 6 | -4.10 | -4.34 | -3.95 | 0/6 | 1/6 |
+| archive as parent, p=0.50 | 1 | -4.84 | -4.99 | -4.87 | 0/1 | 0/1 |
+| archive as parent, full span | 3 | -4.84 | -4.98 | -4.92 | 0/3 | 0/3 |
+| generational GA (Ha 2015) | 6 | -2.00 | -3.83 | -1.47 | 0/6 | 1/6 |
+| self-play ES | 6 | -2.08 | -3.34 | -2.41 | 0/6 | 1/6 |
+| sigma = 0.05 | 3 | -0.17 | -0.62 | +0.10 | 0/3 | 2/3 |
+| sigma = 0.20 | 3 | -1.66 | -2.79 | -2.08 | 0/3 | 0/3 |
+| population 32 | 1 | -4.86 | -4.99 | -4.88 | 0/1 | 0/1 |
+
+Final (t = 500,000) champion of every single-population run, mean points per episode. Baseline column: held out, 1,000 episodes; zoo columns: 200 games per champion, half on each side. 'Beat' counts runs whose champion scores above 0. For scale, against the 2015 baseline the zoo GA scores +0.35 and the zoo CMA-ES +1.15; head to head the zoo GA scores +0.30 against the zoo CMA-ES.
+<!-- /table:z -->
+
+### A preregistered replication
+
+The findings above rest on six seeds per condition, and the design changed
+while it ran. So the claims about Ha's GA and the archive (findings 1–5) were
+tested again on fresh seeds, with every test and decision rule committed
+before the first run ([preregistration](results/replication/PREREGISTRATION.md)):
+<!-- n:rep_runs -->12<!-- /n --> new runs each of the control, the archive as parent and the archive as test,
+<!-- n:rep_total -->36<!-- /n --> in all, analysed once by [`replication.py`](replication.py). **<!-- n:rep_verdicts -->6 of 6<!-- /n --> claims
+replicated.** The internal transition came first in <!-- n:rep_lag_first -->10/10<!-- /n --> runs; checkpoint skill
+was transitive (ρ = <!-- n:rep_rho -->+0.79<!-- /n -->, <!-- n:rep_cyclic_pct -->0.5<!-- /n -->% cyclic triads); the exported individual ranked
+on average <!-- n:rep_rank -->56<!-- /n --> of 128 in its pool, its streak was unrelated to its skill (ρ = <!-- n:rep_rho_streak -->+0.04<!-- /n -->),
+and it lost <!-- n:rep_decl_exp -->21.2<!-- /n --> points between snapshots where the pool's best member lost <!-- n:rep_decl_best -->7.6<!-- /n -->; the
+archive as parent learned in <!-- n:rep_parent_learned -->1/12<!-- /n --> runs; the archive as test was again
+indistinguishable from the control (every p ≥ <!-- n:rep_archive_pmin -->0.44<!-- /n -->).
+
+Two things came out weaker than six seeds suggested. Not every control run
+learns to rally: <!-- n:rep_ctrl_learned -->10/12<!-- /n --> did, which meets the preregistered threshold but ends
+"in every seed". And a falling archive win rate is not by itself a sign of
+learning: it fell to <!-- n:rep_arch_learned_min -->0.06<!-- /n -->–<!-- n:rep_arch_learned_max -->0.16<!-- /n --> in the archive-as-test runs that learned, but
+also to <!-- n:rep_arch_failed_min -->0.21<!-- /n --> in one that never did. Findings 6 and 7 (algorithm families,
+unequal power) were not part of the replication.
+
+<!-- table:rep -->
+Runs per condition: control 12, archive as parent 12, archive as test 12. Tests in the Holm family count as holding when rejected at family-wise α = 0.05.
+
+| claim | criterion | result | holds |
+|---|---|---|---|
+| C1 | internal transition before parity (lag > 0) | 10/10 runs, p = 9.8e-04 | yes |
+| C2 | control runs that learn to rally | 10/12 | yes |
+| C2 | latest / earliest internal transition ≥ 3 | 5.8× | yes |
+| C3 | ρ(Elo, time) > 0 within runs | 12/12 runs (mean +0.79), p = 2.4e-04 | yes |
+| C3 | cyclic share of decided triads < 1% | 4/849 (0.5%) | yes |
+| C4 | exported individual outside its pool's top quarter | 12/12 runs (mean rank 56), p = 2.4e-04 | yes |
+| C4 | ρ(streak, skill) inside ±0.2 (90% CI) | +0.04 [+0.02, +0.06] | yes |
+| C4 | exported declines more than the best member | 10/12 runs (21.2 vs 7.6), p = 0.019 | yes |
+| C5a | archive as parent learns less often than control | 1/12 vs 10/12, p = 3.2e-04 | yes |
+| C5b | archive as test vs control: all four p ≥ 0.05 | final δ +0.01 p 0.98, peak δ -0.19 p 0.44, above δ -0.15 p 0.56, late δ -0.08 p 0.76 | yes |
+
+Verdicts: C1 replicated, C2 replicated, C3 replicated, C4 replicated, C5a replicated, C5b replicated.
+Archive as test (description, no decision): late archive win rate 0.13, 0.16, 0.06, 0.10, 0.13, 0.12, 0.14, 0.14, 0.09, 0.10 in runs that learned; 0.40, 0.21 in runs that did not (10/12 learned).
+<!-- /table:rep -->
+
+### When skill is cyclic: the lab
+
+Slime Volleyball turned out almost purely transitive, which is the setting in
+which an archive should matter least and in which "the population is not
+cycling" could be a property of the game rather than of the algorithm. The
+[lab](docs/lab.md) runs the study's own GA (it reproduces the paper's kernels
+bit for bit) on a synthetic game whose mix of transitive and cyclic skill is set
+by one number, λ, and in which every expected score is known exactly. A
+[preregistered experiment](results/lab/PREREGISTRATION.md) ran the control and
+the archive as test at four values of λ, <!-- n:lab_runs -->96<!-- /n --> runs in all:
+
+- **Cycling belongs to the game.** The share of cyclic triads among a run's
+  champions rises from 0 at λ = 0 to <!-- n:lab_cyc_mid_pct -->5.7<!-- /n -->% at λ = 0.5 and <!-- n:lab_cyc_hi_pct -->13.5<!-- /n -->% at λ = <!-- n:lab_lambda_max -->0.75<!-- /n -->
+  (ρ = <!-- n:lab_cycle_rho -->+0.97<!-- /n -->).
+- **The export rule fails the same way whatever the skill structure.** The
+  exported individual ranks on average <!-- n:lab_rank_min -->52<!-- /n -->–<!-- n:lab_rank_max -->63<!-- /n --> of 128 in its own pool at every λ,
+  its streak barely related to its true strength (ρ = <!-- n:lab_rho_streak_min -->+0.07<!-- /n --> to <!-- n:lab_rho_streak_max -->+0.13<!-- /n -->). Finding 4
+  is not an artefact of transitivity.
+- **An archive used as a test did not help more as skill became cyclic**
+  (trend p = <!-- n:lab_trend_p -->0.116<!-- /n -->), against the usual reason for having one. If anything it
+  lowered the final champions' strength at λ ≤ 0.5 (Cliff's δ <!-- n:lab_delta_min -->-0.47<!-- /n --> to <!-- n:lab_delta_low_max -->-0.29<!-- /n -->,
+  p = <!-- n:lab_p_low_min -->0.052<!-- /n -->–<!-- n:lab_p_low_max -->0.242<!-- /n -->; no decision was preregistered for single λ values).
+
+One synthetic game, 12 runs per cell. The external panel the declines are
+measured against saturates at λ ≤ 0.5, so the decline column says something
+only at λ = 0.75, where the exported champion lost <!-- n:lab_decl_exp_hi -->1.78<!-- /n --> and the pool's best member
+<!-- n:lab_decl_best_hi -->0.08<!-- /n -->.
+
+<!-- table:lab -->
+| λ | cyclic triads within runs (control / test) | exported rank in pool of 128 | ρ(streak, strength) | decline: exported / best | archive as test vs control, δ (p) |
+|---|---|---|---|---|---|
+| 0.00 | 0.0% / 0.0% | 52 | +0.13 | 0.00 / 0.00 | -0.44 (0.068) |
+| 0.25 | 1.4% / 1.7% | 56 | +0.13 | 0.00 / 0.00 | -0.29 (0.242) |
+| 0.50 | 5.7% / 6.2% | 61 | +0.08 | 0.00 / 0.00 | -0.47 (0.052) |
+| 0.75 | 13.5% / 13.3% | 63 | +0.07 | 1.78 / 0.08 | +0.06 (0.843) |
+
+Discmix game, 12 runs per cell, all quantities exact. Exported rank and ρ: control runs, mean over 10 population snapshots (rank 1 = strongest). Declines: summed falls between snapshots against a fixed external panel, control runs. Archive effect: Cliff's δ of the final champions' cross-run strength, archive as test minus control, with the two-sided exact Mann–Whitney p. Trend tests (one-sided permutation): cycling vs λ ρ = +0.97 (p < 0.001) in control and +0.97 (p < 0.001) with the archive; archive effect vs λ p = 0.116.
+<!-- /table:lab -->
+
 ---
 
 ## Why the numbers can be trusted
@@ -274,8 +436,9 @@ comparable to these results.
 ## Quickstart
 
 ```bash
-python3 -m venv .venv
+python3 -m venv .venv          # Python 3.11
 .venv/bin/pip install -r requirements.txt -r requirements-fast.txt
+# or, for every transitive package pinned too:  pip install -r requirements-lock.txt
 
 # the repository self-test: the three February failures, a bit-level
 # comparison of the compiled environment against slimevolleygym, and the
@@ -292,9 +455,10 @@ python3 -m venv .venv
 .venv/bin/python analyze_matrix.py --holdout
 .venv/bin/python coevolution_analysis.py --within --across --proxy
 
-# tables, figures, and the single-page HTML write-up
+# tables, figures, the single-page HTML write-up and the paper
 .venv/bin/python make_tables.py && .venv/bin/python make_figures.py
-.venv/bin/python build_paper.py --md
+.venv/bin/pip install -r requirements-docs.txt && .venv/bin/python build_paper.py --md
+paper/build.sh                 # needs a TeX distribution with latexmk
 ```
 
 The reference run on the unmodified environment is continued from its committed
@@ -327,8 +491,12 @@ population snapshot with
 
 - **One environment.** Slime Volleyball is symmetric, zero-sum and fully
   observed — the friendliest possible setting for purely relative selection.
+  The lab's synthetic game with tunable cycles is a second setting, not a
+  second physical game.
 - **<!-- n:runs_min -->1<!-- /n -->–<!-- n:runs_max -->6<!-- /n --> runs per condition.** <!-- n:seeds_main -->6<!-- /n --> for every condition that carries a claim:
-  enough to separate a large effect from seed noise, not a small one.
+  enough to separate a large effect from seed noise, not a small one. Findings
+  1–5 held in a [preregistered replication](#a-preregistered-replication) on
+  <!-- n:rep_runs -->12<!-- /n --> fresh runs per condition; findings 6 and 7 were not replicated.
 - **Fixed topology.** Nothing here evolves structure; see §A.8 for what NEAT
   would need.
 - **One archive design per reading.** A quality-diversity or curated archive is a

@@ -41,6 +41,7 @@ import numpy as np
 
 import prose_numbers as pn
 import provenance as pv
+from run_experiments import SELECT_EPISODES
 
 ANDIR = "results/analysis"
 PAPER = "docs/paper"
@@ -598,6 +599,124 @@ def table_c(d):
     return "\n".join(out)
 
 
+def table_rep(d):
+    """The preregistered replication's verdicts (WP6)."""
+    rep = d["replication"]
+    if not rep:
+        return None
+    import replication
+    # decisions recomputed from the stored per-run values, exactly as
+    # replication.py --table does; they must equal the stored verdicts
+    res = replication.analyse(rep["per_run"], rep["seeds"])
+    assert res["verdict"] == rep["verdict"], "replication verdicts do not recompute"
+    return replication.table(res)
+
+
+def _p(x):
+    return "< 0.001" if x < 0.001 else f"= {x:.3f}"
+
+
+def table_lab(d):
+    """The discmix experiment (WP8), one row per lambda."""
+    a = d["lab"]
+    if not a:
+        return None
+    rows = ["| λ | cyclic triads within runs (control / test) | exported rank in pool of 128 "
+            "| ρ(streak, strength) | decline: exported / best | archive as test vs control, δ (p) |",
+            "|---|---|---|---|---|---|"]
+    for lam in sorted(a["H8b"]):
+        b = a["H8b"][lam]
+        c = a["H8c"]["by_lambda"][lam]
+        cc = a["H8a"]["control"]["share_by_lambda"][lam]
+        ct = a["H8a"]["test"]["share_by_lambda"][lam]
+        rows.append(f"| {float(lam):.2f} | {100 * cc:.1f}% / {100 * ct:.1f}% "
+                    f"| {b['mean_rank']:.0f} | {b['mean_rho_streak']:+.2f} "
+                    f"| {b['decline_exported']:.2f} / {b['decline_best']:.2f} "
+                    f"| {c['cliffs_delta']:+.2f} ({c['p_two_sided']:.3f}) |")
+    h8a, h8c = a["H8a"], a["H8c"]
+    rows += ["", "Discmix game, 12 runs per cell, all quantities exact. Exported rank "
+             "and ρ: control runs, mean over 10 population snapshots (rank 1 = "
+             "strongest). Declines: summed falls between snapshots against a fixed "
+             "external panel, control runs. Archive effect: Cliff's δ of the final "
+             "champions' cross-run strength, archive as test minus control, with the "
+             f"two-sided exact Mann–Whitney p. Trend tests (one-sided permutation): "
+             f"cycling vs λ ρ = {h8a['control']['rho']:+.2f} "
+             f"(p {_p(h8a['control']['p_one_sided'])}) in control and "
+             f"{h8a['test']['rho']:+.2f} (p {_p(h8a['test']['p_one_sided'])}) with the "
+             f"archive; archive effect vs λ p {_p(h8c['p_one_sided'])}."]
+    return "\n".join(rows)
+
+
+def table_t(d):
+    """Within-run transitivity at 5,000-game spacing, control runs (WP7)."""
+    f = d["within_fine"]
+    if not f:
+        return None
+
+    def pct(c, n):
+        return f"{100 * c / n:.2f}% ({c:,}/{n:,})" if n else "—"
+    rows = ["| run | ρ(Elo, time) | cyclic, ±0.25 rule | cyclic, sign test "
+            "| within 50k games, sign test | next beats previous |",
+            "|---|---|---|---|---|---|"]
+    tot = {k: 0 for k in ("dc", "dn", "sc", "sn", "ssc", "ssn", "aw", "an")}
+    for name in sorted(f["runs"]):
+        r = f["runs"][name]
+        db, st = r["deadband"], r["sign_test"]
+        rows.append(f"| {name} | {r['spearman_elo_vs_time']:+.2f} "
+                    f"| {pct(db['cyclic'], db['triads_decided'])} "
+                    f"| {pct(st['cyclic'], st['triads_decided'])} "
+                    f"| {pct(st['short_cyclic'], st['short_triads_decided'])} "
+                    f"| {st['adjacent_later_wins']}/{st['adjacent_decided']} |")
+        for k, v in (("dc", db["cyclic"]), ("dn", db["triads_decided"]),
+                     ("sc", st["cyclic"]), ("sn", st["triads_decided"]),
+                     ("ssc", st["short_cyclic"]), ("ssn", st["short_triads_decided"]),
+                     ("aw", st["adjacent_later_wins"]), ("an", st["adjacent_decided"])):
+            tot[k] += v
+    rows.append(f"| *all control runs* | — | {pct(tot['dc'], tot['dn'])} "
+                f"| {pct(tot['sc'], tot['sn'])} | {pct(tot['ssc'], tot['ssn'])} "
+                f"| {tot['aw']}/{tot['an']} |")
+    rows += ["", f"Every one of the 100 champions of each control run (one per "
+             f"{f['every']:,} games) played every other, {f['games_per_pair']} "
+             f"games per pair. A triad counts when all three of its pairs are "
+             f"decided: by the paper's rule (mean margin outside "
+             f"±{f['deadband']}) or by an exact sign test on wins against "
+             f"losses (p < {f['alpha']}). 'Next beats previous': adjacent "
+             f"champions whose difference the sign test decides, and how often "
+             f"the later one wins."]
+    return "\n".join(rows)
+
+
+def table_z(d):
+    """Final champions against the slimevolleygym zoo policies (WP7)."""
+    y, per_run = d["yardsticks"], d["per_run"]
+    if not y or not per_run:
+        return None
+    rows = ["| condition | runs | vs 2015 baseline | vs zoo GA | vs zoo CMA-ES "
+            "| beat zoo GA | beat zoo CMA-ES |", "|---|---|---|---|---|---|---|"]
+    for c in ORDER:
+        names = sorted(n for n in y["per_run"] if per_run[n]["condition"] == c)
+        if not names:
+            continue
+        base = [per_run[n]["final_holdout"] for n in names]
+        ga = [y["per_run"][n]["zoo-ga"]["mean"] for n in names]
+        cma = [y["per_run"][n]["zoo-cma"]["mean"] for n in names]
+        rows.append(f"| {LABELS.get(c, c)} | {len(names)} | {np.mean(base):+.2f} "
+                    f"| {np.mean(ga):+.2f} | {np.mean(cma):+.2f} "
+                    f"| {sum(x > 0 for x in ga)}/{len(names)} "
+                    f"| {sum(x > 0 for x in cma)}/{len(names)} |")
+    zb, zz = y["zoo_vs_baseline"], y["zoo_ga_vs_zoo_cma"]
+    rows += ["", f"Final (t = 500,000) champion of every single-population run, "
+             f"mean points per episode. Baseline column: held out, "
+             f"{SELECT_EPISODES:,} episodes; "
+             f"zoo columns: {2 * y['games_per_side']} games per champion, half "
+             f"on each side. 'Beat' counts runs whose champion scores above 0. "
+             f"For scale, against the 2015 baseline the zoo GA scores "
+             f"{zb['zoo-ga']['mean']:+.2f} and the zoo CMA-ES "
+             f"{zb['zoo-cma']['mean']:+.2f}; head to head the zoo GA scores "
+             f"{zz['mean']:+.2f} against the zoo CMA-ES."]
+    return "\n".join(rows)
+
+
 # The analysis files each table is built from. Table 10 reads the raw
 # two-population runs directly; per_run.json's provenance covers those files.
 FILES = {
@@ -609,6 +728,10 @@ FILES = {
     "reference": f"{ANDIR}/reference_curve.json",
     "reexport": f"{ANDIR}/reexport.json",
     "resume": f"{ANDIR}/resume_fast.json",
+    "yardsticks": f"{ANDIR}/yardsticks.json",
+    "within_fine": f"{ANDIR}/within_fine.json",
+    "replication": "results/replication/analysis.json",
+    "lab": "results/lab/analysis.json",
     "validation": "results/validation.json",
 }
 DEPS = {
@@ -618,19 +741,23 @@ DEPS = {
     "8": ["per_run", "reference"], "9": ["reexport"], "10": ["per_run"],
     "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
     "a2": ["per_run"], "a3": ["resume", "reference"],
+    "z": ["yardsticks", "per_run"], "t": ["within_fine"],
+    "rep": ["replication"], "lab": ["lab"],
 }
 
 TABLES = {
     "c": table_c,
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
-    "r": table_r,
+    "r": table_r, "z": table_z, "t": table_t, "rep": table_rep,
+    "lab": table_lab,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
 
 # Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
-PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3"]
+PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3",
+                "z", "t", "rep"]
 TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
            ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
            ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),
@@ -645,6 +772,7 @@ def md_cell_to_tex(cell):
     for a, b in TEX_MAP:
         cell = cell.replace(a, b)
     cell = re.sub(r"(?<![\w.$-])-(\d)", r"$-$\1", cell)   # not the 2nd '-' of '--'
+    cell = re.sub(r"\*\*([^*]+)\*\*", r"\\textbf{\1}", cell)
     cell = re.sub(r"\*([^*]+)\*", r"\\emph{\1}", cell)
     for c in code:
         cell = cell.replace("\x00", r"\texttt{" + c.replace("_", r"\_") + "}", 1)
@@ -783,11 +911,14 @@ def main():
         src = open(path).read()
         new = src
         for key, md in built.items():
-            pat = re.compile(rf"(<!-- table:{re.escape(key)} -->\n).*?"
-                             rf"(\n<!-- /table:{re.escape(key)} -->)",
+            # the block may be empty (a marker pair just added), which a
+            # pattern requiring a newline on both sides of the content would
+            # silently skip -- and --check would then pass on an empty table
+            pat = re.compile(rf"(<!-- table:{re.escape(key)} -->\n)(?:.*?\n)?"
+                             rf"(<!-- /table:{re.escape(key)} -->)",
                              re.DOTALL)
             if pat.search(new):
-                new = pat.sub(lambda m: m.group(1) + md + m.group(2), new)
+                new = pat.sub(lambda m: m.group(1) + md + "\n" + m.group(2), new)
         new = NUM.sub(lambda m: (m.group(1) + values[m.group(2)][0] + m.group(4))
                       if m.group(2) in values else m.group(0), new)
         if new != src:

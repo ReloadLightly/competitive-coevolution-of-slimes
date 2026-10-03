@@ -18,6 +18,12 @@ import numpy as np
 FAILS = []
 
 
+def coev_triads(margin):
+    """Cyclic triads of an exact payoff matrix (no deadband)."""
+    from coevolution_analysis import triad_stats
+    return triad_stats(margin, deadband=0.0)
+
+
 def check(name, condition, detail=""):
     status = "PASS" if condition else "FAIL"
     print(f"[{status}] {name}" + (f" — {detail}" if detail else ""))
@@ -211,6 +217,43 @@ def main():
               ch.shape == (4, 273) and 0.0 < aw[-1] < 1.0,
               f"{ch.shape[0]} checkpoints, archive win rates "
               f"{np.round(aw, 2).tolist()}")
+        # --- the lab wraps the study, it does not rewrite it ---------------
+        # lab.kernels.run on Slime Volleyball must reproduce the paper's three
+        # GA kernels and the population snapshots bit for bit.
+        from lab import kernels as LK, games as LG
+        g, gp, X1, X2, X3 = LG.make("slime")
+        same = []
+        ref = fv.run_ga(7, 2000, 16, 0.1, 500, 0.0, 100, 8, w, b, 0.5)
+        lab = LK.run(g, gp, X1, X2, X3, 7, 2000, 16, 0.1, 500, LK.HOF_NONE,
+                     0.0, 100, 8, w, b, 0.5, 0)
+        same.append(all(np.array_equal(r, l) for r, l in zip(ref, lab[:5])))
+        ref = fv.run_ga(7, 2000, 16, 0.1, 500, 0.25, 100, 8, w, b, 0.5)
+        lab = LK.run(g, gp, X1, X2, X3, 7, 2000, 16, 0.1, 500, LK.HOF_PARENT,
+                     0.25, 100, 8, w, b, 0.5, 0)
+        same.append(all(np.array_equal(r, l) for r, l in zip(ref, lab[:5])))
+        ref = alg.run_ga_hof_eval(7, 2000, 16, 0.1, 500, 0.25, 100, 8, w, b, 0.5)
+        lab = LK.run(g, gp, X1, X2, X3, 7, 2000, 16, 0.1, 500, LK.HOF_TEST,
+                     0.25, 100, 8, w, b, 0.5, 0)
+        same.append(all(np.array_equal(r, lab[i]) for r, i in zip(ref, (0, 1, 2, 4))))
+        ref = fv.run_ga_with_pops(7, 2000, 16, 0.1, 500, 0.0, 100, 8, w, b, 0.5, 1000)
+        lab = LK.run(g, gp, X1, X2, X3, 7, 2000, 16, 0.1, 500, LK.HOF_NONE,
+                     0.0, 100, 8, w, b, 0.5, 1000)
+        same.append(all(np.array_equal(r, lab[i]) for r, i in zip(ref, (0, 1, 2, 5, 6))))
+        check("lab GA reproduces the paper's kernels bit for bit", all(same),
+              "control, archive as parent, archive as test, snapshots: "
+              + ", ".join("same" if s else "DIFFERENT" for s in same))
+
+        # discmix: the expected margin is antisymmetric, and with lambda = 0
+        # (transitive part only) no triad can be cyclic
+        pool = LG.features(np.random.default_rng(3).normal(size=(24, 273)) * 0.5)
+        m0, m1 = LG.payoff_matrix(pool, 0.0), LG.payoff_matrix(pool, 1.0)
+        t0 = coev_triads(m0)
+        t1 = coev_triads(m1)
+        check("discmix: antisymmetric, transitive at lambda 0, cyclic at 1",
+              np.allclose(m0, -m0.T) and np.allclose(m1, -m1.T)
+              and t0["cyclic"] == 0 and t1["cyclic"] > 0,
+              f"cyclic triads {t0['cyclic']}/{t0['triads_decided']} at lambda 0, "
+              f"{t1['cyclic']}/{t1['triads_decided']} at lambda 1")
     except ImportError as e:
         check("compiled environment available", False,
               f"{e} — install requirements-fast.txt")

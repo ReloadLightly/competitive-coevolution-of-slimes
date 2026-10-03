@@ -60,6 +60,7 @@ any external transfer by tens of thousands of games, and the timing of the
 phase change varies \nCtrlTInternalRatio-fold across seeds. An archive of past
 champions used as a parent abolishes learning; used as a test, it neither
 harms nor helps detectably, because past champions soon stop being able to win.
+These claims held in a preregistered replication on \nRepTotal{} fresh runs.
 Algorithm families differ in reliability, not ceiling. A two-population variant with unequal capacity is reported as
 exploratory. Any evolutionary loop that promotes one artefact out of a
 population, including LLM-driven program evolution, has the same exposure; we
@@ -285,6 +286,15 @@ equally bad policies whose pairwise results are noise. The game, at the scale
 of skill explored here, is dominated by its transitive component
 \citep{balduzzi2019openended,czarnecki2020spinning}.
 
+The checkpoints are 50,000 games apart, so a faster cycle would be invisible.
+Played at 5,000-game spacing (all 100 champions of each control run,
+\nFineGames{} games per pair; Appendix~\ref{app:fine}), the same deadband rule
+finds \nFineCyclicDeadbandPct\% of decided triads cyclic, but at that sample
+size the deadband lets noise decide pairs between near-equal policies. When a
+pair counts as decided only if an exact sign test on its wins and losses says
+so, \nFineCyclicSign{} of \nFineTriadsSign{} decided triads are cyclic
+(\nFineCyclicSignPct\%): not cycling at the finer resolution either.
+
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.88\linewidth]{figures/fig5_coevolution.pdf}
@@ -445,6 +455,33 @@ share of checkpoints above parity (ctrl: control; gen.\ GA: generational GA).}
 \label{fig:families}
 \end{figure}
 
+\subsection{A preregistered replication}
+\label{sec:replication}
+
+The results above rest on six seeds per main condition, and the design was
+revised while it ran (Section~\ref{sec:limitations}). The claims about Ha's
+GA and the archive (Sections~\ref{sec:lag}--\ref{sec:export}
+and~\ref{sec:archive}) were therefore tested again on fresh seeds, with every test,
+threshold and decision rule committed before the first run:
+\nRepRuns{} new runs each of the control, the archive as parent and the archive
+as test, \nRepTotal{} in all, measured with the code that produced the
+results above and analysed once. \nRepVerdicts{} claims replicated
+(Table~\ref{tab:replication} in Appendix~\ref{app:replication}). The internal transition preceded parity in
+\nRepLagFirst{} eligible runs; checkpoint skill was transitive
+($\rho=\nRepRho$, \nRepCyclicPct\% cyclic triads); the exported individual
+ranked on average \nRepRank{} of 128 in its pool, with $\rho(\text{streak},
+\text{skill})=\nRepRhoStreak$, and lost \nRepDeclExp{} points between
+snapshots where the pool's best member lost \nRepDeclBest; the archive as
+parent learned in \nRepParentLearned{} runs; the archive as test was again
+indistinguishable from the control (every $p\geq\nRepArchivePmin$).
+
+Two statements come out weaker than six seeds suggested. Not every control
+run learns: \nRepCtrlLearned{} did, which meets the preregistered threshold
+but not ``every seed''. And a falling archive win rate does not by itself
+indicate learning: it fell to \nRepArchLearnedMin--\nRepArchLearnedMax{} in
+the archive-as-test runs that learned, but also to \nRepArchFailedMin{} in one
+that never did. C6 and C7 were not part of the replication.
+
 % =========================================================================
 \section{Unequal power (exploratory)}
 \label{sec:asym}
@@ -490,6 +527,12 @@ whether its swings come from the population or from the choice of
 individual.
 
 \paragraph{A hypothesis about other evolutionary loops.}
+The failure does not depend on skill being transitive. In a synthetic game
+whose mix of transitive and cyclic skill is set by one parameter, run with the
+same GA and preregistered (repository, \texttt{docs/lab.md}), the streak rule
+exported an individual ranked on average \nLabRankMin--\nLabRankMax{} of 128 in
+its own pool at every mixture, its streak barely related to its true strength
+($\rho=\nLabRhoStreakMin$ to $\nLabRhoStreakMax$).
 Any loop that promotes one artefact out of a population has a promotion rule,
 and that rule is usually cheaper than a measurement of quality. LLM-driven
 program evolution \citep{novikov2025alphaevolve,lange2025shinkaevolve} promotes
@@ -517,16 +560,23 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
 \begin{itemize}
 \item \textbf{One environment}, symmetric, zero-sum and fully observed: the most
   favourable setting for purely relative selection, and one whose skill
-  structure is largely transitive. In a genuinely cyclic game the archive and
-  the export rule may behave differently.
+  structure is largely transitive. In a synthetic game with tunable cyclic
+  skill (repository, preregistered, \nLabRuns{} runs), cycling appeared as
+  designed (\nLabCycHiPct\% cyclic champion triads at the most cyclic setting),
+  the export rule failed in the same way, and an archive used as a test did not
+  help more as skill became cyclic (trend $p=\nLabTrendP$). A physical game with
+  cyclic skill remains untested.
 \item \textbf{Few seeds.} \nSeedsMain{} runs per condition separate large
   effects from seed noise, not small ones; several conditions have fewer.
-  Secondary comparisons are uncorrected for multiplicity.
+  Secondary comparisons are uncorrected for multiplicity. C1--C5b were
+  confirmed on \nRepRuns{} fresh runs per condition
+  (\S\ref{sec:replication}); C6 and C7 were not.
 \item \textbf{Post hoc design changes.} The design was revised while it ran
   (seed counts, the archive conditions, the replacement of the population sweep
   by the unequal-power block, the rerun of the archive-as-test condition after a
   bug fix). Each change is logged with what was known when it was made, but the
-  final design is not the one pre-registered.
+  final design is not the one pre-registered; the replication of
+  \S\ref{sec:replication} was.
 \item \textbf{Scope of the measurements.} The export analysis is
   control-only, because only the control stores population snapshots; the
   topology is fixed, each archive reading has one design, and the ES was tuned
@@ -697,6 +747,85 @@ champion in one all-play-all tournament; bars mark condition medians.}
 \caption{Cross-run tournament of final champions, by condition.}
 \label{tab:crossrun}
 \input{tables/6.tex}
+\end{table}
+
+\FloatBarrier
+\subsection{The preregistered replication}
+\label{app:replication}
+
+The design, hypotheses, tests and decision rules are in
+\texttt{results/replication/PREREGISTRATION.md}, committed before the first
+replication run; \texttt{replication.py} is the analysis, run once. Its
+measurements are the main text's own and, applied to the original seeds,
+reproduce the committed analysis files bit for bit. One run was trained in
+the session's container and the rest on GitHub's runners, after the container
+was reclaimed twice mid-run; a run repeated on both machines gave identical
+files (\texttt{results/matrix/decisions.md}).
+
+\begin{table}[!htbp]
+\centering\small
+\caption{The preregistered replication: \nRepRuns{} fresh runs per condition,
+every criterion fixed before the first run. Tests in the Holm family hold when
+rejected at family-wise $\alpha=0.05$.}
+\label{tab:replication}
+\resizebox{\linewidth}{!}{\input{tables/rep.tex}}
+\end{table}
+
+\FloatBarrier
+\subsection{Transitivity at 5,000-game spacing}
+\label{app:fine}
+
+Table~\ref{tab:fine} repeats the within-run tournament of
+Section~\ref{sec:transitive} on every stored champion of the control runs,
+one per 5,000 games, with two rules for when a pair counts as decided. Under
+the main text's deadband rule the pooled cyclic share is
+\nFineCyclicDeadbandPct\%, and \nFineShortDeadbandPct\% among triads spanning at
+most 50,000 games; under an exact sign test it is \nFineCyclicSignPct\%. The
+difference is sampling noise: with \nFineGames{} games per pair, the margin
+between two near-equal policies has a standard error of the order of the
+deadband. The same tournament shows the exported champion moving at this
+resolution while the population does not: among adjacent champions whose
+difference the sign test decides, the later one wins \nFineNextWins{} times
+(\nFineNextWinsPct\%).
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Within-run tournament at 5,000-game spacing, control runs.}
+\label{tab:fine}
+\resizebox{\linewidth}{!}{\input{tables/t.tex}}
+\end{table}
+
+\FloatBarrier
+\subsection{Stronger external opponents}
+\label{app:zoo}
+
+The 2015 baseline never sees its opponent, so ``above parity'' against it is a
+low bar. \citet{ha2020slimevolleygym} also publishes two trained policies: a
+self-play GA champion of the same 273-parameter class, and a 743-parameter
+CMA-ES policy trained against the baseline, which score \nZooGaVsBase{} and
+\nZooCmaVsBase{} against it. Every final champion played \nZooGames{} games
+against each, half on each side, on the compiled environment; for networks of
+both sizes it reproduces the reference environment bit for bit
+(\nZooValidGames{} games, \nZooValidSteps{} steps compared).
+
+The baseline ranks the final champions much as the stronger opponents do
+(Spearman $\rho=\nZooRhoBaseGa$ against the zoo GA and $\nZooRhoBaseCma$ against
+the zoo CMA-ES, over \nZooN{} champions), so the comparisons in the main text do
+not hinge on it. It does flatter them: \nZooBeatGa{} of the \nZooN{} beat the
+published GA champion (the best scores \nZooBestVsGa), and of the
+\nZooAboveBase{} above parity against the baseline, \nZooAboveBeatCma{} also beat
+the CMA-ES policy (Table~\ref{tab:zoo}). The published GA champion is a single
+export its author chose to release, not an unselected endpoint. The CMA-ES
+policy, trained only against the baseline, is the stronger of the two by the
+baseline's measure yet loses head to head to the GA champion (\nZooGaVsCma{} for
+the GA): specialising against the yardstick, in one comparison.
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Final champions against the 2015 baseline (held out) and the two
+slimevolleygym zoo policies, points per episode, by condition.}
+\label{tab:zoo}
+\resizebox{\linewidth}{!}{\input{tables/z.tex}}
 \end{table}
 
 \FloatBarrier

@@ -722,6 +722,202 @@ def definitions():
         "reference continuation over the same games: share of checkpoints above "
         "parity, in %")(lambda d: _pct(ref_cont(d)))
 
+    # ---- WP7: stronger yardsticks (slimevolleygym zoo) --------------------
+    def zoo(d, opp):
+        return {n: v[opp]["mean"] for n, v in d["yardsticks"]["per_run"].items()}
+
+    def zoo_base(d):
+        return {n: d["per_run"][n]["final_holdout"] for n in d["yardsticks"]["per_run"]}
+    for key, opp, what in (("ga", "zoo-ga", "zoo GA"), ("cma", "zoo-cma", "zoo CMA-ES")):
+        add(f"zoo_{key}_vs_base", ["yardsticks"],
+            f"{what} against the 2015 baseline, points per episode")(
+            (lambda o: lambda d: _f(d["yardsticks"]["zoo_vs_baseline"][o]["mean"],
+                                    2, True))(opp))
+        add(f"zoo_beat_{key}", ["yardsticks"],
+            f"final champions scoring above 0 against the {what}")(
+            (lambda o: lambda d: str(sum(x > 0 for x in zoo(d, o).values())))(opp))
+        add(f"zoo_rho_base_{key}", ["yardsticks", "per_run"],
+            f"Spearman rho over final champions: score vs 2015 baseline (held "
+            f"out) against score vs the {what}")(
+            (lambda o: lambda d: _f(su.spearman(
+                [zoo_base(d)[n] for n in sorted(zoo(d, o))],
+                [zoo(d, o)[n] for n in sorted(zoo(d, o))]), 2, True))(opp))
+        add(f"zoo_above_beat_{key}", ["yardsticks", "per_run"],
+            f"final champions above parity against the 2015 baseline that also "
+            f"score above 0 against the {what}")(
+            (lambda o: lambda d: str(sum(zoo(d, o)[n] > 0 for n, v in zoo_base(d).items()
+                                         if v > 0)))(opp))
+    add("zoo_ga_vs_cma", ["yardsticks"],
+        "zoo GA against zoo CMA-ES, head to head, points per episode")(
+        lambda d: _f(d["yardsticks"]["zoo_ga_vs_zoo_cma"]["mean"], 2, True))
+    add("zoo_n", ["yardsticks"], "final champions scored against the zoo")(
+        lambda d: str(len(d["yardsticks"]["per_run"])))
+    add("zoo_games", ["yardsticks"], "games per champion and zoo opponent")(
+        lambda d: str(2 * d["yardsticks"]["games_per_side"]))
+    add("zoo_above_base", ["yardsticks", "per_run"],
+        "final champions above parity against the 2015 baseline (held out)")(
+        lambda d: str(sum(v > 0 for v in zoo_base(d).values())))
+    add("zoo_best_vs_ga", ["yardsticks"],
+        "best final champion against the zoo GA, points per episode")(
+        lambda d: _f(max(zoo(d, "zoo-ga").values()), 2, True))
+    add("zoo_valid_steps", ["yardsticks"],
+        "steps compared bit for bit, compiled zoo games vs slimevolleygym")(
+        lambda d: f"{sum(r['steps'] for r in d['yardsticks']['validation']):,}")
+    add("zoo_valid_games", ["yardsticks"],
+        "games compared bit for bit, compiled zoo games vs slimevolleygym")(
+        lambda d: str(sum(r["games"] for r in d["yardsticks"]["validation"])))
+
+    # ---- WP6: the preregistered replication -----------------------------
+    def rp(d):
+        return d["replication"]
+    add("rep_runs", ["replication"], "replication: runs per condition")(
+        lambda d: str(rp(d)["n"]["control"]))
+    add("rep_total", ["replication"], "replication: runs in total")(
+        lambda d: str(sum(rp(d)["n"].values())))
+    add("rep_verdicts", ["replication"],
+        "replication: claims replicated, of those tested")(
+        lambda d: f"{sum(rp(d)['verdict'].values())} of {len(rp(d)['verdict'])}")
+    add("rep_lag_first", ["replication"],
+        "replication: control runs with the internal transition first, of the eligible")(
+        lambda d: f"{rp(d)['H1']['positive']}/{rp(d)['H1']['informative']}")
+    add("rep_ctrl_learned", ["replication"], "replication: control runs that learned to rally")(
+        lambda d: f"{rp(d)['H2']['learned']}/{rp(d)['H2']['of']}")
+    add("rep_timing_ratio", ["replication"],
+        "replication: latest / earliest internal transition, control")(
+        lambda d: _f(rp(d)["H2"]["timing_ratio"], 1))
+    add("rep_rho", ["replication"], "replication: mean rho(Elo, time), control")(
+        lambda d: _f(rp(d)["H3"]["rho_mean"], 2, True))
+    add("rep_cyclic_pct", ["replication"],
+        "replication: cyclic share of decided checkpoint triads, control, in %")(
+        lambda d: _pct(rp(d)["H3"]["cyclic_share"], 1))
+    add("rep_rank", ["replication"],
+        "replication: mean rank of the exported individual in its pool of 128")(
+        lambda d: f"{np.mean(rp(d)['H4']['a']['mean_rank']):.0f}")
+    add("rep_rho_streak", ["replication"],
+        "replication: mean rho(streak counter, skill)")(
+        lambda d: _f(rp(d)["H4"]["b"]["rho_mean"], 2, True))
+    add("rep_decl_exp", ["replication"],
+        "replication: summed decline of the exported individual, control runs")(
+        lambda d: _f(rp(d)["H4"]["c"]["sum_exported"], 1))
+    add("rep_decl_best", ["replication"],
+        "replication: summed decline of the pool's best member, control runs")(
+        lambda d: _f(rp(d)["H4"]["c"]["sum_best"], 1))
+    add("rep_parent_learned", ["replication"],
+        "replication: archive-as-parent runs that learned to rally")(
+        lambda d: f"{rp(d)['H5']['learned_parent']}/{rp(d)['H5']['of_parent']}")
+    add("rep_test_learned", ["replication"],
+        "replication: archive-as-test runs that learned to rally")(
+        lambda d: f"{rp(d)['H6']['learned_test']}/{rp(d)['H6']['of_test']}")
+    add("rep_archive_pmin", ["replication"],
+        "replication: smallest of the four archive-as-test vs control p values")(
+        lambda d: _f(min(c["p_two_sided"] for c in rp(d)["H6"]["comparisons"].values()), 2))
+    add("rep_arch_learned_min", ["replication"],
+        "replication: lowest late archive win rate, archive-as-test runs that learned")(
+        lambda d: _f(min(rp(d)["H6"]["archive_late_learned"]), 2))
+    add("rep_arch_learned_max", ["replication"],
+        "replication: highest late archive win rate, runs that learned")(
+        lambda d: _f(max(rp(d)["H6"]["archive_late_learned"]), 2))
+    add("rep_arch_failed_min", ["replication"],
+        "replication: lowest late archive win rate, archive-as-test runs that did not learn")(
+        lambda d: _f(min(rp(d)["H6"]["archive_late_failed"]), 2))
+
+    # ---- WP8: the discmix experiment (lab) ------------------------------
+    def lab(d):
+        return d["lab"]
+
+    def lab_lams(d):
+        return sorted(lab(d)["H8b"], key=float)
+    add("lab_runs", ["lab"], "discmix experiment: runs in total")(
+        lambda d: str(len(lab(d)["per_run"])))
+    add("lab_lambda_max", ["lab"], "discmix experiment: largest lambda")(
+        lambda d: _f(float(lab_lams(d)[-1]), 2))
+    add("lab_cyc_hi_pct", ["lab"],
+        "discmix: cyclic share of champion triads at the largest lambda, control, in %")(
+        lambda d: _pct(lab(d)["H8a"]["control"]["share_by_lambda"][lab_lams(d)[-1]], 1))
+    add("lab_cyc_mid_pct", ["lab"],
+        "discmix: cyclic share of champion triads at lambda 0.5, control, in %")(
+        lambda d: _pct(lab(d)["H8a"]["control"]["share_by_lambda"]["0.50"], 1))
+    add("lab_cycle_rho", ["lab"],
+        "discmix: Spearman rho(lambda, cyclic share), control runs")(
+        lambda d: _f(lab(d)["H8a"]["control"]["rho"], 2, True))
+    add("lab_rank_min", ["lab"],
+        "discmix: lowest per-lambda mean rank of the exported individual (of 128)")(
+        lambda d: f"{min(r['mean_rank'] for r in lab(d)['H8b'].values()):.0f}")
+    add("lab_rank_max", ["lab"],
+        "discmix: highest per-lambda mean rank of the exported individual (of 128)")(
+        lambda d: f"{max(r['mean_rank'] for r in lab(d)['H8b'].values()):.0f}")
+    add("lab_rho_streak_min", ["lab"],
+        "discmix: lowest per-lambda mean rho(streak, true strength)")(
+        lambda d: _f(min(r["mean_rho_streak"] for r in lab(d)["H8b"].values()), 2, True))
+    add("lab_rho_streak_max", ["lab"],
+        "discmix: highest per-lambda mean rho(streak, true strength)")(
+        lambda d: _f(max(r["mean_rho_streak"] for r in lab(d)["H8b"].values()), 2, True))
+    add("lab_decl_exp_hi", ["lab"],
+        "discmix: exported individual's summed decline at the largest lambda")(
+        lambda d: _f(lab(d)["H8b"][lab_lams(d)[-1]]["decline_exported"], 2))
+    add("lab_decl_best_hi", ["lab"],
+        "discmix: best member's summed decline at the largest lambda")(
+        lambda d: _f(lab(d)["H8b"][lab_lams(d)[-1]]["decline_best"], 2))
+    add("lab_trend_p", ["lab"],
+        "discmix: one-sided p of the archive-effect trend over lambda")(
+        lambda d: _f(lab(d)["H8c"]["p_one_sided"], 3))
+    add("lab_delta_min", ["lab"],
+        "discmix: most negative per-lambda archive-as-test effect (Cliff's delta)")(
+        lambda d: _f(min(r["cliffs_delta"] for r in lab(d)["H8c"]["by_lambda"].values()), 2, True))
+    add("lab_delta_low_max", ["lab"],
+        "discmix: least negative archive effect among lambda <= 0.5")(
+        lambda d: _f(max(r["cliffs_delta"] for l, r in lab(d)["H8c"]["by_lambda"].items()
+                         if float(l) <= 0.5), 2, True))
+    add("lab_p_low_min", ["lab"],
+        "discmix: smallest per-lambda two-sided p of the archive effect, lambda <= 0.5")(
+        lambda d: _f(min(r["p_two_sided"] for l, r in lab(d)["H8c"]["by_lambda"].items()
+                         if float(l) <= 0.5), 3))
+    add("lab_p_low_max", ["lab"],
+        "discmix: largest per-lambda two-sided p of the archive effect, lambda <= 0.5")(
+        lambda d: _f(max(r["p_two_sided"] for l, r in lab(d)["H8c"]["by_lambda"].items()
+                         if float(l) <= 0.5), 3))
+
+    # ---- WP7: transitivity at 5,000-game spacing ------------------------
+    def fine(d, rule, c, n):
+        rs = d["within_fine"]["runs"].values()
+        return sum(r[rule][c] for r in rs), sum(r[rule][n] for r in rs)
+
+    def fine_pct(d, rule, c, n, nd):
+        k, m = fine(d, rule, c, n)
+        return _pct(k / m, nd)
+    add("fine_cyclic_deadband_pct", ["within_fine"],
+        "5k spacing, control: cyclic share of decided triads, paper's +/-0.25 "
+        "rule, pooled, in %")(lambda d: fine_pct(d, "deadband", "cyclic",
+                                                 "triads_decided", 1))
+    add("fine_short_deadband_pct", ["within_fine"],
+        "5k spacing, control: cyclic share among triads within 50k games, "
+        "paper's rule, pooled, in %")(lambda d: fine_pct(
+            d, "deadband", "short_cyclic", "short_triads_decided", 1))
+    add("fine_cyclic_sign", ["within_fine"],
+        "5k spacing, control: cyclic triads under the sign-test rule, pooled")(
+        lambda d: f"{fine(d, 'sign_test', 'cyclic', 'triads_decided')[0]:,}")
+    add("fine_triads_sign", ["within_fine"],
+        "5k spacing, control: decided triads under the sign-test rule, pooled")(
+        lambda d: f"{fine(d, 'sign_test', 'cyclic', 'triads_decided')[1]:,}")
+    add("fine_cyclic_sign_pct", ["within_fine"],
+        "5k spacing, control: cyclic share of sign-test-decided triads, "
+        "pooled, in %")(lambda d: fine_pct(d, "sign_test", "cyclic",
+                                           "triads_decided", 2))
+    add("fine_next_wins", ["within_fine"],
+        "5k spacing, control: adjacent champions decided by the sign test in "
+        "which the later one wins, k/n pooled")(
+        lambda d: "{}/{}".format(*fine(d, "sign_test", "adjacent_later_wins",
+                                       "adjacent_decided")))
+    add("fine_next_wins_pct", ["within_fine"],
+        "the same as a share, in %")(lambda d: fine_pct(
+            d, "sign_test", "adjacent_later_wins", "adjacent_decided", 0))
+    add("fine_rho_min", ["within_fine"],
+        "5k spacing, control: lowest per-run rho(Elo, time)")(
+        lambda d: _f(min(r["spearman_elo_vs_time"]
+                         for r in d["within_fine"]["runs"].values()), 2, True))
+    add("fine_games", ["within_fine"], "5k spacing: games per pair")(
+        lambda d: str(d["within_fine"]["games_per_pair"]))
+
     # ---- inventory -------------------------------------------------------
     add("n_single_runs", ["per_run"], "single-population runs analysed")(
         lambda d: str(len(single(d))))
@@ -750,7 +946,12 @@ def compute(d):
 
 
 def tex_name(key):
-    return "n" + "".join(p.capitalize() for p in key.split("_"))
+    name = "n" + "".join(p.capitalize() for p in key.split("_"))
+    # a LaTeX command name is letters only: \nRepC1 would define \nRepC
+    if not name.isalpha():
+        raise ValueError(f"number key {key!r} gives the macro name {name!r}, "
+                         f"which LaTeX cannot define (letters only)")
+    return name
 
 
 def tex_value(s):

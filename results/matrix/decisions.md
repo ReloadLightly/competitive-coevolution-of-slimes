@@ -313,3 +313,121 @@ were produced with (found when reproducing them earlier today): `reexport.py`
 60 episodes per individual (default was 100), `validate_fastvolley.py` 50
 games per scenario (was 60), `resume_fast.py` 2 continuations (was 3). No
 output changes; the provenance records already carry these parameters.
+
+## 2026-10-02 — next phase: section 4 of CLAUDE.md lifted; confirmatory replication
+
+PR #8 (WP1–WP4) was merged into `main` the same evening; that state is tagged
+`paper-v1`. Roland then lifted the "out of scope" list in CLAUDE.md section 4
+("whatever is a blocker such as what is written in paragraph 4, i overrule
+it"): more seeds, new conditions, new environments and algorithms are now
+allowed where a work package calls for them. CLAUDE.md section 3b lists the
+new work packages (WP6–WP9), ordered by the paper's Limitations section.
+
+What was known when the replication was designed: everything in the paper.
+The replication's hypotheses, tests and decision rules were derived from the
+claims as published (C1–C5b) and from the original seeds' values, which are
+reported next to the hypotheses in `results/replication/PREREGISTRATION.md`.
+No replication run existed when that file and `replication.py` were committed.
+The replication writes into its own directory, so no existing table, number or
+figure changes when its runs land.
+
+## 2026-10-02 — WP7: stronger yardsticks from the slimevolleygym zoo
+
+A new analysis, no change to any run or existing number. Ha's two published
+feed-forward policies (zoo GA, 273 parameters; zoo CMA-ES, 743 parameters;
+slimevolleygym commit 8ac22434, Apache-2.0, copied verbatim into
+`results/zoo/`) were added as fixed opponents, and every final champion of
+the 41 single-population runs played 200 games against each
+(`yardsticks.py`, seed 20261004). The compiled games were first checked bit
+for bit against the reference environment for both network sizes (40 games,
+120,000 steps, all identical). Result: the 2015 baseline ranks champions much
+as the stronger opponents do, but no final champion beats the zoo GA (README
+"Against stronger opponents", paper Appendix A.6, table z).
+
+Found on the way: `make_tables.py` skipped a table marker pair with nothing
+between it, and `--check` passed on the empty block. The injection pattern now
+accepts an empty block, so a new marker is filled and an unfilled one fails
+the check; no existing table changed.
+
+## 2026-10-03 — replication runs move to GitHub Actions (execution only)
+
+The replication was launched in the cloud session's container on 2026-10-02
+at 22:55 UTC and relaunched at 23:49 after the container was restarted; the
+container was reclaimed again while the session was paused (Roland's usage
+limit), at some time after 00:07. One run had finished and was committed
+(`hof-eval-v2_s201`, which never learned to rally; 12.6 minutes). Every
+other run in progress was lost; none had produced a file, so nothing was
+discarded or selected.
+
+The remaining 35 runs execute on GitHub's runners
+(`.github/workflows/replication.yml`), one run per job, each committed when
+it finishes. Per run, the computation is the preregistered one: the same code,
+parameters, seeds, output directory and command (`run_experiments.py --outdir
+results/replication --only <condition> --seeds <seed>`), in the environment
+pinned by `requirements-lock.txt`. The machine differs from the one that
+produced `hof-eval-v2_s201`; floating-point results of the compiled kernels
+may then differ in the last bits between machines (e.g. through the C
+library's tanh), so a run is reproducible on the machine type it ran on, not
+necessarily bit for bit across machine types. Each job log records its CPU and
+library versions. This changes where runs execute, not what they compute, and
+no run is repeated or replaced: a run whose file exists is skipped.
+
+Check, same day: `control_s206`, the first run GitHub's runner finished, was
+rerun in the session container with the identical command. The two files are
+identical in all 25 data arrays (every champion, every evaluation score,
+every population snapshot; only the wall-clock times differ: 4.7 minutes on
+the runner, 9.3 here). For this run, the change of machine changed nothing.
+
+## 2026-10-03 — WP6: the preregistered replication, analysed
+
+`python replication.py` was run once, after all 36 run files existed
+(`results/replication/analysis.json`, provenance scope `replication`).
+Verdicts, by the rules of `results/replication/PREREGISTRATION.md`: **C1, C2,
+C3, C4, C5a and C5b all replicated.**
+
+| claim | original six seeds | replication, seeds 201–212 |
+|---|---|---|
+| C1 lag > 0 | 6/6 | 10/10 eligible runs, p = 0.001 |
+| C2 learned to rally | 6/6 | 10/12 (threshold 10/12) |
+| C2 timing spread | 7.5× | 5.8× |
+| C3 ρ(Elo, time) | +0.74 (6/6 > 0) | +0.79 (12/12 > 0) |
+| C3 cyclic triads | 0.2% | 0.5% |
+| C4 exported rank | 64 of 128 | 56 of 128 (12/12 outside top quarter) |
+| C4 ρ(streak, skill) | +0.04 | +0.04 [+0.02, +0.06] |
+| C4 declines exported / best | 8.6 / 1.1 | 21.2 / 7.6 (10/12 runs, p = 0.019) |
+| C5a learned, parent vs control | 1/6 vs 6/6 | 1/12 vs 10/12 |
+| C5b archive as test vs control | all p ≥ 0.37 | all p ≥ 0.44 |
+
+Weaker than the six seeds suggested, and to be said where the claims are:
+two of twelve control runs never learned to rally (C2 holds by its 10/12
+threshold, but "in every seed" was a six-seed statement); and the
+description attached to C5b without a decision fails: the late archive win
+rate fell to 0.06–0.16 in the ten archive-as-test runs that learned, but one
+of the two runs that did not learn also ends at 0.21, so a low archive win
+rate does not by itself indicate learning.
+
+## 2026-10-03 — WP8: the discmix experiment, analysed
+
+`python lab_analysis.py` was run once, after all 96 run files existed
+(`results/lab/analysis.json`, provenance scope `lab`). Verdicts by the rules
+of `results/lab/PREREGISTRATION.md`:
+
+- **H8a holds**: within-run cycling rises with λ (cyclic share of champion
+  triads 0 / 1.4 / 5.7 / 13.5% in control; ρ = +0.97, p < 0.001 in both
+  modes).
+- **H8b holds**: at every λ the exported individual sits outside its pool's
+  top quarter (mean rank 52–63 of 128; Holm-corrected sign tests all
+  rejected); ρ(streak, strength) +0.07 to +0.13.
+- **H8c does not hold**: the archive-as-test effect does not grow with λ
+  (trend p = 0.116). Per λ (no decision preregistered): δ = −0.44, −0.29,
+  −0.47, +0.06 at λ = 0, 0.25, 0.5, 0.75 (p = 0.068, 0.242, 0.052, 0.843).
+
+Found when reading the results, and reported with them: the external panel
+(64 initial-distribution genomes) is beaten almost always by the evolved
+pools at λ ≤ 0.5, so the summed declines there are about zero for every
+member and say nothing; only at λ = 0.75 do they discriminate (exported 1.78,
+best member 0.08). The decline was a descriptive column, not a test.
+
+As the preregistration requires for a failed H8c, the paper's Limitations
+bullet on cyclic games now reports what was found; H8b's result is added to
+the Discussion's paragraph on other loops.

@@ -69,6 +69,15 @@
 \newcommand{\nEsSdRatio}{3.5}  % es: s.d. across seeds of the end-of-run champion (held out), relative to the control's
 \newcommand{\nFamilySdRatioMax}{3.5}  % largest endpoint s.d. ratio (vs control) among the other three families
 \newcommand{\nFamilySdRatioMin}{3.0}  % smallest endpoint s.d. ratio (vs control) among the other three families
+\newcommand{\nFineCyclicDeadbandPct}{1.0}  % 5k spacing, control: cyclic share of decided triads, paper's +/-0.25 rule, pooled, in %
+\newcommand{\nFineCyclicSign}{35}  % 5k spacing, control: cyclic triads under the sign-test rule, pooled
+\newcommand{\nFineCyclicSignPct}{0.01}  % 5k spacing, control: cyclic share of sign-test-decided triads, pooled, in %
+\newcommand{\nFineGames}{20}  % 5k spacing: games per pair
+\newcommand{\nFineNextWins}{88/144}  % 5k spacing, control: adjacent champions decided by the sign test in which the later one wins, k/n pooled
+\newcommand{\nFineNextWinsPct}{61}  % the same as a share, in %
+\newcommand{\nFineRhoMin}{\ensuremath{+}0.68}  % 5k spacing, control: lowest per-run rho(Elo, time)
+\newcommand{\nFineShortDeadbandPct}{4.5}  % 5k spacing, control: cyclic share among triads within 50k games, paper's rule, pooled, in %
+\newcommand{\nFineTriadsSign}{273,376}  % 5k spacing, control: decided triads under the sign-test rule, pooled
 \newcommand{\nGaAbovePct}{3}  % ga2015: mean share of checkpoints above parity, in %
 \newcommand{\nGaElitePct}{20}  % generational GA: share retained per generation, in %
 \newcommand{\nGaFinalMean}{\ensuremath{-}2.00}  % ga2015: mean end-of-run champion, held out
@@ -120,6 +129,22 @@
 \newcommand{\nHoftestWinLateMax}{0.50}  % archive as test: highest per-seed archive win rate, last 50,000 games
 \newcommand{\nHoftestWinLateMin}{0.11}  % archive as test: lowest per-seed archive win rate, last 50,000 games
 \newcommand{\nInitScale}{0.5}  % s.d. of the initial weights
+\newcommand{\nLabCycHiPct}{13.5}  % discmix: cyclic share of champion triads at the largest lambda, control, in %
+\newcommand{\nLabCycMidPct}{5.7}  % discmix: cyclic share of champion triads at lambda 0.5, control, in %
+\newcommand{\nLabCycleRho}{\ensuremath{+}0.97}  % discmix: Spearman rho(lambda, cyclic share), control runs
+\newcommand{\nLabDeclBestHi}{0.08}  % discmix: best member's summed decline at the largest lambda
+\newcommand{\nLabDeclExpHi}{1.78}  % discmix: exported individual's summed decline at the largest lambda
+\newcommand{\nLabDeltaLowMax}{\ensuremath{-}0.29}  % discmix: least negative archive effect among lambda <= 0.5
+\newcommand{\nLabDeltaMin}{\ensuremath{-}0.47}  % discmix: most negative per-lambda archive-as-test effect (Cliff's delta)
+\newcommand{\nLabLambdaMax}{0.75}  % discmix experiment: largest lambda
+\newcommand{\nLabPLowMax}{0.242}  % discmix: largest per-lambda two-sided p of the archive effect, lambda <= 0.5
+\newcommand{\nLabPLowMin}{0.052}  % discmix: smallest per-lambda two-sided p of the archive effect, lambda <= 0.5
+\newcommand{\nLabRankMax}{63}  % discmix: highest per-lambda mean rank of the exported individual (of 128)
+\newcommand{\nLabRankMin}{52}  % discmix: lowest per-lambda mean rank of the exported individual (of 128)
+\newcommand{\nLabRhoStreakMax}{\ensuremath{+}0.13}  % discmix: highest per-lambda mean rho(streak, true strength)
+\newcommand{\nLabRhoStreakMin}{\ensuremath{+}0.07}  % discmix: lowest per-lambda mean rho(streak, true strength)
+\newcommand{\nLabRuns}{96}  % discmix experiment: runs in total
+\newcommand{\nLabTrendP}{0.116}  % discmix: one-sided p of the archive-effect trend over lambda
 \newcommand{\nLateWindow}{100,000}  % games in the late window of every metric
 \newcommand{\nLives}{5}  % lives per side
 \newcommand{\nLongRally}{1,500}  % self-play rally length that counts as learned
@@ -167,6 +192,24 @@
 \newcommand{\nRefPeakWinPct}{42}  % reference run, peak checkpoint held out: share of episodes win, in %
 \newcommand{\nRefTInternal}{104,200}  % reference run: first game count at which self-play rallies exceed 1,500 steps
 \newcommand{\nRefTParity}{172,000}  % reference run: first checkpoint scoring above 0 against the 2015 baseline
+\newcommand{\nRepArchFailedMin}{0.21}  % replication: lowest late archive win rate, archive-as-test runs that did not learn
+\newcommand{\nRepArchLearnedMax}{0.16}  % replication: highest late archive win rate, runs that learned
+\newcommand{\nRepArchLearnedMin}{0.06}  % replication: lowest late archive win rate, archive-as-test runs that learned
+\newcommand{\nRepArchivePmin}{0.44}  % replication: smallest of the four archive-as-test vs control p values
+\newcommand{\nRepCtrlLearned}{10/12}  % replication: control runs that learned to rally
+\newcommand{\nRepCyclicPct}{0.5}  % replication: cyclic share of decided checkpoint triads, control, in %
+\newcommand{\nRepDeclBest}{7.6}  % replication: summed decline of the pool's best member, control runs
+\newcommand{\nRepDeclExp}{21.2}  % replication: summed decline of the exported individual, control runs
+\newcommand{\nRepLagFirst}{10/10}  % replication: control runs with the internal transition first, of the eligible
+\newcommand{\nRepParentLearned}{1/12}  % replication: archive-as-parent runs that learned to rally
+\newcommand{\nRepRank}{56}  % replication: mean rank of the exported individual in its pool of 128
+\newcommand{\nRepRho}{\ensuremath{+}0.79}  % replication: mean rho(Elo, time), control
+\newcommand{\nRepRhoStreak}{\ensuremath{+}0.04}  % replication: mean rho(streak counter, skill)
+\newcommand{\nRepRuns}{12}  % replication: runs per condition
+\newcommand{\nRepTestLearned}{10/12}  % replication: archive-as-test runs that learned to rally
+\newcommand{\nRepTimingRatio}{5.8}  % replication: latest / earliest internal transition, control
+\newcommand{\nRepTotal}{36}  % replication: runs in total
+\newcommand{\nRepVerdicts}{6 of 6}  % replication: claims replicated, of those tested
 \newcommand{\nResumeAboveMax}{60}  % compiled continuations: highest share of checkpoints above parity, in %
 \newcommand{\nResumeAboveMin}{54}  % compiled continuations: lowest share of checkpoints above parity, in %
 \newcommand{\nResumeGames}{176,000}  % games added by each continuation
@@ -208,3 +251,18 @@
 \newcommand{\nWindowSdLast}{0.72}  % control: within-run s.d. of checkpoint scores, last window
 \newcommand{\nWindowSdMax}{0.83}  % control: largest window s.d.
 \newcommand{\nWindowSdMin}{0.51}  % control: smallest window s.d.
+\newcommand{\nZooAboveBase}{10}  % final champions above parity against the 2015 baseline (held out)
+\newcommand{\nZooAboveBeatCma}{5}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo CMA-ES
+\newcommand{\nZooAboveBeatGa}{0}  % final champions above parity against the 2015 baseline that also score above 0 against the zoo GA
+\newcommand{\nZooBeatCma}{8}  % final champions scoring above 0 against the zoo CMA-ES
+\newcommand{\nZooBeatGa}{0}  % final champions scoring above 0 against the zoo GA
+\newcommand{\nZooBestVsGa}{\ensuremath{-}0.04}  % best final champion against the zoo GA, points per episode
+\newcommand{\nZooCmaVsBase}{\ensuremath{+}1.15}  % zoo CMA-ES against the 2015 baseline, points per episode
+\newcommand{\nZooGaVsBase}{\ensuremath{+}0.35}  % zoo GA against the 2015 baseline, points per episode
+\newcommand{\nZooGaVsCma}{\ensuremath{+}0.30}  % zoo GA against zoo CMA-ES, head to head, points per episode
+\newcommand{\nZooGames}{200}  % games per champion and zoo opponent
+\newcommand{\nZooN}{41}  % final champions scored against the zoo
+\newcommand{\nZooRhoBaseCma}{\ensuremath{+}0.89}  % Spearman rho over final champions: score vs 2015 baseline (held out) against score vs the zoo CMA-ES
+\newcommand{\nZooRhoBaseGa}{\ensuremath{+}0.87}  % Spearman rho over final champions: score vs 2015 baseline (held out) against score vs the zoo GA
+\newcommand{\nZooValidGames}{40}  % games compared bit for bit, compiled zoo games vs slimevolleygym
+\newcommand{\nZooValidSteps}{120,000}  % steps compared bit for bit, compiled zoo games vs slimevolleygym

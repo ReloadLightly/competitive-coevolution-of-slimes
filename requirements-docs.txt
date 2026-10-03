@@ -1,0 +1,2 @@
+# For build_paper.py --md (the single-page HTML write-up).
+Markdown==3.11

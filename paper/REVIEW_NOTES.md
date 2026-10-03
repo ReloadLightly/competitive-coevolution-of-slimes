@@ -97,17 +97,19 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    with what was known at the time, but the final design is not the
    pre-registered one. The paper says so in Limitations; a reviewer may still
    ask for a clean confirmatory replication of C4/C5b.
-4. **Transitivity is measured at 50,000-game spacing.** Cycles shorter than
-   that are invisible to the within-run tournament. The claim "the population
-   is not cycling" should be read as "not at the resolution measured"; a finer
-   tournament on one or two runs would close this cheaply.
+4. **Transitivity was measured at 50,000-game spacing.** Since WP7 it is
+   also measured at 5,000 (all 100 champions of each control run, Appendix
+   A.6). A reviewer will notice that the main text's deadband rule then gives
+   1.0% cyclic triads, at the edge of "<1%"; the paper reports that number
+   and shows it is sampling noise (an exact sign test leaves 35 of 273,376
+   triads cyclic). The 20 games per pair are few; more would tighten it.
 5. **The 2015 baseline is a single, weak, recurrent opponent** that does not
    see its opponent. "Above parity" against it is a low bar, and a policy can
-   specialise against it. The cross-run tournament (Appendix) is the check;
-   the families section of the main text now quotes it (every control
-   champion rates above zero, each other family has a champion far below),
-   with the full tournament in Appendix A.5. It is still a tournament among
-   these runs' own champions, not an outside opponent.
+   specialise against it. Two checks now exist: the cross-run tournament
+   (quoted in the families section, Appendix A.5) and, since WP7, Ha's two
+   published zoo policies (Appendix A.6). The baseline ranks champions much as
+   the zoo policies do (rho about 0.9), but no final champion beats the zoo GA
+   champion, so "beats the 2015 baseline" must not be read as "competitive".
 6. **Self-play ES was tuned only at pilot scale.** C6 says so; a reviewer will
    still discount the ES row.
 7. **The unequal-power block** is exploratory, was redesigned twice, and its
@@ -143,6 +145,17 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    table there is generated, and README and `paper/main.tex` are fully
    generated; the notebook prose is not. Converting it, or marking it as
    superseded by the paper, is your call.
+
+14. **The lab result is a synthetic game.** The Discussion now says the
+   export-rule failure survives cyclic skill, citing the discmix experiment
+   (preregistered, 96 runs). A reviewer may call discmix contrived: its skill
+   is a classification task read off fixed probes, not play. It is offered as
+   a controlled second setting, not as a second physical game, and the
+   Limitations say so.
+15. **The replication was run partly on a different machine** (GitHub's
+   runners). A rerun of one seed on both machines gave identical files; the
+   others were not rerun, and floating-point results can in principle differ
+   across machine types.
 
 ## (d) The paper now covers the whole README
 
