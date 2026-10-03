@@ -330,6 +330,32 @@ Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of the fina
 Final: end-of-run champion against the 2015 baseline, held-out seed, mean ± SD over runs; spread: that SD relative to the 2020 GA's. Elo: Bradley–Terry ratings of every run's final champion in one all-play-all tournament (NEAT finals and the final champion of every single-population run of the matrix), median per family. H9d, NEAT vs the generational GA on the final champion: Cliff's δ -0.92, two-sided exact Mann–Whitney p < 0.001, **a detectable difference**. NEAT's final champions have 23–39 hidden nodes and 144–170 enabled connections (the other families: a fixed 12-10-10-3 network, 273 weights and biases).
 
 
+### Table X
+
+| rule | games per export | level | declines | rank in population | final vs zoo GA |
+|---|---|---|---|---|---|
+| streak (Ha's rule) | 0 | -2.33 | 1.98 | 56 | -1.26 |
+| tournament, 4 peers | 256 | -2.31 | 1.97 | 55 | — |
+| **tournament, 16 peers** | 1,024 | -2.16 | 1.37 | 46 | -1.25 |
+| tournament, 64 peers | 4,096 | -2.03 | 0.72 | 37 | — |
+| random member | 0 | -2.50 | 2.12 | 61 | — |
+| best member (oracle) | — | -1.93 | 0.61 | 2 | -1.05 |
+
+Slime Volleyball, 12 fresh control runs, every rule applied to the same 10 population snapshots per run. Level: mean held-out score of the exported member against the 2015 baseline over the snapshots; declines: summed falls between consecutive snapshots; rank: by score among the population (1 = best); zoo GA: the final exported member against the slimevolleygym zoo GA. Preregistered tests, tournament-16 against streak: H10a level, 9/12 runs higher, one-sided exact sign-flip p = 0.010, **holds**; H10b declines, 8/12 runs fewer, p = 0.158, **does not hold** (Holm).
+
+
+### Table XM
+
+| λ | streak | tournament, 16 peers | best member (oracle) | tournament higher | rank: streak / tournament |
+|---|---|---|---|---|---|
+| 0.00 | +0.082 | +0.189 | +0.364 | 9/12 | 50 / 27 |
+| 0.25 | +0.027 | +0.135 | +0.292 | 12/12 | 58 / 31 |
+| 0.50 | +0.009 | +0.065 | +0.244 | 11/12 | 62 / 44 |
+| 0.75 | +0.002 | +0.029 | +0.159 | 10/12 | 66 / 49 |
+
+Discmix game, 12 fresh control runs per λ. Outsider strength: the exported member's exact mean expected score against every member of the other 11 runs' populations at the same λ and snapshot, averaged over the 10 snapshots; rank among its own population by the same measure. Preregistered tests: H10c, tournament-16 above streak over all 48 runs (42 higher), one-sided sign-flip p < 0.001, **holds**; H10d, the advantage shrinks with λ, ρ = -0.43, one-sided p = 0.001, **holds** (Holm).
+
+
 ### Table A1
 
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |
