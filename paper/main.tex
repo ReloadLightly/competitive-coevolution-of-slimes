@@ -582,13 +582,23 @@ it changed nothing measurable, used as a parent it pulled the loop backwards.
   final design is not the one pre-registered; the replication of
   \S\ref{sec:replication} was.
 \item \textbf{Scope of the measurements.} The export analysis is
-  control-only, because only the control stores population snapshots; the
-  topology is fixed, and the ES was tuned only at pilot scale. The archive
+  control-only, because only the control stores population snapshots, and
+  the ES was tuned only at pilot scale. The archive
   as a parent has one design; as a test it has two: the time-ordered archive
   of C5b and, in the repository, one organised by behaviour, which in Slime
   Volleyball also had no detectable effect (all $p \geq \nQdSlimePmin$ against
   the control on \nQdSlimeN{} runs per arm, with \nQdCellsMin--\nQdCellsMax{}
   of 64 cells occupied).
+\item \textbf{Fixed topology.} C1--C6 come from families that evolve one fixed
+  network. NEAT \citep{stanley2002evolving}, which evolves structure, was run
+  in the repository as a preregistered fifth family in the same game, under
+  the generational GA's evaluation and the same budget. It never learned to
+  rally (\nNeatLearned{} of \nNeatRuns{} runs; final champions
+  \nNeatFinal{} against the 2015 baseline), detectably worse than the
+  generational GA (Cliff's $\delta=\nNeatDelta$, $p=\nNeatP$), while growing
+  \nNeatHiddenMin--\nNeatHiddenMax{} hidden nodes. This is one configuration
+  with mostly published settings \citep{stanley2004competitive}, untuned for
+  this game. %NEAT-DIAGNOSTICS
 \item \textbf{The unequal-power block is exploratory} and underpowered for its
   most interesting comparison.
 \end{itemize}
