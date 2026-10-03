@@ -69,6 +69,15 @@
 \newcommand{\nEsSdRatio}{3.5}  % es: s.d. across seeds of the end-of-run champion (held out), relative to the control's
 \newcommand{\nFamilySdRatioMax}{3.5}  % largest endpoint s.d. ratio (vs control) among the other three families
 \newcommand{\nFamilySdRatioMin}{3.0}  % smallest endpoint s.d. ratio (vs control) among the other three families
+\newcommand{\nFineCyclicDeadbandPct}{1.0}  % 5k spacing, control: cyclic share of decided triads, paper's +/-0.25 rule, pooled, in %
+\newcommand{\nFineCyclicSign}{35}  % 5k spacing, control: cyclic triads under the sign-test rule, pooled
+\newcommand{\nFineCyclicSignPct}{0.01}  % 5k spacing, control: cyclic share of sign-test-decided triads, pooled, in %
+\newcommand{\nFineGames}{20}  % 5k spacing: games per pair
+\newcommand{\nFineNextWins}{88/144}  % 5k spacing, control: adjacent champions decided by the sign test in which the later one wins, k/n pooled
+\newcommand{\nFineNextWinsPct}{61}  % the same as a share, in %
+\newcommand{\nFineRhoMin}{\ensuremath{+}0.68}  % 5k spacing, control: lowest per-run rho(Elo, time)
+\newcommand{\nFineShortDeadbandPct}{4.5}  % 5k spacing, control: cyclic share among triads within 50k games, paper's rule, pooled, in %
+\newcommand{\nFineTriadsSign}{273,376}  % 5k spacing, control: decided triads under the sign-test rule, pooled
 \newcommand{\nGaAbovePct}{3}  % ga2015: mean share of checkpoints above parity, in %
 \newcommand{\nGaElitePct}{20}  % generational GA: share retained per generation, in %
 \newcommand{\nGaFinalMean}{\ensuremath{-}2.00}  % ga2015: mean end-of-run champion, held out

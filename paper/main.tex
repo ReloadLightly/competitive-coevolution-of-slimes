@@ -285,6 +285,15 @@ equally bad policies whose pairwise results are noise. The game, at the scale
 of skill explored here, is dominated by its transitive component
 \citep{balduzzi2019openended,czarnecki2020spinning}.
 
+The checkpoints are 50,000 games apart, so a faster cycle would be invisible.
+Played at 5,000-game spacing (all 100 champions of each control run,
+\nFineGames{} games per pair; Appendix~\ref{app:fine}), the same deadband rule
+finds \nFineCyclicDeadbandPct\% of decided triads cyclic, but at that sample
+size the deadband lets noise decide pairs between near-equal policies. When a
+pair counts as decided only if an exact sign test on its wins and losses says
+so, \nFineCyclicSign{} of \nFineTriadsSign{} decided triads are cyclic
+(\nFineCyclicSignPct\%): not cycling at the finer resolution either.
+
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.88\linewidth]{figures/fig5_coevolution.pdf}
@@ -697,6 +706,30 @@ champion in one all-play-all tournament; bars mark condition medians.}
 \caption{Cross-run tournament of final champions, by condition.}
 \label{tab:crossrun}
 \input{tables/6.tex}
+\end{table}
+
+\FloatBarrier
+\subsection{Transitivity at 5,000-game spacing}
+\label{app:fine}
+
+Table~\ref{tab:fine} repeats the within-run tournament of
+Section~\ref{sec:transitive} on every stored champion of the control runs,
+one per 5,000 games, with two rules for when a pair counts as decided. Under
+the main text's deadband rule the pooled cyclic share is
+\nFineCyclicDeadbandPct\%, and \nFineShortDeadbandPct\% among triads spanning at
+most 50,000 games; under an exact sign test it is \nFineCyclicSignPct\%. The
+difference is sampling noise: with \nFineGames{} games per pair, the margin
+between two near-equal policies has a standard error of the order of the
+deadband. The same tournament shows the exported champion moving at this
+resolution while the population does not: among adjacent champions whose
+difference the sign test decides, the later one wins \nFineNextWins{} times
+(\nFineNextWinsPct\%).
+
+\begin{table}[!htbp]
+\centering\small
+\caption{Within-run tournament at 5,000-game spacing, control runs.}
+\label{tab:fine}
+\resizebox{\linewidth}{!}{\input{tables/t.tex}}
 \end{table}
 
 \FloatBarrier

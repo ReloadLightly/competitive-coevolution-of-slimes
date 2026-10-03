@@ -244,6 +244,21 @@ Points per episode against the 2015 champion policy, which is never seen during 
 Final (t = 500,000) champion of every single-population run, mean points per episode. Baseline column: held out, 1,000 episodes; zoo columns: 200 games per champion, half on each side. 'Beat' counts runs whose champion scores above 0. For scale, against the 2015 baseline the zoo GA scores +0.35 and the zoo CMA-ES +1.15; head to head the zoo GA scores +0.30 against the zoo CMA-ES.
 
 
+### Table T
+
+| run | ρ(Elo, time) | cyclic, ±0.25 rule | cyclic, sign test | within 50k games, sign test | next beats previous |
+|---|---|---|---|---|---|
+| control_s101 | +0.95 | 0.69% (774/112,190) | 0.00% (0/51,268) | 0.00% (0/272) | 10/14 |
+| control_s102 | +0.76 | 0.55% (541/98,864) | 0.02% (11/51,840) | 0.23% (1/430) | 18/35 |
+| control_s103 | +0.81 | 3.82% (3,675/96,104) | 0.00% (1/21,569) | 0.00% (0/198) | 7/13 |
+| control_s104 | +0.68 | 0.50% (431/86,322) | 0.04% (16/43,215) | 0.23% (1/440) | 21/34 |
+| control_s105 | +0.91 | 0.22% (241/108,654) | 0.00% (1/58,693) | 0.00% (0/454) | 16/24 |
+| control_s106 | +0.85 | 0.30% (253/85,284) | 0.01% (6/46,791) | 0.86% (3/349) | 16/24 |
+| *all control runs* | — | 1.01% (5,915/587,418) | 0.01% (35/273,376) | 0.23% (5/2,143) | 88/144 |
+
+Every one of the 100 champions of each control run (one per 5,000 games) played every other, 20 games per pair. A triad counts when all three of its pairs are decided: by the paper's rule (mean margin outside ±0.25) or by an exact sign test on wins against losses (p < 0.05). 'Next beats previous': adjacent champions whose difference the sign test decides, and how often the later one wins.
+
+
 ### Table A1
 
 | scenario | paired games | identical score | identical length | identical trajectory | max abs deviation | env steps compared |

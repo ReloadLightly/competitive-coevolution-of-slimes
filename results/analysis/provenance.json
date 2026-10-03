@@ -882,6 +882,24 @@
   "scope": "resume",
   "script": "resume_fast.py"
  },
+ "results/analysis/within_fine.json": {
+  "inputs": {
+   "results/matrix/control_s101.npz": "9b3fa33a5dffed99d54a9c4f43253e2b356d5c40c2ecb04e12b30ec7809c11af",
+   "results/matrix/control_s102.npz": "18b9513438629f0dcde6319f5bb85d36d0c5507016a9b5b2eef83a5c4aa46fe8",
+   "results/matrix/control_s103.npz": "e216a3c9846a3cc0fa199c294998d22e633f6da07824550d5a0f1795c51e6f6f",
+   "results/matrix/control_s104.npz": "b98db5e61f571cb8ee04b68aada5a3952d5bd729ee28d7c825382f0067072459",
+   "results/matrix/control_s105.npz": "47ff2a945b0dd4bbb5dcf0fdc755173dda73bba0b18ed0e7aa4643721c62b186",
+   "results/matrix/control_s106.npz": "d99e08fc5685d57dc7bec7162eef4c0c8128169f80800afdbe1303a29ff200bd"
+  },
+  "output_sha256": "9ee8cdf0c8f786eab52bf08d6dde707843da59afbb2255796c886d7b766b362c",
+  "params": {
+   "alpha": 0.05,
+   "every": 5000,
+   "games": 10
+  },
+  "scope": "control",
+  "script": "transitivity_fine.py"
+ },
  "results/analysis/within_run.json": {
   "inputs": {
    "results/matrix/control_s101.npz": "9b3fa33a5dffed99d54a9c4f43253e2b356d5c40c2ecb04e12b30ec7809c11af",

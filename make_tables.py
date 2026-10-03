@@ -599,6 +599,45 @@ def table_c(d):
     return "\n".join(out)
 
 
+def table_t(d):
+    """Within-run transitivity at 5,000-game spacing, control runs (WP7)."""
+    f = d["within_fine"]
+    if not f:
+        return None
+
+    def pct(c, n):
+        return f"{100 * c / n:.2f}% ({c:,}/{n:,})" if n else "—"
+    rows = ["| run | ρ(Elo, time) | cyclic, ±0.25 rule | cyclic, sign test "
+            "| within 50k games, sign test | next beats previous |",
+            "|---|---|---|---|---|---|"]
+    tot = {k: 0 for k in ("dc", "dn", "sc", "sn", "ssc", "ssn", "aw", "an")}
+    for name in sorted(f["runs"]):
+        r = f["runs"][name]
+        db, st = r["deadband"], r["sign_test"]
+        rows.append(f"| {name} | {r['spearman_elo_vs_time']:+.2f} "
+                    f"| {pct(db['cyclic'], db['triads_decided'])} "
+                    f"| {pct(st['cyclic'], st['triads_decided'])} "
+                    f"| {pct(st['short_cyclic'], st['short_triads_decided'])} "
+                    f"| {st['adjacent_later_wins']}/{st['adjacent_decided']} |")
+        for k, v in (("dc", db["cyclic"]), ("dn", db["triads_decided"]),
+                     ("sc", st["cyclic"]), ("sn", st["triads_decided"]),
+                     ("ssc", st["short_cyclic"]), ("ssn", st["short_triads_decided"]),
+                     ("aw", st["adjacent_later_wins"]), ("an", st["adjacent_decided"])):
+            tot[k] += v
+    rows.append(f"| *all control runs* | — | {pct(tot['dc'], tot['dn'])} "
+                f"| {pct(tot['sc'], tot['sn'])} | {pct(tot['ssc'], tot['ssn'])} "
+                f"| {tot['aw']}/{tot['an']} |")
+    rows += ["", f"Every one of the 100 champions of each control run (one per "
+             f"{f['every']:,} games) played every other, {f['games_per_pair']} "
+             f"games per pair. A triad counts when all three of its pairs are "
+             f"decided: by the paper's rule (mean margin outside "
+             f"±{f['deadband']}) or by an exact sign test on wins against "
+             f"losses (p < {f['alpha']}). 'Next beats previous': adjacent "
+             f"champions whose difference the sign test decides, and how often "
+             f"the later one wins."]
+    return "\n".join(rows)
+
+
 def table_z(d):
     """Final champions against the slimevolleygym zoo policies (WP7)."""
     y, per_run = d["yardsticks"], d["per_run"]
@@ -642,6 +681,7 @@ FILES = {
     "reexport": f"{ANDIR}/reexport.json",
     "resume": f"{ANDIR}/resume_fast.json",
     "yardsticks": f"{ANDIR}/yardsticks.json",
+    "within_fine": f"{ANDIR}/within_fine.json",
     "validation": "results/validation.json",
 }
 DEPS = {
@@ -651,21 +691,21 @@ DEPS = {
     "8": ["per_run", "reference"], "9": ["reexport"], "10": ["per_run"],
     "r": ["conditions", "per_run", "reference"], "a1": ["validation"],
     "a2": ["per_run"], "a3": ["resume", "reference"],
-    "z": ["yardsticks", "per_run"],
+    "z": ["yardsticks", "per_run"], "t": ["within_fine"],
 }
 
 TABLES = {
     "c": table_c,
     "1": table_1, "2": table_2, "3": table_3, "4": table_4, "5": table_5,
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
-    "r": table_r, "z": table_z,
+    "r": table_r, "z": table_z, "t": table_t,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 
 
 # Tables the LaTeX paper includes, written to paper/tables/<key>.tex.
 PAPER_TABLES = ["c", "r", "3", "4", "5", "7", "9", "10", "1", "2", "6", "8", "a1", "a3",
-                "z"]
+                "z", "t"]
 TEX_MAP = [("±", r"$\pm$"), ("—", "---"), ("–", "--"), ("σ", r"$\sigma$"),
            ("δ", r"$\delta$"), ("ρ", r"$\rho$"), ("×", r"$\times$"),
            ("≥", r"$\geq$"), ("≤", r"$\leq$"), ("%", r"\%"), ("&", r"\&"),

@@ -97,10 +97,12 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    with what was known at the time, but the final design is not the
    pre-registered one. The paper says so in Limitations; a reviewer may still
    ask for a clean confirmatory replication of C4/C5b.
-4. **Transitivity is measured at 50,000-game spacing.** Cycles shorter than
-   that are invisible to the within-run tournament. The claim "the population
-   is not cycling" should be read as "not at the resolution measured"; a finer
-   tournament on one or two runs would close this cheaply.
+4. **Transitivity was measured at 50,000-game spacing.** Since WP7 it is
+   also measured at 5,000 (all 100 champions of each control run, Appendix
+   A.6). A reviewer will notice that the main text's deadband rule then gives
+   1.0% cyclic triads, at the edge of "<1%"; the paper reports that number
+   and shows it is sampling noise (an exact sign test leaves 35 of 273,376
+   triads cyclic). The 20 games per pair are few; more would tighten it.
 5. **The 2015 baseline is a single, weak, recurrent opponent** that does not
    see its opponent. "Above parity" against it is a low bar, and a policy can
    specialise against it. Two checks now exist: the cross-run tournament

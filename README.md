@@ -72,6 +72,34 @@ punishes — does not fit this data.
 later against earlier. Centre: Elo within the run against training time. Right:
 the fraction of decided checkpoint triples that are cyclic.*
 
+Those checkpoints are 50,000 games apart, so a cycle that opens and closes in
+less time would be invisible. Every run stores all 100 of its champions, so the
+control runs were also played at 5,000-game spacing (<!-- n:fine_games -->20<!-- /n --> games per pair, table
+below). Under the rule above (a pair counts as decided when its mean margin
+leaves ±0.25), <!-- n:fine_cyclic_deadband_pct -->1.0<!-- /n -->% of decided triads are now cyclic, and <!-- n:fine_short_deadband_pct -->4.5<!-- /n -->% of those spanning
+at most 50,000 games. But at 20 games per pair that rule lets sampling noise
+decide pairs between near-equal policies, and noise makes cycles: when a pair
+counts as decided only if an exact sign test on its wins and losses says so,
+<!-- n:fine_cyclic_sign -->35<!-- /n --> of <!-- n:fine_triads_sign -->273,376<!-- /n --> decided triads are cyclic (<!-- n:fine_cyclic_sign_pct -->0.01<!-- /n -->%). At the finer resolution the
+population is still not cycling. What does move at that resolution is the
+exported champion: where adjacent champions differ significantly, the later one
+wins only <!-- n:fine_next_wins -->88/144<!-- /n --> times (<!-- n:fine_next_wins_pct -->61<!-- /n -->%), the export-rule noise of finding 4 seen
+from the other side.
+
+<!-- table:t -->
+| run | ρ(Elo, time) | cyclic, ±0.25 rule | cyclic, sign test | within 50k games, sign test | next beats previous |
+|---|---|---|---|---|---|
+| control_s101 | +0.95 | 0.69% (774/112,190) | 0.00% (0/51,268) | 0.00% (0/272) | 10/14 |
+| control_s102 | +0.76 | 0.55% (541/98,864) | 0.02% (11/51,840) | 0.23% (1/430) | 18/35 |
+| control_s103 | +0.81 | 3.82% (3,675/96,104) | 0.00% (1/21,569) | 0.00% (0/198) | 7/13 |
+| control_s104 | +0.68 | 0.50% (431/86,322) | 0.04% (16/43,215) | 0.23% (1/440) | 21/34 |
+| control_s105 | +0.91 | 0.22% (241/108,654) | 0.00% (1/58,693) | 0.00% (0/454) | 16/24 |
+| control_s106 | +0.85 | 0.30% (253/85,284) | 0.01% (6/46,791) | 0.86% (3/349) | 16/24 |
+| *all control runs* | — | 1.01% (5,915/587,418) | 0.01% (35/273,376) | 0.23% (5/2,143) | 88/144 |
+
+Every one of the 100 champions of each control run (one per 5,000 games) played every other, 20 games per pair. A triad counts when all three of its pairs are decided: by the paper's rule (mean margin outside ±0.25) or by an exact sign test on wins against losses (p < 0.05). 'Next beats previous': adjacent champions whose difference the sign test decides, and how often the later one wins.
+<!-- /table:t -->
+
 **4. The champion-export rule is the noise source.** Ha selects the individual
 with the longest winning lineage, "without actually computing who is best to save
 time". That counter is inherited by the loser on every replacement, so it

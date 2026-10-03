@@ -767,6 +767,47 @@ def definitions():
         "games compared bit for bit, compiled zoo games vs slimevolleygym")(
         lambda d: str(sum(r["games"] for r in d["yardsticks"]["validation"])))
 
+    # ---- WP7: transitivity at 5,000-game spacing ------------------------
+    def fine(d, rule, c, n):
+        rs = d["within_fine"]["runs"].values()
+        return sum(r[rule][c] for r in rs), sum(r[rule][n] for r in rs)
+
+    def fine_pct(d, rule, c, n, nd):
+        k, m = fine(d, rule, c, n)
+        return _pct(k / m, nd)
+    add("fine_cyclic_deadband_pct", ["within_fine"],
+        "5k spacing, control: cyclic share of decided triads, paper's +/-0.25 "
+        "rule, pooled, in %")(lambda d: fine_pct(d, "deadband", "cyclic",
+                                                 "triads_decided", 1))
+    add("fine_short_deadband_pct", ["within_fine"],
+        "5k spacing, control: cyclic share among triads within 50k games, "
+        "paper's rule, pooled, in %")(lambda d: fine_pct(
+            d, "deadband", "short_cyclic", "short_triads_decided", 1))
+    add("fine_cyclic_sign", ["within_fine"],
+        "5k spacing, control: cyclic triads under the sign-test rule, pooled")(
+        lambda d: f"{fine(d, 'sign_test', 'cyclic', 'triads_decided')[0]:,}")
+    add("fine_triads_sign", ["within_fine"],
+        "5k spacing, control: decided triads under the sign-test rule, pooled")(
+        lambda d: f"{fine(d, 'sign_test', 'cyclic', 'triads_decided')[1]:,}")
+    add("fine_cyclic_sign_pct", ["within_fine"],
+        "5k spacing, control: cyclic share of sign-test-decided triads, "
+        "pooled, in %")(lambda d: fine_pct(d, "sign_test", "cyclic",
+                                           "triads_decided", 2))
+    add("fine_next_wins", ["within_fine"],
+        "5k spacing, control: adjacent champions decided by the sign test in "
+        "which the later one wins, k/n pooled")(
+        lambda d: "{}/{}".format(*fine(d, "sign_test", "adjacent_later_wins",
+                                       "adjacent_decided")))
+    add("fine_next_wins_pct", ["within_fine"],
+        "the same as a share, in %")(lambda d: fine_pct(
+            d, "sign_test", "adjacent_later_wins", "adjacent_decided", 0))
+    add("fine_rho_min", ["within_fine"],
+        "5k spacing, control: lowest per-run rho(Elo, time)")(
+        lambda d: _f(min(r["spearman_elo_vs_time"]
+                         for r in d["within_fine"]["runs"].values()), 2, True))
+    add("fine_games", ["within_fine"], "5k spacing: games per pair")(
+        lambda d: str(d["within_fine"]["games_per_pair"]))
+
     # ---- inventory -------------------------------------------------------
     add("n_single_runs", ["per_run"], "single-population runs analysed")(
         lambda d: str(len(single(d))))

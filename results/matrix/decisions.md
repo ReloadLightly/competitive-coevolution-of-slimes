@@ -371,3 +371,9 @@ library's tanh), so a run is reproducible on the machine type it ran on, not
 necessarily bit for bit across machine types. Each job log records its CPU and
 library versions. This changes where runs execute, not what they compute, and
 no run is repeated or replaced: a run whose file exists is skipped.
+
+Check, same day: `control_s206`, the first run GitHub's runner finished, was
+rerun in the session container with the identical command. The two files are
+identical in all 25 data arrays (every champion, every evaluation score,
+every population snapshot; only the wall-clock times differ: 4.7 minutes on
+the runner, 9.3 here). For this run, the change of machine changed nothing.
