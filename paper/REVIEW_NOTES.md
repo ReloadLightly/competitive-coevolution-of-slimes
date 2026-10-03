@@ -61,7 +61,6 @@ Not cited in `main.tex`; details and the reason in `UNVERIFIED_REFS.md`.
   (GECCO 2001, no DOI). Natural citation for intransitivity/disengagement.
 - **Lam, Pitrou & Seibert (2015)**, the numba paper. The paper names numba
   without a citation.
-- **Stanley & Miikkulainen**, dominance tournament: not checked.
 
 Verified but only partially:
 
@@ -156,6 +155,19 @@ alphaXiv connector, publisher-domain-restricted web search, and git.
    runners). A rerun of one seed on both machines gave identical files; the
    others were not rerun, and floating-point results can in principle differ
    across machine types.
+16. **"Your NEAT is broken or badly configured."** NEAT learned in 0 of 12
+   preregistered runs (the "Fixed topology" bullet in Limitations). The game
+   path is tested bit for bit (an encoded network plays identical games;
+   NEAT-vs-NEAT games equal the paper's MLP-vs-MLP games), and exploratory
+   variants (`neat_explore.py`, decisions.md) separate the loop from NEAT's
+   machinery. The settings follow NEAT's papers where they give values, but
+   nobody tuned them for this game, and speciation thresholds, elitism and
+   offspring allocation are exactly what a NEAT expert would change first.
+   The paper says "one configuration"; it must not say "NEAT fails".
+17. **The niche archive's H9b came close** (trend p = 0.072, one-sided, Holm
+   threshold 0.025). It is reported as not holding, which is what the
+   preregistration says; a reader who wants "a trend" from it is reading an
+   exploratory pattern into a failed test.
 
 ## (d) The paper now covers the whole README
 
