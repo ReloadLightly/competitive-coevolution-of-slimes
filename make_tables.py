@@ -839,6 +839,7 @@ FILES = {
     "lab": "results/lab/analysis.json",
     "qd": "results/qd/analysis.json",
     "neat": "results/neat/analysis.json",
+    "neat_explore": "results/neat/explore/summary.json",
     "validation": "results/validation.json",
 }
 DEPS = {

@@ -973,6 +973,34 @@ def definitions():
     add("neat_species", ["neat"], "NEAT: mean number of species over checkpoints and runs")(
         lambda d: _f(float(np.mean(nt(d)["structure"]["species_mean"])), 1))
 
+    # ---- WP9: NEAT, exploratory follow-up (not preregistered) -----------
+    def nx(d, v):
+        return d["neat_explore"]["variants"][v]
+    add("nx_runs", ["neat_explore"], "NEAT exploratory: runs per variant")(
+        lambda d: str(nx(d, "as-ga")["runs"]))
+    add("nx_mlp_learned", ["neat_explore"],
+        "NEAT exploratory, started from the study's network: runs that learned")(
+        lambda d: str(nx(d, "mlp-start")["learned"]))
+    add("nx_noreset_learned", ["neat_explore"],
+        "NEAT exploratory, no weight resets: runs that learned")(
+        lambda d: str(nx(d, "no-reset")["learned"]))
+    add("nx_asga_learned", ["neat_explore"],
+        "NEAT exploratory, loop reduced towards the generational GA: runs that learned")(
+        lambda d: str(nx(d, "as-ga")["learned"]))
+    add("nx_asga_parity", ["neat_explore"],
+        "NEAT exploratory, loop reduced towards the generational GA: runs above parity")(
+        lambda d: str(nx(d, "as-ga")["reached_parity"]))
+    add("nx_asga_best_final", ["neat_explore"],
+        "NEAT exploratory, loop reduced towards the generational GA: best final champion")(
+        lambda d: _f(nx(d, "as-ga")["best_final"], 2, True))
+    add("nx_asga_t_internal", ["neat_explore"],
+        "NEAT exploratory, as-ga: earliest game count with rallies above 1,500 steps")(
+        lambda d: _games(min(r["t_internal"] for r in d["neat_explore"]["per_run"].values()
+                             if r["variant"] == "as-ga" and r["t_internal"] is not None)))
+    add("nx_neat_meanlen_max", ["neat_explore"],
+        "NEAT exploratory, mlp-start and no-reset: longest final training rally (steps)")(
+        lambda d: f"{max(nx(d, v)['max_train_meanlen'] for v in ('mlp-start', 'no-reset')):,.0f}")
+
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):
         rs = d["within_fine"]["runs"].values()
