@@ -808,6 +808,58 @@ def table_x(d):
     return "\n".join(rows)
 
 
+COUNTER_LABELS = {"inherited": "inherited at birth, kept at a tie (Ha's rule)",
+                  "inherited-reset": "inherited at birth, restarted at a tie",
+                  "own": "from 0 at birth, kept at a tie",
+                  "current": "**from 0 at birth, restarted at a tie (the current genotype's wins)**",
+                  "tournament-16": "tournament, 16 peers (WP10)",
+                  "median": "median member", "best": "best member (oracle)"}
+COUNTER_GAMES = {"tournament-16": "1,024", "median": "—", "best": "—"}
+
+
+def table_ctr(d):
+    """What each bookkeeping of the streak counter would export (WP13)."""
+    a = d["counter"]
+    if not a:
+        return None
+    s, t = a["summary"], a["tests"]
+    n_snap = len(next(iter(a["per_run"].values()))["snapshots"])
+    rows = ["| rule | games per export | level | declines | rank in population "
+            "| ρ(counter, score) | curve volatility |", "|---|---|---|---|---|---|---|"]
+    for r, lab in COUNTER_LABELS.items():
+        x = s["rules"][r]
+        rho, cv = s["rho"].get(r), s["curve"].get(r, {}).get("volatility")
+        rows.append(f"| {lab} | {COUNTER_GAMES.get(r, '0')} | {x['level']:+.2f} "
+                    f"| {x['declines']:.2f} | {x['rank']:.0f} "
+                    f"| {'—' if rho is None else f'{rho:+.2f}'} "
+                    f"| {'—' if cv is None else f'{cv:.2f}'} |")
+
+    def v(h):
+        return "holds" if t[h]["rejected"] else "does not hold"
+    c = t["current_vs_tournament"]
+    rows += ["", f"Slime Volleyball, {s['n_runs']} fresh control runs replayed with four "
+             "counters on the identical history (the counter never feeds back into "
+             "reproduction), every rule applied to the same "
+             f"{n_snap} population snapshots per run. Level: mean held-out score of the "
+             "exported member against the 2015 baseline over the snapshots; declines: summed "
+             "falls between consecutive snapshots; rank: by a 60-episode score among the "
+             "population (1 = best); ρ: Spearman between the counter and that score; curve "
+             "volatility: mean absolute change of the counter's reported champion curve "
+             "between consecutive checkpoints (every 5,000 games). Preregistered tests "
+             "(one-sided exact sign-flip, Holm): H13a, the current genotype's wins above "
+             f"Ha's counter in level, {t['H13a']['runs_positive']}/{t['H13a']['n']} runs, "
+             f"p {_p(t['H13a']['p_one_sided'])}, **{v('H13a')}**; H13b, its curve swings "
+             f"less, {t['H13b']['runs_positive']}/{t['H13b']['n']}, "
+             f"p {_p(t['H13b']['p_one_sided'])}, **{v('H13b')}**; H13c, not inheriting "
+             f"helps (main effect {t['H13c']['mean']:+.2f}), p {_p(t['H13c']['p_one_sided'])}, "
+             f"**{v('H13c')}**; H13d, restarting at a tie helps (main effect "
+             f"{t['H13d']['mean']:+.2f}), p {_p(t['H13d']['p_one_sided'])}, **{v('H13d')}**. "
+             f"Described: the current genotype's wins against the tournament, "
+             f"{c['mean']:+.2f}, higher in {c['runs_higher']}/{c['n']} runs, two-sided "
+             f"p {_p(c['p_two_sided'])}."]
+    return "\n".join(rows)
+
+
 def table_xm(d):
     """The export rules in discmix, judged by outsiders (WP10)."""
     a = d["export"]
@@ -931,6 +983,7 @@ FILES = {
     "neat_explore": "results/neat/explore/summary.json",
     "export": "results/export/analysis.json",
     "export_robustness": f"{ANDIR}/export_robustness.json",
+    "counter": "results/counter/analysis.json",
     "validation": "results/validation.json",
 }
 DEPS = {
@@ -942,7 +995,7 @@ DEPS = {
     "a2": ["per_run"], "a3": ["resume", "reference"],
     "z": ["yardsticks", "per_run"], "t": ["within_fine"],
     "rep": ["replication"], "lab": ["lab"], "qd": ["qd"], "qdm": ["qd"],
-    "neat": ["neat", "per_run"], "x": ["export"], "xm": ["export"],
+    "neat": ["neat", "per_run"], "x": ["export"], "xm": ["export"], "ctr": ["counter"],
 }
 
 TABLES = {
@@ -951,7 +1004,7 @@ TABLES = {
     "6": table_6, "7": table_7, "8": table_8, "9": table_9, "10": table_10,
     "r": table_r, "z": table_z, "t": table_t, "rep": table_rep,
     "lab": table_lab, "qd": table_qd, "qdm": table_qdm,
-    "neat": table_neat, "x": table_x, "xm": table_xm,
+    "neat": table_neat, "x": table_x, "xm": table_xm, "ctr": table_ctr,
     "a1": table_a1, "a2": table_a2, "a3": table_a3,
 }
 

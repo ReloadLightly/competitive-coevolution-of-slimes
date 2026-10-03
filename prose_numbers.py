@@ -1211,6 +1211,74 @@ def definitions():
         "H10d with lambda permuted only within seeds: one-sided p")(
         lambda d: _sig(xr(d)["H10d_within_seed"]["p_one_sided"]))
 
+    # ---- WP13: why the streak counter fails (shadow counters) -----------
+    def cs(d):
+        return d["counter"]["summary"]
+
+    def ct(d):
+        return d["counter"]["tests"]
+
+    def _pv(x):
+        return _sig(x) if x < 0.001 else _f(x, 3)
+    add("ctr_runs", ["counter"], "shadow counters: fresh control runs")(
+        lambda d: str(cs(d)["n_runs"]))
+    for key, rule, what in (("inh", "inherited", "Ha's counter"),
+                            ("reset", "inherited-reset", "inherited, restarted at a tie"),
+                            ("own", "own", "wins since birth"),
+                            ("cur", "current", "the current genotype's wins"),
+                            ("t16", "tournament-16", "the 16-peer tournament"),
+                            ("med", "median", "the median member"),
+                            ("best", "best", "the best member (oracle)")):
+        add(f"ctr_level_{key}", ["counter"],
+            f"shadow counters: held-out level of the members exported by {what}")(
+            (lambda r: lambda d: _f(cs(d)["rules"][r]["level"], 2, True))(rule))
+        add(f"ctr_rank_{key}", ["counter"],
+            f"shadow counters: mean rank (of 128) of the member exported by {what}")(
+            (lambda r: lambda d: f"{cs(d)['rules'][r]['rank']:.0f}")(rule))
+    for key, rule in (("inh", "inherited"), ("reset", "inherited-reset"),
+                      ("own", "own"), ("cur", "current")):
+        add(f"ctr_rho_{key}", ["counter"],
+            f"shadow counters: mean Spearman rho between the {rule} counter and skill")(
+            (lambda r: lambda d: _f(cs(d)["rho"][r], 2, True))(rule))
+        add(f"ctr_vol_{key}", ["counter"],
+            f"shadow counters: volatility of the {rule} counter's reported curve "
+            "(mean absolute change between checkpoints)")(
+            (lambda r: lambda d: _f(cs(d)["curve"][r]["volatility"], 2))(rule))
+        add(f"ctr_curve_decl_{key}", ["counter"],
+            f"shadow counters: summed declines of the {rule} counter's reported curve, "
+            "mean per run")(
+            (lambda r: lambda d: _f(cs(d)["curve"][r]["declines"], 1))(rule))
+    for h in ("H13a", "H13b", "H13c", "H13d"):
+        k = h.lower()
+        add(f"ctr_{k}_mean", ["counter"], f"{h}: mean per-run difference")(
+            (lambda h: lambda d: _f(ct(d)[h]["mean"], 2, True))(h))
+        add(f"ctr_{k}_runs", ["counter"], f"{h}: runs whose difference favours it")(
+            (lambda h: lambda d: str(ct(d)[h]["runs_positive"]))(h))
+        add(f"ctr_{k}_p", ["counter"], f"{h}: one-sided exact sign-flip p")(
+            (lambda h: lambda d: _pv(ct(d)[h]["p_one_sided"]))(h))
+    add("ctr_vs_t16", ["counter"],
+        "shadow counters: current genotype's wins minus the 16-peer tournament, level")(
+        lambda d: _f(ct(d)["current_vs_tournament"]["mean"], 2, True))
+    add("ctr_vs_t16_runs", ["counter"],
+        "shadow counters: runs in which the current genotype's wins beat the tournament")(
+        lambda d: str(ct(d)["current_vs_tournament"]["runs_higher"]))
+    add("ctr_vs_t16_p", ["counter"],
+        "shadow counters: current genotype's wins vs the tournament, two-sided p")(
+        lambda d: _pv(ct(d)["current_vs_tournament"]["p_two_sided"]))
+    add("ctr_ties_late_pct", ["counter"],
+        "shadow counters: share of tied games over the last 100,000 games, in %")(
+        lambda d: _pct(cs(d)["diagnostics"]["tie_frac_late_mean"]))
+    add("ctr_maxcount_inh", ["counter"],
+        "shadow counters: median of Ha's counter's maximum over snapshots")(
+        lambda d: f"{cs(d)['diagnostics']['max_count_median']['inherited']:,.0f}")
+    add("ctr_maxcount_cur", ["counter"],
+        "shadow counters: median of the current-genotype counter's maximum over snapshots")(
+        lambda d: f"{cs(d)['diagnostics']['max_count_median']['current']:,.0f}")
+    add("ctr_spread_pct", ["counter"],
+        "shadow counters: median gap between the largest and the median member's "
+        "inherited count, as % of the largest")(
+        lambda d: _pct(cs(d)["diagnostics"]["inherited_spread_median"], 1))
+
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):
         rs = d["within_fine"]["runs"].values()
