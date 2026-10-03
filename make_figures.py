@@ -657,6 +657,62 @@ def fig12_export_test(exp):
     return "fig12_export_test.png"
 
 
+def fig13_counter(a, rundir):
+    """Why the streak counter fails (WP13): the same history, two counters."""
+    if not a:
+        return "fig13: no shadow-counter analysis yet"
+    per = a["per_run"]
+    fig, axes = plt.subplots(1, 2, figsize=(7.4, 2.9),
+                             gridspec_kw={"width_ratios": [1.35, 1.0]})
+    fig.subplots_adjust(wspace=0.32)
+
+    # left: one run's reported curve under both counters; the run whose
+    # difference in curve volatility is the median one, so it is not chosen
+    # for looks
+    dv = {n: r["curve_volatility_inherited"] - r["curve_volatility_current"]
+          for n, r in per.items()}
+    order = sorted(dv, key=dv.get)
+    name = order[(len(order) - 1) // 2]
+    z = np.load(os.path.join(rundir, f"{name}.npz"))
+    t = (np.arange(len(z["curve"])) + 1) * int(z["save_every"][0]) / 1000
+    ax = axes[0]
+    ax.plot(t, z["curve"][:, 0], color="#B0413E", lw=1.0,
+            label="Ha's counter (inherited at birth)")
+    ax.plot(t, z["curve"][:, 3], color="#1F7A5A", lw=1.2,
+            label="the current genotype's wins")
+    parity(ax)
+    ax.set_xlabel("self-play games (thousands)")
+    ax.set_ylabel("score vs 2015 baseline")
+    ax.set_title(f"One history, two reported curves (seed {name.split('_s')[-1]})",
+                 loc="left", fontsize=8.5)
+    ax.legend(loc="center left", bbox_to_anchor=(0.01, 0.55), fontsize=6.6,
+              handlelength=1.6)
+
+    # right: every run's level at the population snapshots, paired
+    ax = axes[1]
+    T = "tournament-16"
+    for n in sorted(per):
+        r = per[n]
+        lo, hi = r["level_inherited"], r["level_current"]
+        col = "#1F7A5A" if hi > lo else ("#B0413E" if hi < lo else "#999999")
+        ax.plot([0, 1], [lo, hi], color=col, lw=1.0, alpha=0.85, marker="o", ms=2.6)
+        ax.plot([2], [r[f"level_{T}"]], color="#7A5BA6", marker="o", ms=2.6, alpha=0.6, lw=0)
+    rules = a["summary"]["rules"]
+    ax.plot([0, 1, 2], [rules["inherited"]["level"], rules["current"]["level"],
+                        rules[T]["level"]],
+            color="#222222", lw=0, marker="_", ms=16, mew=2.0)
+    ax.set_xticks([0, 1, 2], ["Ha's\ncounter", "current\ngenotype", "tournament\n1,024 games"])
+    ax.set_xlim(-0.35, 2.35)
+    ax.set_ylabel("exported member, held out")
+    h = a["tests"]["H13a"]
+    ax.set_title(f"{h['runs_positive']} of {h['n']} runs higher at no cost",
+                 loc="left", fontsize=8.5)
+    parity(ax)
+    save(fig, "fig13_counter")
+    plt.close(fig)
+    return "fig13_counter.png"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default=None)
@@ -685,6 +741,10 @@ def main():
         "fig12": lambda: fig12_export_test(
             json.load(open("results/export/analysis.json"))
             if os.path.exists("results/export/analysis.json") else None),
+        "fig13": lambda: fig13_counter(
+            json.load(open("results/counter/analysis.json"))
+            if os.path.exists("results/counter/analysis.json") else None,
+            "results/counter"),
     }
     for k, fn in todo.items():
         if args.only and k not in args.only.split(","):
