@@ -143,3 +143,9 @@ genomes; the forward pass and the games are compiled.
   middling individual at every λ (H8b holds); an archive used as a test does
   not help more as skill becomes cyclic (H8c does not hold). Numbers: README,
   "When skill is cyclic: the lab".
+- WP9, the niche archive ([preregistration](../results/qd/PREREGISTRATION.md),
+  60 runs, `.github/workflows/qd.yml`): analysed once by `qd_analysis.py`.
+  In Slime Volleyball it has no detectable effect (H9a holds); in discmix it
+  does not help more as skill becomes cyclic (H9b does not hold) and does
+  not beat the time-ordered archive where skill is most cyclic (H9c does not
+  hold). Numbers: README, "An archive organised by behaviour".

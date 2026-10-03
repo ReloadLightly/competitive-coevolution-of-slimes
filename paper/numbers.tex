@@ -168,6 +168,21 @@
 \newcommand{\nProxyRankMean}{60}  % mean rank of the exported individual in its own pool (1 = best), all snapshots
 \newcommand{\nProxyRho}{\ensuremath{+}0.06}  % mean Spearman rho(streak counter, score vs baseline) over snapshots
 \newcommand{\nProxyRuns}{6}  % control runs with population snapshots
+\newcommand{\nQdCellsMax}{53}  % niche archive, Slime Volleyball: most occupied cells (of 64) at the end of a run
+\newcommand{\nQdCellsMin}{37}  % niche archive, Slime Volleyball: fewest occupied cells (of 64) at the end of a run
+\newcommand{\nQdCtrlLearned}{10}  % niche experiment: control runs (same seeds) that learned to rally
+\newcommand{\nQdLabCellsMax}{40}  % niche archive, discmix: highest per-lambda mean of occupied cells at the end
+\newcommand{\nQdLabCellsMin}{34}  % niche archive, discmix: lowest per-lambda mean of occupied cells at the end
+\newcommand{\nQdLabDeltaMax}{\ensuremath{+}0.28}  % niche archive, discmix: largest per-lambda Cliff's delta vs control
+\newcommand{\nQdLabDeltaMin}{\ensuremath{-}0.32}  % niche archive, discmix: most negative per-lambda Cliff's delta vs control
+\newcommand{\nQdLabPmin}{0.11}  % niche archive, discmix: smallest per-lambda two-sided p, vs control or vs the time-ordered archive
+\newcommand{\nQdRuns}{60}  % niche-archive experiment: runs in total
+\newcommand{\nQdSlimeFifoPmin}{0.51}  % niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs the time-ordered archive
+\newcommand{\nQdSlimeLearned}{10}  % niche archive, Slime Volleyball: runs that learned to rally
+\newcommand{\nQdSlimeN}{12}  % niche archive, Slime Volleyball: runs per arm
+\newcommand{\nQdSlimePmin}{0.29}  % niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs control
+\newcommand{\nQdTopP}{0.34}  % niche archive, discmix: one-sided p, niche vs time-ordered archive at the largest lambda (H9c)
+\newcommand{\nQdTrendP}{0.072}  % niche archive, discmix: one-sided permutation p of the effect trend over lambda (H9b)
 \newcommand{\nReexportBestLevel}{\ensuremath{-}1.14}  % mean score of the best member (oracle) over all snapshots
 \newcommand{\nReexportBudgetPct}{0.8}  % largest ranking budget as a share of one run's games, in %
 \newcommand{\nReexportGamesMax}{4,096}  % ranking games per snapshot at the largest internal round robin

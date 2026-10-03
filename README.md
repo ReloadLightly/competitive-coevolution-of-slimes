@@ -344,6 +344,59 @@ only at λ = 0.75, where the exported champion lost <!-- n:lab_decl_exp_hi -->1.
 Discmix game, 12 runs per cell, all quantities exact. Exported rank and ρ: control runs, mean over 10 population snapshots (rank 1 = strongest). Declines: summed falls between snapshots against a fixed external panel, control runs. Archive effect: Cliff's δ of the final champions' cross-run strength, archive as test minus control, with the two-sided exact Mann–Whitney p. Trend tests (one-sided permutation): cycling vs λ ρ = +0.97 (p < 0.001) in control and +0.97 (p < 0.001) with the archive; archive effect vs λ p = 0.116.
 <!-- /table:lab -->
 
+### An archive organised by behaviour
+
+Every archive above holds past champions in the order they were made. The
+usual case for an archive is diversity: a population should be tested
+against the variety of strategies it has met, not only against its recent
+past. A [preregistered experiment](results/qd/PREREGISTRATION.md) kept the
+archive's role (a test, never a parent, drawn in a quarter of the games as
+in the archive-as-test condition) and changed only what it holds: one
+champion per cell of an 8 × 8 grid over a behaviour descriptor (the
+network's mean first two outputs on fixed probe inputs), in the manner of
+MAP-Elites. <!-- n:qd_runs -->60<!-- /n --> runs in Slime Volleyball and the lab's discmix game:
+
+- **In Slime Volleyball it neither harmed nor helped detectably** (H9a
+  holds). Against the replication's control on the same seeds, all four
+  outcomes have p ≥ <!-- n:qd_slime_pmin -->0.29<!-- /n -->; <!-- n:qd_slime_learned -->10<!-- /n --> of <!-- n:qd_slime_n -->12<!-- /n --> runs learned to rally, as did <!-- n:qd_ctrl_learned -->10<!-- /n --> controls.
+  Against the time-ordered archive, every p ≥ <!-- n:qd_slime_fifo_pmin -->0.51<!-- /n -->. The archive did fill
+  with variety (<!-- n:qd_cells_min -->37<!-- /n -->–<!-- n:qd_cells_max -->53<!-- /n --> of 64 cells occupied at the end), so the null result is
+  not an empty archive. As for finding 5b, twelve runs per arm rule out
+  large effects only.
+- **In discmix it did not help more as skill became cyclic** (H9b does not
+  hold: trend p = <!-- n:qd_trend_p -->0.072<!-- /n -->, not significant under the preregistered Holm
+  correction), **and where skill
+  is most cyclic it did not beat the time-ordered archive** (H9c does not
+  hold: p = <!-- n:qd_top_p -->0.34<!-- /n -->). Per λ, the effect against the control ranges from Cliff's
+  δ <!-- n:qd_lab_delta_min -->-0.32<!-- /n --> to <!-- n:qd_lab_delta_max -->+0.28<!-- /n -->, no single comparison below p = <!-- n:qd_lab_pmin -->0.11<!-- /n -->.
+
+What the archive holds, recent past or behavioural variety, made no
+detectable difference in either game. With the result of the previous
+section, neither archive design, used as a test, helped in this study.
+
+<!-- table:qd -->
+| outcome | niche archive | control | δ (p) | time-ordered archive | δ (p) |
+|---|---|---|---|---|---|
+| final champion, held out | -1.21 | -0.79 | -0.11 (0.671) | -0.90 | -0.15 (0.551) |
+| best champion, held out | -0.60 | -0.51 | -0.24 (0.347) | -0.49 | -0.06 (0.843) |
+| checkpoints above parity | 0.14 | 0.18 | -0.23 (0.352) | 0.14 | +0.04 (0.875) |
+| mean score, last 100,000 games | -1.41 | -1.01 | -0.26 (0.291) | -1.03 | -0.17 (0.514) |
+| learned to rally | 10/12 | 10/12 | — | 10/12 | — |
+
+12 runs per arm on the same seeds (the replication's control and archive-as-test runs). Scores: points per episode against the 2015 baseline; δ: Cliff's δ, niche archive minus the comparison, with the two-sided exact Mann–Whitney p. H9a (niche vs control, all four p ≥ 0.05): **holds**. Occupied cells at the end: 37–53 of 64. Late win rate against the archive: niche 0.16, time-ordered 0.15 (means over runs).
+<!-- /table:qd -->
+
+<!-- table:qdm -->
+| λ | niche vs control, δ (p) | niche vs time-ordered archive, δ (p) | occupied cells (of 64) | cyclic triads: control / time-ordered / niche |
+|---|---|---|---|---|
+| 0.00 | -0.32 (0.198) | +0.07 (0.799) | 40 | 0.0% / 0.0% / 0.0% |
+| 0.25 | +0.15 (0.551) | +0.39 (0.114) | 40 | 1.4% / 1.7% / 1.7% |
+| 0.50 | -0.06 (0.843) | +0.38 (0.128) | 34 | 5.7% / 6.2% / 5.0% |
+| 0.75 | +0.28 (0.266) | +0.11 (0.671) | 34 | 13.5% / 13.3% / 13.0% |
+
+Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of the final champions' cross-run strength (mean expected score against the final champions of the other 35 runs at the same λ), niche archive minus the comparison, with the two-sided exact Mann–Whitney p; no decision rests on these per-λ values. H9b, the effect vs control grows with λ: one-sided permutation p = 0.072, **does not hold**. H9c, at λ = 0.75 the niche archive beats the time-ordered one: one-sided exact Mann–Whitney p = 0.335, **does not hold**. Both under Holm.
+<!-- /table:qdm -->
+
 ---
 
 ## Why the numbers can be trusted
@@ -499,8 +552,11 @@ population snapshot with
   <!-- n:rep_runs -->12<!-- /n --> fresh runs per condition; findings 6 and 7 were not replicated.
 - **Fixed topology.** Nothing here evolves structure; see §A.8 for what NEAT
   would need.
-- **One archive design per reading.** A quality-diversity or curated archive is a
-  different experiment.
+- **Archive designs.** The archive was tested as a parent in one design and
+  as a test in two: time-ordered, and organised by behaviour
+  ([preregistered](results/qd/PREREGISTRATION.md), no detectable effect
+  either). A curated archive, or one that selects opponents by what they
+  teach, is untested.
 
 ## Credits
 

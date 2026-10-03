@@ -877,6 +877,62 @@ def definitions():
         lambda d: _f(max(r["p_two_sided"] for l, r in lab(d)["H8c"]["by_lambda"].items()
                          if float(l) <= 0.5), 3))
 
+    # ---- WP9: an archive organised by behaviour (niche archive) ---------
+    def qd(d):
+        return d["qd"]
+
+    def qd_slime(d, ref="vs_control"):
+        return qd(d)["slime"][ref].values()
+
+    def qd_lam(d):
+        return qd(d)["discmix"]["by_lambda"].values()
+    add("qd_runs", ["qd"], "niche-archive experiment: runs in total")(
+        lambda d: str(len(qd(d)["per_run"]["slime"]) // 3 + len(qd(d)["per_run"]["discmix"]) // 3))
+    add("qd_slime_pmin", ["qd"],
+        "niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs control")(
+        lambda d: _f(min(c["p_two_sided"] for c in qd_slime(d)), 2))
+    add("qd_slime_fifo_pmin", ["qd"],
+        "niche archive, Slime Volleyball: smallest two-sided p of the four outcomes vs the "
+        "time-ordered archive")(
+        lambda d: _f(min(c["p_two_sided"] for c in qd_slime(d, "vs_fifo")), 2))
+    add("qd_slime_learned", ["qd"],
+        "niche archive, Slime Volleyball: runs that learned to rally")(
+        lambda d: str(qd(d)["slime"]["learned"]["niche"]))
+    add("qd_ctrl_learned", ["qd"],
+        "niche experiment: control runs (same seeds) that learned to rally")(
+        lambda d: str(qd(d)["slime"]["learned"]["control"]))
+    add("qd_slime_n", ["qd"], "niche archive, Slime Volleyball: runs per arm")(
+        lambda d: str(qd(d)["slime"]["n"]))
+    add("qd_cells_min", ["qd"],
+        "niche archive, Slime Volleyball: fewest occupied cells (of 64) at the end of a run")(
+        lambda d: str(min(qd(d)["slime"]["archive_cells_final"])))
+    add("qd_cells_max", ["qd"],
+        "niche archive, Slime Volleyball: most occupied cells (of 64) at the end of a run")(
+        lambda d: str(max(qd(d)["slime"]["archive_cells_final"])))
+    add("qd_lab_cells_min", ["qd"],
+        "niche archive, discmix: lowest per-lambda mean of occupied cells at the end")(
+        lambda d: f"{min(r['archive_cells_final'] for r in qd_lam(d)):.0f}")
+    add("qd_lab_cells_max", ["qd"],
+        "niche archive, discmix: highest per-lambda mean of occupied cells at the end")(
+        lambda d: f"{max(r['archive_cells_final'] for r in qd_lam(d)):.0f}")
+    add("qd_trend_p", ["qd"],
+        "niche archive, discmix: one-sided permutation p of the effect trend over lambda (H9b)")(
+        lambda d: _f(qd(d)["discmix"]["H9b"]["p_one_sided"], 3))
+    add("qd_top_p", ["qd"],
+        "niche archive, discmix: one-sided p, niche vs time-ordered archive at the largest "
+        "lambda (H9c)")(lambda d: _f(qd(d)["discmix"]["H9c"]["p_one_sided"], 2))
+    add("qd_lab_delta_min", ["qd"],
+        "niche archive, discmix: most negative per-lambda Cliff's delta vs control")(
+        lambda d: _f(min(r["vs_control"]["cliffs_delta"] for r in qd_lam(d)), 2, True))
+    add("qd_lab_delta_max", ["qd"],
+        "niche archive, discmix: largest per-lambda Cliff's delta vs control")(
+        lambda d: _f(max(r["vs_control"]["cliffs_delta"] for r in qd_lam(d)), 2, True))
+    add("qd_lab_pmin", ["qd"],
+        "niche archive, discmix: smallest per-lambda two-sided p, vs control or vs the "
+        "time-ordered archive")(
+        lambda d: _f(min(min(r["vs_control"]["p_two_sided"], r["vs_test"]["p_two_sided"])
+                         for r in qd_lam(d)), 2))
+
     # ---- WP7: transitivity at 5,000-game spacing ------------------------
     def fine(d, rule, c, n):
         rs = d["within_fine"]["runs"].values()

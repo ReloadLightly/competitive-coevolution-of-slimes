@@ -484,3 +484,30 @@ held out, two-sided) and the descriptive measures are fixed in
 `paper/refs.bib` (`stanley2002evolving` via the publisher's page,
 `stanley2004competitive` via arXiv); the 2004 paper leaves
 `UNVERIFIED_REFS.md`.
+
+## 2026-10-03 — WP9, part 1: the niche archive, analysed
+
+All 60 run files of `results/qd/PREREGISTRATION.md` arrived from
+`.github/workflows/qd.yml`; each was checked against `results/qd/protocol.json`
+(seed, condition, λ, grid bounds, archive probability, archive size within
+1–64), with no mismatch. `python qd_analysis.py` was then run once
+(`results/qd/analysis.json`, provenance scope `qd`). Verdicts by the
+preregistered rules:
+
+- **H9a holds**: in Slime Volleyball the behaviour-organised archive, used as
+  a test, has no detectable effect against the replication's control on the
+  same seeds (final δ −0.11 p 0.67, peak δ −0.24 p 0.35, above parity
+  δ −0.23 p 0.35, late mean δ −0.26 p 0.29; 10/12 learned in both arms).
+  Against the time-ordered archive every p ≥ 0.51. The archive was not
+  empty: 37–53 of 64 cells occupied at the end.
+- **H9b does not hold**: the effect against the control does not grow
+  detectably with λ (one-sided permutation p = 0.072; Holm needed p < 0.025).
+- **H9c does not hold**: at λ = 0.75 the niche archive's final champions are
+  not detectably stronger than the time-ordered archive's (one-sided
+  p = 0.34).
+
+As the preregistration requires for H9a holding and H9b, H9c failing: the
+paper's C5b paragraph is unchanged; its Limitations bullet on cyclic games
+now says that neither archive design helped, and the scope bullet that the
+archive as a test was tried in two designs. README: new section "An archive
+organised by behaviour" (tables qd, qdm).
