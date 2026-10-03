@@ -290,9 +290,10 @@ tests were repeated with the seed as the unit (`export_robustness.py`).
 The paper explains C4 with a mechanism it never tested: the counter "is
 inherited on every replacement, so it records how long a lineage has
 survived, not how good its current member is". Two facts from the stored
-runs make the test pressing: at every population snapshot all 128 members'
-counters lie within 10% of the maximum (the count is almost all shared
-ancestry, and the argmax is decided by the last few wins), and late in
+runs make the test pressing: at 299 of 300 stored population snapshots
+every member's counter lies within 10% of the maximum, the median member a
+median 10 wins (0.5%) behind (the count is almost all shared ancestry, and
+the argmax is decided by the last few wins), and late in
 training 29–53% of games are ties, on which one player is mutated in place
 and keeps its count. In the control the counter never feeds back into
 reproduction, so alternative counters can be computed on the identical

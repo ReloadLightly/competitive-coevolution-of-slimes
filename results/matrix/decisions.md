@@ -773,11 +773,15 @@ measurement C3 lacks (payoffs among members of one population). First
 instead: the review's fourth item, the counter's causal ingredients. The
 paper's headline (C4) rests on a mechanism the paper states but never
 tested ("inherited on every replacement"). Two facts from the stored runs,
-noted while checking the review, make the test pressing: at all 180 stored
-snapshots (6 original and 12 export-test control runs), all 128 members'
-inherited counters lie within 10% of the maximum (s101 at the first
-snapshot: maximum 422, median 412), so the count is almost all shared
-ancestry and the argmax is decided by the last few wins; and late in
+noted while checking the review, make the test pressing: at 299 of the 300
+stored population snapshots (all 30 control runs that store them), every
+member's inherited counter lies within 10% of the maximum (in the other, 126
+of 128), and the median member trails the maximum by a median of 10 wins,
+0.5% of the count (s101 at the first snapshot: maximum 422, median 412). The
+count is almost all shared ancestry, and the argmax is decided by the last
+few wins. [Corrected the same day: a first version of this entry said "at
+all 180 snapshots" of 18 runs, from a median that had been read as a
+minimum.] And late in
 training 29–53% of games end in a tie (sigma-0.05 runs, last 20
 checkpoints), on which one player is mutated in place and keeps its count.
 Because the counter never feeds back into reproduction in the control, a

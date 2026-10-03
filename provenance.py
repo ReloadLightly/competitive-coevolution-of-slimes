@@ -86,6 +86,9 @@ SCOPES = {
     "export": lambda: sorted(glob.glob("results/export/*_s*.npz")),
     # exploratory NEAT variants (WP9, not preregistered)
     "neat_explore": lambda: sorted(glob.glob("results/neat/explore/*_s*.npz")),
+    # shadow counters (WP13): exploratory replays, and the preregistered runs
+    "counter_explore": lambda: sorted(glob.glob("results/counter/explore/control_s*.npz")),
+    "counter": lambda: sorted(glob.glob("results/counter/control_s*.npz")),
     # the niche-archive experiment (WP9) and the runs it is compared with
     "qd": lambda: (sorted(glob.glob("results/qd/*_s*.npz"))
                    + sorted(glob.glob("results/replication/control_s*.npz"))

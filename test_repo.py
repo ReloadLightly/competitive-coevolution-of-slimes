@@ -359,6 +359,26 @@ def main():
                          for s in itertools.product((-1, 1), repeat=10)])
         check("paired sign-flip test is exact", abs(su.signflip_greater(d)[1] - brute) < 1e-12,
               f"p {su.signflip_greater(d)[1]:.4f} = brute force {brute:.4f}")
+
+        # WP13: the shadow-counter replay must be the control GA itself. Same
+        # seed, same budget: champions, populations and Ha's counter
+        # bit-identical to the frozen kernel, and the four counters ordered
+        # as their definitions require (shadow.py).
+        import shadow as SH
+        ref = fv.run_ga_with_pops(7, 20_000, 128, 0.10, 5_000, 0.0, 1_000, 64,
+                                  w, b, 0.5, 10_000)
+        rep = SH.replay(7, 20_000, pop_every=10_000)
+        same = all(np.array_equal(x, rep[k]) for x, k in
+                   zip(ref, ("champs", "streaks", "meanlen", "pops", "pop_streaks")))
+        pc = rep["pop_counts"]
+        order_ok = bool((pc[:, SH.INH] == rep["pop_streaks"]).all()
+                        and (pc[:, SH.INH] >= pc[:, SH.OWN]).all()
+                        and (pc[:, SH.OWN] >= pc[:, SH.CUR]).all()
+                        and (pc[:, SH.INH] >= pc[:, SH.INH_RESET]).all()
+                        and (pc[:, SH.INH_RESET] >= pc[:, SH.CUR]).all()
+                        and np.array_equal(rep["picks"][:, SH.INH], rep["champs"]))
+        check("shadow counters replay the control GA bit for bit", same and order_ok,
+              f"20,000 games: identical {same}, counters consistent {order_ok}")
     except ImportError as e:
         check("compiled environment available", False,
               f"{e} — install requirements-fast.txt")
