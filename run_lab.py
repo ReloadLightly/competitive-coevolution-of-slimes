@@ -57,7 +57,7 @@ def one_run(job):
     game, gp, X1, X2, X3 = G.make("discmix", cfg["lam"])
     w, b = fv.baseline_arrays()
     t0 = time.time()
-    champs, streaks, meanlen, ties, hofwins, pops, pop_streaks = K.run(
+    champs, streaks, meanlen, ties, hofwins, pops, pop_streaks, _ = K.run(
         game, gp, X1, X2, X3, seed, TOURNAMENTS, POP, SIGMA, SAVE_EVERY,
         hof_mode, hof_prob, HOF_EVERY, HOF_CAP, w, b, INIT_SCALE, POP_EVERY)
     pop_feats = np.array([G.features(p.astype(np.float64)) for p in pops])

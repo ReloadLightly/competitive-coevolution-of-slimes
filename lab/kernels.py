@@ -12,12 +12,18 @@ and the archive by `hof_mode`:
   HOF_NONE      the control (fastvolley.run_ga with hof_prob = 0)
   HOF_PARENT    archive as parent (fastvolley.run_ga with hof_prob > 0)
   HOF_TEST      archive as test (algorithms.run_ga_hof_eval)
+  HOF_NICHE     archive as test, organised by behaviour instead of time: a
+                MAP-Elites-style grid of NICHE_GRID x NICHE_GRID cells over a
+                two-number descriptor (the network's mean first two outputs
+                on the probe inputs X3), one champion per cell, the newest to
+                land there (WP9)
 
 For GAME_SLIME every mode draws its random numbers in the same order as the
 paper's kernel it mirrors, so a lab run reproduces the paper's run bit for
 bit; test_repo.py checks this for all three modes and for the population
 snapshots. That check is what makes the lab a wrapper of the study rather
-than a rewrite of it.
+than a rewrite of it. HOF_NICHE draws them exactly as HOF_TEST does; only
+where a champion is stored differs.
 """
 
 import numpy as np
@@ -31,6 +37,8 @@ GAME_DISCMIX = 1
 HOF_NONE = 0
 HOF_PARENT = 1
 HOF_TEST = 2
+HOF_NICHE = 3
+NICHE_GRID = 8
 
 # gp (game parameters) layout for GAME_DISCMIX; see lab/games.py
 GP_LAMBDA, GP_ALPHA, GP_BETA, GP_NOISE, GP_TIE = 0, 1, 2, 3, 4
@@ -90,6 +98,27 @@ def discmix_play(gp, skill_x, skill_y, style_x, p_r, p_l):
 
 
 @njit(cache=True)
+def niche_cell(p, probes, grid):
+    """Grid cell of a genome's behaviour descriptor.
+
+    The descriptor is the network's mean first two outputs on the probe
+    inputs, a point in [-1, 1]^2; each axis is cut into `grid` equal bins."""
+    out = np.empty(3)
+    d0 = 0.0
+    d1 = 0.0
+    for k in range(probes.shape[0]):
+        mlp_forward(p, probes[k], out)
+        d0 += out[0]
+        d1 += out[1]
+    n = probes.shape[0]
+    c0 = int((d0 / n + 1.0) * 0.5 * grid)
+    c1 = int((d1 / n + 1.0) * 0.5 * grid)
+    c0 = min(max(c0, 0), grid - 1)
+    c1 = min(max(c1, 0), grid - 1)
+    return c0 * grid + c1
+
+
+@njit(cache=True)
 def play(game, gp, X1, X2, X3, p_r, p_l, w, b, rnn_a, rnn_b, empty):
     """One game between two genomes; score from the right player's view."""
     if game == GAME_SLIME:
@@ -105,9 +134,12 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
         pop_every):
     """Ha's GA on `game`, with the archive used as `hof_mode` says.
 
-    Returns champs, streaks, meanlen, ties, hofwins (per checkpoint) and
-    pops, pop_streaks (per population snapshot; empty if pop_every == 0).
+    Returns champs, streaks, meanlen, ties, hofwins (per checkpoint),
+    pops, pop_streaks (per population snapshot; empty if pop_every == 0) and
+    arch_size (archived champions at each checkpoint).
     """
+    if hof_mode == HOF_NICHE and hof_capacity < NICHE_GRID * NICHE_GRID:
+        raise ValueError("HOF_NICHE needs hof_capacity >= NICHE_GRID ** 2")
     np.random.seed(seed)
     population = np.empty((pop_size, PARAM_COUNT))
     for i in range(pop_size):
@@ -119,6 +151,8 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
     archive_streak = np.zeros(hof_capacity, dtype=np.int64)
     n_arch = 0
     arch_ptr = 0
+    # HOF_NICHE: slot of each grid cell in the archive (-1: empty cell)
+    cell_slot = -np.ones(NICHE_GRID * NICHE_GRID, dtype=np.int64)
 
     n_ckpt = n_tournaments // save_every
     champs = np.zeros((n_ckpt, PARAM_COUNT))
@@ -129,6 +163,7 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
     n_pop = n_tournaments // pop_every if pop_every > 0 else 0
     pops = np.zeros((n_pop, pop_size, PARAM_COUNT), dtype=np.float32)
     pop_streaks = np.zeros((n_pop, pop_size), dtype=np.int64)
+    arch_size = np.zeros(n_ckpt, dtype=np.int64)
 
     rnn_a = np.zeros(7)
     rnn_b = np.zeros(7)
@@ -209,12 +244,21 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
 
         if hof_mode != HOF_NONE and tournament % hof_every == 0:
             rh = np.argmax(winning_streak)
-            idx = arch_ptr
-            if n_arch < hof_capacity:
-                idx = n_arch
-                n_arch += 1
+            if hof_mode == HOF_NICHE:
+                # one champion per behavioural niche: a new niche takes the
+                # next slot, an occupied one is overwritten by the newcomer
+                cell = niche_cell(population[rh], X3, NICHE_GRID)
+                if cell_slot[cell] < 0:
+                    cell_slot[cell] = n_arch
+                    n_arch += 1
+                idx = cell_slot[cell]
             else:
-                arch_ptr = (arch_ptr + 1) % hof_capacity
+                idx = arch_ptr
+                if n_arch < hof_capacity:
+                    idx = n_arch
+                    n_arch += 1
+                else:
+                    arch_ptr = (arch_ptr + 1) % hof_capacity
             for j in range(PARAM_COUNT):
                 archive[idx, j] = population[rh, j]
             archive_streak[idx] = winning_streak[rh]
@@ -228,6 +272,7 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
             ties[ck] = tie_acc / save_every
             if hof_games > 0:
                 hofwins[ck] = hof_wins / hof_games
+            arch_size[ck] = n_arch
             len_acc = 0.0
             tie_acc = 0.0
             hof_games = 0
@@ -241,4 +286,4 @@ def run(game, gp, X1, X2, X3, seed, n_tournaments, pop_size, sigma, save_every,
                 pop_streaks[pk, i] = winning_streak[i]
             pk += 1
 
-    return champs, streaks, meanlen, ties, hofwins, pops, pop_streaks
+    return champs, streaks, meanlen, ties, hofwins, pops, pop_streaks, arch_size
