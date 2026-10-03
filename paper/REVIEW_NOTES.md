@@ -65,12 +65,15 @@ Not cited in `main.tex`; details and the reason in `UNVERIFIED_REFS.md`.
 Verified but only partially:
 
 - **Seals & Tauritz (2026)**, *Tripping Over the Past* (EvoApplications 2026):
-  title, authors, venue and DOI verified; **the content was not read** (no
-  access through this session's network). It is cited only for its topic. It
-  is the closest prior work to C5b and should be read before submission: if it
-  already reports that a hall of fame inflates or deflates measured progress
-  in a transitive setting, the related-work paragraph and C5b's framing need
-  to engage with it.
+  title, authors, venue and DOI verified; **only the abstract was read**
+  (2026-10-03, from the publisher's page): in fully enumerated number games
+  with tunable intransitivity, fitness approximations rank solutions
+  deceptively enough to break elitism, more so with a hall of fame, more
+  intransitivity and stronger survival selection. The related-work paragraph
+  now says that, and positions the export rule as such an approximation at
+  the point of reporting. Read the full text before submission: it may
+  quantify effects that C4, C5b or the cyclic-game results should be
+  compared with directly.
 - **Novikov et al. (2025)**, AlphaEvolve: first author and arXiv ID verified;
   the full author list is abbreviated as "and others".
 

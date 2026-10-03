@@ -77,6 +77,11 @@ SCOPES = {
     "neat": lambda: (sorted(glob.glob("results/neat/*_s*.npz"))
                      + [p for p in matrix_runs()
                         if not os.path.basename(p).startswith("asym")]),
+    # every control run with population snapshots, re-scored on held-out
+    # episodes (proxy_heldout.py)
+    "proxy_heldout": lambda: (matrix_runs(pattern="control_s*.npz")
+                              + sorted(glob.glob("results/replication/control_s*.npz"))
+                              + sorted(glob.glob("results/export/control_s*.npz"))),
     # the export-rule experiment (WP10)
     "export": lambda: sorted(glob.glob("results/export/*_s*.npz")),
     # exploratory NEAT variants (WP9, not preregistered)

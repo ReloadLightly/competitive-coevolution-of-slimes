@@ -154,7 +154,9 @@ def payoff_matrix(feats, lam):
 def calibrate(n=128, pairs=20000, seed=1):
     """alpha, beta that give the two parts equal spread, unit s.d. each.
 
-    Computed over random pairs of an initial population (init scale 0.5)."""
+    Computed over random pairs of genomes drawn at TEACHER_SCALE (1.0), not at
+    the runs' initial scale (0.5): there the two parts have s.d. 0.89 and 0.85,
+    still about equal (checked 2026-10-03, results/matrix/decisions.md)."""
     rng = np.random.default_rng(seed)
     pop = rng.normal(size=(n, K.PARAM_COUNT)) * TEACHER_SCALE
     f = features(pop)

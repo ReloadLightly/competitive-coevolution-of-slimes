@@ -28,7 +28,7 @@ left out of the entry rather than guessed.
 | `popovici2012coevolutionary` | link.springer.com/referenceworkentry/10.1007/978-3-540-92910-9_31 — pp. 987–1033 | search, domain-restricted |
 | `simione2020longterm` | direct.mit.edu/artl/article/26/4/409/97302 — Artificial Life 26(4):409–430 | search, domain-restricted |
 | `nolfi2025global` | frontiersin.org, DOI 10.3389/frobt.2024.1470886 (published 21 Jan 2025) | search |
-| `seals2026tripping` | link.springer.com/chapter/10.1007/978-3-032-23607-4_32 (title, authors, EvoApplications 2026). Pages not confirmed; **content not read** — cited for its topic only | search, domain-restricted |
+| `seals2026tripping` | link.springer.com/chapter/10.1007/978-3-032-23607-4_32 (title, authors, EvoApplications 2026). Pages not confirmed. The abstract was read on 2026-10-03 from the publisher's page (via a search index); the full text was not, and the paper cites only what the abstract states | search, domain-restricted |
 | `balduzzi2019openended` | arXiv:1901.08106 (title, authors); PMLR 97:434–443 | alphaXiv; search |
 | `czarnecki2020spinning` | arXiv:2004.09468 (title, authors); proceedings.neurips.cc (NeurIPS 2020) | alphaXiv; search, domain-restricted |
 | `salimans2017evolution` | arXiv:1703.03864 | search (arxiv.org) |

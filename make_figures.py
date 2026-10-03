@@ -348,17 +348,18 @@ def fig5_coevolution(within, per_run):
     return "fig5_coevolution.png"
 
 
-def fig6_proxy(proxy):
-    if not proxy:
+def fig6_proxy(proxy, held):
+    if not proxy or not held:
         return "fig6: no proxy data yet"
     fig, axes = plt.subplots(1, 2, figsize=(6.6, 2.9))
     ax = axes[0]
+    # both members re-scored on held-out episodes: on the episodes that chose
+    # it, the best member's score is inflated (proxy_heldout.py)
     for name, rows in proxy.items():
         t = [r["tournament"] / 1000 for r in rows]
-        ax.plot(t, [r["exported_score"] for r in rows], color="#B0413E", lw=0.9,
-                alpha=0.7)
-        ax.plot(t, [r["best_score"] for r in rows], color="#3B6EA8", lw=0.9,
-                alpha=0.7)
+        hs = [s["heldout"] for s in held["per_run"][name]["snapshots"]]
+        ax.plot(t, [h["exported"] for h in hs], color="#B0413E", lw=0.9, alpha=0.7)
+        ax.plot(t, [h["best"] for h in hs], color="#3B6EA8", lw=0.9, alpha=0.7)
     parity(ax)
     ax.plot([], [], color="#B0413E", lw=1.6, label="exported champion")
     ax.plot([], [], color="#3B6EA8", lw=1.6, label="best in the same pool")
@@ -436,8 +437,11 @@ def fig8_families(runs, per_run):
     return "fig8_algorithm_families.png"
 
 
-def fig9_reexport(reexp):
-    """What you get for replacing the champion-export rule."""
+def fig9_reexport(reexp, held=None):
+    """What you get for replacing the champion-export rule.
+
+    The oracle's level is its held-out re-score (proxy_heldout.py) when that
+    exists: on the episodes that chose it, the best member's score is inflated."""
     if not reexp:
         return "fig9: no re-export data yet"
     su_ = reexp["summary"]
@@ -452,8 +456,10 @@ def fig9_reexport(reexp):
     ax = axes[0]
     ax.axhline(su_["streak_score"]["level_mean"], color="#B0413E", lw=1.4,
                ls=(0, (4, 2)), label="streak rule (Ha)")
-    ax.axhline(su_["external_score"]["level_mean"], color="#3B6EA8", lw=1.4,
-               ls=(0, (1, 2)), label="best in pool (oracle)")
+    best_level = (held["summary"]["original"]["level_heldout_best"] if held
+                  else su_["external_score"]["level_mean"])
+    ax.axhline(best_level, color="#3B6EA8", lw=1.4, ls=(0, (1, 2)),
+               label="best in pool (oracle, held out)" if held else "best in pool (oracle)")
     ax.axhline(su_["median_score"]["level_mean"], color="#999999", lw=1.0,
                ls=(0, (2, 2)), label="population median")
     ax.plot(games, lvl, color="#1F7A5A", lw=1.6, marker="o", ms=3.4,
@@ -468,14 +474,22 @@ def fig9_reexport(reexp):
     ax = axes[1]
     ax.axhline(su_["streak_score"]["volatility_mean"], color="#B0413E", lw=1.4,
                ls=(0, (4, 2)))
-    ax.axhline(su_["external_score"]["volatility_mean"], color="#3B6EA8", lw=1.4,
+    if held:
+        orig = [r for r in held["per_run"].values() if r["group"] == "original"]
+        best_vol = float(np.mean([np.abs(np.diff([x["heldout"]["best"] for x in r["snapshots"]])).mean()
+                                  for r in orig]))
+    else:
+        best_vol = su_["external_score"]["volatility_mean"]
+    ax.axhline(best_vol, color="#3B6EA8", lw=1.4,
                ls=(0, (1, 2)))
     ax.plot(games, vol, color="#1F7A5A", lw=1.6, marker="o", ms=3.4)
     ax.set_xscale("log")
     ax.set_xlabel("ranking games")
     ax.set_ylabel(r"mean $|\Delta|$ per snapshot")
     ax.set_title("Volatility of the curve", loc="left", fontsize=8.5)
-    ax.set_ylim(0.55, 0.90)
+    lo_ = min(vol + [best_vol, su_["streak_score"]["volatility_mean"]])
+    hi_ = max(vol + [best_vol, su_["streak_score"]["volatility_mean"]])
+    ax.set_ylim(lo_ - 0.08 * (hi_ - lo_ + 0.1), hi_ + 0.08 * (hi_ - lo_ + 0.1))
 
     ax = axes[2]
     ax.axhline(su_["rho_streak_external"], color="#B0413E", lw=1.4, ls=(0, (4, 2)),
@@ -592,6 +606,57 @@ def fig11_asymmetric(runs):
     return "fig11_asymmetric.png"
 
 
+def fig12_export_test(exp):
+    """The preregistered export-rule test: two rules on the same populations."""
+    if not exp:
+        return "fig12: no export-rule analysis yet"
+    slime, lab = exp["per_run"]["slime"], exp["per_run"]["discmix"]
+    T = "tournament-16"
+    fig, axes = plt.subplots(1, 2, figsize=(7.4, 2.9),
+                             gridspec_kw={"width_ratios": [1.0, 1.25]})
+    fig.subplots_adjust(wspace=0.38)
+
+    ax = axes[0]
+    for name in sorted(slime):
+        r = slime[name]
+        a, b = r["level_streak"], r[f"level_{T}"]
+        col = "#1F7A5A" if b > a else ("#B0413E" if b < a else "#999999")
+        ax.plot([0, 1], [a, b], color=col, lw=1.0, alpha=0.85, marker="o", ms=2.6)
+        ax.plot([2], [r["level_best"]], color="#3B6EA8", marker="o", ms=2.6,
+                alpha=0.6, lw=0)
+    rules = exp["slime"]["rules"]
+    ax.plot([0, 1, 2], [rules["streak"]["level"], rules[T]["level"],
+                        rules["best"]["level"]],
+            color="#222222", lw=0, marker="_", ms=16, mew=2.0)
+    ax.set_xticks([0, 1, 2], ["streak\n(Ha's rule)", "tournament\n16 peers",
+                              "best member\n(oracle)"])
+    ax.set_xlim(-0.35, 2.35)
+    ax.set_ylabel("score vs 2015 baseline (held out)")
+    h = exp["slime"]["H10a"]
+    ax.set_title(f"Slime Volleyball: {h['runs_improved']} of {h['n']} runs higher",
+                 loc="left", fontsize=8.5)
+    parity(ax)
+
+    ax = axes[1]
+    lams = sorted({r["lam"] for r in lab.values()})
+    rng = np.random.default_rng(0)                  # horizontal jitter only
+    for i, lam in enumerate(lams):
+        adv = np.array([r[f"level_{T}"] - r["level_streak"]
+                        for r in lab.values() if r["lam"] == lam])
+        ax.scatter(i + rng.uniform(-0.12, 0.12, len(adv)), adv, s=9,
+                   color="#1F7A5A", alpha=0.7, lw=0)
+        ax.plot([i - 0.25, i + 0.25], [adv.mean()] * 2, color="#222222", lw=2.0)
+    ax.axhline(0, color="#999999", lw=0.8, ls=(0, (4, 3)), zorder=1)
+    ax.set_xticks(range(len(lams)), [f"{l:.2f}" for l in lams])
+    ax.set_xlabel(r"$\lambda$ (share of cyclic skill)")
+    ax.set_ylabel("tournament minus streak\n(strength against other runs)")
+    ax.set_title("Discmix: the advantage shrinks as skill becomes cyclic",
+                 loc="left", fontsize=8.5)
+    save(fig, "fig12_export_test")
+    plt.close(fig)
+    return "fig12_export_test.png"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default=None)
@@ -611,12 +676,15 @@ def main():
         "fig3": lambda: fig3_hof(runs, per_run),
         "fig4": lambda: fig4_ablations(runs, per_run),
         "fig5": lambda: fig5_coevolution(within, per_run),
-        "fig6": lambda: fig6_proxy(proxy),
+        "fig6": lambda: fig6_proxy(proxy, load_json("proxy_heldout.json")),
         "fig7": lambda: fig7_cross_run(across),
         "fig8": lambda: fig8_families(runs, per_run),
-        "fig9": lambda: fig9_reexport(load_json("reexport.json")),
+        "fig9": lambda: fig9_reexport(load_json("reexport.json"), load_json("proxy_heldout.json")),
         "fig10": lambda: fig10_archive_decay(runs, per_run),
         "fig11": lambda: fig11_asymmetric(runs),
+        "fig12": lambda: fig12_export_test(
+            json.load(open("results/export/analysis.json"))
+            if os.path.exists("results/export/analysis.json") else None),
     }
     for k, fn in todo.items():
         if args.only and k not in args.only.split(","):

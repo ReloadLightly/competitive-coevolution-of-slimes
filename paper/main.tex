@@ -135,8 +135,12 @@ Measuring progress in coevolution is an old problem: \citet{cliff1995tracking}
 introduced tests of current individuals against ancestral opponents,
 \citet{miconi2009why} separated local, historical and global progress, and
 recent work compares archive-based methods for global progress
-\citep{simione2020longterm,nolfi2025global} and measures deceptive progress
-in algorithms that use a hall of fame \citep{seals2026tripping}. Memory
+\citep{simione2020longterm,nolfi2025global}; in fully enumerated number
+games, \citet{seals2026tripping} find that the fitness approximations of
+competitive coevolution rank solutions deceptively enough to break elitism,
+more so with a hall of fame, with more intransitivity and with stronger
+survival selection. The export rule studied here is such an approximation at
+the point of reporting, in a game too large to enumerate. Memory
 mechanisms range from the hall of fame \citep{rosin1997new} to Pareto and
 Nash-based archives \citep{ficici2001pareto,ficici2003memory}; disengagement
 between unequal populations is studied by \citet{cartlidge2004combating}. In
@@ -450,7 +454,7 @@ explicitly computed fitness and uses crossover, and a self-play evolution
 strategy \citep{salimans2017evolution,ha2017estool}, which reports its
 distribution mean and so has no export rule at all (Figure~\ref{fig:families}).
 With the archive-as-test condition as a fourth family, all four reach a
-similar ceiling: the single highest end-of-run champion of the study,
+similar ceiling: the single highest end-of-run champion of the matrix,
 \nBestEndpoint, is a \nBestEndpointLabel{} seed, above every control seed
 (best \nCtrlBestEndpoint). They differ in their floor. Only the control learned
 to rally and produced an above-parity champion in every seed (\nCtrlReached,
@@ -516,8 +520,9 @@ fresh runs of its own.
 \label{sec:robust}
 
 Three questions the main design could not answer were run afterwards as
-preregistered experiments in the repository's lab (\texttt{docs/lab.md}), whose
-GA reproduces the study's kernels bit for bit; their tables are in
+preregistered experiments in the repository's lab (\texttt{docs/lab.md}). Its
+GA reproduces the study's kernels bit for bit, and its NEAT, given a genome
+that encodes the study's network, plays bit-identical games; the tables are in
 Appendix~\ref{app:lab}.
 
 \paragraph{Cyclic skill.} Slime Volleyball turned out almost purely
@@ -1115,7 +1120,25 @@ paper/build.sh
 \end{verbatim}
 \end{small}
 
-\noindent Runs whose files exist are skipped, so the matrix can be resumed
+\noindent The analyses added after the matrix, on data already on disk, and
+the preregistered follow-ups (each runner writes its run files, each analysis
+is the one fixed in the experiment's preregistration):
+
+\begin{small}
+\begin{verbatim}
+python yardsticks.py                     # final champions vs the zoo policies
+python transitivity_fine.py              # transitivity at 5,000-game spacing
+python proxy_heldout.py                  # export check, re-scored held out
+python replication.py                    # results/replication (runs: scripts/replicate.sh)
+python run_lab.py && python lab_analysis.py          # results/lab
+python run_qd.py && python qd_analysis.py            # results/qd
+python run_neat.py && python neat_analysis.py        # results/neat
+python neat_explore.py && python neat_explore.py --summary   # exploratory
+python run_export.py && python export_analysis.py    # results/export
+\end{verbatim}
+\end{small}
+
+\noindent Runs whose files exist are skipped, so every runner can be resumed
 after an interruption. Each analysis script records the hash of every raw file
 it read and of its own output; \texttt{make\_tables.py --check} fails if any
 table or number in the paper or the README no longer follows from the files

@@ -294,7 +294,7 @@ Discmix game, 12 runs per cell, all quantities exact. δ: Cliff's δ of the fina
 **7. Reliability is where the methods differ — not ceiling.** Four families were
 run at <!-- n:budget -->500,000<!-- /n --> games each: the 2020 GA, a generational GA in the style of Ha's
 2015 experiment, a self-play evolution strategy, and the corrected archive. They
-reach a *similar* ceiling — the single highest endpoint in the study,
+reach a *similar* ceiling — the single highest endpoint in the matrix,
 <!-- n:best_endpoint -->+0.50<!-- /n -->, is a <!-- n:best_endpoint_label -->self-play ES<!-- /n --> seed, above every control seed (best <!-- n:ctrl_best_endpoint -->+0.41<!-- /n -->).
 They differ enormously in their floor. Only the plain 2020 GA learned to rally
 in every seed and beat the 2015 expert in every seed (<!-- n:ctrl_reached -->6/6<!-- /n --> and <!-- n:ctrl_parity -->6/6<!-- /n -->; generational
@@ -658,6 +658,16 @@ python3 -m venv .venv          # Python 3.11
 # metrics, held-out re-scoring, and the three coevolution-specific measurements
 .venv/bin/python analyze_matrix.py --holdout
 .venv/bin/python coevolution_analysis.py --within --across --proxy
+.venv/bin/python reexport.py && .venv/bin/python proxy_heldout.py  # export rule, post hoc and held out
+.venv/bin/python yardsticks.py && .venv/bin/python transitivity_fine.py
+
+# the preregistered follow-ups: each runner skips runs that exist, each
+# analysis is the one fixed in that experiment's PREREGISTRATION.md
+.venv/bin/python replication.py                                    # runs: scripts/replicate.sh
+.venv/bin/python run_lab.py && .venv/bin/python lab_analysis.py    # cyclic skill
+.venv/bin/python run_export.py && .venv/bin/python export_analysis.py
+.venv/bin/python run_qd.py && .venv/bin/python qd_analysis.py      # archive by behaviour
+.venv/bin/python run_neat.py && .venv/bin/python neat_analysis.py  # NEAT
 
 # tables, figures, the single-page HTML write-up and the paper
 .venv/bin/python make_tables.py && .venv/bin/python make_figures.py
