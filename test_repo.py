@@ -333,6 +333,32 @@ def main():
               and t0["cyclic"] == 0 and t1["cyclic"] > 0,
               f"cyclic triads {t0['cyclic']}/{t0['triads_decided']} at lambda 0, "
               f"{t1['cyclic']}/{t1['triads_decided']} at lambda 1")
+
+        # export rules (WP10): the discmix tournament draws each game as
+        # lab.kernels.discmix_play does, and outsider strength is the exact
+        # expected score
+        import itertools
+        import export_analysis as EA
+        import stats_utils as su
+        gp = np.array([0.5, LG.ALPHA, LG.BETA, LG.NOISE, LG.TIE])
+        m5 = LG.payoff_matrix(pool, 0.5)
+        i, j = np.unravel_index(np.argmin(np.abs(m5) + np.eye(len(pool))), m5.shape)
+        pair = np.ascontiguousarray(pool[[i, j]])   # the most even pair: the hardest case
+        fit = EA.discmix_tournament(pair, 40_000, gp, 11)     # 40,000 games, all 0 vs 1
+        exact = LG.expected_score(pair[0], pair[1], 0.5)
+        se = 1.0 / np.sqrt(40_000)
+        others = np.ascontiguousarray(pool[2:9])
+        ref = np.array([np.mean([LG.expected_score(a, c, 0.5) for c in others])
+                        for a in pool[:5]])
+        diff = np.abs(EA.outsider_strength(np.ascontiguousarray(pool[:5]), others, gp) - ref).max()
+        check("export rules: discmix tournament samples the game, outsider strength is exact",
+              abs(fit[0] - exact) < 4 * se and diff < 1e-12,
+              f"tournament {fit[0]:+.3f} vs exact {exact:+.3f}; strength error {diff:.1e}")
+        d = np.random.default_rng(5).normal(0.2, 1.0, 10)
+        brute = np.mean([np.mean(np.array(s) * np.abs(d)) >= d.mean() - 1e-12
+                         for s in itertools.product((-1, 1), repeat=10)])
+        check("paired sign-flip test is exact", abs(su.signflip_greater(d)[1] - brute) < 1e-12,
+              f"p {su.signflip_greater(d)[1]:.4f} = brute force {brute:.4f}")
     except ImportError as e:
         check("compiled environment available", False,
               f"{e} — install requirements-fast.txt")

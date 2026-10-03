@@ -570,3 +570,27 @@ hidden nodes, 20 of them from the start; the committed run ends with 34).
 The committed runs pass the starting genome as an argument, so they cannot
 be contaminated this way. The conclusion is unchanged; the numbers quoted
 are the committed ones.
+
+## 2026-10-03 — WP10: alternative export rules, preregistered
+
+Roland asked to test alternative export rules. What was known: the paper's
+post hoc re-export analysis (`reexport.py`, the 6 original control runs)
+found that exporting the winner of a short internal round robin (16 peers per
+member, 1,024 games) instead of the longest streak raised the exported
+member's mean score from −1.95 to −1.49 (all 6 runs higher), with budgets
+chosen after seeing the data. No other run had been analysed for this
+question; in particular the replication's and WP8's population snapshots
+were not.
+
+`results/export/PREREGISTRATION.md`, `run_export.py` and `export_analysis.py`
+fix a prospective test before any run: 12 fresh Slime Volleyball control
+runs (seeds 401–412) and 48 fresh discmix control runs (seeds 501–512), the
+streak rule against the 16-peer tournament applied to the same stored
+populations, four hypotheses in two Holm families (H10a level and H10b
+declines in Slime Volleyball; H10c outsider level and H10d its trend over λ
+in discmix). The runners are the existing ones, unchanged (`run_experiments.
+one_run`, `run_lab.one_run`). New: `stats_utils.signflip_greater` (exact
+paired sign-flip test, checked against brute force) and the discmix
+tournament, which draws each game as `lab.kernels.discmix_play` does
+(`test_repo.py` checks both). The analysis was exercised on synthetic
+stand-in files only.

@@ -174,6 +174,27 @@ def fisher_less(k1, n1, k2, n2):
     return float(p)
 
 
+def signflip_greater(d, n_mc=100_000, seed=0):
+    """One-sided paired sign-flip permutation test that mean(d) > 0.
+
+    Under the null each difference is equally likely to have either sign.
+    Exact (all 2^n sign patterns) for n <= 20; otherwise Monte Carlo with a
+    fixed seed, p = (hits + 1) / (n_mc + 1). Returns (mean, p)."""
+    d = np.asarray(d, dtype=float)
+    n = len(d)
+    obs = float(d.mean())
+    if n <= 20:
+        signs = ((np.arange(2 ** n)[:, None] >> np.arange(n)) & 1) * 2 - 1
+        means = (signs * np.abs(d)).mean(axis=1)
+        return obs, float((means >= obs - 1e-12).mean())
+    rng = np.random.default_rng(seed)
+    hits = 0
+    for _ in range(n_mc // 10_000):
+        signs = rng.choice((-1.0, 1.0), size=(10_000, n))
+        hits += int(((signs * np.abs(d)).mean(axis=1) >= obs - 1e-12).sum())
+    return obs, (hits + 1) / (n_mc + 1)
+
+
 def holm(pvals, alpha=0.05):
     """Holm step-down: which hypotheses are rejected at family-wise alpha."""
     order = sorted(range(len(pvals)), key=lambda i: pvals[i])

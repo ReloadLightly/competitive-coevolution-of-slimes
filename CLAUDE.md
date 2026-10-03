@@ -231,6 +231,31 @@ Status (2026-10-03): done. Item 2, the quality-diversity (niche) archive: H9a ho
 2. A quality-diversity archive (e.g. MAP-Elites over behaviour descriptors)
    as a further archive design.
 
+### WP10 — Alternative export rules (decided 2026-10-03)
+
+Roland: "lets go ahead testing alternative export rules". C4 diagnoses the
+streak rule; the post hoc re-export analysis suggested a fix. Test it
+prospectively.
+
+1. Preregister (`results/export/PREREGISTRATION.md`, `export_analysis.py`)
+   before any run: fresh control runs (Slime Volleyball seeds 401–412,
+   discmix 501–512 at the four WP8 λ values); the streak rule against a
+   1,024-game internal tournament, applied to the same stored populations.
+2. Run on GitHub Actions (`.github/workflows/export.yml`); analyse once.
+3. Write up as the preregistration says; a new claim only if H10a holds.
+
+### WP11 — One project, one narrative (decided 2026-10-03)
+
+Roland asked whether the work so far is one project or two. It is one: the
+export-rule test is the remedy the paper's diagnosis (C4) calls for, and
+WP6–WP9 are its robustness checks. After WP10, restructure README and paper
+around one arc: what is measured → the export rule is the noise → a better
+rule (WP10) → it holds on fresh seeds (WP6), against stronger opponents
+(WP7), under cyclic skill (WP8) and other archives and topologies (WP9,
+appendix and Limitations). The README stops reading as a log of work
+packages; every number stays generated; no claim changes wording except
+through its own evidence.
+
 Each WP ends with: tests and `make_tables.py --check` green, decisions.md
 updated, README/paper text matching the data, a PR for Roland.
 
